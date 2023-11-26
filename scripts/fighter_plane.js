@@ -2,6 +2,8 @@ const FIGHTER_TERMINAL_VELOCITY_Y = -200; // Only for going down
 const MAX_ANGLE_FOR_LIFT_UP = 65;
 const MAX_THROTTLE = 100;
 const MAX_VELOCITY = 500;
+const DRAG_CONSTANT = 0.25;
+const LIFT_CONSTANT = 0.5;
 const THROTTLE_CONSTANT = Math.sqrt(MAX_VELOCITY) / MAX_THROTTLE;
 
 var leftRightLock = new Lock();
@@ -14,7 +16,7 @@ class FighterPlane extends Entity{
         this.facingRight = facingRight;
         this.angle = angle;
         this.throttle = MAX_THROTTLE;
-        this.xVelocity = 0; // TODO 0
+        this.xVelocity = MAX_VELOCITY; // TODO 0
         this.yVelocity = 0;
         this.xAcceleration = 0;
         this.yAcceleration = 0;
@@ -50,7 +52,14 @@ class FighterPlane extends Entity{
         if (facingRight == this.facingRight){
             return;
         }
-        this.angle = 360 - this.angle;
+        let newAngle = 360 - this.angle;
+        while (newAngle >= 360){
+            newAngle -= 360;
+        }
+        while (newAngle < 0){
+            newAngle += 360;
+        }
+        this.angle = newAngle;
         this.facingRight = facingRight;
         this.xVelocity *= -1;
     }
@@ -85,6 +94,8 @@ class FighterPlane extends Entity{
     ge
 
     tick(timeDiffMS){
+        let sinAngle = Math.sin(toRadians(this.angle));
+        let cosAngle = Math.cos(toRadians(this.angle));
         // Start with Acceleration
 
         // Start with y
@@ -92,22 +103,23 @@ class FighterPlane extends Entity{
         // Gravity
         this.yAcceleration = -1 * GRAVITY;
         // Lift Part 1
-        this.yAcceleration += (GRAVITY / MAX_THROTTLE) * this.throttle; // This just means as long as the plane is full throttle gravity is cancelled out
+        this.yAcceleration += GRAVITY * Math.min(1, (this.xVelocity / (MAX_VELOCITY * LIFT_CONSTANT)) * (this.throttle / (MAX_THROTTLE * LIFT_CONSTANT))); // This just means as long as the plane is full throttle gravity is cancelled out
         // Lift Part 2
         // Don't allow too high angles
         if (!(this.angle > MAX_ANGLE_FOR_LIFT_UP && this.angle < 180 - MAX_ANGLE_FOR_LIFT_UP)){
-            this.yAcceleration += this.throttle * THROTTLE_CONSTANT * Math.sin(toRadians(this.angle));
+            this.yAcceleration += this.throttle * THROTTLE_CONSTANT * sinAngle;
         }
-        this.yAcceleration += Math.sqrt(Math.abs(this.yVelocity)) * -1 * Math.sin(toRadians(this.angle));
+        // Drag
+        this.yAcceleration += decreaseAcceleration(this.yVelocity) * -1 * (-1 ? sinAngle > 0 : 1);
 
         // Trottle
-        this.xAcceleration = this.throttle * THROTTLE_CONSTANT * (1 ? this.facingRight : -1) * Math.cos(toRadians(this.angle));
+        this.xAcceleration = this.throttle * THROTTLE_CONSTANT * (1 ? this.facingRight : -1) * cosAngle;
         // Add drag
-        this.xAcceleration += Math.sqrt(Math.abs(this.xVelocity)) * -1 * Math.cos(toRadians(this.angle));
+        this.xAcceleration += decreaseAcceleration(this.xVelocity) * -1 * (-1 ? cosAngle > 0 : 1);
 
         // Now velocities
-        // Limit velocity
-        if (this.yVelocity > FIGHTER_TERMINAL_VELOCITY_Y){
+        // Limit negative velocity by only adding if > than -200
+        if (this.yVelocity > FIGHTER_TERMINAL_VELOCITY_Y || this.yAcceleration > 0){
             this.yVelocity += this.yAcceleration * (timeDiffMS / 1000);
         }
         this.xVelocity += this.xAcceleration * (timeDiffMS / 1000);
@@ -193,4 +205,8 @@ function checkUpDown(){
     }else if (sKey){
         instance.adjustAngle(1);
     }
+}
+
+function decreaseAcceleration(velocity){
+    return 0.1 * velocity;
 }

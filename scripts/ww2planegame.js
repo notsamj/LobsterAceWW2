@@ -1,7 +1,7 @@
 // Global Constants
 const CANVAS_WIDTH = 1600;
 const CANVAS_HEIGHT = 800;
-const FRAME_RATE = 60;
+const FRAME_RATE = 30;
 const TICK_RATE = 128; // APPROXIMATE
 
 // Physics
@@ -29,10 +29,11 @@ function tick(){
 function setup() {
     //loadRotatedImages("me_309");
     scene = new Scene(CANVAS_WIDTH, CANVAS_HEIGHT);
+    scene.setBackground("clouds");
     loadRotatedImages("spitfire");
     let fighterPlane = new FighterPlane("spitfire");
     fighterPlane.setCenterX(CANVAS_WIDTH / 2);
-    fighterPlane.setCenterY(CANVAS_HEIGHT * 2 / 3);
+    fighterPlane.setCenterY(CANVAS_HEIGHT / 2);
     scene.addEntity(fighterPlane);
 
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT); // TODO: Wrong order of parameters?
