@@ -62,7 +62,7 @@ class Scene{
         displayX = this.changeToScreenX(displayX);
         displayY = this.changeToScreenY(displayY);
 
-        drawingContext.drawImage(entity.getImage(), Math.round(displayX), Math.round(displayY)); 
+        drawingContext.drawImage(entity.getImage(), Math.round(displayX - lX), this.height - Math.round(displayY + bY)); 
     }
 
     hasEntityFocused(){
@@ -71,5 +71,11 @@ class Scene{
 
     getFocusedEntity(){
         return this.entities[this.focusedEntityIndex];
+    }
+
+    tick(timeDiff){
+        for (let entity of this.entities){
+            entity.tick(timeDiff);
+        }
     }
 }

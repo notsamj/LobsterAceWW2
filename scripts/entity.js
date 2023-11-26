@@ -45,12 +45,14 @@ class Entity{
         return this.y;
     }
 
-    touchesRegion(lX, rX, bY, tY){
-        return true; // TODO:
-    }
-
     // Abstract Methods
     getWidth(){}
     getHeight(){}
     getImage(){}
+    tick(){}
+    touchesRegion(lX, rX, bY, tY){}
+    getXVelocity(){}
+    getYVelocity(){}
+    getXAcceleration(){}
+    getYAcceleration(){}
 }

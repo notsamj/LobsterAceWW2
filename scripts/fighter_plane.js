@@ -1,3 +1,9 @@
+const FIGHTER_TERMINAL_VELOCITY_Y = -200; // Only for going down
+const MAX_ANGLE_FOR_LIFT_UP = 65;
+const MAX_THROTTLE = 100;
+const MAX_VELOCITY = 500;
+const THROTTLE_CONSTANT = Math.sqrt(MAX_VELOCITY) / MAX_THROTTLE;
+
 var leftRightLock = new Lock();
 var instance = null; // TEMP
 class FighterPlane extends Entity{
@@ -7,11 +13,17 @@ class FighterPlane extends Entity{
         this.planeClass = planeClass;
         this.facingRight = facingRight;
         this.angle = angle;
+        this.throttle = MAX_THROTTLE;
+        this.xVelocity = 0; // TODO 0
+        this.yVelocity = 0;
+        this.xAcceleration = 0;
+        this.yAcceleration = 0;
         loadRotatedImages(planeClass);
 
         // TODO: Remove this at some point
         setInterval(checkMoveLeftRight, 10); // Check for user input every 1/100 of a second
         setInterval(checkUpDown, 30); // Check for user input every 1/100 of a second
+        // TODO: Check for decrease throttle
     }
 
     adjustAngle(amount){
@@ -40,6 +52,7 @@ class FighterPlane extends Entity{
         }
         this.angle = 360 - this.angle;
         this.facingRight = facingRight;
+        this.xVelocity *= -1;
     }
 
     getCurrentImage(){
@@ -67,6 +80,72 @@ class FighterPlane extends Entity{
 
     getHeight(){
         return this.getCurrentImage().height;
+    }
+
+    ge
+
+    tick(timeDiffMS){
+        // Start with Acceleration
+
+        // Start with y
+        
+        // Gravity
+        this.yAcceleration = -1 * GRAVITY;
+        // Lift Part 1
+        this.yAcceleration += (GRAVITY / MAX_THROTTLE) * this.throttle; // This just means as long as the plane is full throttle gravity is cancelled out
+        // Lift Part 2
+        // Don't allow too high angles
+        if (!(this.angle > MAX_ANGLE_FOR_LIFT_UP && this.angle < 180 - MAX_ANGLE_FOR_LIFT_UP)){
+            this.yAcceleration += this.throttle * THROTTLE_CONSTANT * Math.sin(toRadians(this.angle));
+        }
+        this.yAcceleration += Math.sqrt(Math.abs(this.yVelocity)) * -1 * Math.sin(toRadians(this.angle));
+
+        // Trottle
+        this.xAcceleration = this.throttle * THROTTLE_CONSTANT * (1 ? this.facingRight : -1) * Math.cos(toRadians(this.angle));
+        // Add drag
+        this.xAcceleration += Math.sqrt(Math.abs(this.xVelocity)) * -1 * Math.cos(toRadians(this.angle));
+
+        // Now velocities
+        // Limit velocity
+        if (this.yVelocity > FIGHTER_TERMINAL_VELOCITY_Y){
+            this.yVelocity += this.yAcceleration * (timeDiffMS / 1000);
+        }
+        this.xVelocity += this.xAcceleration * (timeDiffMS / 1000);
+
+        // Finally the position
+        
+        this.y += this.yVelocity * (timeDiffMS / 1000);
+        this.x += this.xVelocity * (timeDiffMS / 1000);
+    }
+
+    touchesRegion(lX, rX, bY, tY){
+        let x = this.getX();
+        let width = this.getWidth();
+        let lowerX = x - width / 2;
+        let higherX = x + width / 2;
+        let withinX = (lowerX >= lX && lowerX <= rX) || (higherX >= lX && higherX <= rX);
+        
+        let y = this.getY();
+        let height = this.getHeight();
+        let lowerY = y - height / 2;
+        let higherY = y + height / 2;
+        let withinY = (lowerY >= bY && lowerY <= tY) || (higherY >= bY && higherY <= tY);
+        
+        return withinX && withinY;
+    }
+
+    getXVelocity(){
+        return this.xVelocity;
+    }
+    getYVelocity(){
+        return this.yVelocity;
+    }
+
+    getYAcceleration(){
+        return this.yAcceleration;
+    }
+    getXAcceleration(){
+        return this.xAcceleration;
     }
 }
 
