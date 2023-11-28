@@ -15,10 +15,6 @@ var lastTick = Date.now();
 
 // Functions
 
-function toRadians(degrees){
-    return degrees * Math.PI / 180;
-}
-
 function tick(){
     let currentMS = Date.now();
     let timeDiff = currentMS - lastTick;
@@ -46,28 +42,19 @@ function draw() {
     scene.display();
     let x = 0;
     let y = 0;
-    let xVelocity = 0;
-    let yVelocity = 0;
-    let xAcceleration = 0;
-    let yAcceleration = 0;
+    let planeSpeed = 0;
+    let throttle = 0;
     if (scene.hasEntityFocused()){
         let focusedEntity = scene.getFocusedEntity();
         x = focusedEntity.getX();
         y = focusedEntity.getY();
-        xVelocity = focusedEntity.getXVelocity();
-        yVelocity = focusedEntity.getYVelocity();
-        xAcceleration = focusedEntity.getXAcceleration();
-        yAcceleration = focusedEntity.getYAcceleration();
+        planeSpeed = focusedEntity.getSpeed();
+        throttle = focusedEntity.getThrottle();
     }
     textSize(20);
     fill("green");
-    //text(`x: ${x} y: ${y}`, 10, 20);
-    //text(`xV: ${xVelocity} yV: ${yVelocity}`, 10, 40);
-    //text(`xA: ${xAcceleration} yA: ${yAcceleration}`, 10, 60);
     text(`x: ${x}`, 10, 20);
     text(`y: ${y}`, 10, 40);
-    text(`xV: ${xVelocity}`, 10, 60);
-    text(`yV: ${yVelocity}`, 10, 80);
-    text(`xA: ${xAcceleration}`, 10, 100);
-    text(`yA: ${yAcceleration}`, 10, 120);
+    text(`Speed: ${planeSpeed}`, 10, 60);
+    text(`Throttle: ${throttle}`, 10, 80);
 }

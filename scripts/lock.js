@@ -24,6 +24,6 @@ class CooldownLock extends Lock{
     
     lock(){
         super.lock();
-        setTimeout(this.unlock, this.cooldown);
+        setTimeout(() => { this.unlock(); }, this.cooldown);
     }
 }

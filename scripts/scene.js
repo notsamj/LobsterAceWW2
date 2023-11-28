@@ -27,16 +27,21 @@ class Scene{
     display(){
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
+        let focusedEntity = null;
         // If 
         if (this.hasEntityFocused()){
-            let focusedEntity = this.getFocusedEntity();
+            focusedEntity = this.getFocusedEntity();
             lX = focusedEntity.getCenterX() - (this.width) / 2;
             bY = focusedEntity.getCenterY() - (this.height) / 2;
         }
-        //console.log(lX, bY)
         this.displayBackground(lX, bY);
         for (let entity of this.entities){
+            if (this.hasEntityFocused() && entity.getID() == focusedEntity.getID()){ continue; }
             this.displayEntity(entity, lX, bY);
+        }
+
+        if (this.hasEntityFocused()){
+            this.displayEntity(focusedEntity, lX, bY);
         }
     }
 
@@ -88,16 +93,44 @@ class Scene{
             this.focusedEntityIndex = this.nextEntityID - 1;
         }
     } 
+    
+    delete(entityID){
+        let newArray = copyArray(this.entities);
+        let index = -1;
+
+        // Find element with ID
+        for (let i = 0; i < newArray.length; i++){
+            if (newArray[i].getID() == entityID){
+                index = i;
+                break;
+            }
+        }
+        // Not found
+        if (index == -1){
+            return;
+        }
+
+        // No focused entity anmore 
+        if (index == this.focusedEntityIndex){
+            this.focusedEntityIndex = -1;
+        }
+
+        // shift down to deleting 
+        for (let i = index; i < newArray.length - 1; i++){
+            newArray[i] = newArray[i+1];
+        }
+
+        newArray.pop();
+        this.entities = newArray;
+    }
 
     displayEntity(entity, lX, bY){
         let rX = lX + this.width - 1;
         let tY = bY + this.height - 1;
         // Is on screen
         if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
-
         let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);
         let displayY = this.getDisplayY(entity.getCenterY(), entity.getHeight(), bY);
-
         drawingContext.drawImage(entity.getImage(), displayX, displayY); 
     }
 
@@ -142,6 +175,32 @@ class Scene{
     tick(timeDiff){
         for (let entity of this.entities){
             entity.tick(timeDiff);
+        }
+
+        this.checkCollisions();
+    }
+
+    checkCollisions(){
+        let bullets = [];
+        let destructableEntities = [];
+
+        for (let entity of this.entities){
+            if (entity instanceof Bullet){
+                bullets.push(entity);
+            }else if (entity instanceof FighterPlane){
+                destructableEntities.push(entity);
+            }
+        }
+
+        for (let bullet of bullets){
+            for (let destructableEntity of destructableEntities){
+                if (destructableEntity.getID() == bullet.getShooterID()){ continue; }
+                if (destructableEntity.collidesWith(bullet.getHitbox())){
+                    destructableEntity.damage(1);
+                    bullet.delete();
+                    break;
+                }
+            }
         }
     }
 }
