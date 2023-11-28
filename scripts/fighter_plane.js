@@ -1,12 +1,10 @@
 const MAX_THROTTLE = 100;
 const FALL_SPEED = 200;
-
-var leftRightLock = new Lock();
-var instance = null; // TEMP
+const SLOW_DOWN_AMOUNT = 0.01;
+// Abstract Class
 class FighterPlane extends Entity{
-    constructor(planeClass, angle=0, facingRight=true){
+    constructor(planeClass, angle, facingRight){
         super();
-        instance = this;
         this.planeClass = planeClass;
         this.facingRight = facingRight;
         this.angle = angle;
@@ -18,12 +16,6 @@ class FighterPlane extends Entity{
         this.health = fileData["plane_data"][planeClass]["health"];
         this.throttleConstant = Math.sqrt(this.maxSpeed) / MAX_THROTTLE;
         loadRotatedImages(planeClass);
-
-        // TODO: Remove this at some point
-        setInterval(checkMoveLeftRight, 10); // Check for user input every 1/100 of a second
-        setInterval(checkUpDown, 15); // Check for user input every 15/1000 of a second
-        setInterval(checkThrottle, 10); // Check for user input every 1/100 of a second
-        setInterval(checkShoot, 10);
     }
 
     damage(amount){
@@ -32,6 +24,10 @@ class FighterPlane extends Entity{
             // TODO: Explosion
             this.delete();
         }
+    }
+
+    shoot(){
+        scene.addEntity(new Bullet(this.getX(), this.getY(), this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID()));
     }
 
     adjustAngle(amount){
@@ -67,7 +63,7 @@ class FighterPlane extends Entity{
         }
         this.angle = newAngle;
         this.facingRight = facingRight;
-        this.xVelocity *= -1;
+        this.speed *= (1 - SLOW_DOWN_AMOUNT);
     }
 
     getCurrentImage(){
@@ -164,81 +160,4 @@ class FighterPlane extends Entity{
         this.hitBox.update(this.x, this.y);
         return this.hitBox.collidesWith(otherHitbox);
     }
-}
-
-// TODO: Move these to a more general place?
-
-function checkMoveLeftRight(){
-    let aKey = keyIsDown(65);
-    let dKey = keyIsDown(68);
-    let numKeysDown = 0;
-    numKeysDown += aKey ? 1 : 0;
-    numKeysDown += dKey ? 1 : 0;
-
-    // Only ready to switch direction again once you've stopped holding for at least 1 cd
-    if (numKeysDown === 0){
-        if (!leftRightLock.isReady()){
-            leftRightLock.unlock();
-        }
-        return;
-    }else if (numKeysDown > 1){ // Can't which while holding > 1 key
-        return;
-    }
-    if (!leftRightLock.isReady()){ return; }
-    leftRightLock.lock();
-    if (aKey){
-        instance.face(false);
-    }else if (dKey){
-        instance.face(true);
-    }
-}
-
-
-function checkUpDown(){
-    let wKey = keyIsDown(87);
-    let sKey = keyIsDown(83);
-    let numKeysDown = 0;
-    numKeysDown += wKey ? 1 : 0;
-    numKeysDown += sKey ? 1 : 0;
-
-    // Only ready to switch direction again once you've stopped holding for at least 1 cd
-    if (numKeysDown === 0){
-        return;
-    }else if (numKeysDown > 1){ // Can't which while holding > 1 key
-        return;
-    }
-    if (wKey){
-        instance.adjustAngle(-1);
-    }else if (sKey){
-        instance.adjustAngle(1);
-    }
-}
-
-function checkThrottle(){
-    let rKey = keyIsDown(82);
-    let fKey = keyIsDown(70);
-    let numKeysDown = 0;
-    numKeysDown += rKey ? 1 : 0;
-    numKeysDown += fKey ? 1 : 0;
-
-    // Only ready to switch direction again once you've stopped holding for at least 1 cd
-    if (numKeysDown === 0){
-        return;
-    }else if (numKeysDown > 1){ // Can't which while holding > 1 key
-        return;
-    }
-    if (rKey){
-        instance.adjustThrottle(1);
-    }else if (fKey){
-        instance.adjustThrottle(-1);
-    }
-}
-
-function checkShoot(){
-    let spaceKey = keyIsDown(32);
-    if (!instance.shootLock.isReady() || !spaceKey){
-        return;
-    }
-    instance.shootLock.lock();
-    scene.addEntity(new Bullet(instance.getX(), instance.getY(), instance.getXVelocity(), instance.getYVelocity(), instance.getShootingAngle(), instance.getID()));
 }

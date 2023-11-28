@@ -196,8 +196,10 @@ class Scene{
             for (let destructableEntity of destructableEntities){
                 if (destructableEntity.getID() == bullet.getShooterID()){ continue; }
                 if (destructableEntity.collidesWith(bullet.getHitbox())){
+                    console.log("Collide")
                     destructableEntity.damage(1);
                     bullet.delete();
+                    //document.getElementById("hitSound").play();
                     break;
                 }
             }

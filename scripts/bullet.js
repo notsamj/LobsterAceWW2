@@ -10,7 +10,7 @@ class Bullet extends Entity{
         this.xVelocity = xVelocity + Math.cos(angle) * fileData["bullet_data"]["speed"];
         this.hitBox = new CircleHitbox(fileData["bullet_data"]["radius"]);
         this.shooterID = shooterID;
-        document.getElementById("shotSound").play();
+        //document.getElementById("shotSound").play();
     }
 
     tick(timePassed){
@@ -18,7 +18,6 @@ class Bullet extends Entity{
         let yAcceleration = GRAVITY * timeProportion;
 
         this.yVelocity = this.yVelocity - yAcceleration;
-
         this.x += this.xVelocity * timeProportion;
         this.y += this.yVelocity * timeProportion;
 

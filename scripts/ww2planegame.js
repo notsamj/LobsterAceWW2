@@ -2,7 +2,7 @@
 const CANVAS_WIDTH = 1600;
 const CANVAS_HEIGHT = 800;
 const FRAME_RATE = 30;
-const TICK_RATE = 128; // APPROXIMATE
+const TICK_RATE = 64; // APPROXIMATE
 
 // Physics
 const GRAVITY = 9.81;
@@ -27,10 +27,18 @@ function setup() {
     scene = new Scene(CANVAS_WIDTH, CANVAS_HEIGHT);
     scene.setBackground("clouds");
     loadRotatedImages("spitfire");
-    let fighterPlane = new FighterPlane("spitfire");
-    fighterPlane.setCenterX(CANVAS_WIDTH / 2);
+    loadRotatedImages("a6m_zero");
+    let fighterPlane = new HumanFighterPlane("a6m_zero");
+    //let fighterPlane = new BotFighterPlane("spitfire");
+    fighterPlane.setCenterX(CANVAS_WIDTH / 2 * 3);
     fighterPlane.setCenterY(CANVAS_HEIGHT / 2);
     scene.addEntity(fighterPlane);
+
+    // Testing
+    let botFighterPlane = new BotFighterPlane("spitfire");
+    botFighterPlane.setCenterX(CANVAS_WIDTH / 2);
+    botFighterPlane.setCenterY(CANVAS_HEIGHT / 2);
+    scene.addEntity(botFighterPlane);
 
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT); // TODO: Wrong order of parameters?
     frameRate(FRAME_RATE);

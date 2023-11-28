@@ -4,7 +4,12 @@ var fileData = {
             "radius": 48,
             "max_speed": 500,
             "health": 10
-        }
+        },
+        "a6m_zero": {
+            "radius": 47,
+            "max_speed": 475,
+            "health": 10
+        },
     },
 
     "bullet_data": {

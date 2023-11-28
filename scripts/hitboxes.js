@@ -101,7 +101,7 @@ function circleWithCircle(circleHitbox1, circleHitbox2){
     let c1R = circleHitbox1.getRadius();
     let c2R = circleHitbox2.getRadius();
     let distance = Math.sqrt(Math.pow(c2X-c1X, 2) + Math.pow(c2Y-c1Y, 2));
-    let collide = c1R - c2R < distance && distance < c1R + c2R;
+    let collide = distance < c1R + c2R;
     return collide;
 }
 
