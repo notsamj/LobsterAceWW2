@@ -1,12 +1,34 @@
 var images = {};
 
 function loadRotatedImages(name){
+    console.log("Loading", name, name != "spitfire")
+    if (name != "spitfire" && name != "a6m_zero" && name != "republic_p_47"){ 
+        console.log("Returning", name)
+        return; 
+    }
+    console.log("Will start loading")
     for (let i = 0; i < 360; i++){
+        console.log(name, "i", i)
         images[name + "_left_" + i.toString()] = new Image();
         images[name + "_left_" + i.toString()].src = "images/" + name + "/left/" + i.toString() + ".png";
         images[name + "_right_" + i.toString()] = new Image();
         images[name + "_right_" + i.toString()].src = "images/" + name + "/right/" + i.toString() + ".png";
     }
+    console.log("Loading spitfire done?")
+}
+
+async function loadLocalImage(url){
+    let newImage = null;
+    let wait = new Promise(function(resolve, reject){
+        newImage = new Image();
+        newImage.onload = function(){
+            resolve();
+        }
+        newImage.onerror = function(){
+            reject();
+        }
+        newImage.src = 
+    }) 
 }
 
 class Scene{
@@ -22,6 +44,10 @@ class Scene{
 
     setBackground(imageName){
         this.backgroundImage.src = "images/" + imageName + ".png";
+    }
+
+    getEntities(){
+        return this.entities;
     }
 
     display(){
@@ -90,7 +116,11 @@ class Scene{
         entity.setID(this.nextEntityID++);
         this.entities.push(entity);
         if (!this.hasEntityFocused()){
-            this.focusedEntityIndex = this.nextEntityID - 1;
+            this.focusedEntityIndex = 0;
+            // TODO: Find a better one
+            if (this.entities.length == 0){
+                this.focusedEntityIndex = -1;
+            }
         }
     } 
     
@@ -168,6 +198,17 @@ class Scene{
         return this.focusedEntityIndex != -1;
     }
 
+    getEntity(id){
+        for (let entity of this.entities){
+            if (entity.getID() == id){ return entity; }
+        }
+        return null;
+    }
+
+    hasEntity(id){
+        return this.getEntity(id) != null;
+    }
+
     getFocusedEntity(){
         return this.entities[this.focusedEntityIndex];
     }
@@ -196,7 +237,6 @@ class Scene{
             for (let destructableEntity of destructableEntities){
                 if (destructableEntity.getID() == bullet.getShooterID()){ continue; }
                 if (destructableEntity.collidesWith(bullet.getHitbox())){
-                    console.log("Collide")
                     destructableEntity.damage(1);
                     bullet.delete();
                     //document.getElementById("hitSound").play();

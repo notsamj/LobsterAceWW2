@@ -17,3 +17,6 @@ Currently thinking:
         Either 2 players
         OR 
         Ex 30s of flying around for fun -> Recorded -> After 30s a bot spawns at your location and runs through the test data and your chasing and killing the bot is recordeded also your running away recorded if you survive or do it twice you know so you get good killing data / running away data
+
+    Make sure the ground is working
+    Redo the background system

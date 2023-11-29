@@ -5,6 +5,10 @@ class Entity{
         this.y = null;
     }
 
+    distance(entity){
+        return Math.sqrt(Math.pow(entity.getX() - this.x, 2) + Math.pow(entity.getY() - this.y, 2));
+    }
+
     setX(x){
         this.setCenterX(x);
     }

@@ -1,0 +1,3 @@
+There is an issue with asynchronous deleting of entities and switching the focus and displaying
+Outline of me_bf_109 was traced from https://i0.wp.com/bootcampmilitaryfitnessinstitute.com/wp-content/uploads/2020/10/Messerschmitt-Bf109-Fighter-1.jpg?resize=1024%2C576&ssl=1
+Also me309 from https://upload.wikimedia.org/wikipedia/commons/9/9a/Me309-1.jpg

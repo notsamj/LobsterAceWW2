@@ -2,7 +2,7 @@ const MAX_THROTTLE = 100;
 const FALL_SPEED = 200;
 const SLOW_DOWN_AMOUNT = 0.01;
 // Abstract Class
-class FighterPlane extends Entity{
+class FighterPlane extends Plane{
     constructor(planeClass, angle, facingRight){
         super();
         this.planeClass = planeClass;
@@ -15,7 +15,6 @@ class FighterPlane extends Entity{
         this.hitBox = new CircleHitbox(fileData["plane_data"][planeClass]["radius"]);
         this.health = fileData["plane_data"][planeClass]["health"];
         this.throttleConstant = Math.sqrt(this.maxSpeed) / MAX_THROTTLE;
-        loadRotatedImages(planeClass);
     }
 
     damage(amount){
@@ -24,6 +23,10 @@ class FighterPlane extends Entity{
             // TODO: Explosion
             this.delete();
         }
+    }
+
+    getPlaneClass(){
+        return this.planeClass;
     }
 
     shoot(){
@@ -135,7 +138,6 @@ class FighterPlane extends Entity{
 
     getShootingAngle(){
         return this.angle + (this.facingRight ? 0 : 180);
-
     }
 
     getYVelocity(){
