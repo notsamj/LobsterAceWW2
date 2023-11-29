@@ -1,6 +1,6 @@
 // Global Constants
 const CANVAS_WIDTH = 1920;
-const CANVAS_HEIGHT = 926;
+const CANVAS_HEIGHT = 927;
 const FRAME_RATE = 30;
 const TICK_RATE = 64; // APPROXIMATE
 
@@ -12,7 +12,7 @@ const GRAVITY = 9.81;
 // Global variables
 var scene;
 var lastTick = Date.now();
-//var setupDone = false;
+var setupDone = false;
 
 // Functions
 
@@ -23,26 +23,26 @@ function tick(){
     scene.tick(timeDiff);
 }
 
-function loadPlanes(){
+async function loadPlanes(){
     for (const [planeName, planeDetails] of Object.entries(fileData["plane_data"])) {
-        loadRotatedImages(planeName);
+        await loadRotatedImages(planeName);
     }
 }
 
-function setup() {
-    loadPlanes();
+async function setup() {
+    await loadPlanes();
     console.log("After load planes...")
     scene = new Scene(CANVAS_WIDTH, CANVAS_HEIGHT);
     scene.setBackground("clouds");
     let fighterPlane = new HumanFighterPlane("republic_p_47");
     //let fighterPlane = new BotFighterPlane("spitfire");
     fighterPlane.setCenterX(11000);
-    fighterPlane.setCenterY(11000);
+    fighterPlane.setCenterY(111000);
     scene.addEntity(fighterPlane);
 
     // Testing
     
-    /*let botFighterPlane1 = new BotFighterPlane("republic_p_47");
+    let botFighterPlane1 = new BotFighterPlane("a6m_zero");
     botFighterPlane1.setCenterX(11000);
     botFighterPlane1.setCenterY(111000);
     scene.addEntity(botFighterPlane1);
@@ -52,38 +52,38 @@ function setup() {
     botFighterPlane2.setCenterY(110000);
     scene.addEntity(botFighterPlane2);
 
-    let botFighterPlane3 = new BotFighterPlane("spitfire");
+    let botFighterPlane3 = new BotFighterPlane("a6m_zero");
     botFighterPlane3.setCenterX(12000);
     botFighterPlane3.setCenterY(110000);
     scene.addEntity(botFighterPlane3);
     
 
-    let botFighterPlane4 = new BotFighterPlane("me_bf_109");
+    let botFighterPlane4 = new BotFighterPlane("a6m_zero");
     botFighterPlane4.setCenterX(10000);
     botFighterPlane4.setCenterY(112000);
     scene.addEntity(botFighterPlane4);
 
-    let botFighterPlane5 = new BotFighterPlane("republic_p_47");
+    let botFighterPlane5 = new BotFighterPlane("a6m_zero");
     botFighterPlane5.setCenterX(12000);
     botFighterPlane5.setCenterY(112000);
     scene.addEntity(botFighterPlane5);
 
-    let botFighterPlane6 = new BotFighterPlane("spitfire");
+    let botFighterPlane6 = new BotFighterPlane("a6m_zero");
     botFighterPlane6.setCenterX(12000);
     botFighterPlane6.setCenterY(112000);
-    scene.addEntity(botFighterPlane6);*/
+    scene.addEntity(botFighterPlane6);
     
     
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT); // TODO: Wrong order of parameters?
     frameRate(FRAME_RATE);
     setInterval(tick, Math.floor(1000 / TICK_RATE));
-    //setupDone = true;
+    setupDone = true;
 }
 
 function draw() {
-    /*if (!setupDone){
+    if (!setupDone){
         return;
-    }*/
+    }
     clear();
     scene.display();
     let x = 0;

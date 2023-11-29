@@ -1,20 +1,10 @@
 var images = {};
 
-function loadRotatedImages(name){
-    console.log("Loading", name, name != "spitfire")
-    if (name != "spitfire" && name != "a6m_zero" && name != "republic_p_47"){ 
-        console.log("Returning", name)
-        return; 
-    }
-    console.log("Will start loading")
+async function loadRotatedImages(name){
     for (let i = 0; i < 360; i++){
-        console.log(name, "i", i)
-        images[name + "_left_" + i.toString()] = new Image();
-        images[name + "_left_" + i.toString()].src = "images/" + name + "/left/" + i.toString() + ".png";
-        images[name + "_right_" + i.toString()] = new Image();
-        images[name + "_right_" + i.toString()].src = "images/" + name + "/right/" + i.toString() + ".png";
+        images[name + "_left_" + i.toString()] = await loadLocalImage("images/" + name + "/left/" + i.toString() + ".png");
+        images[name + "_right_" + i.toString()] = await loadLocalImage("images/" + name + "/right/" + i.toString() + ".png");
     }
-    console.log("Loading spitfire done?")
 }
 
 async function loadLocalImage(url){
@@ -27,8 +17,10 @@ async function loadLocalImage(url){
         newImage.onerror = function(){
             reject();
         }
-        newImage.src = 
-    }) 
+        newImage.src = url;
+    });
+    await wait;
+    return newImage;
 }
 
 class Scene{
