@@ -20,10 +20,13 @@ class FighterPlane extends Plane{
     damage(amount){
         this.health -= amount;
         if (this.health <= 0){
-            // TODO: Explosion
             this.delete();
         }
     }
+
+    getHitbox(){
+        return this.hitBox;
+    } 
 
     getPlaneClass(){
         return this.planeClass;

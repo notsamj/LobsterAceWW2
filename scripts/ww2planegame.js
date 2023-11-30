@@ -34,20 +34,21 @@ async function setup() {
     console.log("After load planes...")
     scene = new Scene(CANVAS_WIDTH, CANVAS_HEIGHT);
     scene.setBackground("clouds");
-    let fighterPlane = new HumanFighterPlane("republic_p_47");
-    //let fighterPlane = new BotFighterPlane("spitfire");
+    //let fighterPlane = new HumanFighterPlane("republic_p_47");
+    let fighterPlane = new BotFighterPlane("spitfire");
     fighterPlane.setCenterX(11000);
-    fighterPlane.setCenterY(111000);
+    fighterPlane.setCenterY(110000);
     scene.addEntity(fighterPlane);
 
     // Testing
     
     let botFighterPlane1 = new BotFighterPlane("a6m_zero");
-    botFighterPlane1.setCenterX(11000);
-    botFighterPlane1.setCenterY(111000);
+    botFighterPlane1.setCenterX(17000);
+    botFighterPlane1.setCenterY(112000);
     scene.addEntity(botFighterPlane1);
+    scene.setFocusedEntity(botFighterPlane1.getID())
     
-    let botFighterPlane2 = new BotFighterPlane("a6m_zero");
+    /*let botFighterPlane2 = new BotFighterPlane("a6m_zero");
     botFighterPlane2.setCenterX(10000);
     botFighterPlane2.setCenterY(110000);
     scene.addEntity(botFighterPlane2);
@@ -71,7 +72,7 @@ async function setup() {
     let botFighterPlane6 = new BotFighterPlane("a6m_zero");
     botFighterPlane6.setCenterX(12000);
     botFighterPlane6.setCenterY(112000);
-    scene.addEntity(botFighterPlane6);
+    scene.addEntity(botFighterPlane6);*/
     
     
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT); // TODO: Wrong order of parameters?

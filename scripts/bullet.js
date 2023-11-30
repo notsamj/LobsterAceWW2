@@ -10,6 +10,7 @@ class Bullet extends Entity{
         this.xVelocity = xVelocity + Math.cos(angle) * fileData["bullet_data"]["speed"];
         this.hitBox = new CircleHitbox(fileData["bullet_data"]["radius"]);
         this.shooterID = shooterID;
+        // TODO: If on screen then
         //document.getElementById("shotSound").play();
     }
 

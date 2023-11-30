@@ -20,3 +20,5 @@ Currently thinking:
 
     Make sure the ground is working
     Redo the background system
+    Right now I'm just working on 2 planes fighting then will work on more planes
+        Maybe need to come up with a give up chase difference

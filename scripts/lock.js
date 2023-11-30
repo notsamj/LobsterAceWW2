@@ -20,10 +20,19 @@ class CooldownLock extends Lock{
     constructor(cooldown, ready=true){
         super(ready);
         this.cooldown = cooldown;
+        this.lastLocked = 0;
     }
     
     lock(){
         super.lock();
-        setTimeout(() => { this.unlock(); }, this.cooldown);
+        this.lastLocked = Date.now();
+    }
+
+    isReady(){
+        //console.log(this.lastLocked, Date.now(), this.lastLocked + this.cooldown)
+        if (Date.now() > this.lastLocked + this.cooldown){
+            return true;
+        }
+        return false;
     }
 }

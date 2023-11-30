@@ -63,6 +63,10 @@ class Scene{
         }
     }
 
+    setFocusedEntity(entityID){
+        return this.focusedEntityIndex = this.getEntityIndex(entityID);
+    }
+
     displayBackground(lX, bY){
         let x2 = 0;
         let y2 = 0;
@@ -203,6 +207,15 @@ class Scene{
 
     getFocusedEntity(){
         return this.entities[this.focusedEntityIndex];
+    }
+
+    getEntityIndex(entityID){
+        for (let i = 0; i < this.entities.length; i++){
+            if (entityID == this.entities[i].getID()){
+                return i;
+            }
+        }
+        return -1;
     }
 
     tick(timeDiff){
