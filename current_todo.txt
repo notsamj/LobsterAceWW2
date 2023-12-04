@@ -1,0 +1,4 @@
+2. Add bias floats to behavior
+3. Make a dogfight gamemode
+4. Make bombers
+5. Make an escort bomb game mode

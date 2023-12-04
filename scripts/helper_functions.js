@@ -89,7 +89,7 @@ function calculateAngleDiffDEG(angle1, angle2){
 
 function calculateAngleDiffDEGCW(angle1, angle2){
     let diff = 0;
-    while (angle1 != Math.round(angle2)){
+    while (angle1 != Math.floor(angle2)){
         angle1 += 1;
         diff += 1;
         while (angle1 >= 360){
@@ -102,7 +102,7 @@ function calculateAngleDiffDEGCW(angle1, angle2){
 
 function calculateAngleDiffDEGCCW(angle1, angle2){
     let diff = 0;
-    while (angle1 != Math.round(angle2)){
+    while (angle1 != Math.floor(angle2)){
         angle1 -= 1;
         diff += 1;
         while (angle1 < 0){
@@ -111,4 +111,16 @@ function calculateAngleDiffDEGCCW(angle1, angle2){
     }
 
     return diff;
+}
+
+function rotateCWDEG(angle, amount){
+    return fixDegrees(angle + amount);
+}
+
+function rotateCCWDEG(angle, amount){
+    return fixDegrees(angle - amount);
+}
+
+function angleBetweenDEG(angle, eAngle1, eAngle2){
+    return angle >= eAngle1 && angle <= eAngle2; 
 }

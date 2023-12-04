@@ -1,5 +1,10 @@
 class Plane extends Entity{
-    constructor(){
+    constructor(planeClass){
         super();
+        this.planeClass = planeClass;
+    }
+
+    getPlaneClass(){
+        return this.planeClass;
     }
 }

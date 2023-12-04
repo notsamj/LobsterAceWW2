@@ -5,7 +5,13 @@ class HumanFighterPlane extends FighterPlane{
         this.lrLock = new Lock();
         this.udLock = new CooldownLock(10);
         this.tLock = new CooldownLock(10);
-        this.sLock = new CooldownLock(10);    
+        this.sLock = new CooldownLock(10);
+        this.radarLock = new CooldownLock(1000);
+        this.radar = new Radar(this);
+    }
+
+    getRadar(){
+        return this.radar;
     }
 
     damage(amount){
@@ -23,6 +29,14 @@ class HumanFighterPlane extends FighterPlane{
         this.checkUpDown();
         this.checkShoot();
         this.checkThrottle();
+        this.updateRadar();
+    }
+
+    updateRadar(){
+        if (this.radarLock.isReady()){
+            this.radar.update();
+            this.radarLock.lock();
+        }
     }
 
     checkMoveLeftRight(){

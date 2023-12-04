@@ -1,14 +1,14 @@
 class Bullet extends Entity{
-    constructor(x, y, xVelocity, yVelocity, angle, shooterID){
+    constructor(x, y, xVelocity, yVelocity, angle, shooterID, shooterClass){
         super();
         this.x = x;
         this.y = y;
-        this.image = new Image();
-        this.image.src = fileData["bullet_data"]["image_link"];
+        this.image = images["bullet"];
         angle = toRadians(angle);
         this.yVelocity = yVelocity + Math.sin(angle) * fileData["bullet_data"]["speed"];
         this.xVelocity = xVelocity + Math.cos(angle) * fileData["bullet_data"]["speed"];
         this.hitBox = new CircleHitbox(fileData["bullet_data"]["radius"]);
+        this.shooterClass = shooterClass;
         this.shooterID = shooterID;
         // TODO: If on screen then
         //document.getElementById("shotSound").play();
@@ -45,5 +45,9 @@ class Bullet extends Entity{
 
     getShooterID(){
         return this.shooterID;
+    }
+
+    getShooterClass(){
+        return this.shooterClass;
     }
 }

@@ -1,11 +1,10 @@
 const MAX_THROTTLE = 100;
 const FALL_SPEED = 200;
-const SLOW_DOWN_AMOUNT = 0.01;
+const SLOW_DOWN_AMOUNT = 0.1;
 // Abstract Class
 class FighterPlane extends Plane{
     constructor(planeClass, angle, facingRight){
-        super();
-        this.planeClass = planeClass;
+        super(planeClass);
         this.facingRight = facingRight;
         this.angle = angle;
         this.throttle = MAX_THROTTLE;
@@ -17,6 +16,9 @@ class FighterPlane extends Plane{
         this.throttleConstant = Math.sqrt(this.maxSpeed) / MAX_THROTTLE;
     }
 
+    isFacingRight(){
+        return this.facingRight;
+    }
     damage(amount){
         this.health -= amount;
         if (this.health <= 0){
@@ -28,12 +30,12 @@ class FighterPlane extends Plane{
         return this.hitBox;
     } 
 
-    getPlaneClass(){
-        return this.planeClass;
+    shoot(){
+        scene.addEntity(new Bullet(this.getX(), this.getY(), this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
     }
 
-    shoot(){
-        scene.addEntity(new Bullet(this.getX(), this.getY(), this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID()));
+    getMaxSpeed(){
+        return this.maxSpeed;
     }
 
     adjustAngle(amount){
@@ -86,11 +88,6 @@ class FighterPlane extends Plane{
         return this.planeClass + rightLeftStr + this.angle.toString();
     }
 
-    display(){
-        let image = this.getCurrentImage();
-        drawingContext.drawImage(this.getCurrentImage(), this.sPX, this.sPY);
-    }
-
     getWidth(){
         return this.getCurrentImage().width;
     }
@@ -100,6 +97,9 @@ class FighterPlane extends Plane{
     }
 
     tick(timeDiffMS){
+        if (this.getY() < 0){
+            this.delete();
+        }
         let timeProportion = (timeDiffMS / 1000);
 
         // Throttle - Drag
