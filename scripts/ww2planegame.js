@@ -2,7 +2,8 @@
 const CANVAS_WIDTH = 1920;
 const CANVAS_HEIGHT = 927;
 const FRAME_RATE = 30;
-const TICK_RATE = 64;
+const TICK_RATE = 100;
+const MS_BETWEEN_TICKS = 1000/TICK_RATE;
 
 // Physics
 const GRAVITY = 9.81;
@@ -11,16 +12,18 @@ const GRAVITY = 9.81;
 
 // Global variables
 var scene;
-var lastTick = Date.now();
+var startTime = null;
 var setupDone = false;
+var numTicks = 0;
 
 // Functions
 
 function tick(){
-    let currentMS = Date.now();
-    let timeDiff = currentMS - lastTick;
-    lastTick = currentMS;
-    scene.tick(timeDiff);
+    let expectedTicks = Math.floor(((Date.now() - startTime) / MS_BETWEEN_TICKS));
+    while (numTicks < expectedTicks){
+        scene.tick(MS_BETWEEN_TICKS);
+        numTicks += 1;
+    }
 }
 
 async function setup() {
@@ -62,10 +65,10 @@ async function setup() {
     
     let botX = 5000;
     let botY = 10000;
-    let extraCount = 5;
-    let extraCount2 = 5;
-    let extraCount3 = 7;
-    let extraCount4 = 7;
+    let extraCount = 1;
+    let extraCount2 = 1;
+    let extraCount3 = 1;
+    let extraCount4 = 1;
     let extraType = "me_bf_109";
     for (let i = 0; i < extraCount; i++){
         let newFighterPlane = new BotFighterPlane(extraType);
@@ -107,7 +110,8 @@ async function setup() {
     
     createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT); // TODO: Wrong order of parameters?
     frameRate(FRAME_RATE);
-    setInterval(tick, Math.floor(1000 / TICK_RATE));
+    startTime = Date.now();
+    setInterval(tick, Math.floor(1000 / (TICK_RATE)));
     setupDone = true;
 }
 
