@@ -27,9 +27,9 @@ class Radar{
         let xOffsetAmount = Math.min(Math.floor(Math.abs(myX-enemyX)/this.blipDistance), (this.size - 2)/2);
         let yOffsetAmount = Math.min(Math.floor(Math.abs(myY-enemyY)/this.blipDistance), (this.size - 2)/2);
         if (enemyX < myX && enemyY > myY){
-            this.radarData[this.size/2-1+xOffsetAmount][this.size/2-1-yOffsetAmount] = true;
+            this.radarData[this.size/2-1-xOffsetAmount][this.size/2-1-yOffsetAmount] = true;
         }else if (enemyX < myX && enemyY < myY){
-            this.radarData[this.size/2-1+xOffsetAmount][this.size/2+yOffsetAmount] = true;
+            this.radarData[this.size/2-1-xOffsetAmount][this.size/2+yOffsetAmount] = true;
         }else if (enemyX > myX && enemyY < myY){
             this.radarData[this.size/2+xOffsetAmount][this.size/2+yOffsetAmount] = true;
         }else{ // if (enemyX > myX && enemyY > myY)

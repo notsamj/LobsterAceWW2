@@ -1,4 +1,9 @@
+e2. Add interpolation for bullet hitting
+3. Test ground hitting MORE
 2. Add bias floats to behavior
 3. Make a dogfight gamemode
 4. Make bombers
-5. Make an escort bomb game mode
+5. Make an escort bomber game mode
+6. Make ground gamemode
+7. Redesign planes?
+8. Make start screen

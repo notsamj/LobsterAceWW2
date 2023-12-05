@@ -1,21 +1,14 @@
 class InfiniteLoopFinder{
-    constructor(infiniteAmount){
+    constructor(infiniteAmount, name){
         this.infiniteAmount = infiniteAmount;
-        this.loops = {};
+        this.name = name;
+        this.loopCounter = 0;
     }
 
-    count(key){
-        if (!this.loops[key]){
-            this.loops[key] = 0;
+    count(){
+        if (this.loopCounter++ > this.infiniteAmount){
+            console.log("Suspected infinite loop @ " + this.name);
+            debugger;
         }
-        this.loops[key] += 1;
-        if (this.loops[key] > this.infiniteAmount){
-            console.log("Suspected infinite loop @ " + key);
-            window.stop();
-        }
-    }
-
-    reset(key){
-        this.loops[key] = 0;
     }
 }

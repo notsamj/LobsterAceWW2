@@ -285,10 +285,10 @@ class Scene{
             entity.tick(timeDiff);
         }
 
-        this.checkCollisions();
+        this.checkCollisions(timeDiff);
     }
 
-    checkCollisions(){
+    checkCollisions(timeDiff){
         let bullets = [];
         let destructableEntities = [];
 
@@ -303,7 +303,8 @@ class Scene{
         for (let bullet of bullets){
             for (let destructableEntity of destructableEntities){
                 if (onSameTeam(destructableEntity.getPlaneClass(), bullet.getShooterClass())){ continue; }
-                if (destructableEntity.collidesWith(bullet.getHitbox())){
+                if (bullet.collidesWith(destructableEntity, timeDiff)){
+                    //console.log("hit")
                     destructableEntity.damage(1);
                     bullet.delete();
                     //document.getElementById("hitSound").play();

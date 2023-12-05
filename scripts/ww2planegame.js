@@ -13,7 +13,6 @@ const GRAVITY = 9.81;
 var scene;
 var lastTick = Date.now();
 var setupDone = false;
-var iLF = new InfiniteLoopFinder(1000000);
 
 // Functions
 
@@ -35,6 +34,7 @@ async function setup() {
     await loadToImages(fileData["background"]["sky"]["picture"]);
     scene = new Scene(CANVAS_WIDTH, CANVAS_HEIGHT);
     
+    /*
     let fighterPlane = new HumanFighterPlane("a6m_zero");
     //fighterPlane.speed = 0;
     //fighterPlane.throttle = 1;
@@ -42,23 +42,28 @@ async function setup() {
     //let fighterPlane = new BotFighterPlane("spitfire");
     fighterPlane.setCenterX(10000);
     fighterPlane.setCenterY(10000);
+    fighterPlane.throttle = 1;
+    fighterPlane.speed = 0;
     scene.addEntity(fighterPlane);
 
     // Testing
     
-    /*let botFighterPlane1 = new BotFighterPlane("spitfire");
-    botFighterPlane1.setCenterX(1000);
-    botFighterPlane1.setCenterY(1900);
+    //let botFighterPlane1 = new BotFighterPlane("spitfire");
+    let botFighterPlane1 = new FighterPlane("spitfire", 0, true);
+    botFighterPlane1.setCenterX(10000);
+    botFighterPlane1.setCenterY(10000);
+    botFighterPlane1.throttle = 1;
+    botFighterPlane1.speed = 0;
+    botFighterPlane1.health = 50000;
     scene.addEntity(botFighterPlane1);
-    //scene.setFocusedEntity(botFighterPlane1.getID())*/
-    
+    */
     
 
     
     let botX = 5000;
     let botY = 10000;
-    let extraCount = 0;
-    let extraCount2 = 0;
+    let extraCount = 5;
+    let extraCount2 = 5;
     let extraCount3 = 5;
     let extraCount4 = 5;
     let extraType = "me_bf_109";

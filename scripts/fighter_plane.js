@@ -21,12 +21,14 @@ class FighterPlane extends Plane{
     }
     damage(amount){
         this.health -= amount;
+        //document.getElementById("hitSound").play();
         if (this.health <= 0){
             this.delete();
         }
     }
 
     getHitbox(){
+        this.hitBox.update(this.x, this.y);
         return this.hitBox;
     } 
 
@@ -112,6 +114,7 @@ class FighterPlane extends Plane{
 
         // Speed
         this.speed += acceleration * timeProportion;
+        this.speed = Math.max(this.speed, 0);
 
         // Finally the position
         
@@ -161,8 +164,4 @@ class FighterPlane extends Plane{
         this.throttle = Math.min(Math.max(0, this.throttle + amt), MAX_THROTTLE);
     }
 
-    collidesWith(otherHitbox){
-        this.hitBox.update(this.x, this.y);
-        return this.hitBox.collidesWith(otherHitbox);
-    }
 }

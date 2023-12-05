@@ -124,3 +124,25 @@ function rotateCCWDEG(angle, amount){
 function angleBetweenDEG(angle, eAngle1, eAngle2){
     return angle >= eAngle1 && angle <= eAngle2; 
 }
+
+function lessThanDir(p1, p2, velocity){
+    return (velocity >= 0) ? (p1 < p2) : (p1 > p2);
+}
+
+function lessThanEQDir(p1, p2, velocity){
+    return (velocity >= 0) ? (p1 <= p2) : (p1 >= p2);
+}
+
+function nextIntInDir(floatValue, velocity){
+    let newValue = Math.ceil(floatValue);
+    if (velocity < 0){
+        newValue = Math.floor(floatValue);
+    }
+
+    // If floatValue is an int then go by 1 in the next direction
+    if (newValue == floatValue){
+        newValue += (velocity < 0) ? -1 : 1;
+    }
+
+    return newValue;
+}

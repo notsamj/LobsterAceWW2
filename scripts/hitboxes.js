@@ -29,21 +29,33 @@ class CircleHitbox{
     getRadius(){
         return this.radius;
     }
+
+    getRadiusEquivalentX(){
+        return this.getRadius();
+    }
+
+    getRadiusEquivalentY(){
+        return this.getRadius();
+    }
+
+
 }
 
 class RectangleHitbox{
-    constructor(){
+    constructor(width, height){
         this.x1 = -1;
         this.x2 = -1;
         this.y1 = -1;
         this.y2 = -1;
+        this.width = width;
+        this.height = height;
     }
 
-    update(x1, x2, y1, y2){
-        this.x1 = x1;
-        this.x2 = x2;
-        this.y1 = y1;
-        this.y2 = y2;
+    update(x, y){
+        this.x1 = x - this.width / 2;
+        this.x2 = x + this.width / 2;
+        this.y1 = y + this.height / 2;
+        this.y2 = y - this.height / 2;
     }
 
     collidesWith(otherHitbox){
@@ -68,6 +80,14 @@ class RectangleHitbox{
 
     getY2(){
         return this.y2;
+    }
+
+    getRadiusEquivalentX(){
+        return this.width / 2;
+    }
+
+    getRadiusEquivalentY(){
+        return this.height / 2;
     }
 }
 

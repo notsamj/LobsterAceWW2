@@ -7,6 +7,7 @@ const ENEMY_TAKEN_DISTANCE_MULTIPLIER = 5;
 const INCENTIVE_TURN_INERTIA = 5;
 const EVASIVE_TIME_TO_CATCH = 20;
 const EVASIVE_SPEED_DIFF = 4;
+const MIN_ANGLE_TO_ADJUST = 3;
 class BotFighterPlane extends FighterPlane{
     constructor(planeClass, angle=0, facingRight=true){
         super(planeClass, angle, facingRight);
@@ -111,17 +112,11 @@ class BotFighterPlane extends FighterPlane{
             this.face(true);
         }
         myAngle = this.getShootingAngle();
-        let newAngleCW = this.getShootingAngle() + 1;
-        let newAngleCCW = this.getShootingAngle() - 1;
-        while (newAngleCW > 360){
-            newAngleCW -= 360;
-        }
-        while (newAngleCCW < 0){
-            newAngleCCW += 360;
-        }
+        let newAngleCW = fixDegrees(this.getShootingAngle() + 1);
+        let newAngleCCW = fixDegrees(this.getShootingAngle() - 1);
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
-        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < 2 && calculateAngleDiffDEG(newAngleCCW, angleDEG) < 2){
+        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < MIN_ANGLE_TO_ADJUST && calculateAngleDiffDEG(newAngleCCW, angleDEG) < MIN_ANGLE_TO_ADJUST){
             return;
         }
         let consoleLog1 = "";
