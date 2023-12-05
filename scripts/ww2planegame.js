@@ -2,7 +2,7 @@
 const CANVAS_WIDTH = 1920;
 const CANVAS_HEIGHT = 927;
 const FRAME_RATE = 30;
-const TICK_RATE = 64; // APPROXIMATE
+const TICK_RATE = 64;
 
 // Physics
 const GRAVITY = 9.81;
@@ -64,13 +64,13 @@ async function setup() {
     let botY = 10000;
     let extraCount = 5;
     let extraCount2 = 5;
-    let extraCount3 = 5;
-    let extraCount4 = 5;
+    let extraCount3 = 7;
+    let extraCount4 = 7;
     let extraType = "me_bf_109";
     for (let i = 0; i < extraCount; i++){
         let newFighterPlane = new BotFighterPlane(extraType);
-        newFighterPlane.setCenterX(botX + 10000);
-        newFighterPlane.setCenterY(botY + 200 * (i + 1));
+        newFighterPlane.setCenterX(botX + 10000 - 100 * (i + 1));
+        newFighterPlane.setCenterY(botY + 100 * (i + 1));
         newFighterPlane.facingRight = false;
         scene.addEntity(newFighterPlane);
     }
@@ -78,8 +78,8 @@ async function setup() {
     let extraType2 = "a6m_zero";
     for (let i = 0; i < extraCount2; i++){
         let newFighterPlane = new BotFighterPlane(extraType2);
-        newFighterPlane.setCenterX(botX + 10000);
-        newFighterPlane.setCenterY(botY + 200 * (i + 1) + 100);
+        newFighterPlane.setCenterX(botX + 10000 - 100 * (i + 1));
+        newFighterPlane.setCenterY(botY + 100 * (i + 1) + 50);
         newFighterPlane.facingRight = false;
         scene.addEntity(newFighterPlane);
     }
@@ -87,16 +87,16 @@ async function setup() {
     let extraType3 = "republic_p_47";
     for (let i = 0; i < extraCount3; i++){
         let newFighterPlane = new BotFighterPlane(extraType3);
-        newFighterPlane.setCenterX(botX + 1000);
-        newFighterPlane.setCenterY(botY + 200 * (i + 1));
+        newFighterPlane.setCenterX(botX + 1000 - 100 * (i + 1));
+        newFighterPlane.setCenterY(botY + 100 * (i + 1));
         scene.addEntity(newFighterPlane);
     }
 
     let extraType4 = "spitfire";
     for (let i = 0; i < extraCount4; i++){
         let newFighterPlane = new BotFighterPlane(extraType4);
-        newFighterPlane.setCenterX(botX + 1000);
-        newFighterPlane.setCenterY(botY + 200 * (i + 1) + 100);
+        newFighterPlane.setCenterX(botX + 1000 - 100 * (i + 1));
+        newFighterPlane.setCenterY(botY + 100 * (i + 1) + 50);
         scene.addEntity(newFighterPlane);
     }
     //scene.setFocusedEntity(1);

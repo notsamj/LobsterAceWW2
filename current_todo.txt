@@ -1,5 +1,4 @@
-e2. Add interpolation for bullet hitting
-3. Test ground hitting MORE
+1. Test ground hitting MORE
 2. Add bias floats to behavior
 3. Make a dogfight gamemode
 4. Make bombers

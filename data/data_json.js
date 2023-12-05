@@ -31,7 +31,7 @@ var fileData = {
     },
 
     "bullet_data": {
-        "speed": 500,
+        "speed": 800,
         "picture": "bullet",
         "radius": 2
     },

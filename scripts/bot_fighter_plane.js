@@ -43,15 +43,26 @@ class BotFighterPlane extends FighterPlane{
             return;
         }
         // Otherwise enemy is not too much "on top" of the bot
+        let shootingAngle = this.getShootingAngle();
         let angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
-        let angleDifference = calculateAngleDiffDEG(this.getShootingAngle(), angleDEG);
+        let angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
         //console.log(angleDEG, this.planeClass, enemyXDisplacement, enemyYDisplacement, Math.atan(enemyYDisplacement / enemyXDisplacement))
 
         // Give information to handleMovement and let it decide how to move
         this.handleMovement(angleDEG, distanceToEnemy, enemy);
         // Shoot if the enemy is in front
-        this.tryToShootAtEnemy(angleDifference, enemy.getHitbox().getRadius(), distanceToEnemy);
-        // Determine what to do (other than shoot)
+        let hasFiredShot = this.tryToShootAtEnemy(angleDifference, enemy.getHitbox().getRadius(), distanceToEnemy);
+        for (let secondaryEnemy of this.getEnemyList()){
+            if (hasFiredShot){ break; }
+            enemyX = secondaryEnemy.getX();
+            enemyY = secondaryEnemy.getY();
+            enemyXDisplacement = enemyX - myX;
+            enemyYDisplacement = enemyY - myY;
+            angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
+            angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
+            distanceToEnemy = this.distance(secondaryEnemy);
+            hasFiredShot = this.tryToShootAtEnemy(angleDifference, secondaryEnemy.getHitbox().getRadius(), distanceToEnemy);
+        }
     }
 
     handleMovement(angleDEG, distance, enemy){
@@ -141,7 +152,20 @@ class BotFighterPlane extends FighterPlane{
         if (this.shootLock.isReady() && angleDifference < angleAllowanceAtRangeDEG && distanceToEnemy < getMaxShootingDistance()){
             this.shootLock.lock();
             this.shoot();
+            return true;
         }
+        return false;
+    }
+
+    getEnemyList(){
+        let entities = scene.getEntities();
+        let enemies = [];
+        for (let entity of entities){
+            if (entity instanceof FighterPlane && !this.onSameTeam(entity)){
+                enemies.push(entity);
+            }
+        }
+        return enemies;
     }
 
     updateEnemy(){
@@ -149,16 +173,14 @@ class BotFighterPlane extends FighterPlane{
         if (this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID) && this.distance(scene.getEntity(this.currentEnemyID)) <= ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT * this.speed){
             return;
         }
-        let entities = copyArray(scene.getEntities());
+        let enemies = this.getEnemyList();
         let bestRecord = null;
-        for (let entity of entities){
-            if (entity instanceof FighterPlane && !this.onSameTeam(entity)){
-                let distance = this.distance(entity);
-                if (bestRecord == null || distance < bestRecord["score"]){
-                    bestRecord = {
-                        "id": entity.getID(),
-                        "score": distance * (isFocused(entity.getID(), this.getID()) ? ENEMY_TAKEN_DISTANCE_MULTIPLIER : 1)
-                    }
+        for (let enemy of enemies){
+            let distance = this.distance(enemy);
+            if (bestRecord == null || distance < bestRecord["score"]){
+                bestRecord = {
+                    "id": enemy.getID(),
+                    "score": distance * (isFocused(enemy.getID(), this.getID()) ? ENEMY_TAKEN_DISTANCE_MULTIPLIER : 1)
                 }
             }
         }
