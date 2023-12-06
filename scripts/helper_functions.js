@@ -75,16 +75,12 @@ function onSameTeam(class1, class2){
     return fileData["plane_data"][class1]["alliance"] == fileData["plane_data"][class2]["alliance"];
 }
 
-// Not sure this works xD
 function calculateAngleDiffDEG(angle1, angle2){
-    if (angle1 > 180){
-        angle1 -= 360;
+    let diff = Math.max(angle1, angle2) - Math.min(angle1, angle2);
+    if (diff > 180){
+        diff = 360 - diff;
     }
-    if (angle2 > 180){
-        angle2 -= 360;
-    }
-
-    return Math.abs(Math.abs(angle1) - Math.abs(angle2));
+    return diff;
 }
 
 function calculateAngleDiffDEGCW(angle1, angle2){

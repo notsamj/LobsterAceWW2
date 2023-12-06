@@ -14,8 +14,9 @@ class BotFighterPlane extends FighterPlane{
         //this.throttle = 1;
         //this.speed = 0;
         this.currentEnemyID = null;
-        this.health = 100;
         this.turningDirection = null;
+        this.ticksOnCourse = 0;
+        this.tickCD = 0;
     }
 
     tick(timeDiffMS){
@@ -67,18 +68,13 @@ class BotFighterPlane extends FighterPlane{
 
     handleMovement(angleDEG, distance, enemy){
         if (this.closeToGround() && angleBetweenDEG(this.getShootingAngle(), 180, 359)){
-            this.turnToEnemy(90);
+            this.turnInDirection(90);
             return;
         }
 
-        // Keep going in whatever direction if too close
-        /*if (distance < this.speed * CLOSE_CONSTANT){
-            return;
-        }*/
-
         // Point to enemy when very far away
         if (distance > this.speed * ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT * TURN_TO_ENEMY_CONSTANT){
-            this.turnToEnemy(angleDEG);
+            this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
         }
@@ -88,15 +84,25 @@ class BotFighterPlane extends FighterPlane{
     }
 
     handleClose(angleDEG, distance, enemy){
-        // If enemy is behind, so evasive manuevers
         let myAngle = this.getShootingAngle();
+        // If enemy is behind, so evasive manuevers
         if (angleBetweenDEG(angleDEG, rotateCWDEG(myAngle, 135), rotateCCWDEG(myAngle, 135)) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF){
             this.evasiveManeuver(enemy, distance);
             return;
         }
+        // If on a movement cooldown
+        if (this.tickCD-- > 0){
+            return;
+        }
         // Not doing evausive maneuevers
+        // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
+        if (this.ticksOnCourse >= fileData["ai"]["max_ticks_on_course"]){
+            this.tickCD = fileData["ai"]["tick_cd"];
+            this.ticksOnCourse = 0;
+        }
         this.turningDirection = null;
-        this.turnToEnemy(angleDEG);
+        this.ticksOnCourse += 1;
+        this.turnInDirection(angleDEG);
     }
 
     comeUpWithEvasiveTurningDirection(enemy, distance){
@@ -114,9 +120,10 @@ class BotFighterPlane extends FighterPlane{
         return this.y < CLOSE_TO_GROUND_CONSTANT * this.speed;
     }
 
-    turnToEnemy(angleDEG){
+    turnInDirection(angleDEG){
         // Determine if we need to switch from left to right
         let myAngle = this.getShootingAngle();
+        // TODO: Change this to use the easy function from helperfunctionss
         if (this.facingRight && angleDEG > 135 && angleDEG < 225 && ((myAngle > 315 && myAngle < 360) || (myAngle >= 0 && myAngle < 45))){
             this.face(false);
         }else if (!this.facingRight && (angleDEG > 295 && angleDEG < 0) || angleDEG < 45 && myAngle >= 135 && myAngle <= 225){
@@ -130,13 +137,11 @@ class BotFighterPlane extends FighterPlane{
         if (calculateAngleDiffDEG(newAngleCW, angleDEG) < MIN_ANGLE_TO_ADJUST && calculateAngleDiffDEG(newAngleCCW, angleDEG) < MIN_ANGLE_TO_ADJUST){
             return;
         }
-        let consoleLog1 = "";
         if (dCW < dCCW && this.facingRight){
             this.adjustAngle(1);
         }else if (dCW < dCCW && !this.facingRight){
             this.adjustAngle(-1);
         }else if (dCCW < dCW && this.facingRight){
-            let angleB4 = this.angle;
             this.adjustAngle(-1);
         }else if (dCCW < dCW && !this.facingRight){
             this.adjustAngle(1);

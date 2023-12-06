@@ -1,7 +1,9 @@
-1. Test ground hitting MORE
-2. Add bias floats to behavior
+0. Make new python script to resize all images to 2048 -> resize to 128 -> rotate with no padding -> Add to a subfolder in images/{plane_name}/128/{left/right} see if better?
+1. Add bias floats to behavior
+2. Move all constants to data file
 3. Make a dogfight gamemode
 4. Make bombers
+5. Add sound
 5. Make an escort bomber game mode
 6. Make ground gamemode
 7. Redesign planes?

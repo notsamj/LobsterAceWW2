@@ -37,20 +37,19 @@ async function setup() {
     await loadToImages(fileData["background"]["sky"]["picture"]);
     scene = new Scene(CANVAS_WIDTH, CANVAS_HEIGHT);
     
-    /*
-    let fighterPlane = new HumanFighterPlane("a6m_zero");
+    
+    /*let fighterPlane = new HumanFighterPlane("a6m_zero");
     //fighterPlane.speed = 0;
     //fighterPlane.throttle = 1;
     fighterPlane.health = 9999;
     //let fighterPlane = new BotFighterPlane("spitfire");
     fighterPlane.setCenterX(10000);
     fighterPlane.setCenterY(10000);
-    fighterPlane.throttle = 1;
-    fighterPlane.speed = 0;
-    scene.addEntity(fighterPlane);
+
+    scene.addEntity(fighterPlane);*/
 
     // Testing
-    
+    /*
     //let botFighterPlane1 = new BotFighterPlane("spitfire");
     let botFighterPlane1 = new FighterPlane("spitfire", 0, true);
     botFighterPlane1.setCenterX(10000);
@@ -65,10 +64,10 @@ async function setup() {
     
     let botX = 5000;
     let botY = 10000;
-    let extraCount = 1;
-    let extraCount2 = 1;
-    let extraCount3 = 1;
-    let extraCount4 = 1;
+    let extraCount = 10;
+    let extraCount2 = 10;
+    let extraCount3 = 10;
+    let extraCount4 = 10;
     let extraType = "me_bf_109";
     for (let i = 0; i < extraCount; i++){
         let newFighterPlane = new BotFighterPlane(extraType);
