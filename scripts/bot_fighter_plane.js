@@ -124,9 +124,9 @@ class BotFighterPlane extends FighterPlane{
         // Determine if we need to switch from left to right
         let myAngle = this.getShootingAngle();
         // TODO: Change this to use the easy function from helperfunctionss
-        if (this.facingRight && angleDEG > 135 && angleDEG < 225 && ((myAngle > 315 && myAngle < 360) || (myAngle >= 0 && myAngle < 45))){
+        if (this.facingRight && angleBetweenDEG(angleDEG, 135, 225) && angleBetweenDEG(myAngle, 315, 45)){
             this.face(false);
-        }else if (!this.facingRight && (angleDEG > 295 && angleDEG < 0) || angleDEG < 45 && myAngle >= 135 && myAngle <= 225){
+        }else if (!this.facingRight && angleBetweenDEG(angleDEG, 295, 0) || angleDEG < 45 && myAngle >= 135 && myAngle <= 225){
             this.face(true);
         }
         myAngle = this.getShootingAngle();
