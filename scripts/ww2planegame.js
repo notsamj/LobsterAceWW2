@@ -35,7 +35,7 @@ async function setup() {
     await loadToImages(fileData["background"]["ground"]["picture"]);
     await loadToImages(fileData["background"]["above_ground"]["picture"]);
     await loadToImages(fileData["background"]["sky"]["picture"]);
-    scene = new Scene(CANVAS_WIDTH, CANVAS_HEIGHT);
+    scene = new PlaneGameScene(CANVAS_WIDTH, CANVAS_HEIGHT);
     
     
     /*let fighterPlane = new HumanFighterPlane("a6m_zero");

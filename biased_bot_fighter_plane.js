@@ -1,31 +1,7 @@
-const SHOOT_DISTANCE_CONSTANT = 5;
-const CLOSE_TO_GROUND_CONSTANT = 3;
-const CLOSE_CONSTANT = 3;
-const ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT = 20;
-const TURN_TO_ENEMY_CONSTANT = 0.75; // Maybe 0.75 is good?
-const ENEMY_TAKEN_DISTANCE_MULTIPLIER = 5;
-const INCENTIVE_TURN_INERTIA = 5;
-const EVASIVE_TIME_TO_CATCH = 20;
-const EVASIVE_SPEED_DIFF = 4;
-const MIN_ANGLE_TO_ADJUST = 3;
-class BotFighterPlane extends FighterPlane{
-    constructor(planeClass, angle=0, facingRight=true){
+class BiasedBotFighterPlane extends BotFighterPlane{
+    constructor(planeClass, biases, angle=0, facingRight=true){
         super(planeClass, angle, facingRight);
-        //this.throttle = 1;
-        //this.speed = 0;
-        this.currentEnemyID = null;
-        this.turningDirection = null;
-        this.ticksOnCourse = 0;
-        this.tickCD = 0;
-    }
-
-    tick(timeDiffMS){
-        super.tick(timeDiffMS);
-        this.updateEnemy();
-        if (this.hasCurrentEnemy()){
-            let enemy = scene.getEntity(this.currentEnemyID);
-            this.handleEnemy(enemy);
-        }
+        this.biases = biases;
     }
 
     handleEnemy(enemy){
@@ -38,6 +14,8 @@ class BotFighterPlane extends FighterPlane{
         let enemyXDisplacement = enemyX - myX;
         let enemyYDisplacement = enemyY - myY;
         let distanceToEnemy = this.distance(enemy);
+        // Bias
+        distanceToEnemy += this.biases["distance_to_enemy"];
         // To prevent issues in calculating angles, if the enemy is ontop of you just shoot and do nothing else
         if (distanceToEnemy < 1){
             this.tryToShootAtEnemy(0, 1, 1);
@@ -46,6 +24,8 @@ class BotFighterPlane extends FighterPlane{
         // Otherwise enemy is not too much "on top" of the bot
         let shootingAngle = this.getShootingAngle();
         let angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
+        // Bias
+        angleDEG = fixDegrees(angleDEG + this.biases["angle_to_enemy"]);
         let angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
         //console.log(angleDEG, this.planeClass, enemyXDisplacement, enemyYDisplacement, Math.atan(enemyYDisplacement / enemyXDisplacement))
 
@@ -60,6 +40,7 @@ class BotFighterPlane extends FighterPlane{
             enemyXDisplacement = enemyX - myX;
             enemyYDisplacement = enemyY - myY;
             angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
+            angleDEG = fixDegrees(angleDEG + this.biases["angle_to_enemy"]);
             angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
             distanceToEnemy = this.distance(secondaryEnemy);
             hasFiredShot = this.tryToShootAtEnemy(angleDifference, secondaryEnemy.getHitbox().getRadius(), distanceToEnemy);
@@ -68,12 +49,13 @@ class BotFighterPlane extends FighterPlane{
 
     handleMovement(angleDEG, distance, enemy){
         if (this.closeToGround() && angleBetweenDEG(this.getShootingAngle(), 180, 359)){
-            this.turnInDirection(90);
+            // Bias
+            this.turnInDirection(fixDegrees(90 + this.biases["angle_from_ground"]));
             return;
         }
 
         // Point to enemy when very far away
-        if (distance > this.speed * ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT * TURN_TO_ENEMY_CONSTANT){
+        if (distance > this.speed * ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT * TURN_TO_ENEMY_CONSTANT + this.biases["enemy_far_away_distance"]){
             this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
@@ -86,7 +68,7 @@ class BotFighterPlane extends FighterPlane{
     handleClose(angleDEG, distance, enemy){
         let myAngle = this.getShootingAngle();
         // If enemy is behind, so evasive manuevers
-        if (angleBetweenDEG(angleDEG, rotateCWDEG(myAngle, 135), rotateCCWDEG(myAngle, 135)) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF){
+        if (angleBetweenDEG(angleDEG, rotateCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"])), rotateCCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"]))) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF + this.biases["enemy_close"]){
             this.evasiveManeuver(enemy, distance);
             return;
         }
@@ -96,8 +78,8 @@ class BotFighterPlane extends FighterPlane{
         }
         // Not doing evausive maneuevers
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= fileData["ai"]["max_ticks_on_course"]){
-            this.tickCD = fileData["ai"]["tick_cd"];
+        if (this.ticksOnCourse >= fileData["ai"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
+            this.tickCD = fileData["ai"]["tick_cd"] + this.biases["ticks_cooldown"];
             this.ticksOnCourse = 0;
         }
         this.turningDirection = null;
@@ -106,7 +88,7 @@ class BotFighterPlane extends FighterPlane{
     }
 
     comeUpWithEvasiveTurningDirection(enemy, distance){
-        return (randomNumberInclusive(1, 2) == 1) ? 1 : -1;
+        return (randomNumberInclusive(1, 100) + this.biases["turn_direction"] <= 50) ? 1 : -1;
     }
 
     evasiveManeuver(enemy, distance){
@@ -117,7 +99,7 @@ class BotFighterPlane extends FighterPlane{
     }
 
     closeToGround(){
-        return this.y < CLOSE_TO_GROUND_CONSTANT * this.speed;
+        return this.y < CLOSE_TO_GROUND_CONSTANT * this.speed + this.biases["close_to_ground"];
     }
 
     turnInDirection(angleDEG){
@@ -162,17 +144,6 @@ class BotFighterPlane extends FighterPlane{
         return false;
     }
 
-    getEnemyList(){
-        let entities = scene.getEntities();
-        let enemies = [];
-        for (let entity of entities){
-            if (entity instanceof FighterPlane && !this.onSameTeam(entity)){
-                enemies.push(entity);
-            }
-        }
-        return enemies;
-    }
-
     updateEnemy(){
         // If we have an enemy already and its close then don't update
         if (this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID) && this.distance(scene.getEntity(this.currentEnemyID)) <= ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT * this.speed){
@@ -193,28 +164,7 @@ class BotFighterPlane extends FighterPlane{
         this.currentEnemyID = bestRecord["id"];
     }
 
-    hasCurrentEnemy(){
-        return this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID);
-    }
-
-    getCurrentEnemy(){
-        return this.currentEnemyID;
-    }
-
-    onSameTeam(otherPlane){
-        return onSameTeam(this.getPlaneClass(), otherPlane.getPlaneClass());
-    }
-
     getMaxShootingDistance(){
         return SHOOT_DISTANCE_CONSTANT * fileData["bullet_data"]["speed"];
     }
-}
-
-function isFocused(enemyID, myID){
-    for (let entity of scene.getEntities()){
-        if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
-            return true;
-        }
-    }
-    return false;
 }

@@ -1,5 +1,6 @@
-0. Make new python script to resize all images to 2048 -> resize to 128 -> rotate with no padding -> Add to a subfolder in images/{plane_name}/128/{left/right} see if better?
-1. Add bias floats to behavior
+0. Add bias floats to behavior
+1. Make new python script to resize all images to 2048 -> resize to 128 -> rotate with no padding -> Add to a subfolder in images/{plane_name}/128/{left/right} see if better?
+-1.5-. Add two models of fighter per country (No more Japanese + Germans in the same fight + More variety xD)
 2. Move all constants to data file
 3. Make a dogfight gamemode
 4. Make bombers
