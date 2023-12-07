@@ -1,19 +1,16 @@
-const MAX_THROTTLE = 100;
-const FALL_SPEED = 200;
-const SLOW_DOWN_AMOUNT = 0.1;
 // Abstract Class
 class FighterPlane extends Plane{
     constructor(planeClass, angle, facingRight){
         super(planeClass);
         this.facingRight = facingRight;
         this.angle = angle;
-        this.throttle = MAX_THROTTLE;
+        this.throttle = fileData["constants"]["MAX_THROTTLE"];
         this.maxSpeed = fileData["plane_data"][planeClass]["max_speed"];
         this.speed = this.maxSpeed;
         this.shootLock = new CooldownLock(100);
         this.hitBox = new CircleHitbox(fileData["plane_data"][planeClass]["radius"]);
         this.health = fileData["plane_data"][planeClass]["health"];
-        this.throttleConstant = Math.sqrt(this.maxSpeed) / MAX_THROTTLE;
+        this.throttleConstant = Math.sqrt(this.maxSpeed) / fileData["constants"]["MAX_THROTTLE"];
     }
 
     isFacingRight(){
@@ -73,7 +70,7 @@ class FighterPlane extends Plane{
         }
         this.angle = newAngle;
         this.facingRight = facingRight;
-        this.speed *= (1 - SLOW_DOWN_AMOUNT);
+        this.speed *= (1 - fileData["constants"]["SLOW_DOWN_AMOUNT"]);
     }
 
     getCurrentImage(){
@@ -143,7 +140,7 @@ class FighterPlane extends Plane{
     }
 
     getShootingAngle(){
-        return this.angle + (this.facingRight ? 0 : 180);
+        return fixDegrees(this.angle + (this.facingRight ? 0 : 180));
     }
 
     getYVelocity(){
@@ -161,7 +158,11 @@ class FighterPlane extends Plane{
     }
 
     adjustThrottle(amt){
-        this.throttle = Math.min(Math.max(0, this.throttle + amt), MAX_THROTTLE);
+        this.throttle = Math.min(Math.max(0, this.throttle + amt), fileData["constants"]["MAX_THROTTLE"]);
+    }
+
+    getHealth(){
+        return this.health;
     }
 
 }

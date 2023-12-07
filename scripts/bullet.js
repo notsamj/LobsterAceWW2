@@ -1,4 +1,3 @@
-const MIN_VELOCITY_ASSUMPTION = 0.01;
 class Bullet extends Entity{
     constructor(x, y, xVelocity, yVelocity, angle, shooterID, shooterClass){
         super();
@@ -17,7 +16,7 @@ class Bullet extends Entity{
 
     tick(timePassed){
         let timeProportion = timePassed / 1000;
-        let yAcceleration = GRAVITY * timeProportion;
+        let yAcceleration = fileData["constants"]["GRAVITY"] * timeProportion;
 
         this.yVelocity = this.yVelocity - yAcceleration;
         this.x += this.xVelocity * timeProportion;
@@ -104,10 +103,10 @@ class Bullet extends Entity{
         // Loop from start position to end position
         while (lessThanEQDir(bX, bEndX, bXV) && lessThanEQDir(bY, bEndY, bYV) && lessThanEQDir(oX, oEndX, oXV) && lessThanEQDir(oY, oEndY, oYV)){
             // Determine time or next pixel for either object
-            let bXTime = (Math.abs(bXV) >= MIN_VELOCITY_ASSUMPTION) ? ((Math.abs(nextIntInDir(bX, bXV) - bX))/(Math.abs(bXV))) : Number.MAX_SAFE_INTEGER;
-            let bYTime = (Math.abs(bYV) >= MIN_VELOCITY_ASSUMPTION) ? ((Math.abs(nextIntInDir(bY, bYV) - bY))/(Math.abs(bYV))) : Number.MAX_SAFE_INTEGER;
-            let oXTime = (Math.abs(oXV) >= MIN_VELOCITY_ASSUMPTION) ? ((Math.abs(nextIntInDir(oX, oXV) - oX))/(Math.abs(oXV))) : Number.MAX_SAFE_INTEGER;
-            let oYTime = (Math.abs(oYV) >= MIN_VELOCITY_ASSUMPTION) ? ((Math.abs(nextIntInDir(oY, oYV) - oY))/(Math.abs(oYV))) : Number.MAX_SAFE_INTEGER;
+            let bXTime = (Math.abs(bXV) >= fileData["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(bX, bXV) - bX))/(Math.abs(bXV))) : Number.MAX_SAFE_INTEGER;
+            let bYTime = (Math.abs(bYV) >= fileData["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(bY, bYV) - bY))/(Math.abs(bYV))) : Number.MAX_SAFE_INTEGER;
+            let oXTime = (Math.abs(oXV) >= fileData["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(oX, oXV) - oX))/(Math.abs(oXV))) : Number.MAX_SAFE_INTEGER;
+            let oYTime = (Math.abs(oYV) >= fileData["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(oY, oYV) - oY))/(Math.abs(oYV))) : Number.MAX_SAFE_INTEGER;
             // Depending on which pixel is going to next
             let minTime = Math.min(bXTime, bYTime, oXTime, oYTime);
             // Update positions based on time

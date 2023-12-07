@@ -1,7 +1,8 @@
 async function loadRotatedImages(name){
+    console.log("Loading", name)
     for (let i = 0; i < 360; i++){
-        images[name + "_left_" + i.toString()] = await loadLocalImage("images/" + name + "/left/" + i.toString() + ".png");
-        images[name + "_right_" + i.toString()] = await loadLocalImage("images/" + name + "/right/" + i.toString() + ".png");
+        images[name + "_left_" + i.toString()] = await loadLocalImage("images/" + name + "/128/left/" + i.toString() + ".png");
+        images[name + "_right_" + i.toString()] = await loadLocalImage("images/" + name + "/128/right/" + i.toString() + ".png");
     }
 }
 
@@ -43,7 +44,7 @@ class PlaneGameScene extends Scene{
 
             // Display ground images
             for (let y = bottomDisplayGroundY; y <= 0; y += groundImageHeight){
-                for (let x = bottomDisplayGroundX; x < CANVAS_WIDTH + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
+                for (let x = bottomDisplayGroundX; x < fileData["constants"]["CANVAS_WIDTH"] + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
                     let displayX = x-lXP;
                     drawingContext.drawImage(groundImage, displayX, this.getDisplayY(0, 0, bYP));
                 }
@@ -64,14 +65,14 @@ class PlaneGameScene extends Scene{
             }
             bottomDisplayAboveGroundX += aboveGroundWidth;
             // Display along the screen
-            for (let x = bottomDisplayAboveGroundX; x < CANVAS_WIDTH + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
+            for (let x = bottomDisplayAboveGroundX; x < fileData["constants"]["CANVAS_WIDTH"] + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
                 let displayX = x-lXP;
                 drawingContext.drawImage(aboveGroundImage, displayX, this.getDisplayY(aboveGroundHeight, 0, bYP));
             }
         }
 
         // Display sky
-        if (bYP + CANVAS_HEIGHT > aboveGroundHeight){
+        if (bYP + fileData["constants"]["CANVAS_HEIGHT"] > aboveGroundHeight){
             let skyImage = images[fileData["background"]["sky"]["picture"]];
             let skyHeight = skyImage.height;
             let skyWidth = skyImage.width;
@@ -95,8 +96,8 @@ class PlaneGameScene extends Scene{
             }
             // Add once more to get back to top left corner
             // Display ground images
-            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + CANVAS_HEIGHT + skyHeight; y += skyHeight){
-                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + CANVAS_WIDTH + skyWidth; x += skyWidth){
+            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + fileData["constants"]["CANVAS_HEIGHT"] + skyHeight; y += skyHeight){
+                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + fileData["constants"]["CANVAS_WIDTH"] + skyWidth; x += skyWidth){
                     //let displayY = y-bYP;
                     let displayX = x-lXP;
                     drawingContext.drawImage(skyImage, displayX, this.getDisplayY(y, 0, bYP));
@@ -131,5 +132,40 @@ class PlaneGameScene extends Scene{
                 }
             }
         }
+    }
+
+    delete(entityID){
+        let newArray = copyArray(this.entities);
+        let index = -1;
+
+        // Find element with ID
+        for (let i = 0; i < newArray.length; i++){
+            if (newArray[i].getID() == entityID){
+                index = i;
+                break;
+            }
+        }
+        // Not found
+        if (index == -1){
+            return;
+        }
+
+        // shift down to deleting 
+        for (let i = index; i < newArray.length - 1; i++){
+            newArray[i] = newArray[i+1];
+        }
+
+        newArray.pop();
+        // No focused entity anmore 
+        if (entityID == this.focusedEntityID){
+            for (let i = 0; i < newArray.length; i++){
+                if (newArray[i] instanceof Plane){
+                    this.setFocusedEntity(newArray[i].getID());
+                    return;
+                }
+            }
+            this.setFocusedEntity(-1);
+        }
+        this.entities = newArray;
     }
 }

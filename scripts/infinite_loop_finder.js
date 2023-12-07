@@ -11,4 +11,8 @@ class InfiniteLoopFinder{
             debugger;
         }
     }
+
+    reset(){
+        this.loopCounter = 0;
+    }
 }

@@ -26,7 +26,7 @@ class Scene{
         this.height = height;
         this.nextEntityID = 0;
         this.entities = [];
-        this.focusedEntityIndex = -1;
+        this.focusedEntityID = -1;
     }
 
     getEntities(){
@@ -58,7 +58,7 @@ class Scene{
     displayBackground(){}
 
     setFocusedEntity(entityID){
-        return this.focusedEntityIndex = this.getEntityIndex(entityID);
+        return this.focusedEntityID = entityID;
     }
 
     changeToScreenX(x){
@@ -73,10 +73,9 @@ class Scene{
         entity.setID(this.nextEntityID++);
         this.entities.push(entity);
         if (!this.hasEntityFocused()){
-            this.focusedEntityIndex = 0;
-            // TODO: Find a better one
+            this.setFocusedEntity(this.nextEntityID-1);
             if (this.entities.length == 0){
-                this.focusedEntityIndex = -1;
+                this.setFocusedEntity(-1);
             }
         }
     } 
@@ -98,8 +97,8 @@ class Scene{
         }
 
         // No focused entity anmore 
-        if (index == this.focusedEntityIndex){
-            this.focusedEntityIndex = -1;
+        if (entityID == this.focusedEntityID){
+            this.setFocusedEntity(-1);
         }
 
         // shift down to deleting 
@@ -152,7 +151,7 @@ class Scene{
     }
 
     hasEntityFocused(){
-        return this.focusedEntityIndex != -1;
+        return this.focusedEntityID != -1;
     }
 
     getEntity(id){
@@ -167,7 +166,7 @@ class Scene{
     }
 
     getFocusedEntity(){
-        return this.entities[this.focusedEntityIndex];
+        return this.getEntity(this.focusedEntityID);
     }
 
     getEntityIndex(entityID){

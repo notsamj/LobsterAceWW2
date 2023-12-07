@@ -1,13 +1,3 @@
-const SHOOT_DISTANCE_CONSTANT = 5;
-const CLOSE_TO_GROUND_CONSTANT = 3;
-const CLOSE_CONSTANT = 3;
-const ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT = 20;
-const TURN_TO_ENEMY_CONSTANT = 0.75; // Maybe 0.75 is good?
-const ENEMY_TAKEN_DISTANCE_MULTIPLIER = 5;
-const INCENTIVE_TURN_INERTIA = 5;
-const EVASIVE_TIME_TO_CATCH = 20;
-const EVASIVE_SPEED_DIFF = 4;
-const MIN_ANGLE_TO_ADJUST = 3;
 class BotFighterPlane extends FighterPlane{
     constructor(planeClass, angle=0, facingRight=true){
         super(planeClass, angle, facingRight);
@@ -25,6 +15,11 @@ class BotFighterPlane extends FighterPlane{
         if (this.hasCurrentEnemy()){
             let enemy = scene.getEntity(this.currentEnemyID);
             this.handleEnemy(enemy);
+        }else{
+            if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
+                this.turnInDirection(90);
+                return;
+            }
         }
     }
 
@@ -67,13 +62,13 @@ class BotFighterPlane extends FighterPlane{
     }
 
     handleMovement(angleDEG, distance, enemy){
-        if (this.closeToGround() && angleBetweenDEG(this.getShootingAngle(), 180, 359)){
+        if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
             this.turnInDirection(90);
             return;
         }
 
         // Point to enemy when very far away
-        if (distance > this.speed * ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT * TURN_TO_ENEMY_CONSTANT){
+        if (distance > this.speed * fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * fileData["constants"]["TURN_TO_ENEMY_CONSTANT"]){
             this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
@@ -86,7 +81,7 @@ class BotFighterPlane extends FighterPlane{
     handleClose(angleDEG, distance, enemy){
         let myAngle = this.getShootingAngle();
         // If enemy is behind, so evasive manuevers
-        if (angleBetweenDEG(angleDEG, rotateCWDEG(myAngle, 135), rotateCCWDEG(myAngle, 135)) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF){
+        if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, 135), rotateCCWDEG(myAngle, 135)) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF){
             this.evasiveManeuver(enemy, distance);
             return;
         }
@@ -117,16 +112,16 @@ class BotFighterPlane extends FighterPlane{
     }
 
     closeToGround(){
-        return this.y < CLOSE_TO_GROUND_CONSTANT * this.speed;
+        return this.y < fileData["constants"]["CLOSE_TO_GROUND_CONSTANT"] * this.speed;
     }
 
     turnInDirection(angleDEG){
         // Determine if we need to switch from left to right
         let myAngle = this.getShootingAngle();
         // TODO: Change this to use the easy function from helperfunctionss
-        if (this.facingRight && angleBetweenDEG(angleDEG, 135, 225) && angleBetweenDEG(myAngle, 315, 45)){
+        if (this.facingRight && angleBetweenCWDEG(angleDEG, 135, 225) && angleBetweenCWDEG(myAngle, 315, 45)){
             this.face(false);
-        }else if (!this.facingRight && angleBetweenDEG(angleDEG, 295, 0) || angleDEG < 45 && myAngle >= 135 && myAngle <= 225){
+        }else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295, 45) && angleBetweenCWDEG(angleDEG, 135, 225)){
             this.face(true);
         }
         myAngle = this.getShootingAngle();
@@ -134,7 +129,7 @@ class BotFighterPlane extends FighterPlane{
         let newAngleCCW = fixDegrees(this.getShootingAngle() - 1);
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
-        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < MIN_ANGLE_TO_ADJUST && calculateAngleDiffDEG(newAngleCCW, angleDEG) < MIN_ANGLE_TO_ADJUST){
+        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < fileData["constants"]["MIN_ANGLE_TO_ADJUST"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < fileData["constants"]["MIN_ANGLE_TO_ADJUST"]){
             return;
         }
         if (dCW < dCCW && this.facingRight){
@@ -175,7 +170,7 @@ class BotFighterPlane extends FighterPlane{
 
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID) && this.distance(scene.getEntity(this.currentEnemyID)) <= ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT * this.speed){
+        if (this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID) && this.distance(scene.getEntity(this.currentEnemyID)) <= fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -185,7 +180,7 @@ class BotFighterPlane extends FighterPlane{
             if (bestRecord == null || distance < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (isFocused(enemy.getID(), this.getID()) ? ENEMY_TAKEN_DISTANCE_MULTIPLIER : 1)
+                    "score": distance * (isFocused(enemy.getID(), this.getID()) ? fileData["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
                 }
             }
         }

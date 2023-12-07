@@ -15,21 +15,29 @@ function toDegrees(radians){
 }
 
 function fixDegrees(angle){
+    let infiniteLoopFinder = new InfiniteLoopFinder(500, "fixDegrees");
     while (angle < 0){
         angle += 360;
+        infiniteLoopFinder.count();
     }
+    infiniteLoopFinder.reset();
     while(angle >= 360){
         angle -= 360;
+        infiniteLoopFinder.count();
     }
     return angle;
 }
 
 function fixRadians(angle){
+    let infiniteLoopFinder = new InfiniteLoopFinder(500, "fixRadians");
     while (angle < 0){
         angle += 2 * Math.PI;
+        infiniteLoopFinder.count();
     }
+    infiniteLoopFinder.reset();
     while (angle >= 2 * Math.PI){
         angle -= Math.PI;
+        infiniteLoopFinder.count();
     }
     return angle;
 }
@@ -72,38 +80,48 @@ function randomNumber(maxExclusive){
 }
 
 function onSameTeam(class1, class2){
-    return fileData["plane_data"][class1]["alliance"] == fileData["plane_data"][class2]["alliance"];
+    return countryToAlliance(fileData["plane_data"][class1]["country"]) == countryToAlliance(fileData["plane_data"][class2]["alliance"]);
 }
 
 function calculateAngleDiffDEG(angle1, angle2){
     let diff = Math.max(angle1, angle2) - Math.min(angle1, angle2);
+    let infiniteLoopFinder = new InfiniteLoopFinder(500, "calculateAngleDiffDEG");
     if (diff > 180){
         diff = 360 - diff;
+        infiniteLoopFinder.count();
     }
     return diff;
 }
 
 function calculateAngleDiffDEGCW(angle1, angle2){
+    angle1 = Math.floor(angle1);
+    angle2 = Math.floor(angle2);
     let diff = 0;
+    let infiniteLoopFinder = new InfiniteLoopFinder(500, "calculateAngleDiffDEGCW");
     while (angle1 != Math.floor(angle2)){
         angle1 += 1;
         diff += 1;
         while (angle1 >= 360){
             angle1 -= 360;
         }
+        infiniteLoopFinder.count();
     }
 
     return diff;
 }
 
 function calculateAngleDiffDEGCCW(angle1, angle2){
+    angle1 = Math.floor(angle1);
+    angle2 = Math.floor(angle2);
     let diff = 0;
+    let infiniteLoopFinder = new InfiniteLoopFinder(500, "calculateAngleDiffDEGCCW");
     while (angle1 != Math.floor(angle2)){
         angle1 -= 1;
         diff += 1;
         while (angle1 < 0){
             angle1 += 360;
         }
+        infiniteLoopFinder.count();
     }
 
     return diff;
@@ -117,8 +135,12 @@ function rotateCCWDEG(angle, amount){
     return fixDegrees(angle - amount);
 }
 
-function angleBetweenDEG(angle, eAngle1, eAngle2){
-    return angle >= eAngle1 && angle <= eAngle2; 
+function angleBetweenCWDEG(angle, eAngle1, eAngle2){
+    return calculateAngleDiffDEGCW(eAngle1, angle) <= calculateAngleDiffDEGCCW(eAngle1, angle) && calculateAngleDiffDEGCW(angle, eAngle2) <= calculateAngleDiffDEGCCW(angle, eAngle2);
+}
+
+function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
+    return calculateAngleDiffDEGCCW(eAngle1, angle) <= calculateAngleDiffDEGCW(eAngle1, angle) && calculateAngleDiffDEGCCW(angle, eAngle2) <= calculateAngleDiffDEGCW(angle, eAngle2);
 }
 
 function lessThanDir(p1, p2, velocity){
@@ -141,4 +163,12 @@ function nextIntInDir(floatValue, velocity){
     }
 
     return newValue;
+}
+
+function randomFloatBetween(lowerBound, upperBound){
+    return Math.random() * (upperBound - lowerBound) + lowerBound;
+}
+
+function countryToAlliance(country){
+    return fileData["country_to_alliance"][country];
 }

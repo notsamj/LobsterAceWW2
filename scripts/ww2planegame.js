@@ -1,15 +1,3 @@
-// Global Constants
-const CANVAS_WIDTH = 1920;
-const CANVAS_HEIGHT = 927;
-const FRAME_RATE = 30;
-const TICK_RATE = 100;
-const MS_BETWEEN_TICKS = 1000/TICK_RATE;
-
-// Physics
-const GRAVITY = 9.81;
-// NOTE: Currently collision is checking per tick meaning if something moves through an object between ticks the collision is ignored
-
-
 // Global variables
 var scene;
 var startTime = null;
@@ -19,9 +7,9 @@ var numTicks = 0;
 // Functions
 
 function tick(){
-    let expectedTicks = Math.floor(((Date.now() - startTime) / MS_BETWEEN_TICKS));
+    let expectedTicks = Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
     while (numTicks < expectedTicks){
-        scene.tick(MS_BETWEEN_TICKS);
+        scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
         numTicks += 1;
     }
 }
@@ -35,10 +23,10 @@ async function setup() {
     await loadToImages(fileData["background"]["ground"]["picture"]);
     await loadToImages(fileData["background"]["above_ground"]["picture"]);
     await loadToImages(fileData["background"]["sky"]["picture"]);
-    scene = new PlaneGameScene(CANVAS_WIDTH, CANVAS_HEIGHT);
+    scene = new PlaneGameScene(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
     
     
-    /*let fighterPlane = new HumanFighterPlane("a6m_zero");
+    /*let fighterPlane = new HumanFighterPlane("hawker_sea_fury");
     //fighterPlane.speed = 0;
     //fighterPlane.throttle = 1;
     fighterPlane.health = 9999;
@@ -49,68 +37,27 @@ async function setup() {
     scene.addEntity(fighterPlane);*/
 
     // Testing
-    /*
+    
     //let botFighterPlane1 = new BotFighterPlane("spitfire");
-    let botFighterPlane1 = new FighterPlane("spitfire", 0, true);
+    let botFighterPlane1 = new BotFighterPlane("spitfire", 0, true);
     botFighterPlane1.setCenterX(10000);
-    botFighterPlane1.setCenterY(10000);
-    botFighterPlane1.throttle = 1;
-    botFighterPlane1.speed = 0;
+    botFighterPlane1.setCenterY(5000);
+    //botFighterPlane1.throttle = 1;
+   //botFighterPlane1.speed = 0;
     botFighterPlane1.health = 50000;
+    botFighterPlane1.angle = 275;
     scene.addEntity(botFighterPlane1);
-    */
     
 
-    
-    let botX = 5000;
-    let botY = 10000;
-    let extraCount = 10;
-    let extraCount2 = 10;
-    let extraCount3 = 10;
-    let extraCount4 = 10;
-    let extraType = "me_bf_109";
-    for (let i = 0; i < extraCount; i++){
-        let newFighterPlane = new BotFighterPlane(extraType);
-        newFighterPlane.setCenterX(botX + 10000 - 100 * (i + 1));
-        newFighterPlane.setCenterY(botY + 100 * (i + 1));
-        newFighterPlane.facingRight = false;
-        scene.addEntity(newFighterPlane);
-    }
-
-    let extraType2 = "a6m_zero";
-    for (let i = 0; i < extraCount2; i++){
-        let newFighterPlane = new BotFighterPlane(extraType2);
-        newFighterPlane.setCenterX(botX + 10000 - 100 * (i + 1));
-        newFighterPlane.setCenterY(botY + 100 * (i + 1) + 50);
-        newFighterPlane.facingRight = false;
-        scene.addEntity(newFighterPlane);
-    }
-
-    let extraType3 = "republic_p_47";
-    for (let i = 0; i < extraCount3; i++){
-        let newFighterPlane = new BotFighterPlane(extraType3);
-        newFighterPlane.setCenterX(botX + 1000 - 100 * (i + 1));
-        newFighterPlane.setCenterY(botY + 100 * (i + 1));
-        scene.addEntity(newFighterPlane);
-    }
-
-    let extraType4 = "spitfire";
-    for (let i = 0; i < extraCount4; i++){
-        let newFighterPlane = new BotFighterPlane(extraType4);
-        newFighterPlane.setCenterX(botX + 1000 - 100 * (i + 1));
-        newFighterPlane.setCenterY(botY + 100 * (i + 1) + 50);
-        scene.addEntity(newFighterPlane);
-    }
-    //scene.setFocusedEntity(1);
-    
+    //createBots();
 
     //scene.setFocusedEntity(Math.min(extraCount * 2, 0));
     
     
-    createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT); // TODO: Wrong order of parameters?
-    frameRate(FRAME_RATE);
+    createCanvas(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]); // TODO: Wrong order of parameters?
+    frameRate(fileData["constants"]["FRAME_RATE"]);
     startTime = Date.now();
-    setInterval(tick, Math.floor(1000 / (TICK_RATE)));
+    setInterval(tick, Math.floor(1000 / (fileData["constants"]["TICK_RATE"])));
     setupDone = true;
 }
 
@@ -124,6 +71,7 @@ function draw() {
     let y = 0;
     let planeSpeed = 0;
     let throttle = 0;
+    let health = 0;
     if (scene.hasEntityFocused()){
         let focusedEntity = scene.getFocusedEntity();
         if (!(focusedEntity instanceof FighterPlane)){
@@ -133,6 +81,7 @@ function draw() {
         y = focusedEntity.getY();
         planeSpeed = focusedEntity.getSpeed();
         throttle = focusedEntity.getThrottle();
+        health = focusedEntity.getHealth();
         if (focusedEntity instanceof HumanFighterPlane){
             focusedEntity.getRadar().display();
         }
@@ -143,4 +92,34 @@ function draw() {
     text(`y: ${y}`, 10, 40);
     text(`Speed: ${planeSpeed}`, 10, 60);
     text(`Throttle: ${throttle}`, 10, 80);
+    text(`Health: ${health}`, 10, 100);
+}
+
+function createBots(){
+    let allyX = fileData["test_bots"]["ally_spawn_x"];
+    let allyY = fileData["test_bots"]["ally_spawn_y"];
+
+    let axisX = fileData["test_bots"]["axis_spawn_x"];
+    let axisY = fileData["test_bots"]["axis_spawn_y"];
+    let total = 0;
+    for (let botClass of fileData["test_bots"]["active_bots"]){
+        total += botClass["count"];
+        let x = (countryToAlliance(fileData["plane_data"][botClass["plane"]]["country"] == "Allies")) ? allyX : axisX; 
+        let y = (countryToAlliance(fileData["plane_data"][botClass["plane"]]["country"] == "Allies")) ? allyY : axisY;
+        for (let i = 0; i < botClass["count"]; i++){
+            let aX = x + randomFloatBetween(-1 * fileData["test_bots"]["spawn_offset"], fileData["test_bots"]["spawn_offset"]);
+            let aY = y + randomFloatBetween(-1 * fileData["test_bots"]["spawn_offset"], fileData["test_bots"]["spawn_offset"]);
+            createBot(botClass["plane"], aX, aY);
+        }
+    }
+    scene.setFocusedEntity(randomNumberInclusive(0, total-1));
+
+}
+
+function createBot(model, x, y){
+    //console.log(model, x, y)
+    let botFighterPlane = BiasedBotFighterPlane.createBiasedPlane(model);
+    botFighterPlane.setCenterX(x);
+    botFighterPlane.setCenterY(y);
+    scene.addEntity(botFighterPlane);
 }

@@ -3,7 +3,6 @@ class HumanFighterPlane extends FighterPlane{
         super(planeClass, angle, facingRight);
         this.lrCDLock = new CooldownLock(10);
         this.lrLock = new Lock();
-        this.udLock = new CooldownLock(10);
         this.tLock = new CooldownLock(10);
         this.sLock = new CooldownLock(10);
         this.radarLock = new CooldownLock(1000);
@@ -68,8 +67,6 @@ class HumanFighterPlane extends FighterPlane{
 
 
     checkUpDown(){
-        if (!this.udLock.isReady()){ return; }
-        this.udLock.lock();
         let wKey = keyIsDown(87);
         let sKey = keyIsDown(83);
         let numKeysDown = 0;
