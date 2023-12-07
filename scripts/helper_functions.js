@@ -80,7 +80,7 @@ function randomNumber(maxExclusive){
 }
 
 function onSameTeam(class1, class2){
-    return countryToAlliance(fileData["plane_data"][class1]["country"]) == countryToAlliance(fileData["plane_data"][class2]["alliance"]);
+    return countryToAlliance(fileData["plane_data"][class1]["country"]) == countryToAlliance(fileData["plane_data"][class2]["country"]);
 }
 
 function calculateAngleDiffDEG(angle1, angle2){

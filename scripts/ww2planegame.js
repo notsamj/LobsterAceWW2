@@ -38,7 +38,7 @@ async function setup() {
 
     // Testing
     
-    //let botFighterPlane1 = new BotFighterPlane("spitfire");
+    /*
     let botFighterPlane1 = new BotFighterPlane("spitfire", 0, true);
     botFighterPlane1.setCenterX(10000);
     botFighterPlane1.setCenterY(5000);
@@ -47,9 +47,10 @@ async function setup() {
     botFighterPlane1.health = 50000;
     botFighterPlane1.angle = 275;
     scene.addEntity(botFighterPlane1);
+    */
     
 
-    //createBots();
+    createBots();
 
     //scene.setFocusedEntity(Math.min(extraCount * 2, 0));
     

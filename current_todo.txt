@@ -1,9 +1,8 @@
 1. Add a freecam mode with radar: Red & Green
-2. Add something to translate coutnry to alliance so no need to repeatedly connect them
-3. Make a dogfight gamemode
-4. Make bombers
-5. Add sound
+2. Make a dogfight gamemode
+3. Make bombers
+4. Add sound
 5. Make an escort bomber game mode
 6. Make ground gamemode
-7. Redesign planes?
-8. Make start screen
+7. Make start screen
+8. Make tank gamemode
