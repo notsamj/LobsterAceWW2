@@ -172,3 +172,11 @@ function randomFloatBetween(lowerBound, upperBound){
 function countryToAlliance(country){
     return fileData["country_to_alliance"][country];
 }
+
+function planeModelToCountry(planeModel){
+    return fileData["plane_data"][planeModel]["country"];
+}
+
+function planeModelToAlliance(planeModel){
+    return countryToAlliance(planeModelToCountry(planeModel));
+}

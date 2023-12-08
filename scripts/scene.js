@@ -186,6 +186,23 @@ class Scene{
         this.checkCollisions(timeDiff);
     }
 
+    getNumberOfEntities(){
+        return this.entities.length;
+    }
+
+    getGoodToFollowEntities(){
+        let entities = this.getEntities();
+        let followableEntities = [];
+        
+        // Get followable entities
+        for (let entity of entities){
+            if (entity.goodToFollow()){
+                followableEntities.push(entity);
+            }
+        }
+        return followableEntities;
+    }
+
     // Abstract
     checkCollisions(timeDiff){}
 }

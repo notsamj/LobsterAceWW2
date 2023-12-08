@@ -23,7 +23,7 @@ class Bullet extends Entity{
         this.y += this.yVelocity * timeProportion;
 
         // If below ground
-        if (this.y < 0){
+        if (this.y < 0 || Math.abs(this.yVelocity) > fileData["constants"]["CANVAS_HEIGHT"]){
             this.delete();
         }
     }

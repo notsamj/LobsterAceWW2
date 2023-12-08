@@ -6,7 +6,7 @@ class HumanFighterPlane extends FighterPlane{
         this.tLock = new CooldownLock(10);
         this.sLock = new CooldownLock(10);
         this.radarLock = new CooldownLock(1000);
-        this.radar = new Radar(this);
+        this.radar = new PlaneRadar(this);
     }
 
     getRadar(){
@@ -30,6 +30,8 @@ class HumanFighterPlane extends FighterPlane{
         this.checkThrottle();
         this.updateRadar();
     }
+
+    hasRadar(){ return true; }
 
     updateRadar(){
         if (this.radarLock.isReady()){

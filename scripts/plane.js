@@ -7,4 +7,6 @@ class Plane extends Entity{
     getPlaneClass(){
         return this.planeClass;
     }
+
+    goodToFollow(){ return true; }
 }

@@ -94,7 +94,7 @@ var fileData = {
         "SLOW_DOWN_AMOUNT": 0.1,
         "CANVAS_WIDTH": 1920,
         "CANVAS_HEIGHT": 927,
-        "FRAME_RATE": 30,
+        "FRAME_RATE": 60,
         "TICK_RATE": 100,
         "MS_BETWEEN_TICKS": 10,
         "GRAVITY": 9.81
@@ -200,35 +200,35 @@ var fileData = {
         "active_bots": [
             {
                 "plane": "a6m_zero",
-                "count": 5
+                "count": 10
             },
             {
                 "plane": "hawker_sea_fury",
-                "count": 5
+                "count": 0
             },
             {
                 "plane": "kawasaki_ki_45",
-                "count": 5
+                "count": 10
             },
             {
                 "plane": "me_309",
-                "count": 5
+                "count": 0
             },
             {
                 "plane": "me_bf_109",
-                "count": 5
+                "count": 0
             },
             {
                 "plane": "p51_mustang",
-                "count": 5
+                "count": 10
             },
             {
                 "plane": "republic_p_47",
-                "count": 5
+                "count": 10
             },
             {
                 "plane": "spitfire",
-                "count": 5
+                "count": 0
             },
             
         ] 

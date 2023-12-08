@@ -1,4 +1,6 @@
 1. Add a freecam mode with radar: Red & Green
+2. Make a spectator mode
+3. Make after match stats
 2. Make a dogfight gamemode
 3. Make bombers
 4. Add sound

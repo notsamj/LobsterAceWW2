@@ -68,6 +68,11 @@ class Entity{
         scene.delete(this.id);
     }
 
+    // May be overridden
+    goodToFollow(){ return false; }
+    getDisplayID(){ return this.getID(); }
+    hasRadar(){ return false; }
+
     // Abstract Methods
     getWidth(){}
     getHeight(){}

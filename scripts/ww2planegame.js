@@ -1,8 +1,10 @@
 // Global variables
 var scene;
 var startTime = null;
-var setupDone = false;
 var numTicks = 0;
+var setupDone = false;
+var frameCounter = new FrameRateCounter(fileData["constants"]["FRAME_RATE"]);
+var frameLock = new CooldownLock(Math.floor(1/fileData["constants"]["FRAME_RATE"]));
 
 // Functions
 
@@ -11,6 +13,11 @@ function tick(){
     while (numTicks < expectedTicks){
         scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
         numTicks += 1;
+    }
+    if (frameLock.isReady()){
+        frameLock.lock();
+        draw();
+        frameCounter.countFrame();
     }
 }
 
@@ -36,6 +43,9 @@ async function setup() {
 
     scene.addEntity(fighterPlane);*/
 
+    let spectatorCamera = new SpectatorCamera();
+    scene.addEntity(spectatorCamera);
+
     // Testing
     
     /*
@@ -56,16 +66,14 @@ async function setup() {
     
     
     createCanvas(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]); // TODO: Wrong order of parameters?
-    frameRate(fileData["constants"]["FRAME_RATE"]);
+    frameRate(0);
     startTime = Date.now();
     setInterval(tick, Math.floor(1000 / (fileData["constants"]["TICK_RATE"])));
     setupDone = true;
 }
 
 function draw() {
-    if (!setupDone){
-        return;
-    }
+    if (!setupDone){ return; }
     clear();
     scene.display();
     let x = 0;
@@ -73,9 +81,14 @@ function draw() {
     let planeSpeed = 0;
     let throttle = 0;
     let health = 0;
+    let fps = frameCounter.getFPS();
+    let numberOfEntities = scene.getNumberOfEntities();
+    let allyPlanes = countAlliance("Allies");
+    let axisPlanes = countAlliance("Axis");
+    let entityID = 0;
     if (scene.hasEntityFocused()){
         let focusedEntity = scene.getFocusedEntity();
-        if (!(focusedEntity instanceof FighterPlane)){
+        if (focusedEntity instanceof Bullet){
             return;
         }
         x = focusedEntity.getX();
@@ -83,7 +96,8 @@ function draw() {
         planeSpeed = focusedEntity.getSpeed();
         throttle = focusedEntity.getThrottle();
         health = focusedEntity.getHealth();
-        if (focusedEntity instanceof HumanFighterPlane){
+        entityID = focusedEntity.getDisplayID();
+        if (focusedEntity.hasRadar()){
             focusedEntity.getRadar().display();
         }
     }
@@ -94,9 +108,15 @@ function draw() {
     text(`Speed: ${planeSpeed}`, 10, 60);
     text(`Throttle: ${throttle}`, 10, 80);
     text(`Health: ${health}`, 10, 100);
+    text(`FPS: ${fps}`, 10, 120);
+    text(`Entities: ${numberOfEntities}`, 10, 140);
+    text(`ID: ${entityID}`, 10, 160);
+    text(`Allied Planes Remaining: ${allyPlanes}`, 10, 180);
+    text(`Axis Planes Remaining: ${axisPlanes}`, 10, 200);
 }
 
 function createBots(){
+    let focus = !scene.hasEntityFocused();
     let allyX = fileData["test_bots"]["ally_spawn_x"];
     let allyY = fileData["test_bots"]["ally_spawn_y"];
 
@@ -113,8 +133,9 @@ function createBots(){
             createBot(botClass["plane"], aX, aY);
         }
     }
-    scene.setFocusedEntity(randomNumberInclusive(0, total-1));
-
+    if (focus){
+        scene.setFocusedEntity(randomNumberInclusive(0, total-1));
+    }
 }
 
 function createBot(model, x, y){
@@ -123,4 +144,14 @@ function createBot(model, x, y){
     botFighterPlane.setCenterX(x);
     botFighterPlane.setCenterY(y);
     scene.addEntity(botFighterPlane);
+}
+
+function countAlliance(allianceName){
+    let count = 0;
+    for (let entity of scene.getEntities()){
+        if (entity instanceof FighterPlane && planeModelToAlliance(entity.getPlaneClass()) == allianceName){
+            count++;
+        }
+    }
+    return count;
 }
