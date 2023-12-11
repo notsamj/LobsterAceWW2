@@ -16,6 +16,46 @@ class PlaneGameScene extends Scene{
     constructor(width, height){
         super(width, height);
     }
+
+    displayHUD(){
+        let x = 0;
+        let y = 0;
+        let planeSpeed = 0;
+        let throttle = 0;
+        let health = 0;
+        let fps = frameCounter.getFPS();
+        let numberOfEntities = this.getNumberOfEntities();
+        let allyPlanes = countAlliance("Allies");
+        let axisPlanes = countAlliance("Axis");
+        let entityID = 0;
+        if (this.hasEntityFocused()){
+            let focusedEntity = this.getFocusedEntity();
+            if (focusedEntity instanceof Bullet){
+                return;
+            }
+            x = focusedEntity.getX();
+            y = focusedEntity.getY();
+            planeSpeed = focusedEntity.getSpeed();
+            throttle = focusedEntity.getThrottle();
+            health = focusedEntity.getHealth();
+            entityID = focusedEntity.getDisplayID();
+            if (focusedEntity.hasRadar()){
+                focusedEntity.getRadar().display();
+            }
+        }
+        textSize(20);
+        fill("green");
+        text(`x: ${x}`, 10, 20);
+        text(`y: ${y}`, 10, 40);
+        text(`Speed: ${planeSpeed}`, 10, 60);
+        text(`Throttle: ${throttle}`, 10, 80);
+        text(`Health: ${health}`, 10, 100);
+        text(`FPS: ${fps}`, 10, 120);
+        text(`Entities: ${numberOfEntities}`, 10, 140);
+        text(`ID: ${entityID}`, 10, 160);
+        text(`Allied Planes Remaining: ${allyPlanes}`, 10, 180);
+        text(`Axis Planes Remaining: ${axisPlanes}`, 10, 200);
+    }
     
     displayBackground(lX, bY){
         let lXP = Math.floor(lX);
@@ -167,5 +207,11 @@ class PlaneGameScene extends Scene{
             this.setFocusedEntity(-1);
         }
         this.entities = newArray;
+    }
+
+    display(){
+        if (!this.enabled){ return; }
+        super.display();
+        this.displayHUD();
     }
 }

@@ -1,5 +1,6 @@
 // Global variables
 var scene;
+var menuManager;
 var startTime = null;
 var numTicks = 0;
 var setupDone = false;
@@ -22,6 +23,7 @@ function tick(){
 }
 
 async function setup() {
+    // Load Images TODO: Make this way cleaner
     await loadPlanes();
     await loadToImages("radar_outline");
     await loadToImages("radar_blip");
@@ -30,7 +32,15 @@ async function setup() {
     await loadToImages(fileData["background"]["ground"]["picture"]);
     await loadToImages(fileData["background"]["above_ground"]["picture"]);
     await loadToImages(fileData["background"]["sky"]["picture"]);
+
+    // Create Canvas
+    createCanvas(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
+    frameRate(0);
+
+    // Set up scene & menus
     scene = new PlaneGameScene(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
+    menuManager = new MenuManager(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
+    MenuManager.setupClickListener();
     
     
     /*let fighterPlane = new HumanFighterPlane("hawker_sea_fury");
@@ -64,55 +74,22 @@ async function setup() {
 
     //scene.setFocusedEntity(Math.min(extraCount * 2, 0));
     
-    
-    createCanvas(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]); // TODO: Wrong order of parameters?
-    frameRate(0);
+    // Prepare to start running
     startTime = Date.now();
     setInterval(tick, Math.floor(1000 / (fileData["constants"]["TICK_RATE"])));
     setupDone = true;
 }
 
 function draw() {
-    if (!setupDone){ return; }
     clear();
-    scene.display();
-    let x = 0;
-    let y = 0;
-    let planeSpeed = 0;
-    let throttle = 0;
-    let health = 0;
-    let fps = frameCounter.getFPS();
-    let numberOfEntities = scene.getNumberOfEntities();
-    let allyPlanes = countAlliance("Allies");
-    let axisPlanes = countAlliance("Axis");
-    let entityID = 0;
-    if (scene.hasEntityFocused()){
-        let focusedEntity = scene.getFocusedEntity();
-        if (focusedEntity instanceof Bullet){
-            return;
-        }
-        x = focusedEntity.getX();
-        y = focusedEntity.getY();
-        planeSpeed = focusedEntity.getSpeed();
-        throttle = focusedEntity.getThrottle();
-        health = focusedEntity.getHealth();
-        entityID = focusedEntity.getDisplayID();
-        if (focusedEntity.hasRadar()){
-            focusedEntity.getRadar().display();
-        }
+    if (!setupDone){
+        textSize(100);
+        fill("green");
+        text("Loading...", 200, 200);
+        return; 
     }
-    textSize(20);
-    fill("green");
-    text(`x: ${x}`, 10, 20);
-    text(`y: ${y}`, 10, 40);
-    text(`Speed: ${planeSpeed}`, 10, 60);
-    text(`Throttle: ${throttle}`, 10, 80);
-    text(`Health: ${health}`, 10, 100);
-    text(`FPS: ${fps}`, 10, 120);
-    text(`Entities: ${numberOfEntities}`, 10, 140);
-    text(`ID: ${entityID}`, 10, 160);
-    text(`Allied Planes Remaining: ${allyPlanes}`, 10, 180);
-    text(`Axis Planes Remaining: ${axisPlanes}`, 10, 200);
+    menuManager.display();
+    scene.display();
 }
 
 function createBots(){

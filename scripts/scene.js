@@ -27,6 +27,7 @@ class Scene{
         this.nextEntityID = 0;
         this.entities = [];
         this.focusedEntityID = -1;
+        this.enabled = false;
     }
 
     getEntities(){
@@ -34,6 +35,7 @@ class Scene{
     }
 
     display(){
+        if (!this.enabled){ return; }
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
         let focusedEntity = null;
@@ -178,7 +180,16 @@ class Scene{
         return -1;
     }
 
+    enable(){
+        this.enabled = true;
+    }
+
+    disable(){
+        this.disable = false;
+    }
+
     tick(timeDiff){
+        if (!this.enabled){ return; }
         for (let entity of this.entities){
             entity.tick(timeDiff);
         }

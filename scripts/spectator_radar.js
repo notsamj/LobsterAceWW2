@@ -47,7 +47,6 @@ class SpectatorRadar extends Radar{
         for (let x = 0; x < this.size; x++){
             for (let y = 0; y < this.size; y++){
                 if (this.radarData[x][y] == -1){
-                    console.log("aaa")
                     drawingContext.drawImage(this.radarBlip, this.screenX + borderWidth + this.blipSize * x, this.screenY + borderWidth + this.blipSize * y);
                 }else if (this.radarData[x][y] == 1){
                     drawingContext.drawImage(this.friendlyBlip, this.screenX + borderWidth + this.blipSize * x, this.screenY + borderWidth + this.blipSize * y);
