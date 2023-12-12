@@ -1,5 +1,6 @@
-class RectangleButton {
+class RectangleButton extends Component {
     constructor(textStr, colour, textColour, x, y, width, height, callBack){
+        super();
         this.textStr = textStr;
         this.colour = colour;
         this.textColour = textColour;

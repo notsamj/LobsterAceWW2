@@ -27,7 +27,8 @@ class Scene{
         this.nextEntityID = 0;
         this.entities = [];
         this.focusedEntityID = -1;
-        this.enabled = false;
+        this.tickEnabled = false;
+        this.displayEnabled = false;
     }
 
     getEntities(){
@@ -35,7 +36,7 @@ class Scene{
     }
 
     display(){
-        if (!this.enabled){ return; }
+        if (!this.displayEnabled){ return; }
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
         let focusedEntity = null;
@@ -181,15 +182,33 @@ class Scene{
     }
 
     enable(){
-        this.enabled = true;
+        this.enableTicks();
+        this.enableDisplay();
     }
 
     disable(){
-        this.disable = false;
+        this.disableTicks();
+        this.disableDisplay();
+    }
+
+    enableTicks(){
+        this.ticksEnabled = true;
+    }
+
+    disableTicks(){
+        this.ticksEnabled = false;
+    }
+
+    enableDisplay(){
+        this.displayEnabled = true;
+    }
+
+    disableDisplay(){
+        this.displayEnabled = false;
     }
 
     tick(timeDiff){
-        if (!this.enabled){ return; }
+        if (!this.ticksEnabled){ return; }
         for (let entity of this.entities){
             entity.tick(timeDiff);
         }

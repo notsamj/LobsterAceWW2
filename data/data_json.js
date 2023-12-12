@@ -200,7 +200,7 @@ var fileData = {
         "active_bots": [
             {
                 "plane": "a6m_zero",
-                "count": 10
+                "count": 0
             },
             {
                 "plane": "hawker_sea_fury",
@@ -208,7 +208,7 @@ var fileData = {
             },
             {
                 "plane": "kawasaki_ki_45",
-                "count": 10
+                "count": 0
             },
             {
                 "plane": "me_309",
@@ -220,11 +220,11 @@ var fileData = {
             },
             {
                 "plane": "p51_mustang",
-                "count": 10
+                "count": 0
             },
             {
                 "plane": "republic_p_47",
-                "count": 10
+                "count": 0
             },
             {
                 "plane": "spitfire",
@@ -238,5 +238,15 @@ var fileData = {
         "USA": "Allies",
         "Japan": "Axis",
         "Germany": "Axis"
-    }
+    },
+    "extra_images_to_load": [
+        "radar_outline",
+        "radar_blip",
+        "radar_blip_friendly",
+        "bullet",
+        "dirt",
+        "above_ground",
+        "clouds",
+        "freecam"
+    ],
 }

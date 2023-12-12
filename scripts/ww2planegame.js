@@ -22,16 +22,17 @@ function tick(){
     }
 }
 
+async function loadExtraImages(){
+    for (let imageName of fileData["extra_images_to_load"]){
+        console.log("Loading", imageName)
+        await loadToImages(imageName);
+    }
+}
+
 async function setup() {
     // Load Images TODO: Make this way cleaner
     await loadPlanes();
-    await loadToImages("radar_outline");
-    await loadToImages("radar_blip");
-    await loadToImages("radar_blip_friendly");
-    await loadToImages(fileData["bullet_data"]["picture"]);
-    await loadToImages(fileData["background"]["ground"]["picture"]);
-    await loadToImages(fileData["background"]["above_ground"]["picture"]);
-    await loadToImages(fileData["background"]["sky"]["picture"]);
+    await loadExtraImages();
 
     // Create Canvas
     createCanvas(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
@@ -83,9 +84,9 @@ async function setup() {
 function draw() {
     clear();
     if (!setupDone){
-        textSize(100);
+        textSize(200);
         fill("green");
-        text("Loading...", 200, 200);
+        text("Loading...", 200, 200, 200, 200);
         return; 
     }
     menuManager.display();
