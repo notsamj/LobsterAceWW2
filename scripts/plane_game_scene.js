@@ -45,6 +45,7 @@ class PlaneGameScene extends Scene{
         }
         textSize(20);
         fill("green");
+        textAlign(LEFT);
         text(`x: ${x}`, 10, 20);
         text(`y: ${y}`, 10, 40);
         text(`Speed: ${planeSpeed}`, 10, 60);
@@ -210,7 +211,7 @@ class PlaneGameScene extends Scene{
     }
 
     display(){
-        if (!this.enabled){ return; }
+        if (!this.displayEnabled){ return; }
         super.display();
         this.displayHUD();
     }

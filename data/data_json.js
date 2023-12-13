@@ -97,7 +97,8 @@ var fileData = {
         "FRAME_RATE": 60,
         "TICK_RATE": 100,
         "MS_BETWEEN_TICKS": 10,
-        "GRAVITY": 9.81
+        "GRAVITY": 9.81,
+        "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2
     },
 
     "ai": {
@@ -191,47 +192,12 @@ var fileData = {
         }
     },
 
-    "test_bots":{
+    "dogfight_settings":{
         "ally_spawn_x": 50000,
         "ally_spawn_y": 50000,
         "axis_spawn_x": 70000,
         "axis_spawn_y": 70000,
-        "spawn_offset": 5000,
-        "active_bots": [
-            {
-                "plane": "a6m_zero",
-                "count": 0
-            },
-            {
-                "plane": "hawker_sea_fury",
-                "count": 0
-            },
-            {
-                "plane": "kawasaki_ki_45",
-                "count": 0
-            },
-            {
-                "plane": "me_309",
-                "count": 0
-            },
-            {
-                "plane": "me_bf_109",
-                "count": 0
-            },
-            {
-                "plane": "p51_mustang",
-                "count": 0
-            },
-            {
-                "plane": "republic_p_47",
-                "count": 0
-            },
-            {
-                "plane": "spitfire",
-                "count": 0
-            },
-            
-        ] 
+        "spawn_offset": 5000
     },
     "country_to_alliance": {
         "Britain": "Allies",

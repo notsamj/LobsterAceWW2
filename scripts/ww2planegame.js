@@ -6,14 +6,23 @@ var numTicks = 0;
 var setupDone = false;
 var frameCounter = new FrameRateCounter(fileData["constants"]["FRAME_RATE"]);
 var frameLock = new CooldownLock(Math.floor(1/fileData["constants"]["FRAME_RATE"]));
+var activeGameMode = null;
 
 // Functions
 
 function tick(){
-    let expectedTicks = Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
-    while (numTicks < expectedTicks){
-        scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
-        numTicks += 1;
+    if (document.hidden){
+        menuManager.lostFocus();
+    }
+    if (setupDone){
+        let expectedTicks = Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
+        while (numTicks < expectedTicks){
+            scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
+            if (activeGameMode != null){
+                activeGameMode.tick();
+            }
+            numTicks += 1;
+        }
     }
     if (frameLock.isReady()){
         frameLock.lock();
@@ -30,13 +39,17 @@ async function loadExtraImages(){
 }
 
 async function setup() {
-    // Load Images TODO: Make this way cleaner
-    await loadPlanes();
-    await loadExtraImages();
-
     // Create Canvas
     createCanvas(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
     frameRate(0);
+
+    // Prepare to start running
+    startTime = Date.now();
+    setInterval(tick, Math.floor(1000 / (fileData["constants"]["TICK_RATE"])));
+
+    await loadPlanes();
+    await loadExtraImages();
+
 
     // Set up scene & menus
     scene = new PlaneGameScene(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
@@ -54,8 +67,8 @@ async function setup() {
 
     scene.addEntity(fighterPlane);*/
 
-    let spectatorCamera = new SpectatorCamera();
-    scene.addEntity(spectatorCamera);
+    //let spectatorCamera = new SpectatorCamera();
+    //scene.addEntity(spectatorCamera);
 
     // Testing
     
@@ -71,13 +84,10 @@ async function setup() {
     */
     
 
-    createBots();
+    //createBots();
 
     //scene.setFocusedEntity(Math.min(extraCount * 2, 0));
     
-    // Prepare to start running
-    startTime = Date.now();
-    setInterval(tick, Math.floor(1000 / (fileData["constants"]["TICK_RATE"])));
     setupDone = true;
 }
 
@@ -89,8 +99,11 @@ function draw() {
         text("Loading...", 200, 200, 200, 200);
         return; 
     }
-    menuManager.display();
     scene.display();
+    if (activeGameMode != null){
+        activeGameMode.display();
+    }
+    menuManager.display();
 }
 
 function createBots(){

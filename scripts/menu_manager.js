@@ -32,6 +32,26 @@ class MenuManager {
         document.getElementById("defaultCanvas0").addEventListener("click", (event) => {
             menuManager.click(event.clientX, event.clientY);
         });
+
+        document.onkeydown = (event) => {
+            if (event.key === "Escape"){
+                menuManager.escapeKey();
+            }
+        };
+    }
+
+    lostFocus(){
+        if (!this.hasActiveMenu()){
+            this.switchTo("pauseMenu");
+        }
+    }
+
+    escapeKey(){
+        if (this.activeMenu == this.pauseMenu){
+            this.switchTo("game");
+        }else if (!this.hasActiveMenu()){
+            this.switchTo("pauseMenu");
+        }
     }
 
     switchTo(newMenu){
@@ -40,7 +60,11 @@ class MenuManager {
         }else if (newMenu == "dogfight"){
             this.activeMenu = this.dogfightMenu;
         }else if (newMenu == "pauseMenu"){
+            scene.disableTicks();
             this.activeMenu = this.pauseMenu;
+        }else if (newMenu == "game"){
+            scene.enable();
+            this.activeMenu = null;
         }else{
             this.activeMenu = null;
         }

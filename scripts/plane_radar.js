@@ -6,7 +6,7 @@ class PlaneRadar extends Radar{
     update(){
         this.radarData = this.resetRadar();
         for (let entity of scene.getEntities()){
-            if (entity instanceof Plane && !onSameTeam(this.plane.getPlaneClass(), entity.getPlaneClass())){
+            if (entity instanceof Plane && !onSameTeam(this.entity.getPlaneClass(), entity.getPlaneClass())){
                 this.placeOnRadar(entity.getX(), entity.getY());
             }
         }

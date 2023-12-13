@@ -233,6 +233,13 @@ class Scene{
         return followableEntities;
     }
 
+    setEntities(entities){
+        this.entities = [];
+        for (let entity of entities){
+            this.addEntity(entity);
+        }
+    }
+
     // Abstract
     checkCollisions(timeDiff){}
 }

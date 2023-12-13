@@ -34,8 +34,8 @@ class DogfightMenu extends Menu {
         let startButtonXSize = 1920-50*2;
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            console.log("Starting game... (TODO)")
-            // TODO
+            activeGameMode = new Dogfight(this.getFighterPlanes());
+            this.goToGame();
         }));
 
         // User Section
@@ -254,8 +254,48 @@ class DogfightMenu extends Menu {
         for (let [planeName, planeCount] of axisDetails){
             botDetailsText += planeName + ": " + planeCount.toString() + "\n";
         }
-        console.log(botDetailsText)
+        //console.log(botDetailsText)
         this.botDetailsComponent.setText(botDetailsText);
+    }
+
+    getFighterPlanes(){
+        let planes = [];
+        let allyX = fileData["dogfight_settings"]["ally_spawn_x"];
+        let allyY = fileData["dogfight_settings"]["ally_spawn_y"];
+        let axisX = fileData["dogfight_settings"]["axis_spawn_x"];
+        let axisY = fileData["dogfight_settings"]["axis_spawn_y"];
+
+        // Add user
+        let userEntityType = this.userPlanes[this.userPlaneIndex];
+        let userEntity = userEntityType == "freecam" ? new SpectatorCamera() : new HumanFighterPlane(userEntityType);
+        let middleX = (allyX + axisX)/2;
+        let middleY = (allyY + axisY)/2;
+        userEntity.setCenterX(userEntityType == "freecam" ? middleX : (planeModelToAlliance(userEntityType) == "Allies" ? allyX : axisX));
+        userEntity.setCenterY(userEntityType == "freecam" ? middleY : (planeModelToAlliance(userEntityType) == "Allies" ? allyY : axisY));
+        planes.push(userEntity);
+
+        // Add bots
+        for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
+            let x = (planeModelToAlliance(planeName) == "Allies") ? allyX : axisX; 
+            let y = (planeModelToAlliance(planeName) == "Allies") ? allyY : axisY;
+            for (let i = 0; i < planeCount; i++){
+                let aX = x + randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
+                let aY = y + randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
+                planes.push(DogfightMenu.createBiasedBot(planeName, aX, aY));
+            }
+        }
+        return planes;
+    }
+
+    static createBiasedBot(model, x, y){
+        let botFighterPlane = BiasedBotFighterPlane.createBiasedPlane(model);
+        botFighterPlane.setCenterX(x);
+        botFighterPlane.setCenterY(y);
+        return botFighterPlane;
+    }
+
+    goToGame(){
+        menuManager.switchTo("game");
     }
 
 

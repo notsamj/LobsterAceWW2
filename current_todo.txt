@@ -1,5 +1,4 @@
-1. Make start screen
-2. Make a dogfight gamemode
+1. Add back to main menu thing (press esc or unfocus tab)
 3. Make after match stats
 4. Make bombers
 5. Add sound
