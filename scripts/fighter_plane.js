@@ -16,6 +16,7 @@ class FighterPlane extends Plane{
     isFacingRight(){
         return this.facingRight;
     }
+    
     damage(amount){
         this.health -= amount;
         //document.getElementById("hitSound").play();
@@ -73,6 +74,10 @@ class FighterPlane extends Plane{
         this.speed *= (1 - fileData["constants"]["SLOW_DOWN_AMOUNT"]);
     }
 
+    setFacingRight(facingRight){
+        this.facingRight = facingRight;
+    }
+
     getCurrentImage(){
         return images[this.getImageIdentifier()];
     }
@@ -119,7 +124,7 @@ class FighterPlane extends Plane{
         if (this.throttle > 0){
             this.y += this.getYVelocity() * timeProportion;
         }else{
-            this.y -= FALL_SPEED * timeProportion;
+            this.y -= fileData["constants"]["FALL_SPEED"] * timeProportion;
         }
 
         this.x += this.getXVelocity() * timeProportion;

@@ -6,3 +6,6 @@ class GameMode {
     // Abstract Methods
     isRunning(){}
 }
+if (typeof window === "undefined"){
+    module.exports = GameMode;
+}

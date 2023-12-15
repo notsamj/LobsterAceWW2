@@ -1,13 +1,16 @@
-class Dogfight extends GameMode {
+var GameModeClass;
+if (typeof window === "undefined"){
+    GameModeClass = require("../scripts/game_mode.js");
+}else{
+    GameModeClass = GameMode;
+}
+class Dogfight extends GameModeClass {
     constructor(startingEntities){
         super();
-        scene.setEntities(startingEntities);
-        scene.setFocusedEntity(startingEntities[0].getID());
         this.startingEntities = startingEntities;
         this.running = true;
         this.winner = null;
         this.isATestSession = this.isThisATestSession();
-        scene.enable();
     }
 
     isRunning(){
@@ -41,12 +44,6 @@ class Dogfight extends GameMode {
         }
     }
 
-    display(){
-        if (!this.isRunning()){
-            Menu.makeText("Winner: " + this.winner, "green", 500, 800, 1000, 300)
-        }
-    }
-
     // No winner in a test session
     isThisATestSession(){
         let allyCount = 0;
@@ -63,4 +60,7 @@ class Dogfight extends GameMode {
         }
         return allyCount == 0 || axisCount == 0;
     }
+}
+if (typeof window === "undefined"){
+    module.exports = Dogfight;
 }

@@ -196,7 +196,7 @@ var fileData = {
         "ally_spawn_x": 50000,
         "ally_spawn_y": 50000,
         "axis_spawn_x": 70000,
-        "axis_spawn_y": 70000,
+        "axis_spawn_y": 50000,
         "spawn_offset": 5000
     },
     "country_to_alliance": {

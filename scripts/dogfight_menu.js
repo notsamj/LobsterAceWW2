@@ -34,7 +34,7 @@ class DogfightMenu extends Menu {
         let startButtonXSize = 1920-50*2;
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            activeGameMode = new Dogfight(this.getFighterPlanes());
+            activeGameMode = new LocalDogfight(this.getFighterPlanes());
             this.goToGame();
         }));
 
@@ -257,7 +257,7 @@ class DogfightMenu extends Menu {
         //console.log(botDetailsText)
         this.botDetailsComponent.setText(botDetailsText);
     }
-
+    // TODO: Move this shit to dogfight class
     getFighterPlanes(){
         let planes = [];
         let allyX = fileData["dogfight_settings"]["ally_spawn_x"];
@@ -274,23 +274,26 @@ class DogfightMenu extends Menu {
         userEntity.setCenterY(userEntityType == "freecam" ? middleY : (planeModelToAlliance(userEntityType) == "Allies" ? allyY : axisY));
         planes.push(userEntity);
 
+        let allyFacingRight = allyX < axisX;
         // Add bots
         for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
             let x = (planeModelToAlliance(planeName) == "Allies") ? allyX : axisX; 
             let y = (planeModelToAlliance(planeName) == "Allies") ? allyY : axisY;
+            let facingRight = (planeModelToAlliance(planeName) == "Allies") ? allyFacingRight : !allyFacingRight;
             for (let i = 0; i < planeCount; i++){
                 let aX = x + randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
                 let aY = y + randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
-                planes.push(DogfightMenu.createBiasedBot(planeName, aX, aY));
+                planes.push(DogfightMenu.createBiasedBot(planeName, aX, aY, facingRight));
             }
         }
         return planes;
     }
 
-    static createBiasedBot(model, x, y){
+    static createBiasedBot(model, x, y, facingRight){
         let botFighterPlane = BiasedBotFighterPlane.createBiasedPlane(model);
         botFighterPlane.setCenterX(x);
         botFighterPlane.setCenterY(y);
+        botFighterPlane.setFacingRight(facingRight);
         return botFighterPlane;
     }
 
