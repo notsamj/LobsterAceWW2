@@ -1,7 +1,13 @@
-class BiasedBotFighterPlane extends BotFighterPlane{
-    constructor(planeClass, biases, angle=0, facingRight=true){
-        super(planeClass, angle, facingRight);
+if (typeof window === "undefined"){
+    BotFighterPlane = require("../scripts/bot_fighter_plane.js");
+    CooldownLock = require("../scripts/lock.js").CooldownLock;
+    fileData = require("../data/data_json.js");
+}
+class BiasedBotFighterPlane extends BotFighterPlane {
+    constructor(planeClass, scene, biases, angle=0, facingRight=true){
+        super(planeClass, scene, angle, facingRight);
         this.biases = biases;
+        let bt = this.throttle;
         this.throttle += this.biases["throttle"];
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
@@ -130,11 +136,12 @@ class BiasedBotFighterPlane extends BotFighterPlane{
     turnInDirection(angleDEG){
         // Determine if we need to switch from left to right
         let myAngle = this.getShootingAngle();
-        // TODO: Change this to use the easy function from helperfunctionss
         if (this.facingRight && angleBetweenCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"]) && angleBetweenCWDEG(myAngle, 315 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"])){
             this.face(false);
+            return;
         }else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"]) && angleBetweenCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"])){
             this.face(true);
+            return;
         }
         myAngle = this.getShootingAngle();
         let newAngleCW = fixDegrees(this.getShootingAngle() + 1);
@@ -203,4 +210,7 @@ class BiasedBotFighterPlane extends BotFighterPlane{
         }
         return new BiasedBotFighterPlane(planeClass, biases);
     }
+}
+if (typeof window === "undefined"){
+    module.exports = BiasedBotFighterPlane;
 }

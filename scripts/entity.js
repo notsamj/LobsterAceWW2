@@ -1,8 +1,13 @@
 class Entity{
-    constructor(){
+    constructor(scene){
         this.id = null;
         this.x = null;
         this.y = null;
+        this.scene = scene;
+    }
+
+    getScene(){
+        return this.scene;
     }
 
     distance(entity){
@@ -78,4 +83,7 @@ class Entity{
     getHeight(){}
     getImage(){}
     tick(){}
+}
+if (typeof window === "undefined"){
+    module.exports = Entity;
 }

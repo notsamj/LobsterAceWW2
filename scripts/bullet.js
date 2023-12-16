@@ -1,6 +1,6 @@
 class Bullet extends Entity{
-    constructor(x, y, xVelocity, yVelocity, angle, shooterID, shooterClass){
-        super();
+    constructor(x, y, scene, xVelocity, yVelocity, angle, shooterID, shooterClass){
+        super(scene);
         this.x = x;
         this.y = y;
         this.image = images["bullet"];

@@ -1,9 +1,11 @@
+console.log("Live image - delete if not used")
 class LiveImage {
     constructor(url, x=0, y=0){
         this.image = new Image();
         this.image.src = url;
         this.x = x;
         this.y = y;
+        console.log("live image...")
     }
 
     getImage(){

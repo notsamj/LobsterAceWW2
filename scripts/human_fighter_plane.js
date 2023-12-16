@@ -1,6 +1,6 @@
 class HumanFighterPlane extends FighterPlane{
-    constructor(planeClass, angle=0, facingRight=true){
-        super(planeClass, angle, facingRight);
+    constructor(planeClass, scene, angle=0, facingRight=true){
+        super(planeClass, scene, angle, facingRight);
         this.lrCDLock = new CooldownLock(10);
         this.lrLock = new Lock();
         this.tLock = new CooldownLock(10);
@@ -11,15 +11,6 @@ class HumanFighterPlane extends FighterPlane{
 
     getRadar(){
         return this.radar;
-    }
-
-    damage(amount){
-        this.health -= amount;
-        //document.getElementById("hitSound").play();
-        if (this.health <= 0){
-            //document.getElementById("explodeSound").play();
-            this.delete();
-        }
     }
 
     tick(timeDiffMS){

@@ -1,3 +1,6 @@
+if (typeof window === "undefined"){
+    Scene = require("../scripts/scene.js");
+}
 async function loadRotatedImages(name){
     console.log("Loading", name)
     for (let i = 0; i < 360; i++){
@@ -12,9 +15,18 @@ async function loadPlanes(){
     }
 }
 
-class PlaneGameScene extends Scene{
+class PlaneGameScene extends Scene {
     constructor(width, height){
         super(width, height);
+        this.collisionsEnabled = true;
+    }
+
+    enableCollisions(){
+        this.collisionsEnabled = true;
+    }
+
+    disableCollisions(){
+        this.collisionsEnabled = false;
     }
 
     displayHUD(){
@@ -85,7 +97,7 @@ class PlaneGameScene extends Scene{
 
             // Display ground images
             for (let y = bottomDisplayGroundY; y <= 0; y += groundImageHeight){
-                for (let x = bottomDisplayGroundX; x < fileData["constants"]["CANVAS_WIDTH"] + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
+                for (let x = bottomDisplayGroundX; x < this.width + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
                     let displayX = x-lXP;
                     drawingContext.drawImage(groundImage, displayX, this.getDisplayY(0, 0, bYP));
                 }
@@ -106,14 +118,14 @@ class PlaneGameScene extends Scene{
             }
             bottomDisplayAboveGroundX += aboveGroundWidth;
             // Display along the screen
-            for (let x = bottomDisplayAboveGroundX; x < fileData["constants"]["CANVAS_WIDTH"] + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
+            for (let x = bottomDisplayAboveGroundX; x < this.width + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
                 let displayX = x-lXP;
                 drawingContext.drawImage(aboveGroundImage, displayX, this.getDisplayY(aboveGroundHeight, 0, bYP));
             }
         }
 
         // Display sky
-        if (bYP + fileData["constants"]["CANVAS_HEIGHT"] > aboveGroundHeight){
+        if (bYP + this.height > aboveGroundHeight){
             let skyImage = images[fileData["background"]["sky"]["picture"]];
             let skyHeight = skyImage.height;
             let skyWidth = skyImage.width;
@@ -137,8 +149,8 @@ class PlaneGameScene extends Scene{
             }
             // Add once more to get back to top left corner
             // Display ground images
-            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + fileData["constants"]["CANVAS_HEIGHT"] + skyHeight; y += skyHeight){
-                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + fileData["constants"]["CANVAS_WIDTH"] + skyWidth; x += skyWidth){
+            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + this.height + skyHeight; y += skyHeight){
+                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.width + skyWidth; x += skyWidth){
                     //let displayY = y-bYP;
                     let displayX = x-lXP;
                     drawingContext.drawImage(skyImage, displayX, this.getDisplayY(y, 0, bYP));
@@ -150,6 +162,7 @@ class PlaneGameScene extends Scene{
     }
 
     checkCollisions(timeDiff){
+        if (!this.collisionsEnabled){ return; }
         let bullets = [];
         let destructableEntities = [];
 
@@ -215,4 +228,13 @@ class PlaneGameScene extends Scene{
         super.display();
         this.displayHUD();
     }
+
+    enable(){
+        this.enableTicks();
+        this.enableDisplay();
+        this.enableCollisions();
+    }
+}
+if (typeof window === "undefined"){
+    module.exports = PlaneGameScene;
 }

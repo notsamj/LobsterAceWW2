@@ -1,6 +1,9 @@
-class Plane extends Entity{
-    constructor(planeClass){
-        super();
+if (typeof window === "undefined"){
+    Entity = require("../scripts/entity.js");
+}
+class Plane extends Entity {
+    constructor(planeClass, scene){
+        super(scene);
         this.planeClass = planeClass;
     }
 
@@ -9,4 +12,7 @@ class Plane extends Entity{
     }
 
     goodToFollow(){ return true; }
+}
+if (typeof window === "undefined"){
+    module.exports = Plane;
 }

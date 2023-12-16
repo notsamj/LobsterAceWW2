@@ -1,6 +1,6 @@
 class SpectatorCamera extends Entity{
-    constructor(){
-        super();
+    constructor(scene){
+        super(scene);
         this.followingEntityID = -1;
         this.followToggleLock = new Lock();
         this.leftRightLock = new CooldownLock(250);

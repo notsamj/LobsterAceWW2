@@ -14,7 +14,7 @@ function tick(){
     if (document.hidden){
         menuManager.lostFocus();
     }
-    if (setupDone){
+    if (setupDone && (activeGameMode == null || activeGameMode.allowingSceneTicks())){
         let expectedTicks = Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
         while (numTicks < expectedTicks){
             scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);

@@ -178,3 +178,6 @@ function rectangleWithRectangle(rectangleHitbox1, rectangleHitbox2){
 
     return false;
 }
+if (typeof window === "undefined"){
+    module.exports = { CircleHitbox, RectangleHitbox };
+}

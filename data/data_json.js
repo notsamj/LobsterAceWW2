@@ -98,7 +98,10 @@ var fileData = {
         "TICK_RATE": 100,
         "MS_BETWEEN_TICKS": 10,
         "GRAVITY": 9.81,
-        "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2
+        "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2,
+        "server_ip": "localhost",
+        "server_port": "8080",
+        "PLANE_SHOOT_GAP_MS": 100
     },
 
     "ai": {
@@ -215,4 +218,7 @@ var fileData = {
         "clouds",
         "freecam"
     ],
+}
+if (typeof window === "undefined"){
+    module.exports = fileData;
 }

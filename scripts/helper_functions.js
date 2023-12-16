@@ -1,3 +1,6 @@
+if (typeof window === "undefined"){
+    fileData = require("../data/data_json.js");
+}
 function copyArray(array){
     let newArray = [];
     for (let i = 0; i < array.length; i++){
@@ -179,4 +182,37 @@ function planeModelToCountry(planeModel){
 
 function planeModelToAlliance(planeModel){
     return countryToAlliance(planeModelToCountry(planeModel));
+}
+
+async function sleep(ms){
+    return new Promise((resolve, reject) => { setTimeout(ms, resolve); })
+}
+
+if (typeof window === "undefined"){
+    module.exports = {
+        copyArray,
+        toRadians,
+        toDegrees,
+        fixDegrees,
+        fixRadians,
+        displacementToDegrees,
+        displacmentToRadians,
+        randomNumberInclusive,
+        randomNumber,
+        onSameTeam,
+        calculateAngleDiffDEG,
+        calculateAngleDiffDEGCW,
+        calculateAngleDiffDEGCCW,
+        rotateCWDEG,
+        rotateCCWDEG,
+        angleBetweenCWDEG,
+        angleBetweenCCWDEG,
+        lessThanDir,
+        lessThanEQDir,
+        nextIntInDir,
+        randomFloatBetween,
+        countryToAlliance,
+        planeModelToCountry,
+        planeModelToAlliance
+    }
 }

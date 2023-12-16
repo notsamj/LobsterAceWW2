@@ -1,6 +1,7 @@
 class Lock{
     constructor(ready=true){
         this.ready = ready;
+        this.promiseUnlock = null;
     }
 
     isReady(){
@@ -13,6 +14,19 @@ class Lock{
 
     unlock(){
         this.ready = true;
+        // Do the promised unlock
+        if (this.promiseUnlock != null){
+            this.promiseUnlock();
+            this.promiseUnlock = null;
+        }
+    }
+
+    awaitUnlock(){
+        if (this.ready){ return; }
+        let instance = this;
+        return new Promise((resolve, reject) => {
+            instance.promiseUnlock = resolve;
+        });
     }
 }
 
@@ -31,8 +45,15 @@ class CooldownLock extends Lock{
     isReady(){
         //console.log(this.lastLocked, Date.now(), this.lastLocked + this.cooldown)
         if (Date.now() > this.lastLocked + this.cooldown){
-            return true;
+            this.unlock();
         }
-        return false;
+        return this.ready;
     }
+
+    getCooldown(){
+        return this.cooldown;
+    }
+}
+if (typeof window === "undefined"){
+    module.exports = { Lock, CooldownLock };
 }

@@ -1,3 +1,7 @@
+if (typeof window === "undefined"){
+    NotSamLinkedList = require("../scripts/not_sam_linked_list.js");
+}
+
 var images = {};
 
 async function loadLocalImage(url){
@@ -25,7 +29,7 @@ class Scene{
         this.width = width;
         this.height = height;
         this.nextEntityID = 0;
-        this.entities = [];
+        this.entities = new NotSamLinkedList();
         this.focusedEntityID = -1;
         this.tickEnabled = false;
         this.displayEnabled = false;
@@ -72,12 +76,16 @@ class Scene{
         return this.height - y;
     }
 
-    addEntity(entity){
-        entity.setID(this.nextEntityID++);
+    addEntity(entity, idSet=false){
+        if (!idSet){
+            entity.setID(this.nextEntityID++);
+        }else{
+            this.nextEntityID = Math.max(this.nextEntityID+1, entity.getID() + 1);
+        }
         this.entities.push(entity);
         if (!this.hasEntityFocused()){
             this.setFocusedEntity(this.nextEntityID-1);
-            if (this.entities.length == 0){
+            if (this.entities.getLength() == 0){
                 this.setFocusedEntity(-1);
             }
         }
@@ -233,13 +241,16 @@ class Scene{
         return followableEntities;
     }
 
-    setEntities(entities){
+    setEntities(entities, idsSet=false){
         this.entities = [];
         for (let entity of entities){
-            this.addEntity(entity);
+            this.addEntity(entity, idsSet);
         }
     }
 
     // Abstract
     checkCollisions(timeDiff){}
+}
+if (typeof window === "undefined"){
+    module.exports = Scene;
 }

@@ -1,5 +1,11 @@
-class BotFighterPlane extends FighterPlane{
-    constructor(planeClass, angle=0, facingRight=true){
+var FighterPlaneClass;
+if (typeof window === "undefined"){
+    FighterPlaneClass = require("../scripts/fighter_plane.js");
+}else{
+    FighterPlaneClass = FighterPlane;
+}
+class BotFighterPlane extends FighterPlaneClass {
+    constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, angle, facingRight);
         //this.throttle = 1;
         //this.speed = 0;
@@ -212,4 +218,7 @@ function isFocused(enemyID, myID){
         }
     }
     return false;
+}
+if (typeof window === "undefined"){
+    module.exports = BotFighterPlane;
 }

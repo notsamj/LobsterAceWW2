@@ -1,16 +1,39 @@
 // Abstract Class
-class FighterPlane extends Plane{
-    constructor(planeClass, angle, facingRight){
-        super(planeClass);
+if (typeof window === "undefined"){
+    Plane = require("../scripts/plane.js");
+    fileData = require("../data/data_json.js");
+    CooldownLock = require("../scripts/lock.js").CooldownLock;
+    CircleHitbox = require("../scripts/hitboxes.js").CircleHitbox;
+    toRadians = require("../scripts/helper_functions.js").toRadians;
+}
+class FighterPlane extends Plane {
+    constructor(planeClass, scene, angle, facingRight){
+        super(planeClass, scene);
         this.facingRight = facingRight;
         this.angle = angle;
         this.throttle = fileData["constants"]["MAX_THROTTLE"];
         this.maxSpeed = fileData["plane_data"][planeClass]["max_speed"];
         this.speed = this.maxSpeed;
-        this.shootLock = new CooldownLock(100);
+        this.shootLock = new CooldownLock(fileData["constants"]["PLANE_SHOOT_GAP_MS"]);
         this.hitBox = new CircleHitbox(fileData["plane_data"][planeClass]["radius"]);
         this.health = fileData["plane_data"][planeClass]["health"];
         this.throttleConstant = Math.sqrt(this.maxSpeed) / fileData["constants"]["MAX_THROTTLE"];
+    }
+
+    setHealth(health){
+        this.health = health;
+    }
+
+    setThrottle(throttle){
+        this.throttle = throttle;
+    }
+
+    setSpeed(speed){
+        this.speed = speed;
+    }
+
+    setAngle(angle){
+        this.angle = angle;
     }
 
     isFacingRight(){
@@ -31,7 +54,7 @@ class FighterPlane extends Plane{
     } 
 
     shoot(){
-        scene.addEntity(new Bullet(this.getX(), this.getY(), this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
+        this.scene.addEntity(new Bullet(this.getX(), this.getY(), this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
     }
 
     getMaxSpeed(){
@@ -82,14 +105,16 @@ class FighterPlane extends Plane{
         return images[this.getImageIdentifier()];
     }
 
-    getImage(){ return this.getCurrentImage(); }
+    getImage(){
+        return this.getCurrentImage();
+    }
 
     getImageIdentifier(){
         let rightLeftStr = "_right_";
         if (!this.facingRight){
             rightLeftStr = "_left_";
         }
-        return this.planeClass + rightLeftStr + this.angle.toString();
+        return this.getPlaneClass() + rightLeftStr + this.angle.toString();
     }
 
     getWidth(){
@@ -170,4 +195,7 @@ class FighterPlane extends Plane{
         return this.health;
     }
 
+}
+if (typeof window === "undefined"){
+    module.exports = FighterPlane;
 }

@@ -3,6 +3,10 @@ class GameMode {
 
     }
 
+    allowingSceneTicks(){
+        return true;
+    }
+
     // Abstract Methods
     isRunning(){}
 }

@@ -1,10 +1,9 @@
-var GameModeClass;
 if (typeof window === "undefined"){
-    GameModeClass = require("../scripts/game_mode.js");
-}else{
-    GameModeClass = GameMode;
+    GameMode = require("../scripts/game_mode.js");
+    FighterPlane = require("../scripts/fighter_plane.js");
+    var planeModelToAlliance = require("../scripts/helper_functions.js").planeModelToAlliance;
 }
-class Dogfight extends GameModeClass {
+class Dogfight extends GameMode {
     constructor(startingEntities){
         super();
         this.startingEntities = startingEntities;

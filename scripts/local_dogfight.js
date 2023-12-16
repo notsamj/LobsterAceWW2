@@ -1,6 +1,6 @@
-class LocalDogfight extends DogFight {
+class LocalDogfight extends Dogfight {
     constructor(startingEntities){
-        super();
+        super(startingEntities);
         scene.setEntities(startingEntities);
         scene.setFocusedEntity(startingEntities[0].getID());
         scene.enable();
