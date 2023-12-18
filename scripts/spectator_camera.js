@@ -26,7 +26,7 @@ class SpectatorCamera extends Entity{
 
     getPreviousEntity(){
         if (this.followingEntityID == -1){ this.getFirstEntity(); return; }
-        let followableEntities = scene.getGoodToFollowEntities();
+        let followableEntities = this.scene.getGoodToFollowEntities();
         let found = false;
         let i = followableEntities.length - 1;
         while (i >= 0){
@@ -47,19 +47,19 @@ class SpectatorCamera extends Entity{
 
     getSpeed(){
         if (!this.isFollowing()){ return 0; }
-        let entity = scene.getEntity(this.followingEntityID);
+        let entity = this.scene.getEntity(this.followingEntityID);
         return entity.getSpeed();
     }
 
     getThrottle(){
         if (!this.isFollowing()){ return 0; }
-        let entity = scene.getEntity(this.followingEntityID);
+        let entity = this.scene.getEntity(this.followingEntityID);
         return entity.getThrottle();
     }
 
     getHealth(){
         if (!this.isFollowing()){ return 0; }
-        let entity = scene.getEntity(this.followingEntityID);
+        let entity = this.scene.getEntity(this.followingEntityID);
         return entity.getHealth();
     }
 
@@ -69,7 +69,7 @@ class SpectatorCamera extends Entity{
 
     getNextEntity(){
         if (this.followingEntityID == -1){ this.getFirstEntity(); return; }
-        let followableEntities = scene.getGoodToFollowEntities();
+        let followableEntities = this.scene.getGoodToFollowEntities();
         let found = false;
         let i = 0;
         while (i < followableEntities.length){
@@ -89,7 +89,7 @@ class SpectatorCamera extends Entity{
     }
 
     getFirstEntity(){
-        let followableEntities = scene.getGoodToFollowEntities();
+        let followableEntities = this.scene.getGoodToFollowEntities();
         if (followableEntities.length > 0){ this.followingEntityID = followableEntities[0].getID(); }
     }
 
@@ -172,8 +172,8 @@ class SpectatorCamera extends Entity{
         this.checkFollowToggle();
         if (this.isFollowing()){
             this.checkLeftRight();
-            this.x = scene.getEntity(this.followingEntityID).getX();
-            this.y = scene.getEntity(this.followingEntityID).getY();
+            this.x = this.scene.getEntity(this.followingEntityID).getX();
+            this.y = this.scene.getEntity(this.followingEntityID).getY();
             return;
         }
         // else

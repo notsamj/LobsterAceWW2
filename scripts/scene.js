@@ -1,5 +1,5 @@
 if (typeof window === "undefined"){
-    NotSamLinkedList = require("../scripts/not_sam_linked_list.js");
+    NotSamLinkedList = require("../scripts/notsam_linked_list.js");
 }
 
 var images = {};
@@ -92,33 +92,25 @@ class Scene{
     } 
     
     delete(entityID){
-        let newArray = copyArray(this.entities);
-        let index = -1;
-
-        // Find element with ID
-        for (let i = 0; i < newArray.length; i++){
-            if (newArray[i].getID() == entityID){
-                index = i;
-                break;
-            }
-        }
-        // Not found
-        if (index == -1){
-            return;
-        }
-
         // No focused entity anmore 
         if (entityID == this.focusedEntityID){
             this.setFocusedEntity(-1);
         }
-
-        // shift down to deleting 
-        for (let i = index; i < newArray.length - 1; i++){
-            newArray[i] = newArray[i+1];
+        let i = 0;
+        let foundIndex = -1;
+        for (let entity of this.entities){
+            if (entity.getID() == entityID){
+                foundIndex = i;
+                break;
+            }
+            i += 1;
         }
-
-        newArray.pop();
-        this.entities = newArray;
+        if (foundIndex == -1){
+            console.error("Failed to find entity that should be deleted:", entityID);
+            debugger;
+            return; 
+        }
+        this.entities.remove(foundIndex);
     }
 
     displayEntity(entity, lX, bY){
@@ -180,15 +172,6 @@ class Scene{
         return this.getEntity(this.focusedEntityID);
     }
 
-    getEntityIndex(entityID){
-        for (let i = 0; i < this.entities.length; i++){
-            if (entityID == this.entities[i].getID()){
-                return i;
-            }
-        }
-        return -1;
-    }
-
     enable(){
         this.enableTicks();
         this.enableDisplay();
@@ -225,7 +208,7 @@ class Scene{
     }
 
     getNumberOfEntities(){
-        return this.entities.length;
+        return this.entities.getLength();
     }
 
     getGoodToFollowEntities(){
@@ -242,7 +225,7 @@ class Scene{
     }
 
     setEntities(entities, idsSet=false){
-        this.entities = [];
+        this.entities = new NotSamLinkedList();
         for (let entity of entities){
             this.addEntity(entity, idsSet);
         }

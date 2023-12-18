@@ -189,38 +189,31 @@ class PlaneGameScene extends Scene {
     }
 
     delete(entityID){
-        let newArray = copyArray(this.entities);
-        let index = -1;
-
-        // Find element with ID
-        for (let i = 0; i < newArray.length; i++){
-            if (newArray[i].getID() == entityID){
-                index = i;
+        let i = 0;
+        let foundIndex = -1;
+        for (let entity of this.entities){
+            if (entity.getID() == entityID){
+                foundIndex = i;
                 break;
             }
+            i += 1;
         }
-        // Not found
-        if (index == -1){
-            return;
+        if (foundIndex == -1){
+            console.error("Failed to find entity that should be deleted!");
+            debugger;
+            return; 
         }
-
-        // shift down to deleting 
-        for (let i = index; i < newArray.length - 1; i++){
-            newArray[i] = newArray[i+1];
-        }
-
-        newArray.pop();
+        this.entities.remove(foundIndex);
         // No focused entity anmore 
         if (entityID == this.focusedEntityID){
-            for (let i = 0; i < newArray.length; i++){
-                if (newArray[i] instanceof Plane){
-                    this.setFocusedEntity(newArray[i].getID());
+            for (let entity of this.entities){
+                if (entity instanceof Plane){
+                    this.setFocusedEntity(entity.getID());
                     return;
                 }
             }
             this.setFocusedEntity(-1);
         }
-        this.entities = newArray;
     }
 
     display(){

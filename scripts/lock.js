@@ -43,7 +43,6 @@ class CooldownLock extends Lock{
     }
 
     isReady(){
-        //console.log(this.lastLocked, Date.now(), this.lastLocked + this.cooldown)
         if (Date.now() > this.lastLocked + this.cooldown){
             this.unlock();
         }

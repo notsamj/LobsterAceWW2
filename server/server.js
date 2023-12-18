@@ -5,13 +5,14 @@ const FILE_DATA = require("../data/data_json.js");
 const ServerDogfight = require("./server_dogfight.js");
 const PlaneGameScene = require("../scripts/plane_game_scene.js");
 const MultiplayerBiasedBotFighterPlane = require("./multiplayer_bot_fighter_plane.js");
+const HF = require("../scripts/helper_functions.js");
 const HTTPServer = require("./http_server.js");
 const Lock = require("../scripts/lock.js").Lock;
 var scene = new PlaneGameScene();
 var tickLock = new Lock();
 var startTime = null;
 var numTicks = 0;
-var activeGameMode = new ServerDogfight([MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", FILE_DATA)], scene);
+var activeGameMode = new ServerDogfight([MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA), MultiplayerBiasedBotFighterPlane.createBiasedPlane("a6m_zero", scene, FILE_DATA)], scene);
 var server = new HTTPServer(fileData["constants"]["server_port"]);
 
 // Start Up
@@ -20,7 +21,8 @@ var server = new HTTPServer(fileData["constants"]["server_port"]);
 server.registerGet("state", async function (request, response){
     await tickLock.awaitUnlock();
     tickLock.lock();
-    let responseJSON = activeGameMode.getState();
+    //await HF.sleep(5000);
+    let responseJSON = activeGameMode.getState(startTime, numTicks);
     //console.log("Plane is...", responseJSON)
     response.json(responseJSON)
     tickLock.unlock();

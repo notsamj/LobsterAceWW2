@@ -2,6 +2,13 @@ if (typeof window === "undefined"){
     BotFighterPlane = require("../scripts/bot_fighter_plane.js");
     CooldownLock = require("../scripts/lock.js").CooldownLock;
     fileData = require("../data/data_json.js");
+    var helperFuncs = require("../scripts/helper_functions.js");
+    rotateCWDEG = helperFuncs.rotateCWDEG;
+    rotateCCWDEG = helperFuncs.rotateCCWDEG;
+    lessThanEQDir = helperFuncs.lessThanEQDir;
+    randomNumberInclusive = helperFuncs.randomNumberInclusive;
+    displacementToDegrees = helperFuncs.displacementToDegrees;
+    nextIntInDir = helperFuncs.nextIntInDir;
 }
 class BiasedBotFighterPlane extends BotFighterPlane {
     constructor(planeClass, scene, biases, angle=0, facingRight=true){
@@ -178,7 +185,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
 
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID) && this.distance(scene.getEntity(this.currentEnemyID)) <= (fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
+        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= (fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -188,7 +195,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
             if (bestRecord == null || distance < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (isFocused(enemy.getID(), this.getID()) ? (fileData["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] + this.biases["enemy_taken_distance_multiplier"]) : 1)
+                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? (fileData["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] + this.biases["enemy_taken_distance_multiplier"]) : 1)
                 }
             }
         }
@@ -200,7 +207,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         return fileData["constants"]["SHOOT_DISTANCE_CONSTANT"] * fileData["bullet_data"]["speed"] + this.biases["max_shooting_distance"];
     }
 
-    static createBiasedPlane(planeClass){
+    static createBiasedPlane(planeClass, scene){
         let biases = {};
         for (let [key, bounds] of Object.entries(fileData["ai"]["bias_ranges"])){
             let upperBound = bounds["upper_bound"];
@@ -208,7 +215,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedBotFighterPlane(planeClass, biases);
+        return new BiasedBotFighterPlane(planeClass, scene, biases);
     }
 }
 if (typeof window === "undefined"){

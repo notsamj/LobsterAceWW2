@@ -185,7 +185,7 @@ function planeModelToAlliance(planeModel){
 }
 
 async function sleep(ms){
-    return new Promise((resolve, reject) => { setTimeout(ms, resolve); })
+    return new Promise((resolve, reject) => { setTimeout(resolve, ms); })
 }
 
 if (typeof window === "undefined"){
@@ -213,6 +213,7 @@ if (typeof window === "undefined"){
         randomFloatBetween,
         countryToAlliance,
         planeModelToCountry,
-        planeModelToAlliance
+        planeModelToAlliance,
+        sleep
     }
 }

@@ -16,3 +16,7 @@ class InfiniteLoopFinder{
         this.loopCounter = 0;
     }
 }
+
+if (typeof window === "undefined"){
+    module.exports = InfiniteLoopFinder;
+}

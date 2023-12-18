@@ -1,8 +1,8 @@
 1. Add multiplayer/server support
-2. Make after match stats
-3. Add difficulties to dogfight
+2. Add sound
+3. Make after match stats
 4. Make bombers
-5. Add sound
+5. Add difficulties to dogfight
 6. Make an escort bomber game mode
 7. Make ground gamemode
 8. Make tank gamemode

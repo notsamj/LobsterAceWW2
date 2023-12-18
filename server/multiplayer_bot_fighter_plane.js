@@ -119,7 +119,7 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
         return false;
     }
 
-    static createBiasedPlane(planeClass, fileData){
+    static createBiasedPlane(planeClass, scene, fileData){
         let biases = {};
         for (let [key, bounds] of Object.entries(fileData["ai"]["bias_ranges"])){
             let upperBound = bounds["upper_bound"];
@@ -127,7 +127,7 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? HF.randomFloatBetween(lowerBound, upperBound) : HF.randomNumberInclusive(lowerBound, upperBound);    
         }
-        let newPlane = new MultiplayerBiasedBotFighterPlane(planeClass, biases);
+        let newPlane = new MultiplayerBiasedBotFighterPlane(planeClass, scene, biases);
         newPlane.setCenterX(500);
         newPlane.setCenterY(2000); // TODO: Temp
         return newPlane;

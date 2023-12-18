@@ -32,10 +32,10 @@ class RemoteDogfight extends Dogfight {
         this.tickLock.lock();
         this.updateState(state);
         this.tickLock.unlock();
-        console.log("tiktok")
     }
 
     updateState(state){
+        numTicks = state["numTicks"]; // Make sure this is done so it can catch up with the server
         // TODO: Account for dead planes and bullets
         for (let planeObj of state["planes"]){
             if (scene.hasEntity(planeObj["id"])){
@@ -58,6 +58,7 @@ class RemoteDogfight extends Dogfight {
 
     static async create(serverConnection){
         let state = await serverConnection.requestGET("state");
+        startTime = state["starTime"];
         // temp
         let cam = new SpectatorCamera(scene);
         let entities = RemoteDogfight.createNewEntities(state);

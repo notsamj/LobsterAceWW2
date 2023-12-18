@@ -1,12 +1,19 @@
-var FighterPlaneClass;
 if (typeof window === "undefined"){
-    FighterPlaneClass = require("../scripts/fighter_plane.js");
-}else{
-    FighterPlaneClass = FighterPlane;
+    FighterPlane = require("../scripts/fighter_plane.js");
+    onSameTeam = require("../scripts/helper_functions.js").onSameTeam;
+    Bullet = require("../scripts/bullet.js");
+    var helperFuncs = require("../scripts/helper_functions.js");
+    angleBetweenCWDEG = helperFuncs.angleBetweenCWDEG;
+    fixDegrees = helperFuncs.fixDegrees;
+    calculateAngleDiffDEGCW = helperFuncs.calculateAngleDiffDEGCW;
+    calculateAngleDiffDEGCCW = helperFuncs.calculateAngleDiffDEGCCW;
+    calculateAngleDiffDEG = helperFuncs.calculateAngleDiffDEG;
+    toDegrees = helperFuncs.toDegrees;
+    InfiniteLoopFinder = require("../scripts/infinite_loop_finder.js");
 }
-class BotFighterPlane extends FighterPlaneClass {
+class BotFighterPlane extends FighterPlane {
     constructor(planeClass, scene, angle=0, facingRight=true){
-        super(planeClass, angle, facingRight);
+        super(planeClass, scene, angle, facingRight);
         //this.throttle = 1;
         //this.speed = 0;
         this.currentEnemyID = null;
@@ -19,7 +26,7 @@ class BotFighterPlane extends FighterPlaneClass {
         super.tick(timeDiffMS);
         this.updateEnemy();
         if (this.hasCurrentEnemy()){
-            let enemy = scene.getEntity(this.currentEnemyID);
+            let enemy = this.scene.getEntity(this.currentEnemyID);
             this.handleEnemy(enemy);
         }else{
             if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
@@ -164,7 +171,7 @@ class BotFighterPlane extends FighterPlaneClass {
     }
 
     getEnemyList(){
-        let entities = scene.getEntities();
+        let entities = this.scene.getEntities();
         let enemies = [];
         for (let entity of entities){
             if (entity instanceof FighterPlane && !this.onSameTeam(entity)){
@@ -176,7 +183,7 @@ class BotFighterPlane extends FighterPlaneClass {
 
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID) && this.distance(scene.getEntity(this.currentEnemyID)) <= fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
+        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -186,7 +193,7 @@ class BotFighterPlane extends FighterPlaneClass {
             if (bestRecord == null || distance < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (isFocused(enemy.getID(), this.getID()) ? fileData["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
+                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? fileData["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
                 }
             }
         }
@@ -195,7 +202,7 @@ class BotFighterPlane extends FighterPlaneClass {
     }
 
     hasCurrentEnemy(){
-        return this.currentEnemyID != null && scene.hasEntity(this.currentEnemyID);
+        return this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID);
     }
 
     getCurrentEnemy(){
@@ -209,16 +216,17 @@ class BotFighterPlane extends FighterPlaneClass {
     getMaxShootingDistance(){
         return SHOOT_DISTANCE_CONSTANT * fileData["bullet_data"]["speed"];
     }
+
+    static isFocused(scene, enemyID, myID){
+        for (let entity of scene.getEntities()){
+            if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
-function isFocused(enemyID, myID){
-    for (let entity of scene.getEntities()){
-        if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
-            return true;
-        }
-    }
-    return false;
-}
 if (typeof window === "undefined"){
     module.exports = BotFighterPlane;
 }

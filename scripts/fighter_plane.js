@@ -7,7 +7,7 @@ if (typeof window === "undefined"){
     toRadians = require("../scripts/helper_functions.js").toRadians;
 }
 class FighterPlane extends Plane {
-    constructor(planeClass, scene, angle, facingRight){
+    constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene);
         this.facingRight = facingRight;
         this.angle = angle;
@@ -54,7 +54,7 @@ class FighterPlane extends Plane {
     } 
 
     shoot(){
-        this.scene.addEntity(new Bullet(this.getX(), this.getY(), this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
+        this.scene.addEntity(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
     }
 
     getMaxSpeed(){

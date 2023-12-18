@@ -1,9 +1,11 @@
-class Bullet extends Entity{
+if (typeof window === "undefined"){
+    Entity = require("../scripts/entity.js");
+}
+class Bullet extends Entity {
     constructor(x, y, scene, xVelocity, yVelocity, angle, shooterID, shooterClass){
         super(scene);
         this.x = x;
         this.y = y;
-        this.image = images["bullet"];
         angle = toRadians(angle);
         this.yVelocity = yVelocity + Math.sin(angle) * fileData["bullet_data"]["speed"];
         this.xVelocity = xVelocity + Math.cos(angle) * fileData["bullet_data"]["speed"];
@@ -21,21 +23,21 @@ class Bullet extends Entity{
         this.yVelocity = this.yVelocity - yAcceleration;
         this.x += this.xVelocity * timeProportion;
         this.y += this.yVelocity * timeProportion;
-
-        // If below ground
-        if (this.y < 0 || Math.abs(this.yVelocity) > fileData["constants"]["CANVAS_HEIGHT"] * fileData["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"]){
+        // If below ground or too fast or too far away from planes to matter
+        if (this.shouldDelete()){
             this.delete();
+            return;
         }
     }
 
     getWidth(){
-        return this.image.width;
+        return this.getImage().width;
     }
     getHeight(){
-        return this.image.height;
+        return this.getImage().height;
     }
     getImage(){
-        return this.image;
+        return images["bullet"];
     }
 
     getHitbox(){
@@ -57,6 +59,35 @@ class Bullet extends Entity{
 
     getYVelocity(){
         return this.yVelocity;
+    }
+
+    shouldDelete(){
+        let cond1 = this.y < 0;
+        let cond2 = Math.abs(this.yVelocity) > fileData["constants"]["CANVAS_HEIGHT"] * fileData["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"];
+        let maxX = null;
+        let maxY = null;
+        let minX = null;
+        let minY = null;
+        for (let fighterPlane of this.scene.getEntities()){
+            if (!(fighterPlane instanceof FighterPlane)){ continue; }
+            let x = fighterPlane.getX();
+            let y = fighterPlane.getY();
+            if (maxX == null){
+                maxX = x;
+                minX = x;
+                minY = y;
+                maxY = y;
+                continue;
+            }
+            maxX = Math.max(maxX, x);
+            minX = Math.min(minX, x);
+            maxY = Math.max(maxY, y);
+            minY = Math.min(minY, y);
+        }
+        let cond3 = maxX != null && (this.x + fileData["constants"]["CANVAS_WIDTH"] < minX || this.x - fileData["constants"]["CANVAS_WIDTH"] > maxX);
+        let cond4 = maxY != null && (this.y + fileData["constants"]["CANVAS_HEIGHT"] < minY || this.y - fileData["constants"]["CANVAS_HEIGHT"] > maxY);
+        
+        return cond1 || cond2 || cond3 || cond4;
     }
 
     collidesWith(otherEntity, timeDiff){
@@ -132,4 +163,7 @@ class Bullet extends Entity{
 
         return false;
     }
+}
+if (typeof window === "undefined"){
+    module.exports = Bullet;
 }

@@ -203,4 +203,6 @@ class NotSamLinkedList{
         }
     }
 }
-module.exports = NotSamLinkedList;
+if (typeof window === "undefined"){
+    module.exports = NotSamLinkedList;
+}

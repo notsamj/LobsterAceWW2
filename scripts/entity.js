@@ -70,7 +70,7 @@ class Entity{
     }
 
     delete(){
-        scene.delete(this.id);
+        this.scene.delete(this.id);
     }
 
     // May be overridden

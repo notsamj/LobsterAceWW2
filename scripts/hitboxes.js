@@ -42,12 +42,28 @@ class CircleHitbox{
 }
 
 class RectangleHitbox{
-    constructor(width, height){
+    constructor(width, height, centerX=null, centerY=null){
         this.x1 = -1;
         this.x2 = -1;
         this.y1 = -1;
         this.y2 = -1;
         this.width = width;
+        this.height = height;
+        if (centerX != null){
+            this.x1 = centerX - this.width / 2;
+            this.x2 = centerX + this.width / 2;
+        }
+        if (centerY != null){
+            this.y1 = centerY + this.height / 2;
+            this.y2 = centerY - this.height / 2;
+        }
+    }
+
+    setWidth(width){
+        this.width = width;
+    }
+
+    setHeight(height){
         this.height = height;
     }
 
@@ -81,6 +97,15 @@ class RectangleHitbox{
     getY2(){
         return this.y2;
     }
+
+    getCenterX(){
+        return (this.getX1() + this.getX2())/2;
+    }
+
+    getCenterY(){
+        return (this.getY1() + this.getY2())/2;
+    }
+
 
     getRadiusEquivalentX(){
         return this.width / 2;
@@ -126,58 +151,82 @@ function circleWithCircle(circleHitbox1, circleHitbox2){
 }
 
 function rectangleWithRectangle(rectangleHitbox1, rectangleHitbox2){
-    let s1x1 = rectangleHitbox1.getX1();
-    let s1x2 = rectangleHitbox1.getX2();
-    let s1y1 = rectangleHitbox1.getY1();
-    let s1y2 = rectangleHitbox1.getY2();
-
-    let s2x1 = rectangleHitbox2.getX1();
-    let s2x2 = rectangleHitbox2.getX2();
-    let s2y1 = rectangleHitbox2.getY1();
-    let s2y2 = rectangleHitbox2.getY2();
+    let lXr1 = rectangleHitbox1.getX1();
+    let rXr1 = rectangleHitbox1.getX2(); 
+    let lXr2 = rectangleHitbox2.getX1();
+    let rXr2 = rectangleHitbox2.getX2();
+    let tYr1 = rectangleHitbox1.getY1();
+    let bYr1 = rectangleHitbox1.getY2(); 
+    let tYr2 = rectangleHitbox2.getY1();
+    let bYr2 = rectangleHitbox2.getY2();
+    let cXr1 = rectangleHitbox1.getCenterX();
+    let cXr2 = rectangleHitbox2.getCenterX();
+    let cYr1 = rectangleHitbox1.getCenterY();
+    let cYr2 = rectangleHitbox2.getCenterY();
 
     // If rectangle1's top left corner is within rectangle2
-    if (s1x1 >= s2x1 && s1x1 <= s2x2 && s1y1 >= s2y1 && s1y1 <= s2y2){
+    if (pointInSquare(lXr1, tYr1, lXr2, rXr2, tYr2, bYr2)){
         return true;
     }
 
     // If rectangle1's bottom left corner is within rectangle2
-    if (s1x1 >= s2x1 && s1x1 <= s2x2 && s1y2 >= s2y1 && s1y2 <= s2y2){
+    if (pointInSquare(lXr1, bYr1, lXr2, rXr2, tYr2, bYr2)){
         return true;
     }
 
     // If rectangle1's top right corner is within rectangle2
-    if (s1x2 >= s2x1 && s1x2 <= s2x2 && s1y1 >= s2y1 && s1y1 <= s2y2){
+    if (pointInSquare(rXr1, tYr1, lXr2, rXr2, tYr2, bYr2)){
         return true;
     }
 
     // If rectangle1's bottom right corner is within rectangle2
-    if (s1x2 >= s2x1 && s1x2 <= s2x2 && s1y2 >= s2y1 && s1y2 <= s2y2){
+    if (pointInSquare(rXr1, bYr1, lXr2, rXr2, tYr2, bYr2)){
+        return true;
+    }
+
+    // If rectangle1's center is within rectangle2
+    if (pointInSquare(cXr1, cYr1, lXr2, rXr2, tYr2, bYr2)){
+        return true;
+    }
+
+    // If rectangle2's center is within rectangle1
+    if (pointInSquare(cXr2, cYr2, lXr1, rXr1, tYr1, bYr1)){
         return true;
     }
 
     // If rectangle2's top left corner is within rectangle1
-    if (s2x1 >= s1x1 && s2x1 <= s1x2 && s2y1 >= s1y1 && s2y1 <= s1y2){
+    if (pointInSquare(lXr2, tYr2, lXr1, rXr1, tYr1, bYr1)){
         return true;
     }
 
     // If rectangle2's bottom left corner is within rectangle1
-    if (s2x1 >= s1x1 && s2x1 <= s1x2 && s2y2 >= s1y1 && s2y2 <= s1y2){
+    if (pointInSquare(lXr2, bYr2, lXr1, rXr1, tYr1, bYr1)){
         return true;
     }
 
     // If rectangle2's top right corner is within rectangle1
-    if (s2x2 >= s1x1 && s2x2 <= s1x2 && s2y1 >= s1y1 && s2y1 <= s1y2){
+    if (pointInSquare(rXr2, tYr2, lXr1, rXr1, tYr1, bYr1)){
         return true;
     }
 
-    // If rectangle2's bottom right corner is within rectangle1
-    if (s2x2 >= s1x1 && s2x2 <= s1x2 && s2y2 >= s1y1 && s2y2 <= s1y2){
+    // If rectangle2's bottom right corner is within rectangle21
+    if (pointInSquare(rXr2, bYr2, lXr1, rXr1, tYr1, bYr1)){
         return true;
     }
 
+    // Else not overlapping
     return false;
 }
+
+function pointInSquare(x, y, x1, x2, y1, y2){
+    if (x > x1 && x < x2 && y < y1 && y > y2){ return true; }
+    if (x == x1 && x < x2 && y < y1 && y > y2){ return true; }
+    if (x > x1 && x == x2 && y < y1 && y > y2){ return true; }
+    if (x > x1 && x < x2 && y == y1 && y > y2){ return true; }
+    if (x > x1 && x < x2 && y < y1 && y == y2){ return true; }
+    return false;
+}
+
 if (typeof window === "undefined"){
     module.exports = { CircleHitbox, RectangleHitbox };
 }

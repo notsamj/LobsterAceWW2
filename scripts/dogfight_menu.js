@@ -267,7 +267,7 @@ class DogfightMenu extends Menu {
 
         // Add user
         let userEntityType = this.userPlanes[this.userPlaneIndex];
-        let userEntity = userEntityType == "freecam" ? new SpectatorCamera() : new HumanFighterPlane(userEntityType);
+        let userEntity = userEntityType == "freecam" ? new SpectatorCamera(scene) : new HumanFighterPlane(userEntityType, scene);
         let middleX = (allyX + axisX)/2;
         let middleY = (allyY + axisY)/2;
         userEntity.setCenterX(userEntityType == "freecam" ? middleX : (planeModelToAlliance(userEntityType) == "Allies" ? allyX : axisX));
@@ -290,7 +290,7 @@ class DogfightMenu extends Menu {
     }
 
     static createBiasedBot(model, x, y, facingRight){
-        let botFighterPlane = BiasedBotFighterPlane.createBiasedPlane(model);
+        let botFighterPlane = BiasedBotFighterPlane.createBiasedPlane(model, scene);
         botFighterPlane.setCenterX(x);
         botFighterPlane.setCenterY(y);
         botFighterPlane.setFacingRight(facingRight);
