@@ -71,7 +71,7 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
         let myAngle = this.getShootingAngle();
         if (this.facingRight && angleBetweenCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"]) && angleBetweenCWDEG(myAngle, 315 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"])){
             this.face(false);
-            this.action({"action": "face", "value": true});
+            this.action({"action": "face", "value": false});
             return;
         }else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"]) && angleBetweenCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"])){
             this.face(true);
@@ -134,6 +134,7 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
     }
 
     getState(){
+        // console.log("Speed", this.speed)
         return {
             "plane_class": this.getPlaneClass(),
             "id": this.getID(),

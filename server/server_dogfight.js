@@ -13,7 +13,7 @@ class ServerDogFight extends DogFight {
         let state = { "numTicks": numTicks, "startTime": startTime};
         state["planes"] = [];
         for (let entity of this.startingEntities){
-            if (entity instanceof MultiplayerBiasedBotFighterPlane && entity.getHealth() > 0){
+            if (entity.isAlive()){
                 state["planes"].push(entity.getState());
             }
         }
