@@ -24,10 +24,14 @@ class Bullet extends Entity {
         this.x += this.xVelocity * timeProportion;
         this.y += this.yVelocity * timeProportion;
         // If below ground or too fast or too far away from planes to matter
-        if (this.shouldDelete()){
-            this.delete();
+        if (this.expectedToDie()){
+            this.die();
             return;
         }
+    }
+
+    getAlliance(){
+        return planeModelToAlliance(this.shooterClass);
     }
 
     getWidth(){
@@ -61,15 +65,14 @@ class Bullet extends Entity {
         return this.yVelocity;
     }
 
-    shouldDelete(){
+    expectedToDie(){
         let cond1 = this.y < 0;
         let cond2 = Math.abs(this.yVelocity) > fileData["constants"]["CANVAS_HEIGHT"] * fileData["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"];
         let maxX = null;
         let maxY = null;
         let minX = null;
         let minY = null;
-        for (let fighterPlane of this.scene.getEntities()){
-            if (!(fighterPlane instanceof FighterPlane)){ continue; }
+        for (let fighterPlane of this.scene.getPlanes()){
             let x = fighterPlane.getX();
             let y = fighterPlane.getY();
             if (maxX == null){

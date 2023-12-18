@@ -197,9 +197,11 @@ class NotSamLinkedList{
 
     *[Symbol.iterator](){
         let current = this.head;
+        let i = 0;
         while (current != null){
-            yield current.value;
+            yield [current.value, i];
             current = current.next;
+            i++;
         }
     }
 }

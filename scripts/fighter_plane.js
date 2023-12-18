@@ -44,7 +44,7 @@ class FighterPlane extends Plane {
         this.health -= amount;
         //document.getElementById("hitSound").play();
         if (this.health <= 0){
-            this.delete();
+            this.die();
         }
     }
 
@@ -54,7 +54,7 @@ class FighterPlane extends Plane {
     } 
 
     shoot(){
-        this.scene.addEntity(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
+        this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
     }
 
     getMaxSpeed(){
@@ -126,9 +126,6 @@ class FighterPlane extends Plane {
     }
 
     tick(timeDiffMS){
-        if (this.getY() < 0){
-            this.delete();
-        }
         let timeProportion = (timeDiffMS / 1000);
 
         // Throttle - Drag

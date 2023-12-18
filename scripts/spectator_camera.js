@@ -1,7 +1,7 @@
 class SpectatorCamera extends Entity{
     constructor(scene){
         super(scene);
-        this.followingEntityID = -1;
+        this.followingEntity = null;
         this.followToggleLock = new Lock();
         this.leftRightLock = new CooldownLock(250);
         this.xVelocity = 0;
@@ -12,33 +12,42 @@ class SpectatorCamera extends Entity{
         this.radarLock = new CooldownLock(250);
     }
 
+    static getID(){
+        return "freecam";
+    }
+
+    getID(){
+        return SpectatorCamera.getID();
+    }
+
     getDisplayID(){
-        return this.followingEntityID != -1 ? this.followingEntityID : this.getID();
+        return this.followingEntity != null ? this.followingEntity.getID() : this.getID();
     }
 
     isFollowing(){
         // Check if the entity is still around
-        if (this.followingEntityID != -1 && !scene.hasEntity(this.followingEntityID)){
-            this.followingEntityID = -1;
+        if (this.followingEntity != null && !scene.hasEntity(this.followingEntity.getID())){
+            this.followingEntity = null;
         }
-        return this.followingEntityID != -1;
+        return this.followingEntity != null;
     }
 
     getPreviousEntity(){
-        if (this.followingEntityID == -1){ this.getFirstEntity(); return; }
+        if (this.followingEntity == null){ this.getFirstEntity(); return; }
         let followableEntities = this.scene.getGoodToFollowEntities();
         let found = false;
         let i = followableEntities.length - 1;
         while (i >= 0){
             let entity = followableEntities[i];
             // If we found the current entity, ignore it of course. !found is so that if its 1 single element you don't get stuck looping
-            if (entity.getID() == this.followingEntityID && !found){
+            if (entity.getID() == this.followingEntity.getID() && !found){
                 found = true;
                 if (i == 0){
                     i = followableEntities.length - 1;
+                    continue;
                 }
             }else if (found){
-                this.followingEntityID = entity.getID();
+                this.followingEntity = entity;
                 break;
             }
             i--;
@@ -47,20 +56,17 @@ class SpectatorCamera extends Entity{
 
     getSpeed(){
         if (!this.isFollowing()){ return 0; }
-        let entity = this.scene.getEntity(this.followingEntityID);
-        return entity.getSpeed();
+        return this.followingEntity.getSpeed();
     }
 
     getThrottle(){
         if (!this.isFollowing()){ return 0; }
-        let entity = this.scene.getEntity(this.followingEntityID);
-        return entity.getThrottle();
+        return this.followingEntity.getThrottle();
     }
 
     getHealth(){
         if (!this.isFollowing()){ return 0; }
-        let entity = this.scene.getEntity(this.followingEntityID);
-        return entity.getHealth();
+        return this.followingEntity.getHealth();
     }
 
     getRadar(){ return this.radar; }
@@ -68,20 +74,21 @@ class SpectatorCamera extends Entity{
     hasRadar(){ return true; }
 
     getNextEntity(){
-        if (this.followingEntityID == -1){ this.getFirstEntity(); return; }
+        if (this.followingEntity == null){ this.getFirstEntity(); return; }
         let followableEntities = this.scene.getGoodToFollowEntities();
         let found = false;
         let i = 0;
         while (i < followableEntities.length){
             let entity = followableEntities[i];
             // If we found the current entity, ignore it of course. !found is so that if its 1 single element you don't get stuck looping
-            if (entity.getID() == this.followingEntityID && !found){
+            if (entity.getID() == this.followingEntity.getID() && !found){
                 found = true;
                 if (i == followableEntities.length -1){
                     i = 0;
+                    continue;
                 }
             }else if (found){
-                this.followingEntityID = entity.getID();
+                this.followingEntity = entity;
                 break;
             }
             i++;
@@ -90,16 +97,18 @@ class SpectatorCamera extends Entity{
 
     getFirstEntity(){
         let followableEntities = this.scene.getGoodToFollowEntities();
-        if (followableEntities.length > 0){ this.followingEntityID = followableEntities[0].getID(); }
+        
+        if (followableEntities.length > 0){ this.followingEntity = followableEntities[0]; }
     }
 
     checkFollowToggle(){
         if (keyIsDown(70) && this.followToggleLock.isReady()){
             this.followToggleLock.lock();
-            if (this.followingEntityID == -1){
+            if (this.followingEntity == null){
                 this.getNextEntity();
             }else{
-                this.followingEntityID = -1;
+                console.log("Neeed new onew2")
+                this.followingEntity = null;
             }
         }else if (!keyIsDown(70) && !this.followToggleLock.isReady()){
             this.followToggleLock.unlock();
@@ -172,8 +181,8 @@ class SpectatorCamera extends Entity{
         this.checkFollowToggle();
         if (this.isFollowing()){
             this.checkLeftRight();
-            this.x = this.scene.getEntity(this.followingEntityID).getX();
-            this.y = this.scene.getEntity(this.followingEntityID).getY();
+            this.x = this.followingEntity.getX();
+            this.y = this.followingEntity.getY();
             return;
         }
         // else

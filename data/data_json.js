@@ -53,7 +53,7 @@ var fileData = {
             "country": "Germany"
         }
     },
-
+    "teams": ["Allies", "Axis"],
     "bullet_data": {
         "speed": 800,
         "picture": "bullet",
@@ -101,7 +101,8 @@ var fileData = {
         "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2,
         "server_ip": "localhost",
         "server_port": "8080",
-        "PLANE_SHOOT_GAP_MS": 100
+        "PLANE_SHOOT_GAP_MS": 100,
+        "MAX_BULLETS": 2000
     },
 
     "ai": {

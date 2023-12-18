@@ -6,10 +6,8 @@ class SpectatorRadar extends Radar{
 
     update(){
         this.radarData = this.resetRadar();
-        for (let entity of scene.getEntities()){
-            if (entity instanceof Plane){
-                this.placeOnRadar(entity.getX(), entity.getY(), (planeModelToAlliance(entity.getPlaneClass()) == "Allies") ? 1 : -1);
-            }
+        for (let entity of scene.getPlanes()){
+            this.placeOnRadar(entity.getX(), entity.getY(), (planeModelToAlliance(entity.getPlaneClass()) == "Allies") ? 1 : -1);
         }
     }
 

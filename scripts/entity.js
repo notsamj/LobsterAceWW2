@@ -4,6 +4,19 @@ class Entity{
         this.x = null;
         this.y = null;
         this.scene = scene;
+        this.dead = false;
+    }
+
+    isDead(){
+        return this.dead;
+    }
+
+    setDead(dead){
+        this.dead = dead;
+    }
+
+    die(){
+        this.setDead(true);
     }
 
     getScene(){

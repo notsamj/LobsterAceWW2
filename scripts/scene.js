@@ -51,7 +51,7 @@ class Scene{
             bY = focusedEntity.getCenterY() - (this.height) / 2;
         }
         this.displayBackground(lX, bY);
-        for (let entity of this.entities){
+        for (let [entity, entityIndex] of this.entities){
             if (this.hasEntityFocused() && entity.getID() == focusedEntity.getID()){ continue; }
             this.displayEntity(entity, lX, bY);
         }
@@ -96,14 +96,12 @@ class Scene{
         if (entityID == this.focusedEntityID){
             this.setFocusedEntity(-1);
         }
-        let i = 0;
         let foundIndex = -1;
-        for (let entity of this.entities){
+        for (let [entity, entityIndex] of this.entities){
             if (entity.getID() == entityID){
-                foundIndex = i;
+                foundIndex = entityIndex;
                 break;
             }
-            i += 1;
         }
         if (foundIndex == -1){
             console.error("Failed to find entity that should be deleted:", entityID);
@@ -158,7 +156,7 @@ class Scene{
     }
 
     getEntity(id){
-        for (let entity of this.entities){
+        for (let [entity, entityIndex] of this.entities){
             if (entity.getID() == id){ return entity; }
         }
         return null;
@@ -200,7 +198,8 @@ class Scene{
 
     tick(timeDiff){
         if (!this.ticksEnabled){ return; }
-        for (let entity of this.entities){
+        for (let [entity, entityIndex] of this.entities){
+            if (entity.isDead()){ continue; }
             entity.tick(timeDiff);
         }
 

@@ -17,16 +17,11 @@ function tick(){
     if (setupDone && (activeGameMode == null || activeGameMode.allowingSceneTicks())){
         let expectedTicks = Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
         while (numTicks < expectedTicks){
-            try{
-                scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
-                if (activeGameMode != null){
-                    activeGameMode.tick();
-                }
-                numTicks += 1;
-            }catch(e){
-                console.error(e);
-                debugger;
+            scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
+            if (activeGameMode != null){
+                activeGameMode.tick();
             }
+            numTicks += 1;
         }
     }
     if (frameLock.isReady()){
@@ -151,3 +146,5 @@ function countAlliance(allianceName){
     }
     return count;
 }
+
+// Start Up

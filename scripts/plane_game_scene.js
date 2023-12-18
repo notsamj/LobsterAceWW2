@@ -19,6 +19,7 @@ class PlaneGameScene extends Scene {
     constructor(width, height){
         super(width, height);
         this.collisionsEnabled = true;
+        this.teamCombatManager = new TeamCombatManager(fileData["teams"]);
     }
 
     enableCollisions(){
@@ -27,6 +28,102 @@ class PlaneGameScene extends Scene {
 
     disableCollisions(){
         this.collisionsEnabled = false;
+    }
+    
+    getGoodToFollowEntities(){
+        let entities = this.getEntities();
+        let followableEntities = [];
+        
+        // Get followable entities
+        for (let [entity, entityIndex] of entities){
+            if (entity.goodToFollow()){
+                followableEntities.push(entity);
+            }
+        }
+        for (let plane of this.teamCombatManager.getAllPlanes()){
+            followableEntities.push(plane);
+        }
+        return followableEntities;
+    }
+
+    getPlanes(){
+        return this.teamCombatManager.getAllPlanes();
+    }
+
+    getBullets(){
+        return this.teamCombatManager.getAllBullets(); 
+    }
+
+    setEntities(entities){
+        this.teamCombatManager.clear();
+        for (let entity of entities){
+            if (entity instanceof Plane || entity instanceof Bullet){
+                this.teamCombatManager.addEntity(entity);
+            }else{
+                this.entities.push(entity);
+            }
+        }
+    }
+
+    hasEntity(entityID){
+        return this.getEntity(entityID) != null;
+    }
+
+    getEntity(entityID){
+        for (let [entity, entityIndex] of this.entities){
+            if (entity.getID() == entityID){
+                return entity;
+            }
+        }
+
+        for (let plane of this.getPlanes()){
+            if (plane.getID() == entityID){
+                return plane;
+            }
+        }
+
+        for (let bullet of this.getBullets()){
+            if (bullet.getID() == entityID){
+                return bullet;
+            }
+        }
+        return null;
+    }
+
+    getFocusedEntity(){
+        if (this.hasEntityFocused()){
+            if (this.teamCombatManager.hasEntity(this.focusedEntityID)){
+                return this.teamCombatManager.getEntity(this.focusedEntityID);
+            }else{
+                for (let [entity, entityIndex] of this.entities){
+                    if (entity.getID() == this.focusedEntityID){
+                        return entity;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    addPlane(plane){
+        this.teamCombatManager.addPlane(plane);
+    }
+
+    addBullet(bullet){
+        this.teamCombatManager.addBullet(bullet);
+    }
+
+    tick(timeDiff){
+        if (!this.ticksEnabled){ return; }
+        for (let [entity, entityIndex] of this.entities){
+            entity.tick(timeDiff);
+        }
+        this.teamCombatManager.tick(timeDiff);
+        this.checkCollisions(timeDiff);
+    }
+
+    getNumberOfEntities(){
+        return this.teamCombatManager.getNumberOfEntities();
     }
 
     displayHUD(){
@@ -37,14 +134,11 @@ class PlaneGameScene extends Scene {
         let health = 0;
         let fps = frameCounter.getFPS();
         let numberOfEntities = this.getNumberOfEntities();
-        let allyPlanes = countAlliance("Allies");
-        let axisPlanes = countAlliance("Axis");
+        let allyPlanes = this.teamCombatManager.countAlliance("Allies");
+        let axisPlanes = this.teamCombatManager.countAlliance("Axis");
         let entityID = 0;
         if (this.hasEntityFocused()){
             let focusedEntity = this.getFocusedEntity();
-            if (focusedEntity instanceof Bullet){
-                return;
-            }
             x = focusedEntity.getX();
             y = focusedEntity.getY();
             planeSpeed = focusedEntity.getSpeed();
@@ -163,62 +257,25 @@ class PlaneGameScene extends Scene {
 
     checkCollisions(timeDiff){
         if (!this.collisionsEnabled){ return; }
-        let bullets = [];
-        let destructableEntities = [];
-
-        for (let entity of this.entities){
-            if (entity instanceof Bullet){
-                bullets.push(entity);
-            }else if (entity instanceof FighterPlane){
-                destructableEntities.push(entity);
-            }
-        }
-
-        for (let bullet of bullets){
-            for (let destructableEntity of destructableEntities){
-                if (onSameTeam(destructableEntity.getPlaneClass(), bullet.getShooterClass())){ continue; }
-                if (bullet.collidesWith(destructableEntity, timeDiff)){
-                    //console.log("hit")
-                    destructableEntity.damage(1);
-                    bullet.delete();
-                    //document.getElementById("hitSound").play();
-                    break;
-                }
-            }
-        }
-    }
-
-    delete(entityID){
-        let i = 0;
-        let foundIndex = -1;
-        for (let entity of this.entities){
-            if (entity.getID() == entityID){
-                foundIndex = i;
-                break;
-            }
-            i += 1;
-        }
-        if (foundIndex == -1){
-            console.error("Failed to find entity that should be deleted!");
-            debugger;
-            return; 
-        }
-        this.entities.remove(foundIndex);
-        // No focused entity anmore 
-        if (entityID == this.focusedEntityID){
-            for (let entity of this.entities){
-                if (entity instanceof Plane){
-                    this.setFocusedEntity(entity.getID());
-                    return;
-                }
-            }
-            this.setFocusedEntity(-1);
-        }
+        this.teamCombatManager
     }
 
     display(){
         if (!this.displayEnabled){ return; }
-        super.display();
+        let lX = 0; // Bottom left x
+        let bY = 0; // Bottom left y
+        let focusedEntity = null;
+        // If 
+        if (this.hasEntityFocused()){
+            focusedEntity = this.getFocusedEntity();
+            lX = focusedEntity.getCenterX() - (this.width) / 2;
+            bY = focusedEntity.getCenterY() - (this.height) / 2;
+        }
+        this.displayBackground(lX, bY);
+        this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1);
+        if (this.hasEntityFocused()){
+            this.displayEntity(focusedEntity, lX, bY);
+        }
         this.displayHUD();
     }
 

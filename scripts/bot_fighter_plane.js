@@ -171,7 +171,7 @@ class BotFighterPlane extends FighterPlane {
     }
 
     getEnemyList(){
-        let entities = this.scene.getEntities();
+        let entities = this.scene.getPlanes();
         let enemies = [];
         for (let entity of entities){
             if (entity instanceof FighterPlane && !this.onSameTeam(entity)){
