@@ -11,6 +11,10 @@ class Entity{
         return this.dead;
     }
 
+    isAlive(){
+        return !this.isDead();
+    }
+
     setDead(dead){
         this.dead = dead;
     }

@@ -1,8 +1,11 @@
 const BiasedBotFighterPlane = require("../scripts/biased_bot_fighter_plane.js");
 const HF = require("../scripts/helper_functions.js");
-class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
-    constructor(planeClass, scene, biases, angle=0, facingRight=true){
+const fileData = require("../data/data_json.js");
+class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane {
+    constructor(planeClass, scene, biases, x, y, angle=0, facingRight=true){
         super(planeClass, scene, biases, angle, facingRight);
+        this.x = x;
+        this.y = y;
         this.lastActions = {
             "face": facingRight,
             "turn": 0,
@@ -26,6 +29,7 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
         super.tick(timeDiffMS);
         this.updateEnemy();
         this.action({"action": "turn", "value": 0}); // Just set a default... TODO: Maybe improve this?
+        this.action({"action": "shooting", "value": false}); // Init to flase 
         if (this.hasCurrentEnemy()){
             let enemy = this.scene.getEntity(this.currentEnemyID);
             this.handleEnemy(enemy);
@@ -136,15 +140,23 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
 
     static createBiasedPlane(planeClass, scene, fileData){
         let biases = {};
+        let allyX = fileData["dogfight_settings"]["ally_spawn_x"];
+        let allyY = fileData["dogfight_settings"]["ally_spawn_y"];
+        let axisX = fileData["dogfight_settings"]["axis_spawn_x"];
+        let axisY = fileData["dogfight_settings"]["axis_spawn_y"];
+        let allyFacingRight = allyX < axisX;
+        let facingRight = (HF.planeModelToAlliance(planeClass) == "Allies") ? allyFacingRight : !allyFacingRight;
+        let x = (HF.planeModelToAlliance(planeClass) == "Allies") ? allyX : axisX; 
+        let y = (HF.planeModelToAlliance(planeClass) == "Allies") ? allyY : axisY;
+        let aX = x + HF.randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
+        let aY = y + HF.randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
         for (let [key, bounds] of Object.entries(fileData["ai"]["bias_ranges"])){
             let upperBound = bounds["upper_bound"];
             let lowerBound = bounds["lower_bound"];
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? HF.randomFloatBetween(lowerBound, upperBound) : HF.randomNumberInclusive(lowerBound, upperBound);    
         }
-        let newPlane = new MultiplayerBiasedBotFighterPlane(planeClass, scene, biases);
-        newPlane.setCenterX(500);
-        newPlane.setCenterY(2000); // TODO: Temp
+        let newPlane = new MultiplayerBiasedBotFighterPlane(planeClass, scene, biases, aX, aY, 0, facingRight);
         return newPlane;
     }
 

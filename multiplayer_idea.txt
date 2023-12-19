@@ -1,0 +1,6 @@
+SO for both client and server
+When you update movement on a tick like increase angle or something
+YOu save to a map like 500ms max
+map[currentTick % 500] = "turningUp"
+then server also updates that when you receive with its last 500 and you use that for movement when doing stuff ok make sure to separate so you can automate
+the human input when catching up its complicated I'm sorry

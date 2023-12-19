@@ -111,6 +111,12 @@ class NotSamArrayList {
         this.set(index, value);
     }
 
+    fullWithPlaceholder(value){
+        while (this.getLength() < this.getSize()){
+            this.add(value);
+        }
+    }
+
     *[Symbol.iterator](){
         for (let i = 0; i < this.getLength(); i++){
             yield [this.array[i], i];

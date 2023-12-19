@@ -1,5 +1,6 @@
 if (typeof window === "undefined"){
     Scene = require("../scripts/scene.js");
+    TeamCombatManager = require("../scripts/team_combat_manager.js");
 }
 async function loadRotatedImages(name){
     console.log("Loading", name)
@@ -10,8 +11,12 @@ async function loadRotatedImages(name){
 }
 
 async function loadPlanes(){
+    let numPlanes = Object.entries(fileData["plane_data"]).length;
+    let i = 0;
     for (const [planeName, planeDetails] of Object.entries(fileData["plane_data"])) {
+        loadedPercent = Math.round(i / numPlanes * 100);
         await loadRotatedImages(planeName);
+        i += 1;
     }
 }
 
@@ -20,6 +25,10 @@ class PlaneGameScene extends Scene {
         super(width, height);
         this.collisionsEnabled = true;
         this.teamCombatManager = new TeamCombatManager(fileData["teams"]);
+    }
+
+    forceUpdatePlanes(listOfPlaneObjects){
+        this.teamCombatManager.forceUpdatePlanes(listOfPlaneObjects);
     }
 
     enableCollisions(){
@@ -91,18 +100,7 @@ class PlaneGameScene extends Scene {
     }
 
     getFocusedEntity(){
-        if (this.hasEntityFocused()){
-            if (this.teamCombatManager.hasEntity(this.focusedEntityID)){
-                return this.teamCombatManager.getEntity(this.focusedEntityID);
-            }else{
-                for (let [entity, entityIndex] of this.entities){
-                    if (entity.getID() == this.focusedEntityID){
-                        return entity;
-                    }
-                }
-            }
-        }
-        return null;
+        return this.focusedEntity;
     }
 
     addPlane(plane){
@@ -113,12 +111,12 @@ class PlaneGameScene extends Scene {
         this.teamCombatManager.addBullet(bullet);
     }
 
-    tick(timeDiff){
+    tick(timeDiff, forced){
         if (!this.ticksEnabled){ return; }
         for (let [entity, entityIndex] of this.entities){
-            entity.tick(timeDiff);
+            entity.tick(timeDiff, forced);
         }
-        this.teamCombatManager.tick(timeDiff);
+        this.teamCombatManager.tick(timeDiff, forced);
         this.checkCollisions(timeDiff);
     }
 
@@ -162,6 +160,10 @@ class PlaneGameScene extends Scene {
         text(`ID: ${entityID}`, 10, 160);
         text(`Allied Planes Remaining: ${allyPlanes}`, 10, 180);
         text(`Axis Planes Remaining: ${axisPlanes}`, 10, 200);
+        text(`numTicks: ${numTicks}`, 10, 220);
+        if (activeGameMode instanceof RemoteDogfight){
+            text(`version: ${activeGameMode.getVersion()}`, 10, 240);
+        }
     }
     
     displayBackground(lX, bY){
@@ -268,6 +270,7 @@ class PlaneGameScene extends Scene {
         // If 
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
+            //debugger
             lX = focusedEntity.getCenterX() - (this.width) / 2;
             bY = focusedEntity.getCenterY() - (this.height) / 2;
         }

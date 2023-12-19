@@ -2,14 +2,23 @@ class RemoteDogfight extends Dogfight {
     constructor(serverConnection, startingEntities){
         super(startingEntities);
         scene.setEntities(this.startingEntities, true);
-        scene.setFocusedEntity(this.startingEntities[0].getID());
-        scene.setFocusedEntity(500); // temp
+        // Temp
+        let cam = new SpectatorCamera(scene);
+        scene.addEntity(cam);
+        scene.setFocusedEntity(cam);
+        //scene.setFocusedEntity(500); // temp
         scene.enableTicks();
         scene.enableDisplay();
         scene.disableCollisions();
+        this.version = null;
         this.serverConnection = serverConnection;
         this.tickLock = new Lock();
         this.serverDataLock = new Lock();
+        this.previousStates = new NotSamArrayList(null, fileData["constants"]["SAVED_TICKS"]);
+    }
+
+    getVersion(){
+        return this.version;
     }
 
     display(){
@@ -19,31 +28,39 @@ class RemoteDogfight extends Dogfight {
     }
 
     async tick(){
+        // TODO: Put this back in this.previousStates.put(numTicks % fileData["constants"]["SAVED_TICKS"], this.getState());
         if (!this.serverDataLock.isReady() || !this.tickLock.isReady()){
             return;
         }
+        //await this.updateDelay.awaitUnlock();
         // Get state from server
         this.serverDataLock.lock();
-        let state = await this.serverConnection.requestGET("state");
+        let state = await this.serverConnection.requestTCP("STATE");
+        state = JSON.parse(state);
+        if (state["version"] == this.version){
+            return;
+        }
+        this.version = state["version"];
         // TODO: Error handling
         this.serverDataLock.unlock();
-        
+        //let timeTwo = Date.now(),
         // Update game based on state
         this.tickLock.lock();
         this.updateState(state);
         this.tickLock.unlock();
+        //this.updateDelay.lock();
+    }
+
+    getState(){
+        // TODO: Get all the data for the lastActions of the local plane and put it here to send to the server and for using to update the forcedTicks
     }
 
     updateState(state){
         numTicks = state["numTicks"]; // Make sure this is done so it can catch up with the server
-        // TODO: Account for dead planes and bullets
-        for (let planeObj of state["planes"]){
-            if (scene.hasEntity(planeObj["id"])){
-                let plane = scene.getEntity(planeObj["id"]);
-                plane.updateStats(planeObj);
-            }else{
-                this.addNewPlane(planeObj);
-            }
+        scene.forceUpdatePlanes(state["planes"]);
+        while (numTicks < getExpectedTicks()){
+            scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"], true);
+            numTicks++;
         }
     }
 
@@ -57,8 +74,11 @@ class RemoteDogfight extends Dogfight {
     }
 
     static async create(serverConnection){
-        let state = await serverConnection.requestGET("state");
-        startTime = state["starTime"];
+        let state = await serverConnection.requestTCP("STATE");
+        state = JSON.parse(state);
+        if (state == null){ debugger; }
+        startTime = state["startTime"];
+        numTicks = state["numTicks"];
         // temp
         let cam = new SpectatorCamera(scene);
         let entities = RemoteDogfight.createNewEntities(state);
@@ -70,7 +90,7 @@ class RemoteDogfight extends Dogfight {
     }
 
     static createNewPlane(planeObj){
-        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
+        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, this, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
         plane.setID(planeObj["id"]);
         plane.setCenterX(planeObj["x"]);
         plane.setCenterY(planeObj["y"]);

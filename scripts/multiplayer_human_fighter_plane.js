@@ -9,12 +9,32 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
     }
 
+    tick(timeMS, forced=false){
+        if (forced){
+            actions = this.getActionAtTick(this.getID());
+        }
+        this.adjustByActions();
+        super.tick(timeMS);
+    }
+
+    adjustByActions(actions){
+        if (actions["shooting"] && this.shootLock.isReady()){
+            this.shootLock.lock();
+            this.shoot();
+        }
+        this.adjustAngle(actions["turn"]);
+        console.log(this.facingRight, action["face"])
+        if (this.facingRight != action["face"]){
+            this.face(this.action["face"])
+        }
+        this.throttle += action["throttle"];
+    }
+
     action(actionPair){
         let key = actionPair["action"];
         let value = actionPair["value"];
         if (lastActions[key] != value){
             lastActions[key] = value;
-            // TODO: Tell server
         }
     }
 
@@ -108,5 +128,33 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.shootLock.lock();
         this.action({"action": "shooting", "value": true});
         this.shoot();
+    }
+
+    fromPreviousState(previousState){
+        this.dead = previousState["isDead"];
+        this.x = previousState["x"];
+        this.y = previousState["y"];
+        this.facingRight = previousState["facing"];
+        this.angle = previousState["angle"];
+        this.speed = previousState["speed"];
+        this.throttle = previousState["throttle"];
+        this.health = previousState["health"];
+        this.lastActions = previousState["lastActions"];
+    }
+
+    update(newStats){
+        this.dead = newStats["isDead"];
+        this.health = newStats["health"];
+    }
+
+    getStatsToSend(){
+        let newStats = {};
+        newStats["x"] = this.x;
+        newStats["y"] = this.y;
+        newStats["facing"] = this.facingRight;
+        newStats["angle"] = this.angle;
+        newStats["speed"] = this.speed;
+        newStats["throttle"] = this.throttle;
+        newStats["lastActions"] = this.lastActions;
     }
 }

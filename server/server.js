@@ -6,34 +6,42 @@ const ServerDogfight = require("./server_dogfight.js");
 const PlaneGameScene = require("../scripts/plane_game_scene.js");
 const MultiplayerBiasedBotFighterPlane = require("./multiplayer_bot_fighter_plane.js");
 const HF = require("../scripts/helper_functions.js");
-const HTTPServer = require("./http_server.js");
+//const HTTPServer = require("./http_server.js");
+const WSServer = require("./ws_server.js");
 const Lock = require("../scripts/lock.js").Lock;
 const NotSamArrayList = require("../scripts/notsam_array_list.js");
+var server = new WSServer(fileData["constants"]["server_port"]);
+
 var scene = new PlaneGameScene();
+var version = 0;
 var tickLock = new Lock();
 var startTime = null;
 var numTicks = 0;
-/*
-let spitFire = MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA);
-var activeGameMode = new ServerDogfight([spitFire], scene);
-spitFire.angle = 270;
-*/
 
 var activeGameMode = new ServerDogfight(fillEntities(), scene);
-var server = new HTTPServer(fileData["constants"]["server_port"]);
+//var server = new HTTPServer(fileData["constants"]["server_port"]);
 var previousStates = new NotSamArrayList(null, FILE_DATA["constants"]["SAVED_TICKS"]);
 previousStates.fullWithPlaceholder(null);
 
 // Start Up
 
 // Register listeners
-server.registerGet("state", async function (request, response){
+
+server.register("GET", "STATE", async function (client, match){
     await tickLock.awaitUnlock();
     tickLock.lock();
-    // This usually takes 1ms
-    //await HF.sleep(5000);
     let responseJSON = previousStates.get((numTicks - 1) % FILE_DATA["constants"]["SAVED_TICKS"]);
-    response.json(responseJSON)
+    client.send(JSON.stringify(responseJSON));
+    tickLock.unlock();
+});
+
+server.register("PUT", "CLIENTPLANE", async function (match){
+    let data = match[6];
+    let dataJSON = JSON.parse(match[6]);
+    await tickLock.awaitUnlock();
+    tickLock.lock();
+    numTicks = dataJSON["numTicks"];
+    activeGameMode.updateClient(dataJSON);
     tickLock.unlock();
 });
 
@@ -48,16 +56,19 @@ function tick(){
         scene.tick(FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         if (activeGameMode != null){
             activeGameMode.tick();
-            previousStates.put(numTicks % FILE_DATA["constants"]["SAVED_TICKS"], activeGameMode.getState(startTime, numTicks));
+            previousStates.put(numTicks % FILE_DATA["constants"]["SAVED_TICKS"], activeGameMode.getState(startTime, numTicks, version));
         }
         numTicks += 1;
+        version += 1;
+        // Debugging
+        if (version % 500 == 0){ console.log(version)}
     }
     tickLock.unlock();
 }
 
 function fillEntities(){
     let entities = [];
-    for (let i = 0 ; i < 5; i++){
+    for (let i = 0 ; i < 0; i++){
         entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA));
         entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("a6m_zero", scene, FILE_DATA));
     }

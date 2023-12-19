@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>WW2 Plane Game</title>
-
+    <title>Test</title>
     <!-- Dependencies -->
-    <script src="scripts/helper_functions.js"></script>
+    <script src="server/test_data.js"></script>
+    <script>
+        var startTime = null;
+        const socket = new WebSocket("ws://localhost:8080");
+        socket.addEventListener("open", (event) => {
+            startTime = Date.now();
+            socket.send("GET_STATE" + "_" + JSON.stringify(testData));
+        });
+
+        socket.addEventListener("message", (event) => {
+            console.log(event.data)
+            let endTime = Date.now();
+            console.log(endTime - startTime)
+        });
+    </script>
 </head>
 <body>
-    <script>
-        console.log(calculateAngleDiffDEGCW(2, 350.2))
-        console.log(calculateAngleDiffDEGCCW(0, 350.2))
-    </script>
 </body>
 </html>

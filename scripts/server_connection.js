@@ -3,32 +3,31 @@ class ServerConnection {
         this.ip = fileData["constants"]["server_ip"];
         this.port = fileData["constants"]["server_port"];
         this.commsLock = new Lock();
+        this.socket = new WebSocket("ws://" + this.ip + ":" + this.port);
+        this.openedLock = new Lock();
+        this.openedLock.lock();
+        this.mailBox = new MailBox((mailData) => {
+            this.socket.send(mailData);
+        });
+        this.socket.addEventListener("open", (event) => {
+            console.log("Connection to server opened.");
+            this.openedLock.unlock();
+        });
+
+        this.socket.addEventListener("message", (event) => {
+            this.mailBox.deliver(event.data);
+        });
     }
 
-    async requestGET(target){
-        await this.commsLock.awaitUnlock();
-        this.commsLock.lock();
-        let response = await fetch("http://" + this.ip + ":" + this.port + "/" + target);
-        let responseJSON = await response.json();
-        // After received response
-        this.commsLock.unlock();
-        return responseJSON;
+    // Definitely not actually TCP but idc
+    async requestTCP(target){
+        await this.openedLock.awaitUnlock();
+        return await this.mailBox.send("GET_" + target);
     }
 
-    async requestPOST(target, body){
-        let requestBody = {
-            method: "POST",
-            body: JSON.stringify(body),
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            }
-        }
-        await this.commsLock.awaitUnlock();
-        this.commsLock.lock();
-        let response = await fetch("http://" + this.ip + ":" + this.port + "/" + target, requestBody);
-        let responseJSON = await response.json();
-        // After received response
-        this.commsLock.unlock();
-        return responseJSON;
+    // Not actually using UDP (am I? well idk all the rules what constitutes UDP this is like UDP though)
+    async sendUDP(target, message){
+        await this.openedLock.awaitUnlock();
+        this.socket.send("UDP_" + target + "_" + message);
     }
 }

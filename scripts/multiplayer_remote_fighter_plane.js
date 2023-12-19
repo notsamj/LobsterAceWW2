@@ -1,5 +1,5 @@
 class MultiplayerRemoteFighterPlane extends FighterPlane{
-    constructor(planeClass, scene, rotationTime, speed, maxSpeed, throttleConstant, health, lastActions, angle, facingRight){
+    constructor(planeClass, scene, gameMode, rotationTime, speed, maxSpeed, throttleConstant, health, lastActions, angle, facingRight){
         super(planeClass, scene, angle, facingRight);
         this.maxSpeed = maxSpeed;
         this.speed = speed;
@@ -7,14 +7,16 @@ class MultiplayerRemoteFighterPlane extends FighterPlane{
         this.rotationCD = new CooldownLock(rotationTime);
         this.health = health;
         this.lastActions = lastActions;
+        this.gameMode = gameMode;
     }
 
-    updateStats(newStats){
-        this.rotationCD.unlock();
-        this.shootLock.unlock();
+    update(newStats){
+        //this.rotationCD.unlock();
+        //this.shootLock.unlock();
+        this.dead = newStats["isDead"];
         this.x = newStats["x"];
         this.y = newStats["y"];
-        this.facing = newStats["facing"];
+        this.facingRight = newStats["facing"];
         this.angle = newStats["angle"];
         this.speed = newStats["speed"];
         this.throttle = newStats["throttle"];
@@ -22,17 +24,20 @@ class MultiplayerRemoteFighterPlane extends FighterPlane{
         this.lastActions = newStats["lastActions"];
     }
 
-    adjustByLastActions(){
-        if (this.lastActions["shooting"] && this.shootLock.isReady()){
+    adjustByActions(actions){
+        if (actions["shooting"] && this.shootLock.isReady()){
             this.shootLock.lock();
             this.shoot();
         }
-        this.adjustAngle(this.lastActions["turn"]);
-        // TODO: Remove lastActions facing
+        this.adjustAngle(actions["turn"]);
+        if (this.facingRight != actions["face"]){
+            this.face(actions["face"]);
+        }
     }
 
     tick(timeMS){
-        this.adjustByLastActions();
+        let actions = this.lastActions;
+        this.adjustByActions(actions);
         super.tick(timeMS);
     }
 }

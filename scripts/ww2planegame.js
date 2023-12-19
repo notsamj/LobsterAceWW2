@@ -7,6 +7,7 @@ var setupDone = false;
 var frameCounter = new FrameRateCounter(fileData["constants"]["FRAME_RATE"]);
 var frameLock = new CooldownLock(Math.floor(1/fileData["constants"]["FRAME_RATE"]));
 var activeGameMode = null;
+var loadedPercent = 0;
 
 // Functions
 
@@ -15,7 +16,7 @@ function tick(){
         menuManager.lostFocus();
     }
     if (setupDone && (activeGameMode == null || activeGameMode.allowingSceneTicks())){
-        let expectedTicks = Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
+        let expectedTicks = getExpectedTicks();
         while (numTicks < expectedTicks){
             scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
             if (activeGameMode != null){
@@ -29,6 +30,9 @@ function tick(){
         draw();
         frameCounter.countFrame();
     }
+}
+function getExpectedTicks(){
+    return Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
 }
 
 async function loadExtraImages(){
@@ -96,7 +100,7 @@ function draw() {
     if (!setupDone){
         textSize(200);
         fill("green");
-        text("Loading...", 200, 200, 200, 200);
+        text(`Loading: ${loadedPercent}%`, 200, 200);
         return; 
     }
     scene.display();

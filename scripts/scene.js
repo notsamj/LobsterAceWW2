@@ -30,7 +30,7 @@ class Scene{
         this.height = height;
         this.nextEntityID = 0;
         this.entities = new NotSamLinkedList();
-        this.focusedEntityID = -1;
+        this.focusedEntity = null;
         this.tickEnabled = false;
         this.displayEnabled = false;
     }
@@ -64,8 +64,8 @@ class Scene{
     // Abstract
     displayBackground(){}
 
-    setFocusedEntity(entityID){
-        return this.focusedEntityID = entityID;
+    setFocusedEntity(entity){
+        this.focusedEntity = entity;
     }
 
     changeToScreenX(x){
@@ -83,17 +83,11 @@ class Scene{
             this.nextEntityID = Math.max(this.nextEntityID+1, entity.getID() + 1);
         }
         this.entities.push(entity);
-        if (!this.hasEntityFocused()){
-            this.setFocusedEntity(this.nextEntityID-1);
-            if (this.entities.getLength() == 0){
-                this.setFocusedEntity(-1);
-            }
-        }
     } 
     
     delete(entityID){
         // No focused entity anmore 
-        if (entityID == this.focusedEntityID){
+        if (entityID == this.focusedEntity.getID()){
             this.setFocusedEntity(-1);
         }
         let foundIndex = -1;
@@ -152,7 +146,7 @@ class Scene{
     }
 
     hasEntityFocused(){
-        return this.focusedEntityID != -1;
+        return this.focusedEntity != null;
     }
 
     getEntity(id){
@@ -167,7 +161,7 @@ class Scene{
     }
 
     getFocusedEntity(){
-        return this.getEntity(this.focusedEntityID);
+        return this.focusedEntity;
     }
 
     enable(){

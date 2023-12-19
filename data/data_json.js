@@ -102,7 +102,8 @@ var fileData = {
         "server_ip": "localhost",
         "server_port": "8080",
         "PLANE_SHOOT_GAP_MS": 100,
-        "MAX_BULLETS": 2000
+        "MAX_BULLETS": 2000,
+        "SAVED_TICKS": 500
     },
 
     "ai": {

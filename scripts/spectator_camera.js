@@ -1,6 +1,8 @@
 class SpectatorCamera extends Entity{
     constructor(scene){
         super(scene);
+        this.x = 0;
+        this.y = 0;
         this.followingEntity = null;
         this.followToggleLock = new Lock();
         this.leftRightLock = new CooldownLock(250);
@@ -107,7 +109,6 @@ class SpectatorCamera extends Entity{
             if (this.followingEntity == null){
                 this.getNextEntity();
             }else{
-                console.log("Neeed new onew2")
                 this.followingEntity = null;
             }
         }else if (!keyIsDown(70) && !this.followToggleLock.isReady()){

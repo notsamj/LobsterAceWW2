@@ -1,9 +1,36 @@
+if (typeof window === "undefined"){
+    NotSamLinkedList = require("../scripts/notsam_linked_list.js");
+    NotSamArrayList = require("../scripts/notsam_array_list.js");
+    planeModelToAlliance = require("../scripts/helper_functions.js").planeModelToAlliance;
+}
 class TeamCombatManager {
     constructor(teams){
         this.planes = {};
         this.bullets = {};
         this.teams = teams;
         this.clear();
+    }
+
+    forceUpdatePlanes(listOfPlaneObjects){
+        for (let team of this.teams){
+            for (let [plane, planeIndex] of this.planes[team]){
+                let foundOBJ = null;
+                for (let planeOBJ of listOfPlaneObjects){
+                    if (planeOBJ["id"] == plane.getID()){
+                        foundOBJ = planeOBJ;
+                        break;
+                    }
+                }
+                if (foundOBJ == null){
+                    console.error("Plane not found!");
+                    debugger;
+                    continue;
+                }
+                // Else found
+                if (foundOBJ["isDead"] && plane.isDead()){ continue; }
+                plane.update(foundOBJ);
+            }
+        }
     }
 
     clear(){
@@ -66,11 +93,11 @@ class TeamCombatManager {
         }
     }
 
-    tick(timeDiff){
+    tick(timeDiff, forced=false){
         for (let team of this.teams){
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
-                plane.tick(timeDiff);
+                plane.tick(timeDiff, forced);
             }
 
             for (let [bullet, bIndex] of this.bullets[team]){
@@ -176,4 +203,7 @@ class TeamCombatManager {
         }
         return aliveCount;
     }
+}
+if (typeof window === "undefined"){
+    module.exports = TeamCombatManager;
 }
