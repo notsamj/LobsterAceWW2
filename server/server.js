@@ -13,8 +13,13 @@ var scene = new PlaneGameScene();
 var tickLock = new Lock();
 var startTime = null;
 var numTicks = 0;
-//var activeGameMode = new ServerDogfight([MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA)], scene);
-var activeGameMode = new ServerDogfight([MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA), MultiplayerBiasedBotFighterPlane.createBiasedPlane("a6m_zero", scene, FILE_DATA)], scene);
+/*
+let spitFire = MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA);
+var activeGameMode = new ServerDogfight([spitFire], scene);
+spitFire.angle = 270;
+*/
+
+var activeGameMode = new ServerDogfight(fillEntities(), scene);
 var server = new HTTPServer(fileData["constants"]["server_port"]);
 var previousStates = new NotSamArrayList(null, FILE_DATA["constants"]["SAVED_TICKS"]);
 previousStates.fullWithPlaceholder(null);
@@ -25,6 +30,7 @@ previousStates.fullWithPlaceholder(null);
 server.registerGet("state", async function (request, response){
     await tickLock.awaitUnlock();
     tickLock.lock();
+    // This usually takes 1ms
     //await HF.sleep(5000);
     let responseJSON = previousStates.get((numTicks - 1) % FILE_DATA["constants"]["SAVED_TICKS"]);
     response.json(responseJSON)
@@ -47,4 +53,13 @@ function tick(){
         numTicks += 1;
     }
     tickLock.unlock();
+}
+
+function fillEntities(){
+    let entities = [];
+    for (let i = 0 ; i < 5; i++){
+        entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA));
+        entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("a6m_zero", scene, FILE_DATA));
+    }
+    return entities;
 }

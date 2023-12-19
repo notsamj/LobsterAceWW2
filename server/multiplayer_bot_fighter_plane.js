@@ -22,6 +22,21 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
         }
     }
 
+    tick(timeDiffMS){
+        super.tick(timeDiffMS);
+        this.updateEnemy();
+        this.action({"action": "turn", "value": 0}); // Just set a default... TODO: Maybe improve this?
+        if (this.hasCurrentEnemy()){
+            let enemy = this.scene.getEntity(this.currentEnemyID);
+            this.handleEnemy(enemy);
+        }else{
+            if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
+                this.turnInDirection(90);
+                return;
+            }
+        }
+    }
+
     handleEnemy(enemy){
         // Separate into two things
         // 1. Shooting if close enough 2. Determining how to move.
@@ -138,6 +153,7 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane{
         return {
             "plane_class": this.getPlaneClass(),
             "id": this.getID(),
+            "isDead": this.isDead(),
             "x": this.getX(),
             "y": this.getY(),
             "facing": this.isFacingRight(),

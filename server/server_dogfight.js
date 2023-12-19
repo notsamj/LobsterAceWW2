@@ -13,9 +13,7 @@ class ServerDogFight extends DogFight {
         let state = { "numTicks": numTicks, "startTime": startTime};
         state["planes"] = [];
         for (let entity of this.startingEntities){
-            if (entity.isAlive()){
-                state["planes"].push(entity.getState());
-            }
+            state["planes"].push(entity.getState());
         }
         return state;
     }
