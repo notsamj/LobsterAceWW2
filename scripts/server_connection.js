@@ -28,6 +28,6 @@ class ServerConnection {
     // Not actually using UDP (am I? well idk all the rules what constitutes UDP this is like UDP though)
     async sendUDP(target, message){
         await this.openedLock.awaitUnlock();
-        this.socket.send("UDP_" + target + "_" + message);
+        this.socket.send("PUT_" + target + "_" + message);
     }
 }

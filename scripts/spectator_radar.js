@@ -1,6 +1,7 @@
 class SpectatorRadar extends Radar{
     constructor(entity){
         super(entity);
+        console.log("New radar", this.entity);
         this.friendlyBlip = images["radar_blip_friendly"];
     }
 

@@ -1,4 +1,4 @@
-class SpectatorCamera extends Entity{
+class SpectatorCamera extends Entity {
     constructor(scene){
         super(scene);
         this.x = 0;

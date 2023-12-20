@@ -1,20 +1,19 @@
 class RemoteDogfight extends Dogfight {
     constructor(serverConnection, startingEntities){
-        super(startingEntities);
-        scene.setEntities(this.startingEntities, true);
+        super(startingEntities, this.scene);
+        this.scene.setEntities(this.startingEntities, true);
         // Temp
-        let cam = new SpectatorCamera(scene);
-        scene.addEntity(cam);
-        scene.setFocusedEntity(cam);
-        //scene.setFocusedEntity(500); // temp
-        scene.enableTicks();
-        scene.enableDisplay();
-        scene.disableCollisions();
+        let cam = new SpectatorCamera(this.scene);
+        this.scene.addEntity(cam);
+        this.scene.setFocusedEntity(cam);
+        this.scene.enableTicks();
+        this.scene.enableDisplay();
+        this.scene.disableCollisions();
+        this.sceneID = 0; // Ficticious just because I was thinking of planes when I made the ValueHistoryManager
         this.version = null;
         this.serverConnection = serverConnection;
-        this.tickLock = new Lock();
         this.serverDataLock = new Lock();
-        this.previousStates = new NotSamArrayList(null, fileData["constants"]["SAVED_TICKS"]);
+        this.planeMovements = new ValueHistoryManager(fileData["constants"]["SAVED_TICKS"]);
     }
 
     getVersion(){
@@ -27,60 +26,61 @@ class RemoteDogfight extends Dogfight {
         }
     }
 
-    async tick(){
-        // TODO: Put this back in this.previousStates.put(numTicks % fileData["constants"]["SAVED_TICKS"], this.getState());
-        if (!this.serverDataLock.isReady() || !this.tickLock.isReady()){
-            return;
-        }
-        //await this.updateDelay.awaitUnlock();
+    async updateFromServer(stateDATA){
+        if (this.serverDataLock.notReady()){ return; }
         // Get state from server
         this.serverDataLock.lock();
-        let state = await this.serverConnection.requestTCP("STATE");
-        state = JSON.parse(state);
+        let state = JSON.parse(stateDATA);
         if (state["version"] == this.version){
+            this.serverDataLock.unlock();
             return;
         }
-        this.version = state["version"];
+        // Update game based on state
+        await this.tickManager.awaitUnlock(true);
+        this.updateState(state);
+        this.tickManager.unlock();
         // TODO: Error handling
         this.serverDataLock.unlock();
-        //let timeTwo = Date.now(),
-        // Update game based on state
-        this.tickLock.lock();
-        this.updateState(state);
-        this.tickLock.unlock();
-        //this.updateDelay.lock();
     }
 
-    getState(){
-        // TODO: Get all the data for the lastActions of the local plane and put it here to send to the server and for using to update the forcedTicks
+    tick(){
+        // TODO: Put this back in this.previousStates.put(numTicks % fileData["constants"]["SAVED_TICKS"], this.getState());
+        if (!this.serverDataLock.isReady() || !this.isRunning()){
+            return;
+        }
+        // Now tick
+        this.tickManager.tick();
+        this.sendServerUpdate();
+    }
+
+    sendServerUpdate(){
+        this.serverConnection.send()
     }
 
     updateState(state){
-        numTicks = state["numTicks"]; // Make sure this is done so it can catch up with the server
-        scene.forceUpdatePlanes(state["planes"]);
+        this.version = state["version"];
+        this.tickManager.setNumTicks(state["numTicks"]); // Make sure this is done so it can catch up with the server
+        this.scene.forceUpdatePlanes(state["planes"]);
         while (numTicks < getExpectedTicks()){
-            scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"], true);
+            this.scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"], true);
             numTicks++;
         }
     }
 
     addNewPlane(planeObj){
         let plane = RemoteDogfight.createNewPlane(planeObj);
-        scene.addEntity(plane, idSet=true);
-    }
-
-    allowingSceneTicks(){
-        return this.tickLock.isReady();
+        this.scene.addEntity(plane, idSet=true);
     }
 
     static async create(serverConnection){
-        let state = await serverConnection.requestTCP("STATE");
+        // TODO: JOIN_{PLANE_TYPE}
+        let state = await serverConnection.requestTCP("PUT_JOIN_CAM");
         state = JSON.parse(state);
         if (state == null){ debugger; }
-        startTime = state["startTime"];
-        numTicks = state["numTicks"];
+        this.tickManager.setStartTime(state["startTime"]);
+        this.tickManager.setNumTicks(state["numTicks"]);
         // temp
-        let cam = new SpectatorCamera(scene);
+        let cam = new SpectatorCamera(this.scene);
         let entities = RemoteDogfight.createNewEntities(state);
         entities.push(cam);
         cam.setID(500); // temp
@@ -90,7 +90,7 @@ class RemoteDogfight extends Dogfight {
     }
 
     static createNewPlane(planeObj){
-        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, this, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
+        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], this.scene, this, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
         plane.setID(planeObj["id"]);
         plane.setCenterX(planeObj["x"]);
         plane.setCenterY(planeObj["y"]);

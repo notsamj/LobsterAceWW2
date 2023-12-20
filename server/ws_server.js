@@ -1,14 +1,13 @@
 const WebSocketServer = require("ws").WebSocketServer;
+const ClientList = require("./client_list.js");
 class WSServer {
     constructor(port){
         this.server = new WebSocketServer({ "port": port })
         this.port = port;
-        this.clients = [];
+        this.clients = new ClientList(this);
         console.log("Server on and listening to port: %d", port);
         this.server.on("connection", (newClient) => {
-            newClient.on("message", (data) => {
-                this.handleMessage(newClient, data);
-            })
+            this.clients.add(newClient);
         });
         this.registeredHandlers = [];
     }
@@ -34,6 +33,12 @@ class WSServer {
             }
         }
         console.error("Bad request: %s", dataString);
+    }
+
+    sendAll(data){
+        for (let [client, clientIndex] of this.clients.getValues()){
+            client.send(data);
+        }
     }
 }
 module.exports=WSServer;

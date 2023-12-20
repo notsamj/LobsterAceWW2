@@ -1,8 +1,6 @@
 // Global variables
 var scene;
 var menuManager;
-var startTime = null;
-var numTicks = 0;
 var setupDone = false;
 var frameCounter = new FrameRateCounter(fileData["constants"]["FRAME_RATE"]);
 var frameLock = new CooldownLock(Math.floor(1/fileData["constants"]["FRAME_RATE"]));
@@ -12,27 +10,20 @@ var loadedPercent = 0;
 // Functions
 
 function tick(){
+    if (!setupDone){
+        return;
+    }
     if (document.hidden){
         menuManager.lostFocus();
     }
-    if (setupDone && (activeGameMode == null || activeGameMode.allowingSceneTicks())){
-        let expectedTicks = getExpectedTicks();
-        while (numTicks < expectedTicks){
-            scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"]);
-            if (activeGameMode != null){
-                activeGameMode.tick();
-            }
-            numTicks += 1;
-        }
+    if (activeGameMode != null){
+        activeGameMode.tick();
     }
     if (frameLock.isReady()){
         frameLock.lock();
         draw();
         frameCounter.countFrame();
     }
-}
-function getExpectedTicks(){
-    return Math.floor(((Date.now() - startTime) / fileData["constants"]["MS_BETWEEN_TICKS"]));
 }
 
 async function loadExtraImages(){

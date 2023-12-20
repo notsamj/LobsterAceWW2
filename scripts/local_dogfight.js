@@ -1,9 +1,9 @@
 class LocalDogfight extends Dogfight {
     constructor(startingEntities){
-        super(startingEntities);
-        scene.setEntities(startingEntities);
-        scene.setFocusedEntity(startingEntities[0]);
-        scene.enable();
+        super(startingEntities, scene);
+        this.scene.setEntities(startingEntities);
+        this.scene.setFocusedEntity(startingEntities[0]);
+        this.scene.enable();
     }
 
     display(){

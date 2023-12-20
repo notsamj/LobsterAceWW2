@@ -31,7 +31,7 @@ class Scene{
         this.nextEntityID = 0;
         this.entities = new NotSamLinkedList();
         this.focusedEntity = null;
-        this.tickEnabled = false;
+        this.ticksEnabled = false;
         this.displayEnabled = false;
     }
 
@@ -106,6 +106,7 @@ class Scene{
     }
 
     displayEntity(entity, lX, bY){
+        if (entity.isDead()){ return; }
         let rX = lX + this.width - 1;
         let tY = bY + this.height - 1;
         // Is on screen

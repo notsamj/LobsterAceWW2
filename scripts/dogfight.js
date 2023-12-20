@@ -1,15 +1,23 @@
 if (typeof window === "undefined"){
     GameMode = require("../scripts/game_mode.js");
     FighterPlane = require("../scripts/fighter_plane.js");
+    SceneTickManager = require("../scripts/scene_tick_manager.js");
     var planeModelToAlliance = require("../scripts/helper_functions.js").planeModelToAlliance;
+    fileData = require("../data/data_json.js");
 }
 class Dogfight extends GameMode {
-    constructor(startingEntities){
+    constructor(startingEntities, scene){
         super();
+        this.scene = scene;
         this.startingEntities = startingEntities;
         this.running = true;
         this.winner = null;
         this.isATestSession = this.isThisATestSession();
+        this.tickManager = new SceneTickManager(Date.now(), this.scene, fileData["constants"]["MS_BETWEEN_TICKS"]);
+    }
+
+    getTickManager(){
+        return this.tickManager;
     }
 
     isRunning(){
@@ -20,6 +28,7 @@ class Dogfight extends GameMode {
         if (!this.isRunning()){
             return;
         }
+        this.tickManager.tick();
         this.checkForEnd();
     }
 

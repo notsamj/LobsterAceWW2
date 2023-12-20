@@ -1,5 +1,6 @@
 1. Add multiplayer/server support
 1.5. Move most of the handshake its not needed
+2. Become a spectator camera when you die
 2. Add sound
 3. Make after match stats
 4. Make bombers

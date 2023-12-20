@@ -160,8 +160,8 @@ class PlaneGameScene extends Scene {
         text(`ID: ${entityID}`, 10, 160);
         text(`Allied Planes Remaining: ${allyPlanes}`, 10, 180);
         text(`Axis Planes Remaining: ${axisPlanes}`, 10, 200);
-        text(`numTicks: ${numTicks}`, 10, 220);
         if (activeGameMode instanceof RemoteDogfight){
+            text(`numTicks: ${activeGameMode.getTickManager().getNumTicks()}`, 10, 220);
             text(`version: ${activeGameMode.getVersion()}`, 10, 240);
         }
     }
