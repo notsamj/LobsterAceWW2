@@ -6,14 +6,20 @@ if (typeof window === "undefined"){
     fileData = require("../data/data_json.js");
 }
 class Dogfight extends GameMode {
-    constructor(startingEntities, scene){
+    constructor(scene){
         super();
         this.scene = scene;
-        this.startingEntities = startingEntities;
-        this.running = true;
+        this.startingEntities = [];
+        this.running = false;
         this.winner = null;
         this.isATestSession = this.isThisATestSession();
         this.tickManager = new SceneTickManager(Date.now(), this.scene, fileData["constants"]["MS_BETWEEN_TICKS"]);
+    }
+
+    start(startingEntities){
+        this.startingEntities = startingEntities;
+        this.running = true;
+        this.tickManager.setStartTime(Date.now());
     }
 
     getTickManager(){

@@ -15,7 +15,12 @@ class ServerConnection {
         });
 
         this.socket.addEventListener("message", (event) => {
-            this.mailBox.deliver(event.data);
+            // TODO: This is just a bandaid add something like TCP_ prefix or something from server's end and check for that here
+            if (this.mailBox.isAwaiting()){
+                this.mailBox.deliver(event.data);
+            }else{
+                activeGameMode.updateFromServer(event.data);
+            }
         });
     }
 

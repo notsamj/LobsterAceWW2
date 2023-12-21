@@ -12,6 +12,10 @@ class SceneTickManager {
         this.tickLock = new Lock();
     }
 
+    getStartTime(){
+        return this.startTime;
+    }
+
     setStartTime(startTime){
         this.startTime = startTime;
     }

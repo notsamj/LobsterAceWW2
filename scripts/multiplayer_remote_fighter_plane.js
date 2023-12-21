@@ -1,4 +1,7 @@
-class MultiplayerRemoteFighterPlane extends FighterPlane{
+if (typeof window === "undefined"){
+    FighterPlane = require("../scripts/fighter_plane.js");
+}
+class MultiplayerRemoteFighterPlane extends FighterPlane {
     constructor(planeClass, scene, gameMode, rotationTime, speed, maxSpeed, throttleConstant, health, lastActions, angle, facingRight){
         super(planeClass, scene, angle, facingRight);
         this.maxSpeed = maxSpeed;
@@ -7,6 +10,10 @@ class MultiplayerRemoteFighterPlane extends FighterPlane{
         this.rotationCD = new CooldownLock(rotationTime);
         this.health = health;
         this.lastActions = lastActions;
+        this.gameMode = gameMode;
+    }
+
+    setGameMode(gameMode){
         this.gameMode = gameMode;
     }
 
@@ -24,20 +31,23 @@ class MultiplayerRemoteFighterPlane extends FighterPlane{
         this.lastActions = newStats["lastActions"];
     }
 
-    adjustByActions(actions){
-        if (actions["shooting"] && this.shootLock.isReady()){
+    adjustByLastActions(){
+        if (this.lastActions["shooting"] && this.shootLock.isReady()){
             this.shootLock.lock();
             this.shoot();
         }
-        this.adjustAngle(actions["turn"]);
-        if (this.facingRight != actions["face"]){
-            this.face(actions["face"]);
+        this.adjustAngle(this.lastActions["turn"]);
+        if (this.facingRight != this.lastActions["face"]){
+            this.face(this.lastActions["face"])
         }
+        this.throttle += this.lastActions["throttle"];
     }
 
     tick(timeMS){
-        let actions = this.lastActions;
-        this.adjustByActions(actions);
+        this.adjustByLastActions();
         super.tick(timeMS);
     }
+}
+if (typeof window === "undefined"){
+    module.exports=MultiplayerRemoteFighterPlane;
 }

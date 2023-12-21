@@ -4,12 +4,9 @@ const FILE_DATA = require("../data/data_json.js");
 const ValueHistoryManager = require("../scripts/value_history_manager.js");
 const Lock = require("../scripts/lock.js");
 class ServerDogFight extends DogFight {
-    constructor(startingEntities, scene, server){
-        super(startingEntities, scene);
+    constructor(scene, server){
+        super(scene);
         this.server = server;
-        this.scene.enableTicks();
-        this.scene.enableCollisions();
-        this.scene.setEntities(startingEntities);
         this.noUpdateLock = new Lock();
         this.updateLock = new Lock();
         this.sceneID = 0;
@@ -18,16 +15,19 @@ class ServerDogFight extends DogFight {
         this.version = 0;
     }
 
+    start(startingEntities){
+        this.scene.enableTicks();
+        this.scene.enableCollisions();
+        this.scene.setEntities(startingEntities);
+        super.start(startingEntities);
+    }
+
+    getLastInputUpToCurrentTick(id){
+        return this.inputHistory.getLastUpTo(id, this.tickManager.getNumTicks());
+    }
+
     getSceneID(){
         return this.sceneID;
-    }
-
-    getInputAtCurrentTick(id){
-        return this.inputHistory.get(id, this.tickManager.getNumTicks());
-    }
-
-    getLastInput(id){
-        return this.inputHistory.findLast(id);
     }
 
     async tick(){
@@ -41,16 +41,19 @@ class ServerDogFight extends DogFight {
         this.sendVersionToClients();
         this.noUpdateLock.unlock();
         this.version++;
+        if (this.tickManager.getNumTicks() % 500 == 0){
+            console.log(this.tickManager.getNumTicks(), this.scene.getEntity("p_Axis_0").getX());
+        }
     }
 
     sendVersionToClients(){
         let state = this.getState();
         this.stateHistory.put(this.sceneID, this.tickManager.getNumTicks(), state);
-        this.server.sendAll(this.getState());
+        this.server.sendAll(JSON.stringify(this.getState()));
     }
 
     getState(startTime, numTicks, version){
-        let state = { "numTicks": numTicks, "startTime": startTime, "version": version};
+        let state = { "numTicks": this.tickManager.getNumTicks(), "startTime": this.tickManager.getStartTime(), "version": this.version};
         state["planes"] = [];
         for (let entity of this.startingEntities){
             state["planes"].push(entity.getState());
@@ -59,7 +62,8 @@ class ServerDogFight extends DogFight {
     }
 
     loadState(numTicks){
-        let archivedState = this.stateHistory.get(this.sceneID, state["numTicks"]);
+        if (numTicks == this.tickManager.getNumTicks()){ return; }
+        let archivedState = this.stateHistory.get(this.sceneID, numTicks);
         for (let entity of this.startingEntities){
             for (let plane of state["planes"]){
                 if (entity.getID() == plane["id"]){
@@ -73,7 +77,7 @@ class ServerDogFight extends DogFight {
         await this.noUpdateLock.awaitUnlock();
         let numTicks = userUpdate["numTicks"];
         this.updateLock.lock();
-        this.inputHistory.put(userUpdate["id"], numTicks, userUpdate);
+        this.inputHistory.put(userUpdate["id"], numTicks, userUpdate["lastActions"]);
         this.tickManager.setNumTicks(numTicks);
         this.loadState(numTicks);
         this.updateLock.unlock();

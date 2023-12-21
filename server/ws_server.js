@@ -7,7 +7,9 @@ class WSServer {
         this.clients = new ClientList(this);
         console.log("Server on and listening to port: %d", port);
         this.server.on("connection", (newClient) => {
-            this.clients.add(newClient);
+            newClient.on("message", (data) => {
+                this.handleMessage(newClient, data);
+            });
         });
         this.registeredHandlers = [];
     }
@@ -16,19 +18,23 @@ class WSServer {
         this.registeredHandlers.push({"type": type, "target": target, "handlerFunc": handlerFunc});
     }
 
-    handleMessage(client, data){
+    addClient(ws, id){
+        this.clients.add(id, ws);
+    }
+
+    handleMessage(clientWS, data){
         let dataString = data.toString();
         let expectedFormat = /^((GET)|(PUT))_([A-Z]+)(_({[a-zA-Z0-9\",.\{\}\-:_\[\]]+}))?$/;
         let match = dataString.match(expectedFormat);
         if (!match){
-            console.error("Bad request: %s", dataString);
+            console.error("Bad request (format): %s", dataString);
             return;
         }
         let type = match[1];
         let target = match[4];
         for (let handler of this.registeredHandlers){
             if (handler["type"] == type && handler["target"] == target){
-                handler["handlerFunc"](client, match);
+                handler["handlerFunc"](clientWS, match);
                 return;
             }
         }

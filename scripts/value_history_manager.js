@@ -111,6 +111,20 @@ class ValueHistoryManager {
         this.syncLock.unlock();
         return maxValue;
     }
+
+    async getLastUpTo(id, maxTickINCL){
+        await this.syncLock.awaitUnlock(true);
+        let maxNumTicks = 0;
+        let maxValue = null;
+        for (let [item, itemIndex] of this.data){
+            if (item.getID() == id && item.getNumTicks() > maxNumTicks && item.getNumTicks() <= maxTickINCL){
+                maxNumTicks = item.getNumTicks();
+                maxValue = item.getValue();
+            }
+        }
+        this.syncLock.unlock();
+        return maxValue;
+    }
 }
 
 // Yes I could just JSON but I don't like JSON as much

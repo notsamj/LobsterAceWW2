@@ -9,32 +9,53 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
     }
 
-    tick(timeMS, forced=false){
-        if (forced){
-            actions = this.getActionAtTick(this.getID());
+    async tick(timeMS){
+        let savedInput = await activeGameMode.getLastInputUpToCurrentTick(this.getID());
+        if (savedInput != null){
+            this.lastActions = savedInput;
         }
-        this.adjustByActions();
+        let lastActionsB4 = this.copyLastActions();
         super.tick(timeMS);
+        this.adjustByActions();
+        if (!this.actionsStayedTheSame(lastActionsB4)){
+            activeGameMode.informServer(this.getStatsToSend());
+        }
     }
 
-    adjustByActions(actions){
-        if (actions["shooting"] && this.shootLock.isReady()){
+    copyLastActions(){
+        return {
+            "throttle": this.lastActions["throttle"],
+            "turn": this.lastActions["turn"],
+            "face": this.lastActions["face"],
+            "shooting": this.lastActions["shooting"]
+        }
+    }
+
+    actionsStayedTheSame(oldActions){
+        let c1 = this.lastActions["throttle"] == oldActions["throttle"];
+        let c2 = this.lastActions["shooting"] == oldActions["shooting"];
+        let c3 = this.lastActions["face"] == oldActions["face"];
+        let c4 = this.lastActions["turn"] == oldActions["turn"];
+        return c1 && c2 && c3 && c4;
+    }
+
+    adjustByActions(){
+        if (this.lastActions["shooting"] && this.shootLock.isReady()){
             this.shootLock.lock();
             this.shoot();
         }
-        this.adjustAngle(actions["turn"]);
-        console.log(this.facingRight, action["face"])
-        if (this.facingRight != action["face"]){
-            this.face(this.action["face"])
+        this.adjustAngle(this.lastActions["turn"]);
+        if (this.facingRight != this.lastActions["face"]){
+            this.face(this.lastActions["face"])
         }
-        this.throttle += action["throttle"];
+        this.throttle += this.lastActions["throttle"];
     }
 
     action(actionPair){
         let key = actionPair["action"];
         let value = actionPair["value"];
-        if (lastActions[key] != value){
-            lastActions[key] = value;
+        if (this.lastActions[key] != value){
+            this.lastActions[key] = value;
         }
     }
 
@@ -58,11 +79,6 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
         if (!this.lrLock.isReady()){ return; }
         this.lrLock.lock();
-        if (aKey){
-            this.face(false);
-        }else if (dKey){
-            this.face(true);
-        }
         this.action({"action": "face", "value": !aKey});
     }
 
@@ -81,11 +97,6 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }else if (numKeysDown > 1){ // Can't which while holding > 1 key
             this.action({"action": "turn", "value": 0});
             return;
-        }
-        if (wKey){
-            this.adjustAngle(-1);
-        }else if (sKey){
-            this.adjustAngle(1);
         }
         this.action({"action": "turn", "value": wKey ? -1 : 1});
     }
@@ -107,12 +118,7 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
             this.action({"action": "throttle", "value": 0});
             return;
         }
-        if (rKey){
-            this.adjustThrottle(1);
-        }else if (fKey){
-            this.adjustThrottle(-1);
-        }
-        this.action({"action": "throttle", "value": wKey ? -1 : 1});
+        this.action({"action": "throttle", "value": fKey ? -1 : 1});
     }
 
     checkShoot(){
@@ -121,13 +127,9 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         let spaceKey = keyIsDown(32);
         if (!spaceKey){
             this.action({"action": "shooting", "value": false});
-        }
-        if (!this.shootLock.isReady() || !spaceKey){
             return;
         }
-        this.shootLock.lock();
         this.action({"action": "shooting", "value": true});
-        this.shoot();
     }
 
     fromPreviousState(previousState){
@@ -142,19 +144,34 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.lastActions = previousState["lastActions"];
     }
 
+    /*
+
     update(newStats){
         this.dead = newStats["isDead"];
         this.health = newStats["health"];
+    }*/
+    update(newStats){
+        this.dead = newStats["isDead"];
+        this.x = newStats["x"];
+        this.y = newStats["y"];
+        this.speed = newStats["speed"];
+        this.health = newStats["health"];
+        this.throttle = newStats["throttle"];
+        this.facingRight = newStats["facing"];
+        this.angle = newStats["angle"];
+        //this.lastActions = newStats["lastActions"];
     }
 
     getStatsToSend(){
         let newStats = {};
-        newStats["x"] = this.x;
-        newStats["y"] = this.y;
-        newStats["facing"] = this.facingRight;
-        newStats["angle"] = this.angle;
-        newStats["speed"] = this.speed;
-        newStats["throttle"] = this.throttle;
+        //newStats["x"] = this.x;
+        //newStats["y"] = this.y;
+        //newStats["facing"] = this.facingRight;
+        //newStats["angle"] = this.angle;
+        //newStats["speed"] = this.speed;
+        //newStats["throttle"] = this.throttle;
+        newStats["id"] = this.getID();
         newStats["lastActions"] = this.lastActions;
+        return newStats;
     }
 }

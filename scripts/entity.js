@@ -7,6 +7,9 @@ class Entity{
         this.dead = false;
     }
 
+    // Meant to be overridden
+    setGameMode(){}
+
     isDead(){
         return this.dead;
     }

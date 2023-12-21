@@ -10,8 +10,8 @@ class ClientList {
         return this.clients;
     }
 
-    add(newClient, callBack){
-        this.clients.push(new Client(newClient, this.nextClientID++, this.server))
+    add(id, ws){
+        this.clients.push(new Client(ws, id, this.server))
     }
 
     getClient(id){
@@ -33,9 +33,6 @@ class Client {
         this.server = server;
         this.id = clientID;
         this.ws = clientWS;
-        this.ws.on("message", (data) => {
-            this.server.handleMessage(this.id, data);
-        });
         this.plane = null;
     }
 
@@ -61,8 +58,8 @@ class Client {
 
     setPlane(plane){
         this.plane = plane;
-    }
-
+   }
+ 
 
 }
 module.exports = ClientList;

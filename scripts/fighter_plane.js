@@ -2,7 +2,7 @@
 if (typeof window === "undefined"){
     Plane = require("../scripts/plane.js");
     fileData = require("../data/data_json.js");
-    CooldownLock = require("../scripts/lock.js").CooldownLock;
+    CooldownLock = require("../scripts/cooldown_lock.js");
     CircleHitbox = require("../scripts/hitboxes.js").CircleHitbox;
     toRadians = require("../scripts/helper_functions.js").toRadians;
 }
@@ -190,6 +190,10 @@ class FighterPlane extends Plane {
 
     getHealth(){
         return this.health;
+    }
+
+    setHealth(amount){
+        this.health = amount;
     }
 
 }

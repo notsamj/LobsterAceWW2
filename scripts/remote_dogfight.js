@@ -1,11 +1,18 @@
 class RemoteDogfight extends Dogfight {
-    constructor(serverConnection, startingEntities){
-        super(startingEntities, this.scene);
-        this.scene.setEntities(this.startingEntities, true);
-        // Temp
+    constructor(serverConnection, startingEntities, startTime, numTicks){
+        super(scene);
+        for (let entity of startingEntities){
+            entity.setGameMode(this);
+        }
+        this.scene.setEntities(startingEntities, true);
+        /*// Temp
         let cam = new SpectatorCamera(this.scene);
         this.scene.addEntity(cam);
-        this.scene.setFocusedEntity(cam);
+        this.scene.setFocusedEntity(cam);*/
+        this.tickManager.setStartTime(startTime);
+        this.tickManager.setNumTicks(numTicks);
+        this.running = true;
+        this.scene.setFocusedEntity(startingEntities[startingEntities[startingEntities.length - 1].getID() != "freecam" ? 0 : startingEntities.length - 1]);
         this.scene.enableTicks();
         this.scene.enableDisplay();
         this.scene.disableCollisions();
@@ -13,11 +20,15 @@ class RemoteDogfight extends Dogfight {
         this.version = null;
         this.serverConnection = serverConnection;
         this.serverDataLock = new Lock();
-        this.planeMovements = new ValueHistoryManager(fileData["constants"]["SAVED_TICKS"]);
+        this.inputHistory = new ValueHistoryManager(fileData["constants"]["SAVED_TICKS"]);
     }
 
     getVersion(){
         return this.version;
+    }
+
+    getLastInputUpToCurrentTick(id){
+        return this.inputHistory.getLastUpTo(id, this.tickManager.getNumTicks());
     }
 
     display(){
@@ -50,21 +61,18 @@ class RemoteDogfight extends Dogfight {
         }
         // Now tick
         this.tickManager.tick();
-        this.sendServerUpdate();
     }
 
-    sendServerUpdate(){
-        this.serverConnection.send()
+    informServer(stats){
+        stats["numTicks"] = this.tickManager.getNumTicks();
+        this.serverConnection.sendUDP("CLIENTPLANE", JSON.stringify(stats))
     }
 
     updateState(state){
         this.version = state["version"];
+        //console.log(state["numTicks"] - this.tickManager.getNumTicks())
         this.tickManager.setNumTicks(state["numTicks"]); // Make sure this is done so it can catch up with the server
         this.scene.forceUpdatePlanes(state["planes"]);
-        while (numTicks < getExpectedTicks()){
-            this.scene.tick(fileData["constants"]["MS_BETWEEN_TICKS"], true);
-            numTicks++;
-        }
     }
 
     addNewPlane(planeObj){
@@ -74,33 +82,47 @@ class RemoteDogfight extends Dogfight {
 
     static async create(serverConnection){
         // TODO: JOIN_{PLANE_TYPE}
-        let state = await serverConnection.requestTCP("PUT_JOIN_CAM");
+        let temp = {"planeClass": "spitfire", "clientID": "Samuel"};
+        //let temp = {"planeClass": "freecam", "clientID": "Samuel"};
+        let state = await serverConnection.requestTCP("JOIN_" + JSON.stringify(temp));
         state = JSON.parse(state);
         if (state == null){ debugger; }
-        this.tickManager.setStartTime(state["startTime"]);
-        this.tickManager.setNumTicks(state["numTicks"]);
-        // temp
-        let cam = new SpectatorCamera(this.scene);
         let entities = RemoteDogfight.createNewEntities(state);
+        if (temp["planeClass"] == "freecam"){
+            entities.push(new SpectatorCamera(scene))
+        }
+        /*// temp
+        let cam = new SpectatorCamera(this.scene);
         entities.push(cam);
         cam.setID(500); // temp
         cam.setCenterX(0);
-        cam.setCenterY(0);
-        return new RemoteDogfight(serverConnection, entities);
+        cam.setCenterY(0);*/
+        return new RemoteDogfight(serverConnection, entities, state["startTime"], state["numTicks"]);
     }
 
-    static createNewPlane(planeObj){
-        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], this.scene, this, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
+    static createNewRemotePlane(planeObj){
+        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, activeGameMode, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
         plane.setID(planeObj["id"]);
-        plane.setCenterX(planeObj["x"]);
-        plane.setCenterY(planeObj["y"]);
+        plane.update(planeObj);
+        return plane;
+    }
+
+    static createNewHumanPlane(planeObj){
+        // planeClass, scene, angle=0, facingRight=true
+        let plane = new MultiplayerHumanFighterPlane(planeObj["plane_class"], scene);
+        plane.update(planeObj);
+        plane.setID(planeObj["id"]);
         return plane;
     }
 
     static createNewEntities(state){
         let entities = []; 
         for (let planeObj of state["planes"]){
-            entities.push(RemoteDogfight.createNewPlane(planeObj));
+            if (state["YOUR_PLANE"] == planeObj["id"]){
+                entities.push(RemoteDogfight.createNewHumanPlane(planeObj));
+            }else{
+                entities.push(RemoteDogfight.createNewRemotePlane(planeObj));
+            }
         }
         return entities;
     }

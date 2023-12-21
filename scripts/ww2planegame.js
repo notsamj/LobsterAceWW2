@@ -10,14 +10,13 @@ var loadedPercent = 0;
 // Functions
 
 function tick(){
-    if (!setupDone){
-        return;
-    }
-    if (document.hidden){
-        menuManager.lostFocus();
-    }
-    if (activeGameMode != null){
-        activeGameMode.tick();
+    if (setupDone){
+        if (document.hidden){
+            menuManager.lostFocus();
+        }
+        if (activeGameMode != null){
+            activeGameMode.tick();
+        }
     }
     if (frameLock.isReady()){
         frameLock.lock();

@@ -1,6 +1,6 @@
 if (typeof window === "undefined"){
     BotFighterPlane = require("../scripts/bot_fighter_plane.js");
-    CooldownLock = require("../scripts/lock.js").CooldownLock;
+    CooldownLock = require("../scripts/cooldown_lock.js");
     fileData = require("../data/data_json.js");
     var helperFuncs = require("../scripts/helper_functions.js");
     rotateCWDEG = helperFuncs.rotateCWDEG;

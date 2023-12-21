@@ -9,7 +9,8 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane {
         this.lastActions = {
             "face": facingRight,
             "turn": 0,
-            "shooting": false
+            "shooting": false,
+            "throttle": 0
         }
     }
 
@@ -26,19 +27,9 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane {
     }
 
     tick(timeDiffMS){
-        super.tick(timeDiffMS);
-        this.updateEnemy();
         this.action({"action": "turn", "value": 0}); // Just set a default... TODO: Maybe improve this?
         this.action({"action": "shooting", "value": false}); // Init to flase 
-        if (this.hasCurrentEnemy()){
-            let enemy = this.scene.getEntity(this.currentEnemyID);
-            this.handleEnemy(enemy);
-        }else{
-            if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
-                this.turnInDirection(90);
-                return;
-            }
-        }
+        super.tick(timeDiffMS);
     }
 
     handleEnemy(enemy){
