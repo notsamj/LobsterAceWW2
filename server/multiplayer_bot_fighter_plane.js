@@ -171,6 +171,17 @@ class MultiplayerBiasedBotFighterPlane extends BiasedBotFighterPlane {
             "lastActions": this.lastActions
         }
     }
+
+    update(archivedStats){
+        this.x = archivedStats["x"];
+        this.y = archivedStats["y"];
+        this.facingRight = archivedStats["facing"];
+        this.angle = archivedStats["angle"];
+        this.speed = archivedStats["speed"];
+        this.throttle = archivedStats["throttle"];
+        this.health = archivedStats["health"];
+        this.lastActions = archivedStats["lastActions"];
+    }
 }
 if (typeof window === "undefined"){
     module.exports = MultiplayerBiasedBotFighterPlane;

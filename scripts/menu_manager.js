@@ -3,6 +3,7 @@ class MenuManager {
         this.width = width;
         this.height = height;
         this.mainMenu = new MainMenu();
+        this.multiplayerMenu = new MultiplayerMenu();
         this.pauseMenu = new PauseMenu();
         this.dogfightMenu = new DogfightMenu();
         this.activeMenu = this.mainMenu;
@@ -65,6 +66,8 @@ class MenuManager {
         }else if (newMenu == "game"){
             scene.enable();
             this.activeMenu = null;
+        }else if (newMenu == "multiplayer"){
+            this.activeMenu = this.multiplayerMenu;
         }else{
             this.activeMenu = null;
         }

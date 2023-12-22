@@ -24,7 +24,6 @@ class BotFighterPlane extends FighterPlane {
 
     tick(timeDiffMS){
         super.tick(timeDiffMS);
-        return; // TODO: THIS IS TEMP
         this.updateEnemy();
         if (this.hasCurrentEnemy()){
             let enemy = this.scene.getEntity(this.currentEnemyID);

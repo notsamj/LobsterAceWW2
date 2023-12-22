@@ -14,6 +14,7 @@ class Dogfight extends GameMode {
         this.winner = null;
         this.isATestSession = this.isThisATestSession();
         this.tickManager = new SceneTickManager(Date.now(), this.scene, fileData["constants"]["MS_BETWEEN_TICKS"]);
+        //this.lastX = 0;
     }
 
     start(startingEntities){
@@ -30,11 +31,14 @@ class Dogfight extends GameMode {
         return this.running;
     }
 
-    tick(){
+    async tick(){
         if (!this.isRunning()){
             return;
         }
         this.tickManager.tick();
+        //let lastX = this.lastX;
+        //this.lastX = this.scene.getPlanes()[0].getX();
+        //console.log(this.lastX - lastX);
         this.checkForEnd();
     }
 

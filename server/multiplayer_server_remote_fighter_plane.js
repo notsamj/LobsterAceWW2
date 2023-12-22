@@ -16,17 +16,15 @@ class MultiplayerServerRemoteFighterPlane extends MultiplayerRemoteFighterPlane 
         super.tick(timeMS);
     }
 
-    update(newStats){
-        // TODO This is a useless function
-        console.error("BADBADBADSTOP");
-        this.x = newStats["x"];
-        this.y = newStats["y"];
-        this.facingRight = newStats["facing"];
-        this.angle = newStats["angle"];
-        this.speed = newStats["speed"];
-        this.throttle = newStats["throttle"];
-        this.health = newStats["health"];
-        this.lastActions = newStats["lastActions"];
+    update(archivedStats){
+        this.x = archivedStats["x"];
+        this.y = archivedStats["y"];
+        this.facingRight = archivedStats["facing"];
+        this.angle = archivedStats["angle"];
+        this.speed = archivedStats["speed"];
+        this.throttle = archivedStats["throttle"];
+        this.health = archivedStats["health"];
+        this.lastActions = archivedStats["lastActions"];
     }
 
     getState(){

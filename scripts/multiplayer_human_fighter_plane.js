@@ -132,6 +132,7 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.action({"action": "shooting", "value": true});
     }
 
+    /* Not needed?
     fromPreviousState(previousState){
         this.dead = previousState["isDead"];
         this.x = previousState["x"];
@@ -142,7 +143,7 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.throttle = previousState["throttle"];
         this.health = previousState["health"];
         this.lastActions = previousState["lastActions"];
-    }
+    }*/
 
     /*
 

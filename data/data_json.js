@@ -95,8 +95,8 @@ var fileData = {
         "CANVAS_WIDTH": 1920,
         "CANVAS_HEIGHT": 927,
         "FRAME_RATE": 60,
-        "TICK_RATE": 100,
-        "MS_BETWEEN_TICKS": 10,
+        "TICK_RATE": 100, // 100
+        "MS_BETWEEN_TICKS": 10, // 10
         "GRAVITY": 9.81,
         "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2,
         "server_ip": "localhost",

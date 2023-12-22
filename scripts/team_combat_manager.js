@@ -93,16 +93,16 @@ class TeamCombatManager {
         }
     }
 
-    tick(timeDiff, forced=false){
+    async tick(timeDiff){
         for (let team of this.teams){
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
-                plane.tick(timeDiff, forced);
+                await plane.tick(timeDiff);
             }
 
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead()){ continue; }
-                bullet.tick(timeDiff);
+                await bullet.tick(timeDiff);
             }
         }
         this.checkCollisions(timeDiff);

@@ -9,9 +9,11 @@ class RemoteDogfight extends Dogfight {
         let cam = new SpectatorCamera(this.scene);
         this.scene.addEntity(cam);
         this.scene.setFocusedEntity(cam);*/
+        this.gameTickLock = new Lock();
         this.tickManager.setStartTime(startTime);
         this.tickManager.setNumTicks(numTicks);
         this.running = true;
+        this.awaitingState = null;
         this.scene.setFocusedEntity(startingEntities[startingEntities[startingEntities.length - 1].getID() != "freecam" ? 0 : startingEntities.length - 1]);
         this.scene.enableTicks();
         this.scene.enableDisplay();
@@ -21,6 +23,8 @@ class RemoteDogfight extends Dogfight {
         this.serverConnection = serverConnection;
         this.serverDataLock = new Lock();
         this.inputHistory = new ValueHistoryManager(fileData["constants"]["SAVED_TICKS"]);
+        this.testVar = 0;
+        this.testVar2 = 0;
     }
 
     getVersion(){
@@ -46,21 +50,51 @@ class RemoteDogfight extends Dogfight {
             this.serverDataLock.unlock();
             return;
         }
-        // Update game based on state
-        await this.tickManager.awaitUnlock(true);
-        this.updateState(state);
-        this.tickManager.unlock();
         // TODO: Error handling
         this.serverDataLock.unlock();
+        this.awaitingState = state;
     }
 
-    tick(){
-        // TODO: Put this back in this.previousStates.put(numTicks % fileData["constants"]["SAVED_TICKS"], this.getState());
-        if (!this.serverDataLock.isReady() || !this.isRunning()){
+    async tick(){
+        if (this.gameTickLock.notReady() || !this.isRunning()){
             return;
+        }
+        this.gameTickLock.lock();
+        await this.serverDataLock.awaitUnlock(true);
+        let x1 = 0;
+        let x2 = 0;
+        let t1 = 0;
+        let t2 = 0;
+        if (this.awaitingState){
+            /*let xt1 = scene.getEntity("p_Allies_0").getX();
+            x1 = scene.getEntity("p_Allies_1").getX();
+            t1 = this.tickManager.getNumTicks();
+            */
+            this.updateState(this.awaitingState);
+            /*x2 = scene.getEntity("p_Allies_1").getX();
+            let xt2 = scene.getEntity("p_Allies_0").getX();
+            console.log("hpdiff %d, rpdiff %d, posdif %d", xt2-xt1, x2-x1, this.awaitingState["planes"][0]["x"] - this.awaitingState["planes"][1]["x"])
+            t2 = this.tickManager.getNumTicks();
+            */
+            this.awaitingState = null;
         }
         // Now tick
         this.tickManager.tick();
+        /*if (x1 != 0){
+            let x3 = scene.getEntity("p_Allies_1").getX();
+            let t3 = this.tickManager.getNumTicks();
+            //console.log("x2-x1: %d, tickDiff: %d, (x2-x1)/tickDiff: %d, t2: %d, t1: %d\nx3-x2: %d, t3-t2: %d, expected: %d", x2 - x1, t2 - t1, (x2 - x1)/(t2 - t1), t2, t1, x3-x2, t3-t2, this.tickManager.getExpectedTicks())
+        }
+        let oldTestVar = this.tickManager.getExpectedTicks();
+        this.oldTestVar = this.tickManager.getExpectedTicks();
+        let oldTestVar2 = this.testVar2;
+        this.testVar2 = this.tickManager.getNumTicks();*/
+        //console.log(this.testVar2 - oldTestVar2, this.oldTestVar - oldTestVar)
+
+        this.gameTickLock.unlock();
+        if (this.tickManager.getNumTicks() % 50 == 0){
+            //console.log(this.tickManager.getNumTicks())
+        }
     }
 
     informServer(stats){

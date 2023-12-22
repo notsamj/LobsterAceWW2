@@ -1,0 +1,6 @@
+Currently I am done 3/5 of the tasks in how_communication_should_work.txt
+Last tasks are to 
+At the start of a tick -> takes the latest state received and builds from it to the current tick then runs as normal (So figure out how to determine where to go back to)
+Requires 2 tick functions so not sending information while catching up
+Sends out information at the end of every tick
+I just realized that it might be tricky to save state every tick if we might be skipping through ticks tkae this into consideration???

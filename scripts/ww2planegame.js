@@ -18,6 +18,7 @@ function tick(){
             activeGameMode.tick();
         }
     }
+    // TODO: Is it bad to display turning a tick? Probably
     if (frameLock.isReady()){
         frameLock.lock();
         draw();

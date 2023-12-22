@@ -15,19 +15,16 @@ class MainMenu extends Menu {
         // Dog Fight
         let dogFightButtonY = 800;
         this.components.push(new RectangleButton("Dogfight", "#3bc44b", "#e6f5f4", buttonX, dogFightButtonY, buttonSizeX, buttonSizeY, (instance) => {
-            instance.goToDogFightMenu();
+            menuManager.switchTo("dogfight");
         }));
 
         // Multiplayer
         let multiplayerButtonY = 600;
         this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (instance) => {
-            activeGameMode = await RemoteDogfight.create(new ServerConnection());
-            menuManager.switchTo("game");
+            //activeGameMode = await RemoteDogfight.create(new ServerConnection());
+            //menuManager.switchTo("game");
+            menuManager.switchTo("multiplayer");
         }));
-    }
-
-    goToDogFightMenu(){
-        menuManager.switchTo("dogfight");
     }
 
 }

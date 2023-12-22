@@ -12,7 +12,6 @@ const WSServer = require("./ws_server.js");
 const Lock = require("../scripts/lock.js").Lock;
 const NotSamArrayList = require("../scripts/notsam_array_list.js");
 var server = new WSServer(fileData["constants"]["server_port"]);
-
 var scene = new PlaneGameScene(); // TODO: Width Height not needed?
 
 //var activeGameMode = new ServerDogfight(fillEntities(), scene, server);
@@ -69,15 +68,16 @@ function fillEntities(planeType){
         entities.push(new MultiplayerServerRemoteFighterPlane(planeType, scene, activeGameMode));
     }
     let max = 1;
-    for (let i = 0 ; i < max; i++){
-        //entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA));
-        entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("a6m_zero", scene, FILE_DATA));
+    for (let i = 0; i < max; i++){
+        entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("spitfire", scene, FILE_DATA));
+        //entities.push(MultiplayerBiasedBotFighterPlane.createBiasedPlane("a6m_zero", scene, FILE_DATA));
     }
     // TEMP FOR TESTING
     for (let entity of entities){
         entity.setHealth(10000);
     }
-    entities[0].setX(entities[entities.length-1].getX());
+    entities[entities.length-1].throttle = 100;
+    entities[0].setX(entities[entities.length-1].getX() + 500);
     entities[0].setY(entities[entities.length-1].getY());
     return entities;
 }

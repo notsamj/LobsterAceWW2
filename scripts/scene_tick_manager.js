@@ -28,7 +28,7 @@ class SceneTickManager {
         return this.numTicks;
     }
 
-    tick(){
+    tick(callOnTick=null){
         if (this.tickLock.notReady()){
             return;
         }
@@ -36,9 +36,19 @@ class SceneTickManager {
         let expectedTicks = this.getExpectedTicks();
         while (this.numTicks < expectedTicks){
             this.scene.tick(this.tickLength);
+            if (callOnTick != null){
+                callOnTick();
+            }
             this.numTicks += 1;
         }
         this.tickLock.unlock();
+    }
+
+    tickFromTo(fromNumTicks, toNumTicks){
+        while (fromNumTicks < toNumTicks){
+            this.scene.tick(this.tickLength);
+            fromNumTicks += 1;
+        }
     }
 
     getExpectedTicks(){

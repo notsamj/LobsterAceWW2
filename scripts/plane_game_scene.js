@@ -111,13 +111,12 @@ class PlaneGameScene extends Scene {
         this.teamCombatManager.addBullet(bullet);
     }
 
-    tick(timeDiff, forced){
+    async tick(timeDiff){
         if (!this.ticksEnabled){ return; }
         for (let [entity, entityIndex] of this.entities){
-            entity.tick(timeDiff, forced);
+            await entity.tick(timeDiff);
         }
-        this.teamCombatManager.tick(timeDiff, forced);
-        this.checkCollisions(timeDiff);
+        await this.teamCombatManager.tick(timeDiff);
     }
 
     getNumberOfEntities(){
@@ -255,11 +254,6 @@ class PlaneGameScene extends Scene {
             //console.log(iC, bYP, skyImageOffsetY, bottomDisplaySkyY, skyHeight + aboveGroundHeight)
         }
 
-    }
-
-    checkCollisions(timeDiff){
-        if (!this.collisionsEnabled){ return; }
-        this.teamCombatManager
     }
 
     display(){
