@@ -6,16 +6,20 @@ var frameCounter = new FrameRateCounter(fileData["constants"]["FRAME_RATE"]);
 var frameLock = new CooldownLock(Math.floor(1/fileData["constants"]["FRAME_RATE"]));
 var activeGameMode = null;
 var loadedPercent = 0;
+var debug = false;
+var mainTickLock = new Lock();
 
 // Functions
 
-function tick(){
+async function tick(){
+    if (mainTickLock.notReady()){ return; }
+    mainTickLock.lock();
     if (setupDone){
         if (document.hidden){
             menuManager.lostFocus();
         }
         if (activeGameMode != null){
-            activeGameMode.tick();
+            await activeGameMode.tick();
         }
     }
     // TODO: Is it bad to display turning a tick? Probably
@@ -24,6 +28,7 @@ function tick(){
         draw();
         frameCounter.countFrame();
     }
+    mainTickLock.unlock();
 }
 
 async function loadExtraImages(){

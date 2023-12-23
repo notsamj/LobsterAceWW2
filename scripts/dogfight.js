@@ -12,13 +12,14 @@ class Dogfight extends GameMode {
         this.startingEntities = [];
         this.running = false;
         this.winner = null;
-        this.isATestSession = this.isThisATestSession();
+        this.isATestSession = false;
         this.tickManager = new SceneTickManager(Date.now(), this.scene, fileData["constants"]["MS_BETWEEN_TICKS"]);
         //this.lastX = 0;
     }
 
     start(startingEntities){
         this.startingEntities = startingEntities;
+        this.isATestSession = this.isThisATestSession();
         this.running = true;
         this.tickManager.setStartTime(Date.now());
     }
