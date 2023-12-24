@@ -36,7 +36,7 @@ class Dogfight extends GameMode {
         if (!this.isRunning()){
             return;
         }
-        this.tickManager.tick();
+        await this.tickManager.tick();
         //let lastX = this.lastX;
         //this.lastX = this.scene.getPlanes()[0].getX();
         //console.log(this.lastX - lastX);

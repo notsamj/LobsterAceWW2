@@ -1,13 +1,13 @@
 class SpectatorCamera extends Entity {
-    constructor(scene){
+    constructor(scene, x=0, y=0){
         super(scene);
-        this.x = 0;
-        this.y = 0;
+        this.x = x;
+        this.y = y;
         this.followingEntity = null;
         this.followToggleLock = new Lock();
         this.leftRightLock = new CooldownLock(250);
         this.xVelocity = 0;
-        this.yVelocity = 0;
+        this.yVelocity = 0; // TODO: ????
         this.xLock = new CooldownLock(0);
         this.yLock = new CooldownLock(0);
         this.radar = new SpectatorRadar(this);

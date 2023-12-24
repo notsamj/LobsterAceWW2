@@ -33,32 +33,41 @@ class Client {
         this.server = server;
         this.id = clientID;
         this.ws = clientWS;
-        this.plane = null;
+        this.dead = false;
+
+    }
+
+    isAlive(){
+        return !this.isDead();
+    }
+
+    isDead(){
+        return this.dead;
     }
 
     send(message){
-        this.ws.send(message);
-    }
-
-    hasPlane(){
-        return this.getPlane() != null;
-    }
-
-    getPlane(){
-        return this.plane;
-    }
-
-    updatePlane(planeData){
-        this.plane.update(planeData);
+        if (this.dead){ return; }
+        try{
+            this.ws.send(message);
+        }catch(e){
+            this.disconnect();
+        }
     }
 
     getWS(){
         return this.ws;
     }
 
-    setPlane(plane){
-        this.plane = plane;
-   }
+    addOnDisconnect(funcToCall){
+        this.onDisconnect.push(funcToCall);
+    }
+
+    disconnect(){
+        this.dead = true;
+        for (let funcToCall of this.onDisconnect){
+            funcToCall();
+        }
+    }
  
 
 }

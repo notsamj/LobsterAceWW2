@@ -28,16 +28,16 @@ class SceneTickManager {
         return this.numTicks;
     }
 
-    tick(callOnTick=null){
+    async tick(callOnTick=null){
         if (this.tickLock.notReady()){
             return;
         }
         this.tickLock.lock();
         let expectedTicks = this.getExpectedTicks();
         while (this.numTicks < expectedTicks){
-            this.scene.tick(this.tickLength);
+            await this.scene.tick(this.tickLength);
             if (callOnTick != null){
-                callOnTick();
+                await callOnTick();
             }
             this.numTicks += 1;
         }

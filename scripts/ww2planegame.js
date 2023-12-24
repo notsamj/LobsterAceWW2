@@ -8,11 +8,16 @@ var activeGameMode = null;
 var loadedPercent = 0;
 var debug = false;
 var mainTickLock = new Lock();
+var runningTicksBehind = 0;
 
 // Functions
 
 async function tick(){
-    if (mainTickLock.notReady()){ return; }
+    if (mainTickLock.notReady()){
+        runningTicksBehind++;
+        console.log("Main tick loop is running %d ticks behind.", runningTicksBehind) 
+        return; 
+    }
     mainTickLock.lock();
     if (setupDone){
         if (document.hidden){
@@ -22,7 +27,6 @@ async function tick(){
             await activeGameMode.tick();
         }
     }
-    // TODO: Is it bad to display turning a tick? Probably
     if (frameLock.isReady()){
         frameLock.lock();
         draw();

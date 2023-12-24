@@ -9,6 +9,13 @@ class HumanFighterPlane extends FighterPlane{
         this.radar = new PlaneRadar(this);
     }
 
+    die(){
+        super.die();
+        let cam = new SpectatorCamera(this.scene, this.x, this.y);
+        this.scene.addEntity(cam);
+        this.scene.setFocusedEntity(cam);
+    }
+
     getRadar(){
         return this.radar;
     }
