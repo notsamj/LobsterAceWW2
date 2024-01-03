@@ -119,7 +119,13 @@ class Scene{
             let rotateY = displayY + entity.getHeight() / 2;
             translate(rotateX, rotateY);
             rotate(-1 * toRadians(entity.getAngle()));
+            if (!entity.isFacingRight()){
+                scale(-1, 1);
+            }
             drawingContext.drawImage(entity.getImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
+            if (!entity.isFacingRight()){
+                scale(-1, 1);
+            }
             rotate(toRadians(entity.getAngle()));
             translate(-1 * rotateX, -1 * rotateY);
             return;

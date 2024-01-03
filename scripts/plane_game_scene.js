@@ -3,8 +3,7 @@ if (typeof window === "undefined"){
     TeamCombatManager = require("../scripts/team_combat_manager.js");
 }
 async function loadRotatedImages(name){
-    images[name + "_left_" + "0"] = await loadLocalImage("images/" + name + "/128/left/" + "0" + ".png");
-    images[name + "_right_" + "0"] = await loadLocalImage("images/" + name + "/128/right/" + "0" + ".png");
+    images[name] = await loadLocalImage("images/" + name + "/" + name + ".png");
 }
 
 async function loadPlanes(){

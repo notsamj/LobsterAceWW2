@@ -48,7 +48,7 @@ class DogfightMenu extends Menu {
 
         let userPlaneX = 350;
         let userPlaneScreenY = 800;
-        let userPlane = new StaticImage(images[this.userPlanes[0] + ((this.userPlanes[0] != "freecam") ? "_right_0" : "")], userPlaneX, userPlaneScreenY);
+        let userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
         userPlane.setOnClick(() => {
             userPlane.setImage(this.switchPlanes()); 
         });
@@ -63,7 +63,7 @@ class DogfightMenu extends Menu {
 
         let alliedPlaneX = 650;
         let alliedPlaneScreenY = 800;
-        let alliedPlane = new StaticImage(images[this.alliedPlanes[0] + "_right_0"], alliedPlaneX, alliedPlaneScreenY);
+        let alliedPlane = new StaticImage(images[this.alliedPlanes[0]], alliedPlaneX, alliedPlaneScreenY);
         alliedPlane.setOnClick(() => {
             alliedPlane.setImage(this.switchAlliedPlanes()); 
         });
@@ -110,7 +110,7 @@ class DogfightMenu extends Menu {
 
         let axisPlaneX = 950;
         let axisPlaneScreenY = 800;
-        let axisPlane = new StaticImage(images[this.axisPlanes[0] + "_right_0"], axisPlaneX, axisPlaneScreenY);
+        let axisPlane = new StaticImage(images[this.axisPlanes[0]], axisPlaneX, axisPlaneScreenY);
         axisPlane.setOnClick(() => {
             axisPlane.setImage(this.switchAxisPlanes()); 
         });
@@ -166,21 +166,21 @@ class DogfightMenu extends Menu {
     switchPlanes(){
         this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
         let planeName = this.userPlanes[this.userPlaneIndex];
-        return images[planeName + ((planeName != "freecam") ? "_right_0" : "")];
+        return images[planeName];
     }
 
     switchAxisPlanes(){
         this.axisPlaneIndex = (this.axisPlaneIndex + 1) % this.axisPlanes.length;
         let planeName = this.axisPlanes[this.axisPlaneIndex];
         this.currentAxisPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        return images[planeName + "_right_0"];
+        return images[planeName];
     }
 
     switchAlliedPlanes(){
         this.alliedPlaneIndex = (this.alliedPlaneIndex + 1) % this.alliedPlanes.length;
         let planeName = this.alliedPlanes[this.alliedPlaneIndex];
         this.currentAlliedPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        return images[planeName + "_right_0"];
+        return images[planeName];
     }
 
     createUserPlaneSelection(){

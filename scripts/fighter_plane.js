@@ -118,11 +118,7 @@ class FighterPlane extends Plane {
     }
 
     getImageIdentifier(){
-        let rightLeftStr = "_right_";
-        if (!this.facingRight){
-            rightLeftStr = "_left_";
-        }
-        return this.getPlaneClass() + rightLeftStr + "0";
+        return this.getPlaneClass();
     }
 
     getWidth(){
