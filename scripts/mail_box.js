@@ -23,4 +23,11 @@ class MailBox {
             this.promiseResolve = resolve;
         })
     }
+
+    await(){
+        this.awaiting = true;
+        return new Promise((resolve, reject) => {
+            this.promiseResolve = resolve;
+        })
+    }
 }

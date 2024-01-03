@@ -11,11 +11,13 @@ const HF = require("../scripts/helper_functions.js");
 const WSServer = require("./ws_server.js");
 const Lock = require("../scripts/lock.js").Lock;
 const NotSamArrayList = require("../scripts/notsam_array_list.js");
+const DogfightLobby = require("./dogfight_lobby.js");
 var server = new WSServer(fileData["constants"]["server_port"]);
 var scene = new PlaneGameScene(); // TODO: Width Height not needed?
+var activeGameMode = new ServerDogfight(scene, server);
+var lobby = new DogfightLobby(activeGameMode);
 
 //var activeGameMode = new ServerDogfight(fillEntities(), scene, server);
-var activeGameMode = null;
 //var server = new HTTPServer(fileData["constants"]["server_port"]);
 
 // Start Up
@@ -27,23 +29,19 @@ var activeGameMode = null;
     client.send(JSON.stringify(responseJSON));
 });*/
 
-server.register("GET", "JOIN", async function (clientWS, match){
-    console.log("Join")
-    let joinOBJ = JSON.parse(match[6]);
-    let clientID = joinOBJ["clientID"];
-    let planeType = joinOBJ["planeClass"];
+server.register("PUT", "READY", async function (clientWS, match){
+    let readyOBJ = JSON.parse(match[6]);
+    let clientID = readyOBJ["client_id"];
+    lobby.readyMessage(clientWS, clientID, readyOBJ);
     // TODO: Needs a lot of work here
-    activeGameMode = new ServerDogfight(scene, server);
+    /*activeGameMode = new ServerDogfight(scene, server);
     let planes = fillEntities(planeType);
     activeGameMode.start(planes);
     let response = activeGameMode.getState();
     let planeID = planeType != "freecam" ? "p_Allies_0" : "freecam"; // TODO
-    response["YOUR_PLANE"] = planeID; // TODO: THis is temp
-    //console.log(response, JSON.stringify(response))
-    //return;
     let responseStr = JSON.stringify(response);
     clientWS.send(responseStr);
-    server.addClient(clientWS, clientID);
+    server.addClient(clientWS, clientID);*/
 });
 
 server.register("PUT", "CLIENTPLANE", async function (clientWS, match){
@@ -51,6 +49,12 @@ server.register("PUT", "CLIENTPLANE", async function (clientWS, match){
     let dataJSON = JSON.parse(match[6]);
     // TODO: Update connection n' stuff
     activeGameMode.updateFromUser(dataJSON);
+});
+
+server.register("PUT", "KEEPALIVE", async function (clientWS, match){
+    let data = match[6];
+    let dataJSON = JSON.parse(match[6]);
+    lobby.keepAlive(dataJSON["client_id"]);
 });
 
 startTime = Date.now();

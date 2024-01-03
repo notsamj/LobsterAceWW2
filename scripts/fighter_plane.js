@@ -20,6 +20,10 @@ class FighterPlane extends Plane {
         this.throttleConstant = Math.sqrt(this.maxSpeed) / fileData["constants"]["MAX_THROTTLE"];
     }
 
+    canRotate(){
+        return true;
+    }
+
     setHealth(health){
         this.health = health;
     }
@@ -34,6 +38,10 @@ class FighterPlane extends Plane {
 
     setAngle(angle){
         this.angle = angle;
+    }
+
+    getAngle(){
+        return this.angle;
     }
 
     isFacingRight(){
@@ -114,7 +122,7 @@ class FighterPlane extends Plane {
         if (!this.facingRight){
             rightLeftStr = "_left_";
         }
-        return this.getPlaneClass() + rightLeftStr + this.angle.toString();
+        return this.getPlaneClass() + rightLeftStr + "0";
     }
 
     getWidth(){

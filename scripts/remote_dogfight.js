@@ -14,7 +14,12 @@ class RemoteDogfight extends Dogfight {
         this.tickManager.setNumTicks(numTicks);
         this.running = true;
         this.awaitingState = null;
-        this.scene.setFocusedEntity(startingEntities[startingEntities[startingEntities.length - 1].getID() != "freecam" ? 0 : startingEntities.length - 1]);
+        for (let entity of startingEntities){
+            if (entity.getID() == USER_DATA["name"]){
+                this.scene.setFocusedEntity(entity);
+                break;
+            }
+        }
         this.scene.enableTicks();
         this.scene.enableDisplay();
         this.scene.disableCollisions();
@@ -114,23 +119,21 @@ class RemoteDogfight extends Dogfight {
         this.scene.addEntity(plane, idSet=true);
     }
 
-    static async create(serverConnection){
-        // TODO: JOIN_{PLANE_TYPE}
-        let temp = {"planeClass": "spitfire", "clientID": "Samuel"};
-        //let temp = {"planeClass": "freecam", "clientID": "Samuel"};
-        let state = await serverConnection.requestTCP("JOIN_" + JSON.stringify(temp));
+    static async create(serverConnection, planeType, planeCounts){
+        let readyJSON = {
+            "client_id": USER_DATA["name"],
+            "user_plane_class": planeType,
+            "bot_counts": planeCounts
+        }
+        serverConnection.sendUDP("READY", JSON.stringify(readyJSON));
+        let state = await serverConnection.receiveMail();
         state = JSON.parse(state);
         if (state == null){ debugger; }
         let entities = RemoteDogfight.createNewEntities(state);
-        if (temp["planeClass"] == "freecam"){
+        if (planeType["planeClass"] == "freecam"){
             entities.push(new SpectatorCamera(scene))
+            entities[entities.length-1].setID(USER_DATA["name"]);
         }
-        /*// temp
-        let cam = new SpectatorCamera(this.scene);
-        entities.push(cam);
-        cam.setID(500); // temp
-        cam.setCenterX(0);
-        cam.setCenterY(0);*/
         return new RemoteDogfight(serverConnection, entities, state["startTime"], state["numTicks"]);
     }
 
@@ -152,7 +155,7 @@ class RemoteDogfight extends Dogfight {
     static createNewEntities(state){
         let entities = []; 
         for (let planeObj of state["planes"]){
-            if (state["YOUR_PLANE"] == planeObj["id"]){
+            if (USER_DATA["name"] == planeObj["id"]){
                 entities.push(RemoteDogfight.createNewHumanPlane(planeObj));
             }else{
                 entities.push(RemoteDogfight.createNewRemotePlane(planeObj));

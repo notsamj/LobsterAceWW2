@@ -8,6 +8,11 @@ class Entity{
     }
 
     // Meant to be overridden
+    canRotate(){
+        return false;
+    }
+
+    // Meant to be overridden
     setGameMode(){}
 
     isDead(){
@@ -24,6 +29,10 @@ class Entity{
 
     die(){
         this.setDead(true);
+    }
+
+    kill(){
+        this.die();
     }
 
     getScene(){

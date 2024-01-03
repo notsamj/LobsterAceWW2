@@ -1,11 +1,17 @@
-0. Dogfight menu with ready up button for multiplayer bring bots with you if you want
-0.5. Automatic disconnect in lobby and ingame whe not responding!!!
-1. Remove most of the handshake its not needed
+0.1. Fix axis planes facing right should face left!
+0.3. Why can my plane turn so fast (multiplayer?)
+0.4. Only freecam = crash in multiplayer
+0.5. Fix leaving and pause menu and stuff 
+0.6. Automatic disconnect in lobby and ingame when not responding!!!
+0.8. After end then 30s later you can join a new one?
+0.9. Error message on clinet like server is busy or something
+0.95. Ready button turns green
 2. Add sound as part of scene ex Explosion(500, 500) check focused entity proximity to know what sound to play
-3. Make after match stats
+3. Make after match stats like Bannerlord
 4. Make bombers
 5. Add difficulties to dogfight
 6. Make an escort bomber game mode
-7. Make ground gamemode
+7. Make ground soldier gamemode
 8. Make tank gamemode
 9. Support for variable canvas size (automatic)
+10. Make server take issue with invalid input and stuff

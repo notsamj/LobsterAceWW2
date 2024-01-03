@@ -72,7 +72,9 @@ class TeamCombatManager {
         let team = planeModelToAlliance(plane.getPlaneClass());
         let planeLL = this.planes[team];
         let newID = planeLL.getLength();
-        plane.setID("p" + "_" + team + "_" + newID);
+        if (plane.getID() == null){
+            plane.setID("p" + "_" + team + "_" + newID);
+        }
         planeLL.push(plane);
     }
 

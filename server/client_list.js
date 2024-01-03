@@ -3,7 +3,6 @@ class ClientList {
     constructor(server){
         this.server = server;
         this.clients = new NotSamLinkedList();
-        this.nextClientID = 0;
     }
 
     getValues(){
@@ -27,7 +26,7 @@ class ClientList {
         this.getClient(id) != null;
     }
 }
-
+// TODO: Delete this class?
 class Client {
     constructor(clientWS, clientID, server){
         this.server = server;

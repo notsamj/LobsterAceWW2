@@ -37,7 +37,7 @@ async function tick(){
 
 async function loadExtraImages(){
     for (let imageName of fileData["extra_images_to_load"]){
-        console.log("Loading", imageName)
+        //console.log("Loading", imageName)
         await loadToImages(imageName);
     }
 }

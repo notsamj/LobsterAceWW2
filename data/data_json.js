@@ -103,7 +103,9 @@ var fileData = {
         "server_port": "8080",
         "PLANE_SHOOT_GAP_MS": 100,
         "MAX_BULLETS": 2000,
-        "SAVED_TICKS": 500
+        "SAVED_TICKS": 500,
+        "KEEP_ALIVE_INTERVAL": 5000,
+        "TIME_TO_READY_UP": 5000 // 5000
     },
 
     "ai": {

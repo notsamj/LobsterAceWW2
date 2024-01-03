@@ -3,11 +3,8 @@ if (typeof window === "undefined"){
     TeamCombatManager = require("../scripts/team_combat_manager.js");
 }
 async function loadRotatedImages(name){
-    console.log("Loading", name)
-    for (let i = 0; i < 360; i++){
-        images[name + "_left_" + i.toString()] = await loadLocalImage("images/" + name + "/128/left/" + i.toString() + ".png");
-        images[name + "_right_" + i.toString()] = await loadLocalImage("images/" + name + "/128/right/" + i.toString() + ".png");
-    }
+    images[name + "_left_" + "0"] = await loadLocalImage("images/" + name + "/128/left/" + "0" + ".png");
+    images[name + "_right_" + "0"] = await loadLocalImage("images/" + name + "/128/right/" + "0" + ".png");
 }
 
 async function loadPlanes(){

@@ -264,6 +264,7 @@ class DogfightMenu extends Menu {
         let allyY = fileData["dogfight_settings"]["ally_spawn_y"];
         let axisX = fileData["dogfight_settings"]["axis_spawn_x"];
         let axisY = fileData["dogfight_settings"]["axis_spawn_y"];
+        let allyFacingRight = allyX < axisX;
 
         // Add user
         let userEntityType = this.userPlanes[this.userPlaneIndex];
@@ -272,9 +273,11 @@ class DogfightMenu extends Menu {
         let middleY = (allyY + axisY)/2;
         userEntity.setCenterX(userEntityType == "freecam" ? middleX : (planeModelToAlliance(userEntityType) == "Allies" ? allyX : axisX));
         userEntity.setCenterY(userEntityType == "freecam" ? middleY : (planeModelToAlliance(userEntityType) == "Allies" ? allyY : axisY));
+        if (userEntityType != "freecam"){
+            userEntity.setFacingRight((planeModelToAlliance(userEntityType) == "Allies") ? allyFacingRight : !allyFacingRight);
+        }
         planes.push(userEntity);
 
-        let allyFacingRight = allyX < axisX;
         // Add bots
         for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
             let x = (planeModelToAlliance(planeName) == "Allies") ? allyX : axisX; 

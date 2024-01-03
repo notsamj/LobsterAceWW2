@@ -113,7 +113,19 @@ class Scene{
         if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
         let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);
         let displayY = this.getDisplayY(entity.getCenterY(), entity.getHeight(), bY);
-        drawingContext.drawImage(entity.getImage(), displayX, displayY); 
+
+        if (entity.canRotate()){
+            let rotateX = displayX + entity.getWidth() / 2;
+            let rotateY = displayY + entity.getHeight() / 2;
+            translate(rotateX, rotateY);
+            rotate(-1 * toRadians(entity.getAngle()));
+            drawingContext.drawImage(entity.getImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
+            rotate(toRadians(entity.getAngle()));
+            translate(-1 * rotateX, -1 * rotateY);
+            return;
+        }else{
+            drawingContext.drawImage(entity.getImage(), displayX, displayY); 
+        }
     }
 
     getDisplayX(centerX, width, lX){

@@ -15,6 +15,11 @@ class ServerConnection {
         });
 
         this.socket.addEventListener("message", (event) => {
+            // This is very ugly but I'm just doing some checking here first
+            if (event.data == "KEEPALIVE"){
+                this.sendUDP("KEEPALIVE", JSON.stringify({ "client_id": USER_DATA["name"] }));
+                return;
+            }
             // TODO: This is just a bandaid add something like TCP_ prefix or something from server's end and check for that here
             if (this.mailBox.isAwaiting()){
                 this.mailBox.deliver(event.data);
@@ -23,11 +28,8 @@ class ServerConnection {
             }
         });
     }
-
-    // Definitely not actually TCP but idc
-    async requestTCP(target){
-        await this.openedLock.awaitUnlock();
-        return await this.mailBox.send("GET_" + target);
+    async receiveMail(){
+        return await this.mailBox.await();
     }
 
     // Not actually using UDP (am I? well idk all the rules what constitutes UDP this is like UDP though)
