@@ -1,4 +1,20 @@
+/*
+    Class Name: SpectatorCamera
+    Description: A subclass of Entity that acts as a camera, able to spectate planes or fly around.
+*/
 class SpectatorCamera extends Entity {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            scene:
+                Scene in which the spectator camera operates
+            x:
+                Starting x of the spectator camera
+            y:
+                Starting y of the spectator camera
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(scene, x=0, y=0){
         super(scene);
         this.x = x;
@@ -7,25 +23,50 @@ class SpectatorCamera extends Entity {
         this.followToggleLock = new Lock();
         this.leftRightLock = new CooldownLock(250);
         this.xVelocity = 0;
-        this.yVelocity = 0; // TODO: ????
+        this.yVelocity = 0;
         this.xLock = new CooldownLock(0);
         this.yLock = new CooldownLock(0);
         this.radar = new SpectatorRadar(this);
         this.radarLock = new CooldownLock(250);
     }
 
+
+    /*
+        Method Name: getID
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: String
+    */
     static getID(){
         return "freecam";
     }
 
+    /*
+        Method Name: getID
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: String
+    */
     getID(){
         return SpectatorCamera.getID();
     }
 
+    /*
+        Method Name: getDisplayID
+        Method Parameters: None
+        Method Description: Determines the ID to display in the HUD
+        Method Return: String
+    */
     getDisplayID(){
         return this.followingEntity != null ? this.followingEntity.getID() : this.getID();
     }
 
+    /*
+        Method Name: isFollowing
+        Method Parameters: None
+        Method Description: Determines if the camera is following an entity or flying around
+        Method Return: boolean, true -> following, false -> not following
+    */
     isFollowing(){
         // Check if the entity is still around
         if (this.followingEntity != null && !scene.hasEntity(this.followingEntity.getID())){
@@ -34,8 +75,17 @@ class SpectatorCamera extends Entity {
         return this.followingEntity != null;
     }
 
-    getPreviousEntity(){
-        if (this.followingEntity == null){ this.getFirstEntity(); return; }
+    /*
+        Method Name: spectatePreviousEntity
+        Method Parameters: None
+        Method Description: Finds the entity to spectate in a "negative" direction
+        Method Return: void
+    */
+    spectatePreviousEntity(){
+        // If not following ANY entity then just start with one
+        if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
+
+        // Otherwise determine the previous one and follow it
         let followableEntities = this.scene.getGoodToFollowEntities();
         let found = false;
         let i = followableEntities.length - 1;
@@ -56,27 +106,66 @@ class SpectatorCamera extends Entity {
         }
     }
 
+    /*
+        Method Name: getSpeed
+        Method Parameters: None
+        Method Description: For hud information, report plane speed if following one
+        Method Return: float
+    */
     getSpeed(){
         if (!this.isFollowing()){ return 0; }
         return this.followingEntity.getSpeed();
     }
 
+    /*
+        Method Name: getThrottle
+        Method Parameters: None
+        Method Description: For hud information, report plane throttle if following one
+        Method Return: int
+    */
     getThrottle(){
         if (!this.isFollowing()){ return 0; }
         return this.followingEntity.getThrottle();
     }
 
+    /*
+        Method Name: getHealth
+        Method Parameters: None
+        Method Description: For hud information, report plane health if following one
+        Method Return: int
+    */
     getHealth(){
         if (!this.isFollowing()){ return 0; }
         return this.followingEntity.getHealth();
     }
 
+    /*
+        Method Name: getRadar
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Radar
+    */
     getRadar(){ return this.radar; }
 
+    /*
+        Method Name: hasRadar
+        Method Parameters: None
+        Method Description: Provides the information that the spectator camera has a radar.
+        Method Return: boolean, true -> has a radar, false -> does not have a radar
+    */
     hasRadar(){ return true; }
 
-    getNextEntity(){
-        if (this.followingEntity == null){ this.getFirstEntity(); return; }
+    /*
+        Method Name: spectateNextEntity
+        Method Parameters: None
+        Method Description: Finds the entity to spectate in a "positive" direction
+        Method Return: void
+    */
+    spectateNextEntity(){
+        // If not following ANY entity then just start with one
+        if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
+
+        // Otherwise determine the next one and follow it
         let followableEntities = this.scene.getGoodToFollowEntities();
         let found = false;
         let i = 0;
@@ -97,17 +186,29 @@ class SpectatorCamera extends Entity {
         }
     }
 
-    getFirstEntity(){
+    /*
+        Method Name: spectateFirstEntity
+        Method Parameters: None
+        Method Description: Finds the entity to spectate
+        Method Return: void
+    */
+    spectateFirstEntity(){
         let followableEntities = this.scene.getGoodToFollowEntities();
         
         if (followableEntities.length > 0){ this.followingEntity = followableEntities[0]; }
     }
 
+    /*
+        Method Name: checkFollowToggle
+        Method Parameters: None
+        Method Description: Checks if the user wants to toggle the following feature
+        Method Return: void
+    */
     checkFollowToggle(){
         if (keyIsDown(70) && this.followToggleLock.isReady()){
             this.followToggleLock.lock();
             if (this.followingEntity == null){
-                this.getNextEntity();
+                this.spectateNextEntity();
             }else{
                 this.followingEntity = null;
             }
@@ -116,6 +217,12 @@ class SpectatorCamera extends Entity {
         }
     }
 
+    /*
+        Method Name: checkLeftRight
+        Method Parameters: None
+        Method Description: Checks if the user wants switch between entites previous or next
+        Method Return: void
+    */
     checkLeftRight(){
         let leftKey = keyIsDown(37);
         let rightKey = keyIsDown(39);
@@ -128,13 +235,19 @@ class SpectatorCamera extends Entity {
 
         this.leftRightLock.lock();
         if (leftKey){
-            this.getPreviousEntity();
+            this.spectatePreviousEntity();
         }else{
-            this.getNextEntity();
+            this.spectateNextEntity();
         }
 
     }
 
+    /*
+        Method Name: checkMoveX
+        Method Parameters: None
+        Method Description: Checks if the user wants to move the camera left or right
+        Method Return: void
+    */
     checkMoveX(){
         let leftKey = keyIsDown(37);
         let rightKey = keyIsDown(39);
@@ -153,6 +266,12 @@ class SpectatorCamera extends Entity {
         this.x += this.xVelocity;
     }
 
+    /*
+        Method Name: checkMoveY
+        Method Parameters: None
+        Method Description: Checks if the user wants to move the camera up or down
+        Method Return: void
+    */
     checkMoveY(){
         let upKey = keyIsDown(38);
         let downKey = keyIsDown(40);
@@ -171,12 +290,24 @@ class SpectatorCamera extends Entity {
         this.y += this.yVelocity;
     }
 
+    /*
+        Method Name: updateRadar
+        Method Parameters: None
+        Method Description: Updates the radar if ready to update
+        Method Return: void
+    */
     updateRadar(){
         if (!this.radarLock.isReady()){ return; }
         this.radarLock.lock();
         this.radar.update();
     }
 
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Handles all the decisions and events in a tick
+        Method Return: void
+    */
     tick(){
         this.updateRadar();
         this.checkFollowToggle();

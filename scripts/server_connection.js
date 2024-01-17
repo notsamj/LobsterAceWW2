@@ -1,7 +1,17 @@
+/*
+    Class Name: ServerConnection
+    Description: An object used for handling server connections.
+*/
 class ServerConnection {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(){
-        this.ip = fileData["constants"]["server_ip"];
-        this.port = fileData["constants"]["server_port"];
+        this.ip = FILE_DATA["constants"]["server_ip"];
+        this.port = FILE_DATA["constants"]["server_port"];
         this.commsLock = new Lock();
         this.socket = new WebSocket("ws://" + this.ip + ":" + this.port);
         this.openedLock = new Lock();
@@ -28,11 +38,29 @@ class ServerConnection {
             }
         });
     }
+
+    /*
+        Method Name: receiveMail
+        Method Parameters: None
+        Method Description: Await and receive the next message from the server
+        Method Return: String
+    */
     async receiveMail(){
         return await this.mailBox.await();
     }
 
-    // Not actually using UDP (am I? well idk all the rules what constitutes UDP this is like UDP though)
+    
+    /*
+        Method Name: sendUDP
+        Method Parameters:
+            target:
+                Address to send message to
+            message:
+                Message to send
+        Method Description: Send a message in a UDP fashion
+        Method Return: void
+        Note: Not actually using UDP (am I? well idk all the rules what constitutes UDP this is like UDP though)
+    */
     async sendUDP(target, message){
         await this.openedLock.awaitUnlock();
         this.socket.send("PUT_" + target + "_" + message);

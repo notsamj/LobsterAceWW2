@@ -1,4 +1,22 @@
-class HumanFighterPlane extends FighterPlane{
+/*
+    Class Name: HumanFighterPlane
+    Description: A fighter plane operated by a human
+*/
+class HumanFighterPlane extends FighterPlane {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            planeClass:
+                A string representing the type of plane
+            scene:
+                A Scene object related to the fighter plane
+            angle:
+                The starting angle of the fighter plane (integer)
+            facingRight:
+                The starting orientation of the fighter plane (boolean)
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
         this.lrCDLock = new CooldownLock(10);
@@ -9,6 +27,12 @@ class HumanFighterPlane extends FighterPlane{
         this.radar = new PlaneRadar(this);
     }
 
+    /*
+        Method Name: die
+        Method Parameters: None
+        Method Description: Kill off a plane and replace it with a spectator plane
+        Method Return: void
+    */
     die(){
         super.die();
         let cam = new SpectatorCamera(this.scene, this.x, this.y);
@@ -16,10 +40,24 @@ class HumanFighterPlane extends FighterPlane{
         this.scene.setFocusedEntity(cam);
     }
 
+    /*
+        Method Name: getRadar
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Radar
+    */
     getRadar(){
         return this.radar;
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiffMS:
+                The time between ticks
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
     tick(timeDiffMS){
         super.tick(timeDiffMS);
         this.checkMoveLeftRight();
@@ -29,8 +67,20 @@ class HumanFighterPlane extends FighterPlane{
         this.updateRadar();
     }
 
+    /*
+        Method Name: hasRadar
+        Method Parameters: None
+        Method Description: Provide the information that HumanFighterPlanes do have radars
+        Method Return: void
+    */
     hasRadar(){ return true; }
 
+    /*
+        Method Name: updateRadar
+        Method Parameters: None
+        Method Description: Update the radar with new information
+        Method Return: void
+    */
     updateRadar(){
         if (this.radarLock.isReady()){
             this.radar.update();
@@ -38,6 +88,12 @@ class HumanFighterPlane extends FighterPlane{
         }
     }
 
+    /*
+        Method Name: checkMoveLeftRight
+        Method Parameters: None
+        Method Description: Check if the user wishes to switch direction
+        Method Return: void
+    */
     checkMoveLeftRight(){
         if (!this.lrCDLock.isReady()){ return; }
         this.lrCDLock.lock();
@@ -65,7 +121,12 @@ class HumanFighterPlane extends FighterPlane{
         }
     }
 
-
+    /*
+        Method Name: checkUpDown
+        Method Parameters: None
+        Method Description: Check if the user wishes to change the angle of the plane
+        Method Return: void
+    */
     checkUpDown(){
         let wKey = keyIsDown(87);
         let sKey = keyIsDown(83);
@@ -86,6 +147,12 @@ class HumanFighterPlane extends FighterPlane{
         }
     }
 
+    /*
+        Method Name: checkThrottle
+        Method Parameters: None
+        Method Description: Check if the user wishes to increase or reduce throttle
+        Method Return: void
+    */
     checkThrottle(){
         if (!this.tLock.isReady()){ return; }
         this.tLock.lock();
@@ -108,6 +175,12 @@ class HumanFighterPlane extends FighterPlane{
         }
     }
 
+    /*
+        Method Name: checkShoot
+        Method Parameters: None
+        Method Description: Check if the user wishes to shoot
+        Method Return: void
+    */
     checkShoot(){
         if (!this.sLock.isReady()){ return; }
         this.sLock.lock();

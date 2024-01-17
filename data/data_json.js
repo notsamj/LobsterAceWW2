@@ -1,4 +1,4 @@
-var fileData = {
+var FILE_DATA = {
     "plane_data": {
         "spitfire": {
 //            "radius": 48,
@@ -220,9 +220,21 @@ var fileData = {
         "dirt",
         "above_ground",
         "clouds",
-        "freecam"
+        "freecam",
+        "explosion"
     ],
+
+    "smoke_images": [
+        "smoke_1",
+        "smoke_2",
+        "smoke_3"
+    ],
+
+    "team_to_colour": {
+        "Axis": "red",
+        "Allies": "green"
+    }
 }
 if (typeof window === "undefined"){
-    module.exports = fileData;
+    module.exports = FILE_DATA;
 }

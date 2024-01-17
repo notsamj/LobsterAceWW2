@@ -1,4 +1,22 @@
+/*
+    Class Name: MultiplayerHumanFighterPlane
+    Description: A subclass of fighter plane that is operated by a human when playing multiplayer
+*/
 class MultiplayerHumanFighterPlane extends HumanFighterPlane {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            planeClass:
+                A string representing the type of plane
+            scene:
+                A Scene object related to the fighter plane
+            angle:
+                The starting angle of the fighter plane (integer)
+            facingRight:
+                The starting orientation of the fighter plane (boolean)
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
         this.lastActions = {
@@ -9,6 +27,14 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiffMS:
+                The time between ticks
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
     async tick(timeMS){
         let savedInput = await activeGameMode.getLastInputUpToCurrentTick(this.getID());
         if (savedInput != null){
@@ -16,12 +42,19 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
         let lastActionsB4 = this.copyLastActions();
         super.tick(timeMS);
+        
         this.adjustByActions();
         if (!this.actionsStayedTheSame(lastActionsB4)){
             activeGameMode.informServer(this.getStatsToSend());
         }
     }
 
+    /*
+        Method Name: copyLastActions
+        Method Parameters: None
+        Method Description: Copies the last actions
+        Method Return: JSON Object
+    */
     copyLastActions(){
         return {
             "throttle": this.lastActions["throttle"],
@@ -31,14 +64,28 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
     }
 
+    /*
+        Method Name: actionsStayedTheSame
+        Method Parameters: 
+            oldActions:
+                A json object with the old actions
+        Method Description: Determines if the old actions are the same as the current actions
+        Method Return: boolean, true -> same, false -> not the same
+    */
     actionsStayedTheSame(oldActions){
-        let c1 = this.lastActions["throttle"] == oldActions["throttle"];
-        let c2 = this.lastActions["shooting"] == oldActions["shooting"];
-        let c3 = this.lastActions["face"] == oldActions["face"];
-        let c4 = this.lastActions["turn"] == oldActions["turn"];
-        return c1 && c2 && c3 && c4;
+        let a1 = this.lastActions["throttle"] == oldActions["throttle"];
+        let a2 = this.lastActions["shooting"] == oldActions["shooting"];
+        let a3 = this.lastActions["face"] == oldActions["face"];
+        let a4 = this.lastActions["turn"] == oldActions["turn"];
+        return a1 && a2 && a3 && a4;
     }
 
+    /*
+        Method Name: adjustByActions
+        Method Parameters: None
+        Method Description: Takes actions based on recorded actions
+        Method Return: void
+    */
     adjustByActions(){
         if (this.lastActions["shooting"] && this.shootLock.isReady()){
             this.shootLock.lock();
@@ -51,6 +98,14 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.throttle += this.lastActions["throttle"];
     }
 
+    /*
+        Method Name: action
+        Method Parameters:
+            actionPair:
+                A json opbject with an action type and a value
+        Method Description: Changes last actions based on a new action
+        Method Return: void
+    */
     action(actionPair){
         let key = actionPair["action"];
         let value = actionPair["value"];
@@ -59,6 +114,12 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
     }
 
+    /*
+        Method Name: checkMoveLeftRight
+        Method Parameters: None
+        Method Description: Check if the user wishes to switch direction
+        Method Return: void
+    */
     checkMoveLeftRight(){
         if (!this.lrCDLock.isReady()){ return; }
         this.lrCDLock.lock();
@@ -82,7 +143,12 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.action({"action": "face", "value": !aKey});
     }
 
-
+    /*
+        Method Name: checkUpDown
+        Method Parameters: None
+        Method Description: Check if the user wishes to change the angle of the plane
+        Method Return: void
+    */
     checkUpDown(){
         let wKey = keyIsDown(87);
         let sKey = keyIsDown(83);
@@ -101,6 +167,12 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.action({"action": "turn", "value": wKey ? -1 : 1});
     }
 
+    /*
+        Method Name: checkThrottle
+        Method Parameters: None
+        Method Description: Check if the user wishes to increase or reduce throttle
+        Method Return: void
+    */
     checkThrottle(){
         if (!this.tLock.isReady()){ return; }
         this.tLock.lock();
@@ -121,6 +193,12 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.action({"action": "throttle", "value": fKey ? -1 : 1});
     }
 
+    /*
+        Method Name: checkShoot
+        Method Parameters: None
+        Method Description: Check if the user wishes to shoot
+        Method Return: void
+    */
     checkShoot(){
         if (!this.sLock.isReady()){ return; }
         this.sLock.lock();
@@ -132,25 +210,14 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.action({"action": "shooting", "value": true});
     }
 
-    /* Not needed?
-    fromPreviousState(previousState){
-        this.dead = previousState["isDead"];
-        this.x = previousState["x"];
-        this.y = previousState["y"];
-        this.facingRight = previousState["facing"];
-        this.angle = previousState["angle"];
-        this.speed = previousState["speed"];
-        this.throttle = previousState["throttle"];
-        this.health = previousState["health"];
-        this.lastActions = previousState["lastActions"];
-    }*/
-
     /*
-
-    update(newStats){
-        this.dead = newStats["isDead"];
-        this.health = newStats["health"];
-    }*/
+        Method Name: update
+        Method Parameters:
+            newStats:
+                A json object containing new stats to copy
+        Method Description: Copy stats from an object to the stats of the instance
+        Method Return: void
+    */
     update(newStats){
         this.dead = newStats["isDead"];
         this.x = newStats["x"];
@@ -160,17 +227,16 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         this.throttle = newStats["throttle"];
         this.facingRight = newStats["facing"];
         this.angle = newStats["angle"];
-        //this.lastActions = newStats["lastActions"];
     }
 
+    /*
+        Method Name: getStatsToSend
+        Method Parameters: None
+        Method Description: Records stats that are important to send to the server
+        Method Return: JSON Object
+    */
     getStatsToSend(){
         let newStats = {};
-        //newStats["x"] = this.x;
-        //newStats["y"] = this.y;
-        //newStats["facing"] = this.facingRight;
-        //newStats["angle"] = this.angle;
-        //newStats["speed"] = this.speed;
-        //newStats["throttle"] = this.throttle;
         newStats["id"] = this.getID();
         newStats["lastActions"] = this.lastActions;
         return newStats;

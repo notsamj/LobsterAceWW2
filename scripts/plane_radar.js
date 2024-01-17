@@ -1,8 +1,26 @@
-class PlaneRadar extends Radar{
+/*
+    Class Name: PlaneRadar
+    Description: A subclass of Radar. Specifically for planes.
+*/
+class PlaneRadar extends Radar {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            plane:
+                The plane to whom the radar belongs
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(plane){
         super(plane);
     }
     
+    /*
+        Method Name: update
+        Method Parameters: None
+        Method Description: Updates the radar
+        Method Return: void
+    */
     update(){
         this.radarData = this.resetRadar();
         for (let entity of scene.getPlanes()){
@@ -12,6 +30,17 @@ class PlaneRadar extends Radar{
         }
     }
 
+    /*
+        Method Name: placeOnRadar
+        Method Parameters:
+            enemyX:
+                The x location of an enemy
+            enemeyY:
+                The y location of an enemy
+
+        Method Description: Places an enemy on the radar
+        Method Return: void
+    */
     placeOnRadar(enemyX, enemyY){
         let myX = this.entity.getX();
         let myY = this.entity.getY();
@@ -28,6 +57,12 @@ class PlaneRadar extends Radar{
         }
     }
 
+    /*
+        Method Name: resetRadar
+        Method Parameters: None
+        Method Description: Resets the radar
+        Method Return: void
+    */
     resetRadar(){
         let array2D = [];
         for (let i = 0; i < this.size; i++){
@@ -40,6 +75,12 @@ class PlaneRadar extends Radar{
         return array2D;
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays the radar on the screen
+        Method Return: void
+    */
     display(){
         drawingContext.drawImage(this.radarOutline, this.screenX, this.screenY);
         let borderWidth = 2;
@@ -50,6 +91,5 @@ class PlaneRadar extends Radar{
                 }
             }
         }
-        //drawingContext.drawImage(this.friendlyBlip, this.screenX + borderWidth + (this.size / 2 - 2) * this.blipSize, this.screenY + borderWidth + (this.size / 2 - 2) * this.blipSize);
     }
 }

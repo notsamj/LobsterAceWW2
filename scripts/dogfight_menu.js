@@ -1,4 +1,14 @@
+/*
+    Class Name: DogfightMenu
+    Description: A subclass of Menu specific to preparing a dogfight
+*/
 class DogfightMenu extends Menu {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(){
         super();
         this.planeCounts = {};
@@ -15,6 +25,12 @@ class DogfightMenu extends Menu {
         this.updateBotDetails();
     }
 
+    /*
+        Method Name: setup
+        Method Parameters: None
+        Method Description: Sets up the menu interface
+        Method Return: void
+    */
     setup(){
         let addRemoveButtonSize = 50;
 
@@ -163,12 +179,24 @@ class DogfightMenu extends Menu {
         
     }
 
+    /*
+        Method Name: switchPlanes
+        Method Parameters: None
+        Method Description: Switches between the actively shown planes
+        Method Return: void
+    */
     switchPlanes(){
         this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
         let planeName = this.userPlanes[this.userPlaneIndex];
         return images[planeName];
     }
 
+    /*
+        Method Name: switchAxisPlanes
+        Method Parameters: None
+        Method Description: Switches between the actively shown axis planes
+        Method Return: void
+    */
     switchAxisPlanes(){
         this.axisPlaneIndex = (this.axisPlaneIndex + 1) % this.axisPlanes.length;
         let planeName = this.axisPlanes[this.axisPlaneIndex];
@@ -176,6 +204,12 @@ class DogfightMenu extends Menu {
         return images[planeName];
     }
 
+    /*
+        Method Name: switchAlliedPlanes
+        Method Parameters: None
+        Method Description: Switches between the actively shown ally planes
+        Method Return: void
+    */
     switchAlliedPlanes(){
         this.alliedPlaneIndex = (this.alliedPlaneIndex + 1) % this.alliedPlanes.length;
         let planeName = this.alliedPlanes[this.alliedPlaneIndex];
@@ -183,17 +217,29 @@ class DogfightMenu extends Menu {
         return images[planeName];
     }
 
+    /*
+        Method Name: createUserPlaneSelection
+        Method Parameters: None
+        Method Description: Creates a list of planes for the user to choose between
+        Method Return: void
+    */
     createUserPlaneSelection(){
         let userPlanes = ["freecam"];
-        for (let [planeName, planeData] of Object.entries(fileData["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
             userPlanes.push(planeName);
         }
         return userPlanes;
     }
 
+    /*
+        Method Name: createAlliedPlaneSelection
+        Method Parameters: None
+        Method Description: Creates a list of ally planes for the user to choose between
+        Method Return: void
+    */
     createAlliedPlaneSelection(){
         let alliedPlanes = [];
-        for (let [planeName, planeData] of Object.entries(fileData["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
             if (planeModelToAlliance(planeName) == "Allies"){
                 alliedPlanes.push(planeName);
                 this.planeCounts[planeName] = 0;
@@ -202,9 +248,15 @@ class DogfightMenu extends Menu {
         return alliedPlanes;
     }
 
+    /*
+        Method Name: createAxisPlaneSelection
+        Method Parameters: None
+        Method Description: Creates a list of axis planes for the user to choose between
+        Method Return: void
+    */
     createAxisPlaneSelection(){
         let axisPlanes = [];
-        for (let [planeName, planeData] of Object.entries(fileData["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
             if (planeModelToAlliance(planeName) == "Axis"){
                 axisPlanes.push(planeName);
                 this.planeCounts[planeName] = 0;
@@ -213,20 +265,43 @@ class DogfightMenu extends Menu {
         return axisPlanes;
     }
 
+    /*
+        Method Name: modifyDisplayedBotPlaneCount
+        Method Parameters:
+            alliance:
+                Which alliance is gaining/losing plane count
+            amount:
+                How many (or negative) planes are added/removed from the count
+        Method Description: Modifies the counts of planes
+        Method Return: void
+    */
     modifyDisplayedBotPlaneCount(alliance, amount){
+        // Determine which plane is relevant
         let planeName = this.alliedPlanes[this.alliedPlaneIndex];
         if (alliance == "Axis"){
             planeName = this.axisPlanes[this.axisPlaneIndex];
         }
+
+        // Modify the plane's count
         this.planeCounts[planeName] = Math.max(0, this.planeCounts[planeName] + amount);
+        
+        // Update the text component
         if (alliance == "Axis"){
             this.currentAxisPlaneCountComponent.setText(this.planeCounts[planeName].toString());
         }else{
             this.currentAlliedPlaneCountComponent.setText(this.planeCounts[planeName].toString());
         }
+
+        // Update the "bot details" section
         this.updateBotDetails();
     }
 
+    /*
+        Method Name: updateBotDetails
+        Method Parameters: None
+        Method Description: Modifies the displayed details about the number of bots
+        Method Return: void
+    */
     updateBotDetails(){
         let botDetailsText = "";
         let alliedDetails = [];
@@ -234,6 +309,7 @@ class DogfightMenu extends Menu {
         let alliedCount = 0;
         let axisCount = 0;
 
+        // Loop through all plane counts and determine total count per alliance
         for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
             let alliance = planeModelToAlliance(planeName);
             if (alliance == "Allies"){
@@ -245,25 +321,33 @@ class DogfightMenu extends Menu {
             }
         }
 
+        // Add ally details
         botDetailsText += "Allies" + ": " + alliedCount.toString() + "\n";
         for (let [planeName, planeCount] of alliedDetails){
             botDetailsText += planeName + ": " + planeCount.toString() + "\n";
         }
 
+        // Add axis details
         botDetailsText += "Axis" + ": " + axisCount.toString() + "\n";
         for (let [planeName, planeCount] of axisDetails){
             botDetailsText += planeName + ": " + planeCount.toString() + "\n";
         }
-        //console.log(botDetailsText)
         this.botDetailsComponent.setText(botDetailsText);
     }
-    // TODO: Move this shit to dogfight class
+
+    /*
+        Method Name: getFighterPlanes
+        Method Parameters: None
+        Method Description: Create fight plane objects and return
+        Method Return: Array of FighterPlane objects (maybe a freecam as well)
+        TODO: Move to dogfight class?
+    */
     getFighterPlanes(){
         let planes = [];
-        let allyX = fileData["dogfight_settings"]["ally_spawn_x"];
-        let allyY = fileData["dogfight_settings"]["ally_spawn_y"];
-        let axisX = fileData["dogfight_settings"]["axis_spawn_x"];
-        let axisY = fileData["dogfight_settings"]["axis_spawn_y"];
+        let allyX = FILE_DATA["dogfight_settings"]["ally_spawn_x"];
+        let allyY = FILE_DATA["dogfight_settings"]["ally_spawn_y"];
+        let axisX = FILE_DATA["dogfight_settings"]["axis_spawn_x"];
+        let axisY = FILE_DATA["dogfight_settings"]["axis_spawn_y"];
         let allyFacingRight = allyX < axisX;
 
         // Add user
@@ -284,14 +368,29 @@ class DogfightMenu extends Menu {
             let y = (planeModelToAlliance(planeName) == "Allies") ? allyY : axisY;
             let facingRight = (planeModelToAlliance(planeName) == "Allies") ? allyFacingRight : !allyFacingRight;
             for (let i = 0; i < planeCount; i++){
-                let aX = x + randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
-                let aY = y + randomFloatBetween(-1 * fileData["dogfight_settings"]["spawn_offset"], fileData["dogfight_settings"]["spawn_offset"]);
+                let aX = x + randomFloatBetween(-1 * FILE_DATA["dogfight_settings"]["spawn_offset"], FILE_DATA["dogfight_settings"]["spawn_offset"]);
+                let aY = y + randomFloatBetween(-1 * FILE_DATA["dogfight_settings"]["spawn_offset"], FILE_DATA["dogfight_settings"]["spawn_offset"]);
                 planes.push(DogfightMenu.createBiasedBot(planeName, aX, aY, facingRight));
             }
         }
         return planes;
     }
 
+    /*
+        Method Name: createBiasedBot
+        Method Parameters: 
+            model:
+                Class/type of plane
+            x:
+                Starting x of new plane
+            y:
+                Starting y of new plane
+            facingRight:
+                Orientation of new plane
+        Method Description: Create the fighter plane bot object and return it
+        Method Return: BiasedBotFighterPlane object
+        TODO: Move to dogfight class?
+    */
     static createBiasedBot(model, x, y, facingRight){
         let botFighterPlane = BiasedBotFighterPlane.createBiasedPlane(model, scene);
         botFighterPlane.setCenterX(x);
@@ -300,11 +399,22 @@ class DogfightMenu extends Menu {
         return botFighterPlane;
     }
 
+    /*
+        Method Name: goToGame
+        Method Parameters: None
+        Method Description: Switches from this menu to the game
+        Method Return: void
+    */
     goToGame(){
         menuManager.switchTo("game");
     }
 
-
+    /*
+        Method Name: goToMainMenu
+        Method Parameters: None
+        Method Description: Switches from this menu to the main menu
+        Method Return: void
+    */
     goToMainMenu(){
         menuManager.switchTo("main");
     }

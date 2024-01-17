@@ -2,7 +2,6 @@ MultiplayerRemoteFighterPlane = require("../scripts/multiplayer_remote_fighter_p
 fileData = require("../data/data_json.js");
 class MultiplayerServerRemoteFighterPlane extends MultiplayerRemoteFighterPlane {
     constructor(planeClass, scene, gameMode){
-        //console.log(fileData["plane_data"][planeClass], planeClass, planeClass, scene, gameMode, 0, fileData["plane_data"][planeClass]["health"])
         super(planeClass, scene, gameMode, 0, fileData["plane_data"][planeClass]["max_speed"], fileData["plane_data"][planeClass]["max_speed"], Math.sqrt(fileData["plane_data"][planeClass]["max_speed"]) / fileData["constants"]["MAX_THROTTLE"], fileData["plane_data"][planeClass]["health"], { "face": true, "turn": 0, "shooting": false, "throttle": 0}, 0, true);
         this.x = 50000;
         this.y = 50000;
@@ -28,7 +27,6 @@ class MultiplayerServerRemoteFighterPlane extends MultiplayerRemoteFighterPlane 
     }
 
     getState(){
-        // console.log("Speed", this.speed)
         return {
             "plane_class": this.getPlaneClass(),
             "id": this.getID(),

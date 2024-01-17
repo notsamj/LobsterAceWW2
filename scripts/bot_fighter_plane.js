@@ -1,3 +1,4 @@
+// When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     FighterPlane = require("../scripts/fighter_plane.js");
     onSameTeam = require("../scripts/helper_functions.js").onSameTeam;
@@ -11,24 +12,50 @@ if (typeof window === "undefined"){
     toDegrees = helperFuncs.toDegrees;
     InfiniteLoopFinder = require("../scripts/infinite_loop_finder.js");
 }
+/*
+    Class Name: BotFighterPlane
+    Description: A subclass of the FighterPlane that determines actions without human input
+*/
 class BotFighterPlane extends FighterPlane {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            planeClass:
+                A string representing the type of plane
+            scene:
+                A Scene object related to the fighter plane
+            angle:
+                The starting angle of the fighter plane (integer)
+            facingRight:
+                The starting orientation of the fighter plane (boolean)
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
-        //this.throttle = 1;
-        //this.speed = 0;
         this.currentEnemyID = null;
         this.turningDirection = null;
         this.ticksOnCourse = 0;
         this.tickCD = 0;
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiffMS:
+                The time between ticks
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
     tick(timeDiffMS){
         super.tick(timeDiffMS);
+        // Check if the selected enemy should be changed
         this.updateEnemy();
+        // If there is an enemy then act accordingly
         if (this.hasCurrentEnemy()){
             let enemy = this.scene.getEntity(this.currentEnemyID);
             this.handleEnemy(enemy);
-        }else{
+        }else{ // No enemy -> make sure not to crash into the ground
             if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
                 this.turnInDirection(90);
                 return;
@@ -36,9 +63,16 @@ class BotFighterPlane extends FighterPlane {
         }
     }
 
+    /*
+        Method Name: handleEnemy
+        Method Parameters:
+            enemy:
+                An object of an enemy fighter plane
+        Method Description: Decide what to do when given an enemy to attack. Can move and can shoot.
+        Method Return: void
+    */
     handleEnemy(enemy){
         // Separate into two things
-        // 1. Shooting if close enough 2. Determining how to move.
         let myX = this.getX();
         let myY = this.getY();
         let enemyX = enemy.getX();
@@ -46,6 +80,7 @@ class BotFighterPlane extends FighterPlane {
         let enemyXDisplacement = enemyX - myX;
         let enemyYDisplacement = enemyY - myY;
         let distanceToEnemy = this.distance(enemy);
+
         // To prevent issues in calculating angles, if the enemy is ontop of you just shoot and do nothing else
         if (distanceToEnemy < 1){
             this.tryToShootAtEnemy(0, 1, 1);
@@ -55,12 +90,15 @@ class BotFighterPlane extends FighterPlane {
         let shootingAngle = this.getShootingAngle();
         let angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
         let angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
-        //console.log(angleDEG, this.planeClass, enemyXDisplacement, enemyYDisplacement, Math.atan(enemyYDisplacement / enemyXDisplacement))
 
         // Give information to handleMovement and let it decide how to move
         this.handleMovement(angleDEG, distanceToEnemy, enemy);
+
         // Shoot if the enemy is in front
         let hasFiredShot = this.tryToShootAtEnemy(angleDifference, enemy.getHitbox().getRadius(), distanceToEnemy);
+        if (hasFiredShot){ return; }
+
+        // Look for other enemies that aren't the primary focus and if they are infront of the plane then shoot
         for (let secondaryEnemy of this.getEnemyList()){
             if (hasFiredShot){ break; }
             enemyX = secondaryEnemy.getX();
@@ -74,14 +112,27 @@ class BotFighterPlane extends FighterPlane {
         }
     }
 
+    /*
+        Method Name: handleMovement
+        Method Parameters:
+            anlgeDEG:
+                An angle from the current location to that of the enemy
+            distance:
+                The current distance from the current location to the enemy
+            enemy:
+                An enemy fighter plane
+        Method Description: Decide how to move given the presence of an enemy.
+        Method Return: void
+    */
     handleMovement(angleDEG, distance, enemy){
+        // If facing downwards and close to the ground then turn upwards
         if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
             this.turnInDirection(90);
             return;
         }
 
         // Point to enemy when very far away
-        if (distance > this.speed * fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * fileData["constants"]["TURN_TO_ENEMY_CONSTANT"]){
+        if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"]){
             this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
@@ -93,75 +144,133 @@ class BotFighterPlane extends FighterPlane {
 
     handleClose(angleDEG, distance, enemy){
         let myAngle = this.getShootingAngle();
+
         // If enemy is behind, so evasive manuevers
         if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, 135), rotateCCWDEG(myAngle, 135)) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF){
             this.evasiveManeuver(enemy, distance);
             return;
         }
+
         // If on a movement cooldown
         if (this.tickCD-- > 0){
             return;
         }
+
         // Not doing evausive maneuevers
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= fileData["ai"]["max_ticks_on_course"]){
-            this.tickCD = fileData["ai"]["tick_cd"];
+        if (this.ticksOnCourse >= FILE_DATA["ai"]["max_ticks_on_course"]){
+            this.tickCD = FILE_DATA["ai"]["tick_cd"];
             this.ticksOnCourse = 0;
         }
+
         this.turningDirection = null;
         this.ticksOnCourse += 1;
         this.turnInDirection(angleDEG);
     }
 
-    comeUpWithEvasiveTurningDirection(enemy, distance){
+    /*
+        Method Name: comeUpWithEvasiveTurningDirection
+        Method Parameters: None
+        Method Description: Pick a direction to turn when you must conduct evasive maneuvers
+        Method Return: True, turn cw, false then turn ccw
+    */
+    comeUpWithEvasiveTurningDirection(){
         return (randomNumberInclusive(1, 2) == 1) ? 1 : -1;
     }
 
-    evasiveManeuver(enemy, distance){
+    /*
+        Method Name: evasiveManeuver
+        Method Parameters: None
+        Method Description: Turn to a direction as part of an evasive maneuver
+        Method Return: void
+    */
+    evasiveManeuver(){
         if (this.turningDirection == null){
-            this.turningDirection = this.comeUpWithEvasiveTurningDirection(enemy, distance);
+            this.turningDirection = this.comeUpWithEvasiveTurningDirection();
         }
         this.adjustAngle(this.turningDirection);
     }
 
+    /*
+        Method Name: closeToGround
+        Method Parameters: None
+        Method Description: Determine if the plane is close to the ground
+        Method Return: True if close to the ground, false if not close
+    */
     closeToGround(){
-        return this.y < fileData["constants"]["CLOSE_TO_GROUND_CONSTANT"] * this.speed;
+        return this.y < FILE_DATA["constants"]["CLOSE_TO_GROUND_CONSTANT"] * this.speed;
     }
 
+    /*
+        Method Name: turnInDirection
+        Method Parameters:
+            angleDEG:
+                The angle to turn to (degrees)
+        Method Description: Turn the plane in a given direction
+        Method Return: void
+    */
     turnInDirection(angleDEG){
         // Determine if we need to switch from left to right
         let myAngle = this.getShootingAngle();
-        // TODO: Change this to use the easy function from helperfunctionss
+        // If facing right and the angle to turn to is very far but close if the plane turned left
         if (this.facingRight && angleBetweenCWDEG(angleDEG, 135, 225) && angleBetweenCWDEG(myAngle, 315, 45)){
             this.face(false);
-        }else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295, 45) && angleBetweenCWDEG(angleDEG, 135, 225)){
-            this.face(true);
+            return;
         }
-        myAngle = this.getShootingAngle();
+        // If facing left and the angle to turn to is very far but close if the plane turned right
+        else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295, 45) && angleBetweenCWDEG(angleDEG, 135, 225)){
+            this.face(true);
+            return;
+        }
+
         let newAngleCW = fixDegrees(this.getShootingAngle() + 1);
         let newAngleCCW = fixDegrees(this.getShootingAngle() - 1);
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
-        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < fileData["constants"]["MIN_ANGLE_TO_ADJUST"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < fileData["constants"]["MIN_ANGLE_TO_ADJUST"]){
+
+        // If the angle of the plane currently is very close to the desired angle, not worth moving
+        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"]){
             return;
         }
+
+        // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
             this.adjustAngle(1);
-        }else if (dCW < dCCW && !this.facingRight){
+        }
+        // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
+        else if (dCW < dCCW && !this.facingRight){
             this.adjustAngle(-1);
-        }else if (dCCW < dCW && this.facingRight){
+        }
+        // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
+        else if (dCCW < dCW && this.facingRight){
             this.adjustAngle(-1);
-        }else if (dCCW < dCW && !this.facingRight){
-            this.adjustAngle(1);
-        }else{
+        }
+        // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
+        else if (dCCW < dCW && !this.facingRight){
             this.adjustAngle(1);
         }
-        //console.log(this.planeClass, newAngleCW, newAngleCCW, angleDEG, dCW, dCCW, consoleLog1)
+        // Otherwise just turn clockwise (Shouldn't actually be possible?)
+        else{
+            this.adjustAngle(1);
+        }
 
     }
 
+    /*
+        Method Name: tryToShootAtEnemy
+        Method Parameters:
+            angleDifference:
+                Difference between current angle and the angle to the enemy
+            enemyRadius:
+                The radius of the enemy's hitbox
+            distanceToEnemy:
+                The distance to the enemy
+        Method Description: Turn the plane in a given direction. True if shot, false if not.
+        Method Return: boolean
+    */
     tryToShootAtEnemy(angleDifference, enemyRadius, distanceToEnemy){
         let angleAllowanceAtRangeDEG = toDegrees(Math.abs(Math.atan(enemyRadius / distanceToEnemy)));
+        // If ready to shoot and the angle & distance are acceptable then shoot
         if (this.shootLock.isReady() && angleDifference < angleAllowanceAtRangeDEG && distanceToEnemy < this.getMaxShootingDistance()){
             this.shootLock.lock();
             this.shoot();
@@ -170,6 +279,12 @@ class BotFighterPlane extends FighterPlane {
         return false;
     }
 
+    /*
+        Method Name: getEnemyList
+        Method Parameters: None
+        Method Description: Find all the enemies and return them
+        Method Return: List
+    */
     getEnemyList(){
         let entities = this.scene.getPlanes();
         let enemies = [];
@@ -181,19 +296,26 @@ class BotFighterPlane extends FighterPlane {
         return enemies;
     }
 
+    /*
+        Method Name: updateEnemy
+        Method Parameters: None
+        Method Description: Determine the id of the current enemy
+        Method Return: void
+    */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= fileData["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
+        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
         let bestRecord = null;
+        // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
             if (bestRecord == null || distance < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? fileData["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
+                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? FILE_DATA["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
                 }
             }
         }
@@ -201,22 +323,58 @@ class BotFighterPlane extends FighterPlane {
         this.currentEnemyID = bestRecord["id"];
     }
 
+    /*
+        Method Name: hasCurrentEnemy
+        Method Parameters: None
+        Method Description: Determine if there is currently a current enemy
+        Method Return: True if has an enemy (and they exist), otherwise false
+    */
     hasCurrentEnemy(){
         return this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID);
     }
 
+    /*
+        Method Name: getCurrentEnemy
+        Method Parameters: None
+        Method Description: Get the id of the current enemy
+        Method Return: A string of the id of the current enemy
+    */
     getCurrentEnemy(){
         return this.currentEnemyID;
     }
 
+    /*
+        Method Name: onSameTeam
+        Method Parameters: otherPlane
+        Method Description: Determine if this plane is on the same team as another plane
+        Method Return: True if the planes are on the same team, false otherwise
+    */
     onSameTeam(otherPlane){
         return onSameTeam(this.getPlaneClass(), otherPlane.getPlaneClass());
     }
 
+    /*
+        Method Name: getMaxShootingDistance
+        Method Parameters: None
+        Method Description: Return the max shooting distance of this biased plane
+        Method Return: float
+    */
     getMaxShootingDistance(){
-        return SHOOT_DISTANCE_CONSTANT * fileData["bullet_data"]["speed"];
+        return SHOOT_DISTANCE_CONSTANT * FILE_DATA["bullet_data"]["speed"];
     }
 
+    /*
+        Method Name: getMaxShootingDistance
+        Method Parameters:
+            scene:
+                A Scene object related to the fighter plane
+            enemyID:
+                A string ID of the enemy plane
+            myID:
+                A string ID of the plane making the inquiry
+        Method Description: Determines if another plane is focused on an enemy that "I" am thinking about focusing on
+        Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
+    */
     static isFocused(scene, enemyID, myID){
         for (let entity of scene.getEntities()){
             if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
@@ -227,6 +385,7 @@ class BotFighterPlane extends FighterPlane {
     }
 }
 
+// If using Node JS Export the class
 if (typeof window === "undefined"){
     module.exports = BotFighterPlane;
 }

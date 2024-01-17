@@ -1,14 +1,37 @@
+// When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     NotSamLinkedList = require("../scripts/notsam_linked_list");
     Lock = require("../scripts/lock.js");
 }
+/*
+    Class Name: ValueHistoryManager
+    Description: A tool to manage previous values at points in time.
+*/
 class ValueHistoryManager {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            tickHistoryToSave:
+                The number of ticks to save. E.g. save 500 ticks at a time
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(tickHistoryToSave){
         this.data = new NotSamLinkedList();
         this.numSavedTicks = tickHistoryToSave;
         this.syncLock = new Lock();
     }
 
+    /*
+        Method Name: get
+        Method Parameters:
+            id:
+                The id of the value that is being requested
+            numTicks:
+                The num ticks of the value that is being requested
+        Method Description: Get the Node @ [id,numTicks]
+        Method Return: ValueHistoryNode
+    */
     async get(id, numTicks){
         await this.syncLock.awaitUnlock(true);
         for (let [item, itemIndex] of this.data){
@@ -21,19 +44,65 @@ class ValueHistoryManager {
         return null;
     }
 
+    /*
+        Method Name: getValue
+        Method Parameters:
+            id:
+                The id of the value that is being requested
+            numTicks:
+                The num ticks of the value that is being requested
+        Method Description: Get the Value @ [id,numTicks]
+        Method Return: Object (Unknown type)
+    */
     async getValue(id, numTicks){
         let item = await this.get(id, numTicks);
         return item.getValue();
     }
 
+    /*
+        Method Name: modify
+        Method Parameters:
+            id:
+                The id of the value that is being requested
+            numTicks:
+                The num ticks of the value that is being requested
+            JSONObj:
+                A json representation of the previous value
+        Method Description: Set the Value @ [id,numTicks]
+        Method Return: Promise (implicit)
+    */
     async modify(id, numTicks, jsonOBJ){
         await this.get(id, numTicks).fromJSON(jsonOBJ);
     }
 
+    /*
+        Method Name: has
+        Method Parameters:
+            id:
+                The id of the value that is being requested
+            numTicks:
+                The num ticks of the value that is being requested
+        Method Description: Checks for the existence of a value
+        Method Return: Boolean, true -> has, false -> does not have
+    */
     async has(id, numTicks){
         return await this.get(id, numTicks) != null;
     }
 
+    /*
+        Method Name: put
+        Method Parameters:
+            id:
+                The id of the value that is being requested
+            numTicks:
+                The num ticks of the value that is being requested
+            value:
+                Value to store
+            canBeOverwritten:
+                Whether or not the value can be overwritten
+        Method Description: Set the value at the position to a new value
+        Method Return: Promise (implicit)
+    */
     async put(id, numTicks, value, canBeOverwritten=true){
         await this.syncLock.awaitUnlock(true);
         if (await this.has(id, numTicks)){
@@ -47,6 +116,12 @@ class ValueHistoryManager {
         this.deletionProcedure();
     }
 
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Get a JSON rep of the data structure
+        Method Return: JSON Object
+    */
     async toJSON(){
         await this.syncLock.awaitUnlock(true);
         let dataList = [];
@@ -57,6 +132,14 @@ class ValueHistoryManager {
         return { "data": dataList };
     }
 
+    /*
+        Method Name: fromJSON
+        Method Parameters: 
+            jsonOBJ:
+                A jason rep of the data structure
+        Method Description: Fill up the ValueHistoryManager from a json representation
+        Method Return: Promise (implicit)
+    */
     async fromJSON(jsonOBJ){
         for (let nodeOBJ of jsonOBJ["data"]){
             if (this.has(nodeOBJ["id"], nodeOBJ["numTicks"])){
@@ -69,6 +152,14 @@ class ValueHistoryManager {
         }
     }
 
+    /*
+        Method Name: importJSON
+        Method Parameters: 
+            jsonOBJ:
+                A jason rep of the data structure
+        Method Description: Reset then fill up the ValueHistoryManager from a json representation
+        Method Return: Promise (implicit)
+    */
     async importJSON(jsonOBJ){
         await this.syncLock.awaitUnlock(true);
         this.data = new NotSamLinkedList();
@@ -78,6 +169,12 @@ class ValueHistoryManager {
         this.syncLock.unlock();
     }
 
+    /*
+        Method Name: deletionProcedure
+        Method Parameters: None
+        Method Description: Delete old entries
+        Method Return: Promise (implicit)
+    */
     async deletionProcedure(){
         await this.syncLock.awaitUnlock(true);
         let stillDeleting = true;
@@ -98,6 +195,14 @@ class ValueHistoryManager {
         this.syncLock.unlock();
     }
 
+    /*
+        Method Name: findLast
+        Method Parameters:
+            id:
+                identifier of a value
+        Method Description: Find the latest entry for a given id
+        Method Return: Promise (implicit)
+    */
     async findLast(id){
         await this.syncLock.awaitUnlock(true);
         let maxNumTicks = 0;
@@ -112,6 +217,16 @@ class ValueHistoryManager {
         return maxValue;
     }
 
+    /*
+        Method Name: findLast
+        Method Parameters:
+            id:
+                identifier of a value
+            maxTickINCL:
+                Inclusive, maximum tick to search up to
+        Method Description: Find the latest entry for a given id up to and including the set point
+        Method Return: Promise (implicit)
+    */
     async getLastUpTo(id, maxTickINCL){
         await this.syncLock.awaitUnlock(true);
         let maxNumTicks = 0;
@@ -127,8 +242,26 @@ class ValueHistoryManager {
     }
 }
 
-// Yes I could just JSON but I don't like JSON as much
+/*
+    Class Name: ValueHistoryNode
+    Description: A node to store data in the value history manager.
+    Note: Yes I could just JSON but I don't like JSON as much
+*/
 class ValueHistoryNode {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            id:
+                The id of the value that is being requested
+            numTicks:
+                The num ticks of the value that is being requested
+            value:
+                Value to store
+            canBeOverwritten:
+                Whether or not the value can be overwritten
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(id, numTicks, value, canBeOverwritten=true){
         this.id = id;
         this.numTicks = numTicks;
@@ -136,18 +269,50 @@ class ValueHistoryNode {
         this.canBeOverwritten = canBeOverwritten;
     }
 
+    /*
+        Method Name: getNumTicks
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: int
+    */
     getNumTicks(){
         return this.numTicks;
     }
 
+    /*
+        Method Name: getID
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Unknown type
+    */
     getID(){
         return this.id;
     }
 
+    /*
+        Method Name: getValue
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Unknown type
+    */
     getValue(){
         return this.value;
     }
 
+    /*
+        Method Name: modify
+        Method Parameters:
+            id:
+                The id of the value that is being requested
+            numTicks:
+                The num ticks of the value that is being requested
+            value:
+                Value to store
+            canBeOverwritten:
+                Whether or not the value can be overwritten
+        Method Description: Modify the properties of a node
+        Method Return: void
+    */
     modify(id, numTicks, value, canBeOverwritten=true){
         if (!this.canBeOverwritten){ return; }
         this.id = id;
@@ -156,10 +321,24 @@ class ValueHistoryNode {
         this.canBeOverwritten = canBeOverwritten;
     }
 
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Get a JSON rep of the node
+        Method Return: JSON Object
+    */
     toJSON(){
         return { "id": this.id, "numTicks": this.numTicks, "value": this.value, "canBeOverwritten": this.canBeOverwritten };
     }
 
+    /*
+        Method Name: fromJSON
+        Method Parameters: 
+            jsonOBJ:
+                A jason rep of the node
+        Method Description: Modifies a node based on a JSON rep
+        Method Return: void
+    */
     fromJSON(jsonOBJ){
         if (!this.canBeOverwritten){
             return;
@@ -170,11 +349,19 @@ class ValueHistoryNode {
         this.canBeOverwritten = jsonOBJ["canBeOverwritten"];
     }
 
+    /*
+        Method Name: fromJSON
+        Method Parameters: 
+            jsonOBJ:
+                A jason rep of the data structure
+        Method Description: Creates a new from a JSON rep
+        Method Return: ValueHistoryNode
+    */
     static fromJSON(jsonOBJ){
         return new ValueHistoryNode(jsonOBJ["id"], jsonOBJ["numTicks"], jsonOBJ["value"], jsonOBJ["canBeOverwritten"])
     }
 }
-
+// If using NodeJS -> export the class
 if (typeof window === "undefined"){
     module.exports=ValueHistoryManager;
 }

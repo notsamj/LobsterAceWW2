@@ -1,14 +1,28 @@
+/*
+    Class Name: PlaneRadar
+    Description: A subclass of Dogfight. Specifically for one involving communication with a server.
+*/
 class RemoteDogfight extends Dogfight {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            serverConnection:
+                An object facilitating communication between client and server
+            startingEntities:
+                The entities currently existing on the scene
+            startTime:
+                The starting time of the tick manager
+            numTicks:
+                The number of ticks that have so far elapsed
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(serverConnection, startingEntities, startTime, numTicks){
         super(scene);
         for (let entity of startingEntities){
             entity.setGameMode(this);
         }
         this.scene.setEntities(startingEntities, true);
-        /*// Temp
-        let cam = new SpectatorCamera(this.scene);
-        this.scene.addEntity(cam);
-        this.scene.setFocusedEntity(cam);*/
         this.gameTickLock = new Lock();
         this.tickManager.setStartTime(startTime);
         this.tickManager.setNumTicks(numTicks);
@@ -27,25 +41,53 @@ class RemoteDogfight extends Dogfight {
         this.version = null;
         this.serverConnection = serverConnection;
         this.serverDataLock = new Lock();
-        this.inputHistory = new ValueHistoryManager(fileData["constants"]["SAVED_TICKS"]);
+        this.inputHistory = new ValueHistoryManager(FILE_DATA["constants"]["SAVED_TICKS"]);
         this.testVar = 0;
         this.testVar2 = 0;
     }
 
+    /*
+        Method Name: getVersion
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: int
+    */
     getVersion(){
         return this.version;
     }
 
+    /*
+        Method Name: getLastInputUpToCurrentTick
+        Method Parameters:
+            id:
+                Id of entity who's input is being looked up
+        Method Description: Determine what the last input of an entity
+        Method Return: JSON Object
+    */
     getLastInputUpToCurrentTick(id){
         return this.inputHistory.getLastUpTo(id, this.tickManager.getNumTicks());
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays the end of dogfight text on the screen
+        Method Return: void
+    */
     display(){
         if (!this.isRunning()){
             Menu.makeText("Winner: " + this.winner, "green", 500, 800, 1000, 300)
         }
     }
 
+    /*
+        Method Name: updateFromServer
+        Method Parameters:
+            stateDATA:
+                State about the state of the scene
+        Method Description: Updates the dogfight based on information from the server
+        Method Return: void
+    */
     async updateFromServer(stateDATA){
         if (this.serverDataLock.notReady()){ return; }
         // Get state from server
@@ -60,65 +102,82 @@ class RemoteDogfight extends Dogfight {
         this.awaitingState = state;
     }
 
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Handles the events that take place in a tick
+        Method Return: void
+    */
     async tick(){
         if (this.gameTickLock.notReady() || !this.isRunning()){
             return;
         }
         this.gameTickLock.lock();
         await this.serverDataLock.awaitUnlock(true);
-        let x1 = 0;
-        let x2 = 0;
-        let t1 = 0;
-        let t2 = 0;
+
         if (this.awaitingState){
-            /*let xt1 = scene.getEntity("p_Allies_0").getX();
-            x1 = scene.getEntity("p_Allies_1").getX();
-            t1 = this.tickManager.getNumTicks();
-            */
             this.updateState(this.awaitingState);
-            /*x2 = scene.getEntity("p_Allies_1").getX();
-            let xt2 = scene.getEntity("p_Allies_0").getX();
-            console.log("hpdiff %d, rpdiff %d, posdif %d", xt2-xt1, x2-x1, this.awaitingState["planes"][0]["x"] - this.awaitingState["planes"][1]["x"])
-            t2 = this.tickManager.getNumTicks();
-            */
             this.awaitingState = null;
         }
+
         // Now tick
         this.tickManager.tick();
-        /*if (x1 != 0){
-            let x3 = scene.getEntity("p_Allies_1").getX();
-            let t3 = this.tickManager.getNumTicks();
-            //console.log("x2-x1: %d, tickDiff: %d, (x2-x1)/tickDiff: %d, t2: %d, t1: %d\nx3-x2: %d, t3-t2: %d, expected: %d", x2 - x1, t2 - t1, (x2 - x1)/(t2 - t1), t2, t1, x3-x2, t3-t2, this.tickManager.getExpectedTicks())
-        }
-        let oldTestVar = this.tickManager.getExpectedTicks();
-        this.oldTestVar = this.tickManager.getExpectedTicks();
-        let oldTestVar2 = this.testVar2;
-        this.testVar2 = this.tickManager.getNumTicks();*/
-        //console.log(this.testVar2 - oldTestVar2, this.oldTestVar - oldTestVar)
 
         this.gameTickLock.unlock();
-        if (this.tickManager.getNumTicks() % 50 == 0){
-            //console.log(this.tickManager.getNumTicks())
-        }
     }
 
+    /*
+        Method Name: informServer
+        Method Parameters:
+            stats:
+                A json object of stats of a plane
+        Method Description: Sends information about the user plane to the server
+        Method Return: void
+    */
     informServer(stats){
         stats["numTicks"] = this.tickManager.getNumTicks();
         this.serverConnection.sendUDP("CLIENTPLANE", JSON.stringify(stats))
     }
 
+    /*
+        Method Name: updateState
+        Method Parameters:
+            state:
+                State sent by the server
+        Method Description: Updates the client state based on the server state
+        Method Return: void
+    */
     updateState(state){
         this.version = state["version"];
-        //console.log(state["numTicks"] - this.tickManager.getNumTicks())
         this.tickManager.setNumTicks(state["numTicks"]); // Make sure this is done so it can catch up with the server
         this.scene.forceUpdatePlanes(state["planes"]);
     }
 
+    /*
+        Method Name: addNewPlane
+        Method Parameters:
+            planeObj:
+                JSON Object with information about a plane
+        Method Description: Adds a new plane given a JSON object
+        Method Return: void
+    */
     addNewPlane(planeObj){
         let plane = RemoteDogfight.createNewPlane(planeObj);
         this.scene.addEntity(plane, idSet=true);
     }
 
+    /*
+        Method Name: create
+        Method Parameters:
+            serverConnection:
+                An object facilitating communication between client and server
+            planeType:
+                Plane type of the user (could also be a freecam)
+            planeCounts:
+                Number of planes the user is bringing to the dogfight
+        Method Description: Establishes a connection to the server and a new dogfight
+        Method Return: RemoteDogfight
+    */
     static async create(serverConnection, planeType, planeCounts){
         let readyJSON = {
             "client_id": USER_DATA["name"],
@@ -137,6 +196,14 @@ class RemoteDogfight extends Dogfight {
         return new RemoteDogfight(serverConnection, entities, state["startTime"], state["numTicks"]);
     }
 
+    /*
+        Method Name: createNewRemotePlane
+        Method Parameters:
+            planeObj:
+                JSON Object with information about a plane
+        Method Description: Creates a new remote plane, given an object describing it
+        Method Return: MultiplayerRemoteFighterPlane
+    */
     static createNewRemotePlane(planeObj){
         let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, activeGameMode, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
         plane.setID(planeObj["id"]);
@@ -144,14 +211,31 @@ class RemoteDogfight extends Dogfight {
         return plane;
     }
 
+    /*
+        Method Name: createNewHumanPlane
+        Method Parameters:
+            planeObj:
+                JSON Object with information about a plane
+        Method Description: Creates a new human plane, given an object describing it
+        Method Return: MultiplayerHumanFighterPlane
+    */
     static createNewHumanPlane(planeObj){
         // planeClass, scene, angle=0, facingRight=true
         let plane = new MultiplayerHumanFighterPlane(planeObj["plane_class"], scene);
         plane.update(planeObj);
         plane.setID(planeObj["id"]);
+        console.log("New plane", plane.isFacingRight(), planeObj)
         return plane;
     }
 
+    /*
+        Method Name: createNewEntities
+        Method Parameters:
+            state:
+                State of the dogfight including all entities
+        Method Description: Creates a list of entities based on information from the server state
+        Method Return: List of entities
+    */
     static createNewEntities(state){
         let entities = []; 
         for (let planeObj of state["planes"]){

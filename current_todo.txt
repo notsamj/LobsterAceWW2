@@ -1,17 +1,32 @@
-0.1. Fix axis planes facing right should face left!
-0.3. Why can my plane turn so fast (multiplayer?)
-0.4. Only freecam = crash in multiplayer
-0.5. Fix leaving and pause menu and stuff 
-0.6. Automatic disconnect in lobby and ingame when not responding!!!
-0.8. After end then 30s later you can join a new one?
-0.9. Error message on clinet like server is busy or something
-0.95. Ready button turns green
+0. Code cleanup
+0.25. Publish to github pages have a separate data thing that disabls the multiplayer butter also index.html with link to p5
+0.3. Is getEffectiveAngle and getShootingAngle the same???
+0.4. Move lots of stuff from fighterplane to plane
+0.5. Add a class that can measure the time to complete sections of code to find out which is the worst
+    E.g.
+    timer.create("name1")
+    timer.start()
+    // CODE
+    timer.end()
+    // Inside timer class
+    timeScores.append(end-start)
+    getMean() -> mean
+    getMedian() -> median
+    findWorstTimer() -> "name2" is the worst timer for mean, "name3" is the worst timer for median
+1. Make bombers
 2. Add sound as part of scene ex Explosion(500, 500) check focused entity proximity to know what sound to play
-3. Make after match stats like Bannerlord
-4. Make bombers
-5. Add difficulties to dogfight
-6. Make an escort bomber game mode
-7. Make ground soldier gamemode
-8. Make tank gamemode
-9. Support for variable canvas size (automatic)
-10. Make server take issue with invalid input and stuff
+4. Add difficulties to local dogfight
+5. Make an escort bomber game mode
+6. Make ground soldier gamemode
+7. Make tank gamemode
+8. Support for variable canvas size (automatic)
+
+Multiplayer Specific Ones
+1. Why can my plane turn so fast
+2. Only freecam = crash
+3. Fix leaving and pause menu and stuff 
+4. Automatic disconnect in lobby and ingame when not responding!!!
+5. After end then 30s later you can join a new one?
+6. Error message on clinet like server is busy or something
+7. Ready button turns green
+8. Make server take issue with invalid input and stuff

@@ -1,13 +1,29 @@
+/*
+    Class Name: MainMenu
+    Description: The main menu inferface
+*/
 class MainMenu extends Menu {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(){
         super();
         this.setup();
     }
 
+    /*
+        Method Name: setup
+        Method Parameters: None
+        Method Description: Setup components in the menu
+        Method Return: void
+    */
     setup(){
         let buttonSizeX = 800;
         let buttonSizeY = 120;
-        let buttonX = (fileData["constants"]["CANVAS_WIDTH"] - buttonSizeX)/2;
+        let buttonX = (FILE_DATA["constants"]["CANVAS_WIDTH"] - buttonSizeX)/2;
             
         // Background
         this.components.push(new StaticImage(images["clouds"], 0, 927));
@@ -21,8 +37,6 @@ class MainMenu extends Menu {
         // Multiplayer
         let multiplayerButtonY = 600;
         this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (instance) => {
-            //activeGameMode = await RemoteDogfight.create(new ServerConnection());
-            //menuManager.switchTo("game");
             menuManager.switchTo("multiplayer");
         }));
     }

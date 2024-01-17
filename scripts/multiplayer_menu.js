@@ -1,4 +1,15 @@
+/*
+    Class Name: MultiplayerMenu
+    Description: A subclass of Menu that is an interface for multiplayer.
+    Note: Much of this is copy and pasted from dogfight_menu. I neglected to extend the class because I am undecided of my vision for this menu.
+*/
 class MultiplayerMenu extends Menu {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(){
         super();
         this.planeCounts = {};
@@ -15,6 +26,12 @@ class MultiplayerMenu extends Menu {
         this.updateBotDetails();
     }
 
+    /*
+        Method Name: setup
+        Method Parameters: None
+        Method Description: Sets up the interface
+        Method Return: void
+    */
     setup(){
         let addRemoveButtonSize = 50;
 
@@ -169,12 +186,24 @@ class MultiplayerMenu extends Menu {
         
     }
 
+    /*
+        Method Name: switchPlanes
+        Method Parameters: None
+        Method Description: Switches between the actively shown planes
+        Method Return: void
+    */
     switchPlanes(){
         this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
         let planeName = this.userPlanes[this.userPlaneIndex];
         return images[planeName];
     }
 
+    /*
+        Method Name: switchAxisPlanes
+        Method Parameters: None
+        Method Description: Switches between the actively shown axis planes
+        Method Return: void
+    */
     switchAxisPlanes(){
         this.axisPlaneIndex = (this.axisPlaneIndex + 1) % this.axisPlanes.length;
         let planeName = this.axisPlanes[this.axisPlaneIndex];
@@ -182,6 +211,12 @@ class MultiplayerMenu extends Menu {
         return images[planeName];
     }
 
+    /*
+        Method Name: switchAlliedPlanes
+        Method Parameters: None
+        Method Description: Switches between the actively shown ally planes
+        Method Return: void
+    */
     switchAlliedPlanes(){
         this.alliedPlaneIndex = (this.alliedPlaneIndex + 1) % this.alliedPlanes.length;
         let planeName = this.alliedPlanes[this.alliedPlaneIndex];
@@ -189,17 +224,29 @@ class MultiplayerMenu extends Menu {
         return images[planeName];
     }
 
+    /*
+        Method Name: createUserPlaneSelection
+        Method Parameters: None
+        Method Description: Creates a list of planes for the user to choose between
+        Method Return: void
+    */
     createUserPlaneSelection(){
         let userPlanes = ["freecam"];
-        for (let [planeName, planeData] of Object.entries(fileData["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
             userPlanes.push(planeName);
         }
         return userPlanes;
     }
 
+    /*
+        Method Name: createAlliedPlaneSelection
+        Method Parameters: None
+        Method Description: Creates a list of ally planes for the user to choose between
+        Method Return: void
+    */
     createAlliedPlaneSelection(){
         let alliedPlanes = [];
-        for (let [planeName, planeData] of Object.entries(fileData["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
             if (planeModelToAlliance(planeName) == "Allies"){
                 alliedPlanes.push(planeName);
                 this.planeCounts[planeName] = 0;
@@ -208,9 +255,15 @@ class MultiplayerMenu extends Menu {
         return alliedPlanes;
     }
 
+    /*
+        Method Name: createAxisPlaneSelection
+        Method Parameters: None
+        Method Description: Creates a list of axis planes for the user to choose between
+        Method Return: void
+    */
     createAxisPlaneSelection(){
         let axisPlanes = [];
-        for (let [planeName, planeData] of Object.entries(fileData["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
             if (planeModelToAlliance(planeName) == "Axis"){
                 axisPlanes.push(planeName);
                 this.planeCounts[planeName] = 0;
@@ -219,6 +272,16 @@ class MultiplayerMenu extends Menu {
         return axisPlanes;
     }
 
+    /*
+        Method Name: modifyDisplayedBotPlaneCount
+        Method Parameters:
+            alliance:
+                Which alliance is gaining/losing plane count
+            amount:
+                How many (or negative) planes are added/removed from the count
+        Method Description: Modifies the counts of planes
+        Method Return: void
+    */
     modifyDisplayedBotPlaneCount(alliance, amount){
         let planeName = this.alliedPlanes[this.alliedPlaneIndex];
         if (alliance == "Axis"){
@@ -233,6 +296,12 @@ class MultiplayerMenu extends Menu {
         this.updateBotDetails();
     }
 
+    /*
+        Method Name: updateBotDetails
+        Method Parameters: None
+        Method Description: Modifies the displayed details about the number of bots
+        Method Return: void
+    */
     updateBotDetails(){
         let botDetailsText = "";
         let alliedDetails = [];
@@ -264,11 +333,22 @@ class MultiplayerMenu extends Menu {
         this.botDetailsComponent.setText(botDetailsText);
     }
 
+    /*
+        Method Name: goToGame
+        Method Parameters: None
+        Method Description: Switches from this menu to the game
+        Method Return: void
+    */
     goToGame(){
         menuManager.switchTo("game");
     }
 
-
+    /*
+        Method Name: goToMainMenu
+        Method Parameters: None
+        Method Description: Switches from this menu to the main menu
+        Method Return: void
+    */
     goToMainMenu(){
         menuManager.switchTo("main");
     }

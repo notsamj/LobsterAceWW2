@@ -1,13 +1,29 @@
+/*
+    Class Name: PauseMenu
+    Description: A subclass of Menu that provides the options to resume or go to main menu.
+*/
 class PauseMenu extends Menu {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(){
         super();
         this.setup();
     }
 
+    /*
+        Method Name: setup
+        Method Parameters: None
+        Method Description: Sets up the menu interface
+        Method Return: void
+    */
     setup(){
         let buttonSizeX = 800;
         let buttonSizeY = 120;
-        let buttonX = (fileData["constants"]["CANVAS_WIDTH"] - buttonSizeX)/2;
+        let buttonX = (FILE_DATA["constants"]["CANVAS_WIDTH"] - buttonSizeX)/2;
 
         // Resume
         let resumeButtonY = 800;
@@ -22,6 +38,13 @@ class PauseMenu extends Menu {
             activeGameMode = null;
         }));
     }
+
+    /*
+        Method Name: goToMainMenu
+        Method Parameters: None
+        Method Description: Switches from this menu to the main menu
+        Method Return: void
+    */
     goToMainMenu(){
         scene.disableDisplay();
         menuManager.switchTo("main");

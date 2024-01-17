@@ -2,8 +2,8 @@
 var scene;
 var menuManager;
 var setupDone = false;
-var frameCounter = new FrameRateCounter(fileData["constants"]["FRAME_RATE"]);
-var frameLock = new CooldownLock(Math.floor(1/fileData["constants"]["FRAME_RATE"]));
+var frameCounter = new FrameRateCounter(FILE_DATA["constants"]["FRAME_RATE"]);
+var frameLock = new CooldownLock(Math.floor(1/FILE_DATA["constants"]["FRAME_RATE"]));
 var activeGameMode = null;
 var loadedPercent = 0;
 var debug = false;
@@ -12,6 +12,12 @@ var runningTicksBehind = 0;
 
 // Functions
 
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Makes things happen within a tick
+        Method Return: void
+    */
 async function tick(){
     if (mainTickLock.notReady()){
         runningTicksBehind++;
@@ -35,66 +41,57 @@ async function tick(){
     mainTickLock.unlock();
 }
 
+/*
+    Method Name: loadExtraImages
+    Method Parameters: None
+    Method Description: Loads many images needed for the program.
+    Method Return: void
+*/
 async function loadExtraImages(){
-    for (let imageName of fileData["extra_images_to_load"]){
-        //console.log("Loading", imageName)
+    // Load generic extra images
+    for (let imageName of FILE_DATA["extra_images_to_load"]){
+        await loadToImages(imageName);
+    }
+
+    // Load all the smoke images
+    for (let imageName of FILE_DATA["smoke_images"]){
         await loadToImages(imageName);
     }
 }
 
+/*
+    Method Name: setup
+    Method Parameters: None
+    Method Description: Prepares the program.
+    Method Return: void
+*/
 async function setup() {
     // Create Canvas
-    createCanvas(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
+    createCanvas(FILE_DATA["constants"]["CANVAS_WIDTH"], FILE_DATA["constants"]["CANVAS_HEIGHT"]);
     frameRate(0);
 
     // Prepare to start running
     startTime = Date.now();
-    setInterval(tick, Math.floor(1000 / (fileData["constants"]["TICK_RATE"])));
+    setInterval(tick, Math.floor(1000 / (FILE_DATA["constants"]["TICK_RATE"])));
 
     await loadPlanes();
     await loadExtraImages();
 
 
     // Set up scene & menus
-    scene = new PlaneGameScene(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
-    menuManager = new MenuManager(fileData["constants"]["CANVAS_WIDTH"], fileData["constants"]["CANVAS_HEIGHT"]);
+    scene = new PlaneGameScene(FILE_DATA["constants"]["CANVAS_WIDTH"], FILE_DATA["constants"]["CANVAS_HEIGHT"]);
+    menuManager = new MenuManager(FILE_DATA["constants"]["CANVAS_WIDTH"], FILE_DATA["constants"]["CANVAS_HEIGHT"]);
     MenuManager.setupClickListener();
-    
-    
-    /*let fighterPlane = new HumanFighterPlane("hawker_sea_fury");
-    //fighterPlane.speed = 0;
-    //fighterPlane.throttle = 1;
-    fighterPlane.health = 9999;
-    //let fighterPlane = new BotFighterPlane("spitfire");
-    fighterPlane.setCenterX(10000);
-    fighterPlane.setCenterY(10000);
-
-    scene.addEntity(fighterPlane);*/
-
-    //let spectatorCamera = new SpectatorCamera();
-    //scene.addEntity(spectatorCamera);
-
-    // Testing
-    
-    /*
-    let botFighterPlane1 = new BotFighterPlane("spitfire", 0, true);
-    botFighterPlane1.setCenterX(10000);
-    botFighterPlane1.setCenterY(5000);
-    //botFighterPlane1.throttle = 1;
-   //botFighterPlane1.speed = 0;
-    botFighterPlane1.health = 50000;
-    botFighterPlane1.angle = 275;
-    scene.addEntity(botFighterPlane1);
-    */
-    
-
-    //createBots();
-
-    //scene.setFocusedEntity(Math.min(extraCount * 2, 0));
     
     setupDone = true;
 }
 
+/*
+    Method Name: draw
+    Method Parameters: None
+    Method Description: Draws everything needed on the canvas.
+    Method Return: void
+*/
 function draw() {
     clear();
     if (!setupDone){
@@ -109,46 +106,3 @@ function draw() {
     }
     menuManager.display();
 }
-
-function createBots(){
-    let focus = !scene.hasEntityFocused();
-    let allyX = fileData["test_bots"]["ally_spawn_x"];
-    let allyY = fileData["test_bots"]["ally_spawn_y"];
-
-    let axisX = fileData["test_bots"]["axis_spawn_x"];
-    let axisY = fileData["test_bots"]["axis_spawn_y"];
-    let total = 0;
-    for (let botClass of fileData["test_bots"]["active_bots"]){
-        total += botClass["count"];
-        let x = (countryToAlliance(fileData["plane_data"][botClass["plane"]]["country"] == "Allies")) ? allyX : axisX; 
-        let y = (countryToAlliance(fileData["plane_data"][botClass["plane"]]["country"] == "Allies")) ? allyY : axisY;
-        for (let i = 0; i < botClass["count"]; i++){
-            let aX = x + randomFloatBetween(-1 * fileData["test_bots"]["spawn_offset"], fileData["test_bots"]["spawn_offset"]);
-            let aY = y + randomFloatBetween(-1 * fileData["test_bots"]["spawn_offset"], fileData["test_bots"]["spawn_offset"]);
-            createBot(botClass["plane"], aX, aY);
-        }
-    }
-    if (focus){
-        scene.setFocusedEntity(randomNumberInclusive(0, total-1));
-    }
-}
-
-function createBot(model, x, y){
-    //console.log(model, x, y)
-    let botFighterPlane = BiasedBotFighterPlane.createBiasedPlane(model);
-    botFighterPlane.setCenterX(x);
-    botFighterPlane.setCenterY(y);
-    scene.addEntity(botFighterPlane);
-}
-
-function countAlliance(allianceName){
-    let count = 0;
-    for (let entity of scene.getEntities()){
-        if (entity instanceof FighterPlane && planeModelToAlliance(entity.getPlaneClass()) == allianceName){
-            count++;
-        }
-    }
-    return count;
-}
-
-// Start Up

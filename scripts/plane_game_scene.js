@@ -1,45 +1,101 @@
+// When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     Scene = require("../scripts/scene.js");
     TeamCombatManager = require("../scripts/team_combat_manager.js");
 }
+/*
+    Method Name: loadRotatedImages
+    Method Parameters:
+        name:
+           image name
+    Method Description: Loads all the images of a given plane.
+    Method Return: void
+    Note: This is a relic from when planes has 720 images. It should be redone.
+*/
 async function loadRotatedImages(name){
     images[name] = await loadLocalImage("images/" + name + "/" + name + ".png");
 }
 
+/*
+    Method Name: loadPlanes
+    Method Parameters: None
+    Method Description: Loads all the images of all planes.
+    Method Return: void
+    Note: This is a relic from when planes has 720 images and took a long time to load. It should be redone.
+*/
 async function loadPlanes(){
-    let numPlanes = Object.entries(fileData["plane_data"]).length;
+    let numPlanes = Object.entries(FILE_DATA["plane_data"]).length;
     let i = 0;
-    for (const [planeName, planeDetails] of Object.entries(fileData["plane_data"])) {
+    for (const [planeName, planeDetails] of Object.entries(FILE_DATA["plane_data"])) {
         loadedPercent = Math.round(i / numPlanes * 100);
         await loadRotatedImages(planeName);
         i += 1;
     }
 }
-
+/*
+    Class Name: PlaneGameScene
+    Description: A subclass of Scene. Specifically for the WW2 Plane Game.
+*/
 class PlaneGameScene extends Scene {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            width:
+                The width of the canvas
+            height:
+                The height of the canvas
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(width, height){
         super(width, height);
         this.collisionsEnabled = true;
-        this.teamCombatManager = new TeamCombatManager(fileData["teams"]);
+        this.teamCombatManager = new TeamCombatManager(FILE_DATA["teams"]);
     }
 
+    /*
+        Method Name: forceUpdatePlanes
+        Method Parameters:
+            listOfPlaneObjects:
+                A list of all the plane json objects providing information on plane stats
+        Method Description: Forcefully updates all the planes
+        Method Return: void
+    */
     forceUpdatePlanes(listOfPlaneObjects){
         this.teamCombatManager.forceUpdatePlanes(listOfPlaneObjects);
     }
 
+    /*
+        Method Name: enableCollisions
+        Method Parameters: None
+        Method Description: Set the property of collisions being enabled to true
+        Method Return: void
+    */
     enableCollisions(){
         this.collisionsEnabled = true;
     }
 
+    /*
+        Method Name: disableCollisions
+        Method Parameters: None
+        Method Description: Set the property of collisions being enabled to false
+        Method Return: void
+    */
     disableCollisions(){
         this.collisionsEnabled = false;
     }
     
+    /*
+        Method Name: getGoodToFollowEntities
+        Method Parameters: None
+        Method Description: Makes a list of all entities that are "good to follow" and return it
+        Method Return: Array of enities
+    */
     getGoodToFollowEntities(){
         let entities = this.getEntities();
         let followableEntities = [];
         
-        // Get followable entities
+        // Get followable entities (entities doesn't include planes at the moment)
         for (let [entity, entityIndex] of entities){
             if (entity.goodToFollow()){
                 followableEntities.push(entity);
@@ -51,14 +107,34 @@ class PlaneGameScene extends Scene {
         return followableEntities;
     }
 
+    /*
+        Method Name: getPlanes
+        Method Parameters: None
+        Method Description: Gets all the planes and returns them
+        Method Return: Array of planes
+    */
     getPlanes(){
         return this.teamCombatManager.getAllPlanes();
     }
 
+    /*
+        Method Name: getBullets
+        Method Parameters: None
+        Method Description: Gets all the bullets and returns them
+        Method Return: Array of bullets
+    */
     getBullets(){
         return this.teamCombatManager.getAllBullets(); 
     }
 
+    /*
+        Method Name: setEntities
+        Method Parameters:
+            entities:
+                A list of entities
+        Method Description: Removes all planes and adds a bunch of entities
+        Method Return: void
+    */
     setEntities(entities){
         this.teamCombatManager.clear();
         for (let entity of entities){
@@ -70,10 +146,27 @@ class PlaneGameScene extends Scene {
         }
     }
 
+    /*
+        Method Name: hasEntity
+        Method Parameters:
+            entityID:
+                The id of an entity
+        Method Description: Checks if an entity with the given id exists
+        Method Return: boolean, true -> has entity, false -> does not have the entity
+    */
     hasEntity(entityID){
         return this.getEntity(entityID) != null;
     }
 
+
+    /*
+        Method Name: getEntity
+        Method Parameters:
+            entityID:
+                The id of an entity
+        Method Description: Finds an entity if it exists
+        Method Return: Entity
+    */
     getEntity(entityID){
         for (let [entity, entityIndex] of this.entities){
             if (entity.getID() == entityID){
@@ -95,18 +188,48 @@ class PlaneGameScene extends Scene {
         return null;
     }
 
+    /*
+        Method Name: getFocusedEntity
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Entity
+    */
     getFocusedEntity(){
         return this.focusedEntity;
     }
 
+    /*
+        Method Name: addPlane
+        Method Parameters:
+            plane:
+                A plane object
+        Method Description: Adds a plane to the scene
+        Method Return: void
+    */
     addPlane(plane){
         this.teamCombatManager.addPlane(plane);
     }
 
+    /*
+        Method Name: addBullet
+        Method Parameters:
+            bullet:
+                A bullet object
+        Method Description: Adds a bullet to the scene
+        Method Return: void
+    */
     addBullet(bullet){
         this.teamCombatManager.addBullet(bullet);
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiff:
+                Time between ticks
+        Method Description: Makes things happen within a tick
+        Method Return: void
+    */
     async tick(timeDiff){
         if (!this.ticksEnabled){ return; }
         for (let [entity, entityIndex] of this.entities){
@@ -115,10 +238,23 @@ class PlaneGameScene extends Scene {
         await this.teamCombatManager.tick(timeDiff);
     }
 
+    /*
+        Method Name: getNumberOfEntities
+        Method Parameters: None
+        Method Description: Determines the number of entities that exist
+        Method Return: int
+        Note: May not count freecam and in the future may need modification
+    */
     getNumberOfEntities(){
         return this.teamCombatManager.getNumberOfEntities();
     }
 
+    /*
+        Method Name: displayHUD
+        Method Parameters: None
+        Method Description: Displays the HUD on the screen
+        Method Return: void
+    */
     displayHUD(){
         let x = 0;
         let y = 0;
@@ -161,10 +297,20 @@ class PlaneGameScene extends Scene {
         }
     }
     
+    /*
+        Method Name: displayBackground
+        Method Parameters:
+            lX:
+                The lower x bound of the canvas relative to the focused entity (if exists)
+            bY:
+                The lower y bound of the canvas relative to the focused entity (if exists)
+        Method Description: Displays background on the screen
+        Method Return: void
+    */
     displayBackground(lX, bY){
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
-        let groundImage = images[fileData["background"]["ground"]["picture"]];
+        let groundImage = images[FILE_DATA["background"]["ground"]["picture"]];
         let groundImageHeight = groundImage.height;
         let groundImageWidth = groundImage.width;
         // If displaying ground
@@ -195,7 +341,7 @@ class PlaneGameScene extends Scene {
             }
         }
         // Display above ground
-        let aboveGroundImage = images[fileData["background"]["above_ground"]["picture"]];
+        let aboveGroundImage = images[FILE_DATA["background"]["above_ground"]["picture"]];
         let aboveGroundHeight = aboveGroundImage.height;
         let aboveGroundWidth = aboveGroundImage.width;
         // If screen contains the above ground range
@@ -217,7 +363,7 @@ class PlaneGameScene extends Scene {
 
         // Display sky
         if (bYP + this.height > aboveGroundHeight){
-            let skyImage = images[fileData["background"]["sky"]["picture"]];
+            let skyImage = images[FILE_DATA["background"]["sky"]["picture"]];
             let skyHeight = skyImage.height;
             let skyWidth = skyImage.width;
             let skyImageOffsetY = (bYP-aboveGroundHeight) % skyHeight;
@@ -252,6 +398,12 @@ class PlaneGameScene extends Scene {
 
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays the whole scene on the screen
+        Method Return: void
+    */
     display(){
         if (!this.displayEnabled){ return; }
         let lX = 0; // Bottom left x
@@ -271,13 +423,76 @@ class PlaneGameScene extends Scene {
         }
         this.displayHUD();
     }
+    
+    /*
+        Method Name: displayEntity
+        Method Parameters:
+            entity:
+                The entity to display
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+        Method Description: Displays an entity on the screen (if it is within the bounds)
+        Method Return: void
+    */
+    displayEntity(entity, lX, bY){
+        let rX = lX + this.width - 1;
+        let tY = bY + this.height - 1;
+        // Is on screen
+        if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
+        let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);
+        let displayY = this.getDisplayY(entity.getCenterY(), entity.getHeight(), bY);
+        if (entity.isDead()){
+            drawingContext.drawImage(images["explosion"], displayX, displayY); 
+            return; 
+        }
 
+        if (entity instanceof FighterPlane){
+            let rotateX = displayX + entity.getWidth() / 2;
+            let rotateY = displayY + entity.getHeight() / 2;
+            translate(rotateX, rotateY);
+            rotate(-1 * toRadians(entity.getAngle()));
+            if (!entity.isFacingRight()){
+                scale(-1, 1);
+            }
+            drawingContext.drawImage(entity.getImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
+            if (!entity.isFacingRight()){
+                scale(-1, 1);
+            }
+            rotate(toRadians(entity.getAngle()));
+            translate(-1 * rotateX, -1 * rotateY);
+
+            if (entity.isSmoking()){
+                translate(rotateX, rotateY);
+                rotate(-1 * toRadians(entity.getAngle()));
+                if (!entity.isFacingRight()){
+                    scale(-1, 1);
+                }
+                drawingContext.drawImage(entity.getSmokeImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
+                if (!entity.isFacingRight()){
+                    scale(-1, 1);
+                }
+                rotate(toRadians(entity.getAngle()));
+                translate(-1 * rotateX, -1 * rotateY);
+            }
+        }else{
+            drawingContext.drawImage(entity.getImage(), displayX, displayY); 
+        }
+    }
+    /*
+        Method Name: enable
+        Method Parameters: None
+        Method Description: Enables every aspect of the scene
+        Method Return: void
+    */
     enable(){
         this.enableTicks();
         this.enableDisplay();
         this.enableCollisions();
     }
 }
+// If using NodeJS then export the class
 if (typeof window === "undefined"){
     module.exports = PlaneGameScene;
 }

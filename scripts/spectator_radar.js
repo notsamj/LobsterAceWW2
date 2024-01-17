@@ -1,9 +1,27 @@
-class SpectatorRadar extends Radar{
+/*
+    Class Name: PlaneRadar
+    Description: A subclass of Radar. Specifically for the Spectator Camera.
+*/
+class SpectatorRadar extends Radar {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            entity:
+                The spectator camera entity
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(entity){
         super(entity);
         this.friendlyBlip = images["radar_blip_friendly"];
     }
 
+    /*
+        Method Name: update
+        Method Parameters: None
+        Method Description: Updates the radar
+        Method Return: void
+    */
     update(){
         this.radarData = this.resetRadar();
         for (let entity of scene.getPlanes()){
@@ -11,6 +29,19 @@ class SpectatorRadar extends Radar{
         }
     }
 
+    /*
+        Method Name: placeOnRadar
+        Method Parameters:
+            enemyX:
+                The x location of an enemy
+            enemeyY:
+                The y location of an enemy
+            value:
+                1 for ally plane, -1 for axis
+
+        Method Description: Places a plane on the radar
+        Method Return: void
+    */
     placeOnRadar(enemyX, enemyY, value){
         let myX = this.entity.getX();
         let myY = this.entity.getY();
@@ -27,6 +58,12 @@ class SpectatorRadar extends Radar{
         }
     }
 
+    /*
+        Method Name: resetRadar
+        Method Parameters: None
+        Method Description: Resets the radar
+        Method Return: void
+    */
     resetRadar(){
         let array2D = [];
         for (let i = 0; i < this.size; i++){
@@ -39,6 +76,12 @@ class SpectatorRadar extends Radar{
         return array2D;
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays the radar on the screen
+        Method Return: void
+    */
     display(){
         drawingContext.drawImage(this.radarOutline, this.screenX, this.screenY);
         let borderWidth = 2;
@@ -51,6 +94,5 @@ class SpectatorRadar extends Radar{
                 }
             }
         }
-        //drawingContext.drawImage(this.friendlyBlip, this.screenX + borderWidth + (this.size / 2 - 2) * this.blipSize, this.screenY + borderWidth + (this.size / 2 - 2) * this.blipSize);
     }
 }

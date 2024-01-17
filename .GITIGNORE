@@ -1,1 +1,9 @@
 .ipynb_checkpoints
+./images/not-active
+server
+sounds
+Python
+./scripts/server_connection.js
+./scripts/remote_dogfight.js
+*.txt
+test.html
