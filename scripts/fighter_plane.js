@@ -344,6 +344,20 @@ class FighterPlane extends Plane {
         }
 
         this.x += this.getXVelocity() * timeProportion;
+        this.checkHitGround();
+    }
+
+    /*
+        Method Name: checkHitGround
+        Method Parameters: None
+        Method Description: Check if hit the ground, if so -> die
+        Method Return: void
+    */
+    checkHitGround(){
+        // If hit the ground
+        if (this.y - this.hitBox.getRadius() <= 0){
+            this.die();
+        }
     }
 
     /*
