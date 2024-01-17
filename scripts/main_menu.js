@@ -34,6 +34,11 @@ class MainMenu extends Menu {
             menuManager.switchTo("dogfight");
         }));
 
+        // Do not set up the multiplayer button if its disabled
+        if (FILE_DATA["constants"]["MULTIPLAYER_DISABLED"]){
+            return;
+        }
+
         // Multiplayer
         let multiplayerButtonY = 600;
         this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (instance) => {

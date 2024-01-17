@@ -105,7 +105,8 @@ var FILE_DATA = {
         "MAX_BULLETS": 2000,
         "SAVED_TICKS": 500,
         "KEEP_ALIVE_INTERVAL": 5000,
-        "TIME_TO_READY_UP": 5000 // 5000
+        "TIME_TO_READY_UP": 5000, // 5000
+        "MULTIPLAYER_DISABLED": false
     },
 
     "ai": {
