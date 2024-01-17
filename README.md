@@ -1,5 +1,7 @@
 ## Controls
 
+### Escape (Press): Open pause menu
+
 ## Spectator Camera (General)
 
 ### f (Press): Toggle between freely moving and focusing on a plane
@@ -28,5 +30,3 @@
 
 ### a (Press): Sharp turn left
 ### d (Press): Sharp turn right
-
-### Escape (Press): Open pause menu
