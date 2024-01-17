@@ -2,7 +2,7 @@
 
 ## Spectator Camera (General)
 
-### F (Press): Toggle between freely moving and focusing on a plane
+### f (Press): Toggle between freely moving and focusing on a plane
 
 ## Spectator Camera (While focused)
 
