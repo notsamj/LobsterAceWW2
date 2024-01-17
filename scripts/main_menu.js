@@ -34,6 +34,12 @@ class MainMenu extends Menu {
             menuManager.switchTo("dogfight");
         }));
 
+        // Information
+        let infoY = 400;
+        let infoXSize = FILE_DATA["constants"]["CANVAS_WIDTH"];
+        let infoYSize = 300;
+        this.components.push(new TextComponent("For controls, see: https://github.com/notsamj/WW2PlaneGame/", "black", 0, infoY, infoXSize, infoYSize));
+
         // Do not set up the multiplayer button if its disabled
         if (FILE_DATA["constants"]["MULTIPLAYER_DISABLED"]){
             return;
