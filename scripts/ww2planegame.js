@@ -9,7 +9,7 @@ var loadedPercent = 0;
 var debug = false;
 var mainTickLock = new Lock();
 var runningTicksBehind = 0;
-
+var performanceTimer = new PerformanceTimer();
 // Functions
 
     /*

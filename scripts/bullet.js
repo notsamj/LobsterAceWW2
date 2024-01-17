@@ -241,8 +241,7 @@ class Bullet extends Entity {
         if (bMinY > oMaxY){ return false; }
         if (bMaxX < oMinX){ return false; }
         if (bMaxY < oMinY){ return false; }
-        //console.log("Checking interpolation")
-        let infiniteLoopFinder = new InfiniteLoopFinder(10000, "bulletCollision");
+
         // Loop from start position to end position
         while (lessThanEQDir(bX, bEndX, bXV) && lessThanEQDir(bY, bEndY, bYV) && lessThanEQDir(oX, oEndX, oXV) && lessThanEQDir(oY, oEndY, oYV)){
             // Determine time or next pixel for either object
@@ -266,7 +265,6 @@ class Bullet extends Entity {
             if (bHitbox.collidesWith(oHitbox)){
                 return true;
             }
-            infiniteLoopFinder.count();
         }
         return false;
     }
