@@ -1,1 +1,0 @@
-C:\Users\samyo\anaconda3\python.exe C:\Users\samyo\anaconda3\cwp.py C:\Users\samyo\anaconda3 C:\Users\samyo\anaconda3\python.exe C:\Users\samyo\anaconda3\Scripts\jupyter-notebook-script.py "%cd%"

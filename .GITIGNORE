@@ -1,6 +1,7 @@
 .ipynb_checkpoints
 ./images/not-active
 server
+server/node_modules
 sounds
 Python
 ./scripts/server_connection.js
