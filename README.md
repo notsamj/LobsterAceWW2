@@ -22,8 +22,8 @@
 
 ### Space (Hold): Shoot
 
-### r (Hold): Increase throttle (to max 100)
-### f (Hold): Decrease throttle (to minimum 0)
+### r (Hold): Increase throttle
+### f (Hold): Decrease throttle
 
 ### w (Hold): Rotate clockwise
 ### s (Hold): Rotate counter clockwise
