@@ -164,16 +164,16 @@ class DogfightMenu extends Menu {
         }));
 
         // Bot Details Section
-        let botHeaderX = 1500;
+        let botHeaderX = 1300;
         let botHeaderY = 900;
-        let botHeaderXSize = 200;
-        let botHeaderYSize = 100;
+        let botHeaderXSize = 700;
+        let botHeaderYSize = 150;
         this.components.push(new TextComponent("Bot Details", "#000000", botHeaderX, axisHeaderY, botHeaderXSize, botHeaderYSize));
 
         let botBodyX = botHeaderX;
         let botBodyY = botHeaderY - botHeaderYSize;
-        let botBodyXSize = 400;
-        let botBodyYSize = 800;
+        let botBodyXSize = botHeaderXSize;
+        let botBodyYSize = FILE_DATA["constants"]["CANVAS_HEIGHT"] - startButtonYSize - botHeaderYSize - [this.userPlanes.length-1]*25;
         this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
         this.components.push(this.botDetailsComponent);
         
