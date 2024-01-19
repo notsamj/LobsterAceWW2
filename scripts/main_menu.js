@@ -38,7 +38,7 @@ class MainMenu extends Menu {
         let infoY = 400;
         let infoXSize = FILE_DATA["constants"]["CANVAS_WIDTH"];
         let infoYSize = 300;
-        this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.", "black", 0, infoY, infoXSize, infoYSize));
+        this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.\nScroll down for controls.", "black", 0, infoY, infoXSize, infoYSize));
 
         // Do not set up the multiplayer button if its disabled
         if (FILE_DATA["constants"]["MULTIPLAYER_DISABLED"]){
