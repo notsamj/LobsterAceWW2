@@ -51,22 +51,26 @@ async function loadToImages(imageName, type=".png"){
 class Scene {
     /*
         Method Name: constructor
-        Method Parameters:
-            width:
-                The width of the canvas
-            height:
-                The height of the canvas
+        Method Parameters: None
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(width, height){
-        this.width = width;
-        this.height = height;
+    constructor(){
         this.nextEntityID = 0;
         this.entities = new NotSamLinkedList();
         this.focusedEntity = null;
         this.ticksEnabled = false;
         this.displayEnabled = false;
+    }
+
+    // TODO: Comments
+    getWidth(){
+        return window.innerWidth;
+    }
+
+    // TODO: Comments
+    getHeight(){
+        return window.innerHeight;
     }
 
     /*
@@ -93,8 +97,8 @@ class Scene {
         // If 
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
-            lX = focusedEntity.getCenterX() - (this.width) / 2;
-            bY = focusedEntity.getCenterY() - (this.height) / 2;
+            lX = focusedEntity.getCenterX() - (this.getWidth()) / 2;
+            bY = focusedEntity.getCenterY() - (this.getHeight()) / 2;
         }
         this.displayBackground(lX, bY);
         for (let [entity, entityIndex] of this.entities){
@@ -143,7 +147,7 @@ class Scene {
         Method Return: float
     */
     changeToScreenY(y){
-        return this.height - y;
+        return this.getHeight() - y;
     }
 
     /*
@@ -207,8 +211,8 @@ class Scene {
     */
     displayEntity(entity, lX, bY){
         if (entity.isDead()){ return; }
-        let rX = lX + this.width - 1;
-        let tY = bY + this.height - 1;
+        let rX = lX + this.getWidth() - 1;
+        let tY = bY + this.getHeight() - 1;
         // Is on screen
         if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
         let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);

@@ -14,6 +14,16 @@ class Menu {
         this.components = [];
     }
 
+    // TODO: Comments
+    getWidth(){
+        return window.innerWidth;
+    }
+
+    // TODO: Comments
+    getHeight(){
+        return window.innerHeight;
+    }
+
     /*
         Method Name: makeRectangleWithText
         Method Parameters:

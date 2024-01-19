@@ -31,6 +31,16 @@ class TextComponent extends Component {
         this.height = height;
     }
 
+    // TODO: Comments
+    getX(){
+        return this.x(window.innerWidth);
+    }
+
+    // TODO: Comments
+    getY(){
+        return this.y(window.innerHeight);
+    }
+
     /*
         Method Name: display
         Method Parameters: None
@@ -39,7 +49,7 @@ class TextComponent extends Component {
     */
     display(){
         if (!this.enabled){ return; }
-        Menu.makeText(this.textStr, this.textColour, this.x, this.y, this.width, this.height);
+        Menu.makeText(this.textStr, this.textColour, this.getX(), this.getY(), this.width, this.height);
     }
 
     /*

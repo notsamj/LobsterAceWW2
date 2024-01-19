@@ -92,8 +92,8 @@ var FILE_DATA = {
         "MAX_THROTTLE": 100,
         "FALL_SPEED": 200,
         "SLOW_DOWN_AMOUNT": 0.1,
-        "CANVAS_WIDTH": 1920,
-        "CANVAS_HEIGHT": 927,
+        "EXPECTED_CANVAS_WIDTH": 1920,
+        "EXPECTED_CANVAS_HEIGHT": 927,
         "FRAME_RATE": 60,
         "TICK_RATE": 100, // 100
         "MS_BETWEEN_TICKS": 10, // 10

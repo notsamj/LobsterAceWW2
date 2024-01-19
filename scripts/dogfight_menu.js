@@ -35,19 +35,19 @@ class DogfightMenu extends Menu {
         let addRemoveButtonSize = 50;
 
         // Background
-        this.components.push(new StaticImage(images["clouds"], 0, 927));
+        this.components.push(new StaticImage(images["clouds"], () => { return 0; }, (innerHeight) => { return innerHeight; }));
 
-        let backButtonX = 50;
-        let backButtonY = 900;
+        let backButtonX = () => { return 50; }
+        let backButtonY = (innerHeight) => { return innerHeight-27; }
         let backButtonXSize = 200;
         let backButtonYSize = 76;
         this.components.push(new RectangleButton("Main Menu", "#3bc44b", "#e6f5f4", backButtonX, backButtonY, backButtonXSize, backButtonYSize, (instance) => {
             instance.goToMainMenu();
         }));
 
-        let startButtonX = 50;
-        let startButtonY = 200;
-        let startButtonXSize = 1920-50*2;
+        let startButtonX = () => { return 50; }
+        let startButtonY = () => { return 200; }
+        let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
             activeGameMode = new LocalDogfight(this.getFighterPlanes());
@@ -56,14 +56,14 @@ class DogfightMenu extends Menu {
 
         // User Section
 
-        let userHeaderX = 300;
-        let userHeaderY = 900;
+        let userHeaderX = () => { return 300; }
+        let userHeaderY = (innerHeight) => { return innerHeight - 27; }
         let userHeaderXSize = 200;
         let userHeaderYSize = 100;
         this.components.push(new TextComponent("User", "#4b42f5", userHeaderX, userHeaderY, userHeaderXSize, userHeaderYSize));
 
-        let userPlaneX = 350;
-        let userPlaneScreenY = 800;
+        let userPlaneX = () => { return 350; };
+        let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
         let userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
         userPlane.setOnClick(() => {
             userPlane.setImage(this.switchPlanes()); 
@@ -71,109 +71,109 @@ class DogfightMenu extends Menu {
         this.components.push(userPlane);
 
         // Allied Section
-        let alliesHeaderX = 600;
-        let alliesHeaderY = 900;
+        let alliesHeaderX = () => { return 600; }
+        let alliesHeaderY = (innerHeight) => { return innerHeight - 27; }
         let alliesHeaderXSize = 270;
         let alliesHeaderYSize = 100;
         this.components.push(new TextComponent("Allies", "#f5d442", alliesHeaderX, alliesHeaderY, alliesHeaderXSize, alliesHeaderYSize));
 
-        let alliedPlaneX = 650;
-        let alliedPlaneScreenY = 800;
+        let alliedPlaneX = () => { return 650; }
+        let alliedPlaneScreenY = (innerHeight) => { return innerHeight - 127; };
         let alliedPlane = new StaticImage(images[this.alliedPlanes[0]], alliedPlaneX, alliedPlaneScreenY);
         alliedPlane.setOnClick(() => {
             alliedPlane.setImage(this.switchAlliedPlanes()); 
         });
         this.components.push(alliedPlane);
 
-        let alliedMinus5ButtonX = alliesHeaderX;
-        let alliedMinute5ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
+        let alliedMinus5ButtonX = (innerWidth) => { return alliesHeaderX(innerWidth); }
+        let alliedMinute5ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); };
         this.components.push(new RectangleButton("-5", "#f5d442", "#e6f5f4", alliedMinus5ButtonX, alliedMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", -5);
         }));
 
-        let alliedMinus1ButtonX = alliedMinus5ButtonX + addRemoveButtonSize;
-        let alliedMinus1ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
+        let alliedMinus1ButtonX = (innerWidth) => { return alliedMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
+        let alliedMinus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
         this.components.push(new RectangleButton("-1", "#f5d442", "#e6f5f4", alliedMinus1ButtonX, alliedMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", -1);
         }));
 
-        let alliedCurrentCountTextX = alliedMinus1ButtonX + addRemoveButtonSize;
-        let alliedCurrentCountTextY = alliedPlaneScreenY - alliedPlane.getHeight();
+        let alliedCurrentCountTextX = (innerWidth) => { return alliedMinus1ButtonX(innerWidth) + addRemoveButtonSize; }
+        let alliedCurrentCountTextY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
         let alliedCurrentCountTextXSize = 50;
         let alliedCurrentCountTextYSize = 50;
         this.currentAlliedPlaneCountComponent = new TextComponent("0", "#f5d442", alliedCurrentCountTextX, alliedCurrentCountTextY, alliedCurrentCountTextXSize, alliedCurrentCountTextYSize);
         this.components.push(this.currentAlliedPlaneCountComponent);
 
-        let alliedPlus1ButtonX = alliedCurrentCountTextX + alliedCurrentCountTextXSize;
-        let alliedPlus1ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
+        let alliedPlus1ButtonX = (innerWidth) => { return alliedCurrentCountTextX(innerWidth) + alliedCurrentCountTextXSize; }
+        let alliedPlus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
         this.components.push(new RectangleButton("+1", "#f5d442", "#e6f5f4", alliedPlus1ButtonX, alliedPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", 1);
         }));
 
-        let alliedPlus5ButtonX = alliedPlus1ButtonX + addRemoveButtonSize;
-        let alliedPlus5ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
+        let alliedPlus5ButtonX = (innerWidth) => { return alliedPlus1ButtonX(innerWidth) + addRemoveButtonSize; }
+        let alliedPlus5ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
         this.components.push(new RectangleButton("+5", "#f5d442", "#e6f5f4", alliedPlus5ButtonX, alliedPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", 5);
         }));
 
         // Axis Section
-        let axisHeaderX = 900;
-        let axisHeaderY = 900;
+        let axisHeaderX = () => { return 900; }
+        let axisHeaderY = (innerHeight) => { return innerHeight - 27; }
         let axisHeaderXSize = 200;
         let axisHeaderYSize = 100;
         this.components.push(new TextComponent("Axis", "#8427db", axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize));
 
 
-        let axisPlaneX = 950;
-        let axisPlaneScreenY = 800;
+        let axisPlaneX = () => { return 950; }
+        let axisPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
         let axisPlane = new StaticImage(images[this.axisPlanes[0]], axisPlaneX, axisPlaneScreenY);
         axisPlane.setOnClick(() => {
             axisPlane.setImage(this.switchAxisPlanes()); 
         });
         this.components.push(axisPlane);
 
-        let axisMinus5ButtonX = axisHeaderX;
-        let axisMinute5ButtonY = axisPlaneScreenY - axisPlane.getHeight();
+        let axisMinus5ButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
+        let axisMinute5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
         this.components.push(new RectangleButton("-5", "#8427db", "#e6f5f4", axisMinus5ButtonX, axisMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -5);
         }));
 
-        let axisMinus1ButtonX = axisMinus5ButtonX + addRemoveButtonSize;
-        let axisMinus1ButtonY = axisPlaneScreenY - axisPlane.getHeight();
+        let axisMinus1ButtonX = (innerWidth) => { return axisMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
+        let axisMinus1ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
         this.components.push(new RectangleButton("-1", "#8427db", "#e6f5f4", axisMinus1ButtonX, axisMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -1);
         }));
 
-        let axisCurrentCountTextX = axisMinus1ButtonX + addRemoveButtonSize;
-        let axisCurrentCountTextY = axisPlaneScreenY - axisPlane.getHeight();
+        let axisCurrentCountTextX = (innerWidth) => { return axisMinus1ButtonX(innerWidth) + addRemoveButtonSize; }
+        let axisCurrentCountTextY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
         let axisCurrentCountTextXSize = 50;
         let axisCurrentCountTextYSize = 50;
         this.currentAxisPlaneCountComponent = new TextComponent("0", "#8427db", axisCurrentCountTextX, axisCurrentCountTextY, axisCurrentCountTextXSize, axisCurrentCountTextYSize);
         this.components.push(this.currentAxisPlaneCountComponent);
 
-        let axisPlus1ButtonX = axisCurrentCountTextX + axisCurrentCountTextXSize;
-        let axisPlus1ButtonY = axisPlaneScreenY - axisPlane.getHeight();
+        let axisPlus1ButtonX = (innerWidth) => { return axisCurrentCountTextX(innerWidth) + axisCurrentCountTextXSize; }
+        let axisPlus1ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
         this.components.push(new RectangleButton("+1", "#8427db", "#e6f5f4", axisPlus1ButtonX, axisPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", 1);
         }));
 
-        let axisPlus5ButtonX = axisPlus1ButtonX + addRemoveButtonSize;
-        let axisPlus5ButtonY = axisPlaneScreenY - axisPlane.getHeight();
+        let axisPlus5ButtonX = (innerWidth) => { return axisPlus1ButtonX(innerWidth) + addRemoveButtonSize; }
+        let axisPlus5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
         this.components.push(new RectangleButton("+5", "#8427db", "#e6f5f4", axisPlus5ButtonX, axisPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", 5);
         }));
 
         // Bot Details Section
-        let botHeaderX = 1300;
-        let botHeaderY = 900;
+        let botHeaderX = (innerWidth) => { return 1000; }
+        let botHeaderY = (innerHeight) => { return innerHeight-27; }
         let botHeaderXSize = 700;
         let botHeaderYSize = 150;
         this.components.push(new TextComponent("Bot Details", "#000000", botHeaderX, axisHeaderY, botHeaderXSize, botHeaderYSize));
 
-        let botBodyX = botHeaderX;
-        let botBodyY = botHeaderY - botHeaderYSize;
+        let botBodyX = (innerWidth) => { return botHeaderX(innerWidth); }
+        let botBodyY = (innerHeight) => { return botHeaderY(innerHeight) - botHeaderYSize; }
         let botBodyXSize = botHeaderXSize;
-        let botBodyYSize = FILE_DATA["constants"]["CANVAS_HEIGHT"] - startButtonYSize - botHeaderYSize - [this.userPlanes.length-1]*25;
+        let botBodyYSize = FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] - startButtonYSize - botHeaderYSize - [this.userPlanes.length-1]*25;
         this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
         this.components.push(this.botDetailsComponent);
         
@@ -332,7 +332,7 @@ class DogfightMenu extends Menu {
         for (let [planeName, planeCount] of axisDetails){
             botDetailsText += planeName + ": " + planeCount.toString() + "\n";
         }
-        this.botDetailsComponent.setText(botDetailsText);
+        this.botDetailsComponent.setText("\n" + botDetailsText);
     }
 
     /*

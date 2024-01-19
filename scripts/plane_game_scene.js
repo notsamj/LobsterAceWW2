@@ -39,16 +39,12 @@ async function loadPlanes(){
 class PlaneGameScene extends Scene {
     /*
         Method Name: constructor
-        Method Parameters:
-            width:
-                The width of the canvas
-            height:
-                The height of the canvas
+        Method Parameters: None
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(width, height){
-        super(width, height);
+    constructor(){
+        super();
         this.collisionsEnabled = true;
         this.teamCombatManager = new TeamCombatManager(FILE_DATA["teams"]);
     }
@@ -334,7 +330,7 @@ class PlaneGameScene extends Scene {
 
             // Display ground images
             for (let y = bottomDisplayGroundY; y <= 0; y += groundImageHeight){
-                for (let x = bottomDisplayGroundX; x < this.width + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
+                for (let x = bottomDisplayGroundX; x < this.getWidth() + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
                     let displayX = x-lXP;
                     drawingContext.drawImage(groundImage, displayX, this.getDisplayY(0, 0, bYP));
                 }
@@ -355,14 +351,14 @@ class PlaneGameScene extends Scene {
             }
             bottomDisplayAboveGroundX += aboveGroundWidth;
             // Display along the screen
-            for (let x = bottomDisplayAboveGroundX; x < this.width + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
+            for (let x = bottomDisplayAboveGroundX; x < this.getWidth() + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
                 let displayX = x-lXP;
                 drawingContext.drawImage(aboveGroundImage, displayX, this.getDisplayY(aboveGroundHeight, 0, bYP));
             }
         }
 
         // Display sky
-        if (bYP + this.height > aboveGroundHeight){
+        if (bYP + this.getHeight() > aboveGroundHeight){
             let skyImage = images[FILE_DATA["background"]["sky"]["picture"]];
             let skyHeight = skyImage.height;
             let skyWidth = skyImage.width;
@@ -386,14 +382,13 @@ class PlaneGameScene extends Scene {
             }
             // Add once more to get back to top left corner
             // Display ground images
-            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + this.height + skyHeight; y += skyHeight){
-                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.width + skyWidth; x += skyWidth){
+            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + this.getHeight() + skyHeight; y += skyHeight){
+                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.getWidth() + skyWidth; x += skyWidth){
                     //let displayY = y-bYP;
                     let displayX = x-lXP;
                     drawingContext.drawImage(skyImage, displayX, this.getDisplayY(y, 0, bYP));
                 }
             }
-            //console.log(iC, bYP, skyImageOffsetY, bottomDisplaySkyY, skyHeight + aboveGroundHeight)
         }
 
     }
@@ -413,8 +408,8 @@ class PlaneGameScene extends Scene {
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
             //debugger
-            lX = focusedEntity.getCenterX() - (this.width) / 2;
-            bY = focusedEntity.getCenterY() - (this.height) / 2;
+            lX = focusedEntity.getCenterX() - (this.getWidth()) / 2;
+            bY = focusedEntity.getCenterY() - (this.getHeight()) / 2;
         }
         this.displayBackground(lX, bY);
         this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1);
@@ -437,8 +432,8 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     displayEntity(entity, lX, bY){
-        let rX = lX + this.width - 1;
-        let tY = bY + this.height - 1;
+        let rX = lX + this.getWidth() - 1;
+        let tY = bY + this.getHeight() - 1;
         // Is on screen
         if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
         let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);
