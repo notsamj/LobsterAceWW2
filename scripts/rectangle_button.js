@@ -13,13 +13,13 @@ class RectangleButton extends Component {
             textColour:
                 The colour of the text insid the rectangle
             x:
-                The x location of the top left of the rectangle
+                The x location of the top left of the rectangle or a function that returns the x given the screen width
             y:
-                The y location of the top left of the rectangle
+                The y location of the top left of the rectangle or a function that returns the y given the screen height
             width:
-                The width of the rectangle
+                The width of the rectangle or a function that returns the width given the screen width
             height:
-                The height of the rectangle
+                The height of the rectangle or a function that returns the height given the screen height
             callBack:
                 Function to call when clicked on
         Method Description: Constructor
@@ -39,12 +39,38 @@ class RectangleButton extends Component {
 
     // TODO: Comments
     getX(){
-        return this.x(window.innerWidth);
+        if (typeof this.x === "function"){
+            return this.x(window.innerWidth);
+        }else{
+            return this.x;
+        }
     }
 
     // TODO: Comments
     getY(){
-        return this.y(window.innerHeight);
+        if (typeof this.y === "function"){
+            return this.y(window.innerHeight);
+        }else{
+            return this.y;
+        }
+    }
+
+    // TODO: Comments
+    getWidth(){
+        if (typeof this.width === "function"){
+            return this.width(window.innerWidth);
+        }else{
+            return this.width;
+        }
+    }
+
+    // TODO: Comments
+    getHeight(){
+        if (typeof this.height === "function"){
+            return this.height(window.innerHeight);
+        }else{
+            return this.height;
+        }
     }
 
     /*
@@ -55,7 +81,7 @@ class RectangleButton extends Component {
     */
     display(){
         //console.log("Displaying @", this.getX(), this.getY())
-        Menu.makeRectangleWithText(this.textStr, this.colour, this.textColour, this.getX(), this.getY(), this.width, this.height);
+        Menu.makeRectangleWithText(this.textStr, this.colour, this.textColour, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     /*
@@ -69,7 +95,7 @@ class RectangleButton extends Component {
         Method Return: boolean, true -> covers, false -> does not cover
     */
     covers(x, y){
-        return x >= this.getX() && x <= this.getX() + this.width && y <= this.getY() && y >= this.getY() - this.height;
+        return x >= this.getX() && x <= this.getX() + this.getWidth() && y <= this.getY() && y >= this.getY() - this.getHeight();
     }
 
     /*

@@ -47,7 +47,8 @@ class DogfightMenu extends Menu {
 
         let startButtonX = () => { return 50; }
         let startButtonY = () => { return 200; }
-        let startButtonXSize = FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"]-50*2;
+       // let startButtonXSize = FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"] - 50*2; 
+        let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
             activeGameMode = new LocalDogfight(this.getFighterPlanes());
@@ -332,7 +333,7 @@ class DogfightMenu extends Menu {
         for (let [planeName, planeCount] of axisDetails){
             botDetailsText += planeName + ": " + planeCount.toString() + "\n";
         }
-        this.botDetailsComponent.setText(botDetailsText);
+        this.botDetailsComponent.setText("\n" + botDetailsText);
     }
 
     /*
