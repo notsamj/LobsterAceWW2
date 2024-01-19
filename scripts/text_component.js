@@ -33,12 +33,20 @@ class TextComponent extends Component {
 
     // TODO: Comments
     getX(){
-        return this.x(window.innerWidth);
+        if (typeof this.x === "function"){
+            return this.x(window.innerWidth);
+        }else{
+            return this.x;
+        }
     }
 
     // TODO: Comments
     getY(){
-        return this.y(window.innerHeight);
+        if (typeof this.y === "function"){
+            return this.y(window.innerHeight);
+        }else{
+            return this.y;
+        }
     }
 
     /*
