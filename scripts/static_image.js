@@ -23,6 +23,16 @@ class StaticImage extends Component {
         this.onClick = null;
     }
 
+    // TODO: Comments
+    getX(){
+        return this.x(window.innerWidth);
+    }
+
+    // TODO: Comments
+    getY(){
+        return this.y(window.innerHeight);
+    }
+
     /*
         Method Name: getWidth
         Method Parameters: None
@@ -90,26 +100,6 @@ class StaticImage extends Component {
     }
 
     /*
-        Method Name: getX
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: float
-    */  
-    getX(){
-        return this.x;
-    }
-
-    /*
-        Method Name: getY
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: float
-    */
-    getY(){
-        return this.y;
-    }
-
-    /*
         Method Name: display
         Method Parameters: None
         Method Description: Display the image on the screen
@@ -132,7 +122,7 @@ class StaticImage extends Component {
         Method Return: boolean, true -> covers, false -> does not cover
     */
     covers(x, y){
-        return x >= this.x && x <= this.x + this.image.width && y <= this.y && y >= this.y - this.image.height;
+        return x >= this.getX() && x <= this.getX() + this.image.width && y <= this.getY() && y >= this.getY() - this.image.height;
     }
 
     /*

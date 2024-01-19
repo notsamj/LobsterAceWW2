@@ -67,7 +67,10 @@ async function loadExtraImages(){
 */
 async function setup() {
     // Create Canvas
-    createCanvas(FILE_DATA["constants"]["CANVAS_WIDTH"], FILE_DATA["constants"]["CANVAS_HEIGHT"]);
+    createCanvas(window.innerWidth, window.innerHeight);
+    window.onresize = function(event) {
+        resizeCanvas(window.innerWidth, window.innerHeight);
+    };
     frameRate(0);
 
     // Prepare to start running
@@ -79,8 +82,8 @@ async function setup() {
 
 
     // Set up scene & menus
-    scene = new PlaneGameScene(FILE_DATA["constants"]["CANVAS_WIDTH"], FILE_DATA["constants"]["CANVAS_HEIGHT"]);
-    menuManager = new MenuManager(FILE_DATA["constants"]["CANVAS_WIDTH"], FILE_DATA["constants"]["CANVAS_HEIGHT"]);
+    scene = new PlaneGameScene(window.innerWidth, window.innerHeight);
+    menuManager = new MenuManager(window.innerWidth, window.innerHeight);
     MenuManager.setupClickListener();
     
     setupDone = true;

@@ -37,6 +37,16 @@ class RectangleButton extends Component {
         this.callBack = callBack;
     }
 
+    // TODO: Comments
+    getX(){
+        return this.x(window.innerWidth);
+    }
+
+    // TODO: Comments
+    getY(){
+        return this.y(window.innerHeight);
+    }
+
     /*
         Method Name: display
         Method Parameters: None
@@ -44,7 +54,8 @@ class RectangleButton extends Component {
         Method Return: void
     */
     display(){
-        Menu.makeRectangleWithText(this.textStr, this.colour, this.textColour, this.x, this.y, this.width, this.height);
+        //console.log("Displaying @", this.getX(), this.getY())
+        Menu.makeRectangleWithText(this.textStr, this.colour, this.textColour, this.getX(), this.getY(), this.width, this.height);
     }
 
     /*
@@ -58,7 +69,7 @@ class RectangleButton extends Component {
         Method Return: boolean, true -> covers, false -> does not cover
     */
     covers(x, y){
-        return x >= this.x && x <= this.x + this.width && y <= this.y && y >= this.y - this.height;
+        return x >= this.getX() && x <= this.getX() + this.width && y <= this.getY() && y >= this.getY() - this.height;
     }
 
     /*

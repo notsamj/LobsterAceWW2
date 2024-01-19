@@ -16,11 +16,17 @@ class Radar {
         this.entity = entity;
         this.blipSize = FILE_DATA["radar"]["blip_size"];
         this.radarOutline = images["radar_outline"];
-        this.screenX = FILE_DATA["constants"]["CANVAS_WIDTH"] - this.radarOutline.width-1;
-        this.screenY = 1;
         this.radarBlip = images["radar_blip"];
         this.blipDistance = FILE_DATA["radar"]["blip_distance"];
         this.radarData = this.resetRadar();
+    }
+
+    getScreenX(){
+        return window.innerWidth - this.radarOutline.width-1;
+    }
+
+    getScreenY(){
+        return 1;
     }
 
     // Abstract

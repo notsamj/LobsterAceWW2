@@ -127,9 +127,9 @@ class AfterMatchStats {
         let allyText = this.makeTeamText("Allies");
         
         // Make winner text
-        Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(FILE_DATA["constants"]["CANVAS_HEIGHT"]), Math.floor(FILE_DATA["constants"]["CANVAS_WIDTH"]), Math.floor(FILE_DATA["constants"]["CANVAS_HEIGHT"]/3));
-        Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(FILE_DATA["constants"]["CANVAS_HEIGHT"]*2/3), Math.floor(FILE_DATA["constants"]["CANVAS_WIDTH"]/2), Math.floor(FILE_DATA["constants"]["CANVAS_HEIGHT"]*2/3));
-        Menu.makeText(axisText, AfterMatchStats.getTeamColour("Axis"), Math.floor(FILE_DATA["constants"]["CANVAS_WIDTH"]/2), Math.floor(FILE_DATA["constants"]["CANVAS_HEIGHT"]*2/3), Math.floor(FILE_DATA["constants"]["CANVAS_WIDTH"]/2), Math.floor(FILE_DATA["constants"]["CANVAS_HEIGHT"]*2/3));
+        Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(window.innerHeight), Math.floor(window.innerWidth), Math.floor(window.innerHeight/3));
+        Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(window.innerHeight*2/3), Math.floor(window.innerWidth/2), Math.floor(window.innerHeight*2/3));
+        Menu.makeText(axisText, AfterMatchStats.getTeamColour("Axis"), Math.floor(window.innerWidth/2), Math.floor(window.innerHeight*2/3), Math.floor(window.innerWidth/2), Math.floor(window.innerHeight*2/3));
     }
 
     /*

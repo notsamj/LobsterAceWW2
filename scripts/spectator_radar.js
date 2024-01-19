@@ -83,14 +83,14 @@ class SpectatorRadar extends Radar {
         Method Return: void
     */
     display(){
-        drawingContext.drawImage(this.radarOutline, this.screenX, this.screenY);
+        drawingContext.drawImage(this.radarOutline, this.getScreenX(), this.getScreenY());
         let borderWidth = 2;
         for (let x = 0; x < this.size; x++){
             for (let y = 0; y < this.size; y++){
                 if (this.radarData[x][y] == -1){
-                    drawingContext.drawImage(this.radarBlip, this.screenX + borderWidth + this.blipSize * x, this.screenY + borderWidth + this.blipSize * y);
+                    drawingContext.drawImage(this.radarBlip, this.getScreenX() + borderWidth + this.blipSize * x, this.getScreenY() + borderWidth + this.blipSize * y);
                 }else if (this.radarData[x][y] == 1){
-                    drawingContext.drawImage(this.friendlyBlip, this.screenX + borderWidth + this.blipSize * x, this.screenY + borderWidth + this.blipSize * y);
+                    drawingContext.drawImage(this.friendlyBlip, this.getScreenX() + borderWidth + this.blipSize * x, this.getScreenY()+ borderWidth + this.blipSize * y);
                 }
             }
         }

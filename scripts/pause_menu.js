@@ -23,7 +23,7 @@ class PauseMenu extends Menu {
     setup(){
         let buttonSizeX = 800;
         let buttonSizeY = 120;
-        let buttonX = (FILE_DATA["constants"]["CANVAS_WIDTH"] - buttonSizeX)/2;
+        let buttonX = (window.innerWidth - buttonSizeX)/2;
 
         // Resume
         let resumeButtonY = 800;
