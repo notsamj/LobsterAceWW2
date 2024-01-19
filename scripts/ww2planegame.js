@@ -1,4 +1,5 @@
 // Global variables
+const MAX_RUNNING_LATE = 500;
 var scene;
 var menuManager;
 var setupDone = false;
@@ -10,6 +11,7 @@ var debug = false;
 var mainTickLock = new Lock();
 var runningTicksBehind = 0;
 var performanceTimer = new PerformanceTimer();
+var tickInterval;
 // Functions
 
     /*
@@ -21,8 +23,11 @@ var performanceTimer = new PerformanceTimer();
 async function tick(){
     if (mainTickLock.notReady()){
         runningTicksBehind++;
-        console.log("Main tick loop is running %d ticks behind.", runningTicksBehind) 
-        return; 
+        console.log("Main tick loop is running %d ticks behind.", runningTicksBehind)
+        if (runningTicksBehind > MAX_RUNNING_LATE){
+            clearInterval(tickInterval);
+        }
+        return;
     }
     mainTickLock.lock();
     if (setupDone){
@@ -75,7 +80,7 @@ async function setup() {
 
     // Prepare to start running
     startTime = Date.now();
-    setInterval(tick, Math.floor(1000 / (FILE_DATA["constants"]["TICK_RATE"])));
+    tickInterval = setInterval(tick, Math.floor(1000 / (FILE_DATA["constants"]["TICK_RATE"])));
 
     await loadPlanes();
     await loadExtraImages();
