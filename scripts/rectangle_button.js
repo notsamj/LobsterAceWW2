@@ -80,7 +80,6 @@ class RectangleButton extends Component {
         Method Return: void
     */
     display(){
-        //console.log("Displaying @", this.getX(), this.getY())
         Menu.makeRectangleWithText(this.textStr, this.colour, this.textColour, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 

@@ -5,22 +5,26 @@
 class MenuManager {
     /*
         Method Name: constructor
-        Method Parameters:
-            width:
-                Width of the screen
-            height:
-                Height of the screen
+        Method Parameters: None
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(width, height){
-        this.width = width;
-        this.height = height;
+    constructor(){
         this.mainMenu = new MainMenu();
         this.multiplayerMenu = new MultiplayerMenu();
         this.pauseMenu = new PauseMenu();
         this.dogfightMenu = new DogfightMenu();
         this.activeMenu = this.mainMenu;
+    }
+
+    // TODO: Comments
+    getWidth(){
+        return window.innerWidth;
+    }
+
+    // TODO: Comments
+    getHeight(){
+        return window.innerHeight;
     }
 
     /*
@@ -68,7 +72,7 @@ class MenuManager {
         Method Return: int
     */
     changeFromScreenY(y){
-        return this.height - y;
+        return this.getHeight() - y;
     }
 
     /*
