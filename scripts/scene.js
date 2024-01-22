@@ -260,8 +260,8 @@ class Scene {
         // Find top left corner
         displayX = displayX - width / 2;
 
-        // Round to nearest pixel
-        displayX = Math.round(displayX);
+        // Round down to nearest pixel
+        displayX = Math.floor(displayX);
         return displayX;
     }
 
@@ -287,8 +287,8 @@ class Scene {
         // Find top left corner
         displayY = displayY - height / 2;
 
-        // Round to nearest pixel
-        displayY = Math.round(displayY);
+        // Round down to nearest pixel
+        displayY = Math.floor(displayY);
         return displayY;
     }
 

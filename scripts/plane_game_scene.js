@@ -443,7 +443,7 @@ class PlaneGameScene extends Scene {
             return; 
         }
 
-        if (entity instanceof FighterPlane){
+        if (entity instanceof Plane){
             let rotateX = displayX + entity.getWidth() / 2;
             let rotateY = displayY + entity.getHeight() / 2;
             translate(rotateX, rotateY);
