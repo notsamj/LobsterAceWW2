@@ -127,9 +127,9 @@ class AfterMatchStats {
         let allyText = this.makeTeamText("Allies");
         
         // Make winner text
-        Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(window.innerHeight), Math.floor(window.innerWidth), Math.floor(window.innerHeight/3));
-        Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(window.innerHeight*2/3), Math.floor(window.innerWidth/2), Math.floor(window.innerHeight*2/3));
-        Menu.makeText(axisText, AfterMatchStats.getTeamColour("Axis"), Math.floor(window.innerWidth/2), Math.floor(window.innerHeight*2/3), Math.floor(window.innerWidth/2), Math.floor(window.innerHeight*2/3));
+        Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(getScreenHeight()), Math.floor(getScreenWidth()), Math.floor(getScreenHeight()/3));
+        Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3));
+        Menu.makeText(axisText, AfterMatchStats.getTeamColour("Axis"), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3));
     }
 
     /*

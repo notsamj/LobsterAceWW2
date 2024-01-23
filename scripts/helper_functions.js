@@ -3,6 +3,24 @@ if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
 /*
+    Method Name: getScreenWidth
+    Method Parameters: None
+    Method Description: Determines the screen width in real pixels
+    Method Return: void
+*/
+function getScreenWidth(){
+    return window.innerWidth;
+}
+/*
+    Method Name: getScreenHeight
+    Method Parameters: None
+    Method Description: Determines the screen height in real pixels
+    Method Return: void
+*/
+function getScreenHeight(){
+    return window.innerHeight;
+}
+/*
     Method Name: copyArray
     Method Parameters:
         array:

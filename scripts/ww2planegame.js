@@ -10,7 +10,6 @@ var loadedPercent = 0;
 var debug = false;
 var mainTickLock = new Lock();
 var runningTicksBehind = 0;
-var performanceTimer = new PerformanceTimer();
 var tickInterval;
 // Functions
 
@@ -72,9 +71,9 @@ async function loadExtraImages(){
 */
 async function setup() {
     // Create Canvas
-    createCanvas(window.innerWidth, window.innerHeight);
+    createCanvas(getScreenWidth(), getScreenHeight());
     window.onresize = function(event) {
-        resizeCanvas(window.innerWidth, window.innerHeight);
+        resizeCanvas(getScreenWidth(), getScreenHeight());
     };
     frameRate(0);
 
@@ -94,8 +93,8 @@ async function setup() {
 
 
     // Set up scene & menus
-    scene = new PlaneGameScene(window.innerWidth, window.innerHeight);
-    menuManager = new MenuManager(window.innerWidth, window.innerHeight);
+    scene = new PlaneGameScene(getScreenWidth(), getScreenHeight());
+    menuManager = new MenuManager(getScreenWidth(), getScreenHeight());
     MenuManager.setupClickListener();
     
     setupDone = true;

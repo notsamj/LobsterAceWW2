@@ -22,7 +22,7 @@ class Radar {
     }
 
     getScreenX(){
-        return window.innerWidth - this.radarOutline.width-1;
+        return getScreenWidth() - this.radarOutline.width-1;
     }
 
     getScreenY(){

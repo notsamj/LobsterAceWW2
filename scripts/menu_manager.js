@@ -19,12 +19,12 @@ class MenuManager {
 
     // TODO: Comments
     getWidth(){
-        return window.innerWidth;
+        return getScreenWidth();
     }
 
     // TODO: Comments
     getHeight(){
-        return window.innerHeight;
+        return getScreenHeight();
     }
 
     /*

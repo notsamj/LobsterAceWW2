@@ -27,6 +27,7 @@ class TextComponent extends Component {
         this.textColour = textColour;
         this.x = x;
         this.y = y;
+
         this.width = width;
         this.height = height;
     }
@@ -34,7 +35,7 @@ class TextComponent extends Component {
     // TODO: Comments
     getX(){
         if (typeof this.x === "function"){
-            return this.x(window.innerWidth);
+            return this.x(getScreenWidth());
         }else{
             return this.x;
         }
@@ -43,7 +44,7 @@ class TextComponent extends Component {
     // TODO: Comments
     getY(){
         if (typeof this.y === "function"){
-            return this.y(window.innerHeight);
+            return this.y(getScreenHeight());
         }else{
             return this.y;
         }

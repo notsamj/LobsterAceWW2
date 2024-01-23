@@ -40,7 +40,7 @@ class RectangleButton extends Component {
     // TODO: Comments
     getX(){
         if (typeof this.x === "function"){
-            return this.x(window.innerWidth);
+            return this.x(getScreenWidth());
         }else{
             return this.x;
         }
@@ -49,7 +49,7 @@ class RectangleButton extends Component {
     // TODO: Comments
     getY(){
         if (typeof this.y === "function"){
-            return this.y(window.innerHeight);
+            return this.y(getScreenHeight());
         }else{
             return this.y;
         }
@@ -58,7 +58,7 @@ class RectangleButton extends Component {
     // TODO: Comments
     getWidth(){
         if (typeof this.width === "function"){
-            return this.width(window.innerWidth);
+            return this.width(getScreenWidth());
         }else{
             return this.width;
         }
@@ -67,7 +67,7 @@ class RectangleButton extends Component {
     // TODO: Comments
     getHeight(){
         if (typeof this.height === "function"){
-            return this.height(window.innerHeight);
+            return this.height(getScreenHeight());
         }else{
             return this.height;
         }
