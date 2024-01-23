@@ -9,7 +9,7 @@ if (typeof window === "undefined"){
     Method Return: void
 */
 function getScreenWidth(){
-    return window.innerWidth;
+    return window.innerWidth; // * pixelSomething density in the future?
 }
 /*
     Method Name: getScreenHeight
