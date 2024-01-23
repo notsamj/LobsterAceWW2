@@ -1,3 +1,10 @@
+# World War 2 Plane Game
+## Pages Deployment
+https://notsamj.github.io/WW2PlaneGame/
+
+## How to play
+### Work in progress...
+
 ## Controls
 
 ### Escape (Press): Open pause menu
