@@ -10,4 +10,9 @@ Python
 test.html
 *.pdn
 images/not-active/*
+<<<<<<< Updated upstream
 ww2planegame_mac.html
+=======
+ww2planegame_mac.html
+.DS_Store
+>>>>>>> Stashed changes
