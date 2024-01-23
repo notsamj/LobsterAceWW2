@@ -27,18 +27,27 @@ class TextComponent extends Component {
         this.textColour = textColour;
         this.x = x;
         this.y = y;
+
         this.width = width;
         this.height = height;
     }
 
     // TODO: Comments
     getX(){
-        return this.x(window.innerWidth);
+        if (typeof this.x === "function"){
+            return this.x(getScreenWidth());
+        }else{
+            return this.x;
+        }
     }
 
     // TODO: Comments
     getY(){
-        return this.y(window.innerHeight);
+        if (typeof this.y === "function"){
+            return this.y(getScreenHeight());
+        }else{
+            return this.y;
+        }
     }
 
     /*

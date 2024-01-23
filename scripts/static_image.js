@@ -25,12 +25,12 @@ class StaticImage extends Component {
 
     // TODO: Comments
     getX(){
-        return this.x(window.innerWidth);
+        return this.x(getScreenWidth());
     }
 
     // TODO: Comments
     getY(){
-        return this.y(window.innerHeight);
+        return this.y(getScreenHeight());
     }
 
     /*

@@ -24,7 +24,7 @@ class FighterPlane extends Plane {
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene);
         this.shootLock = new CooldownLock(FILE_DATA["constants"]["PLANE_SHOOT_GAP_MS"]);
-    } 
+    }
 
     /*
         Method Name: shoot

@@ -3,6 +3,25 @@ if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
 /*
+    Method Name: getScreenWidth
+    Method Parameters: None
+    Method Description: Determines the screen width in real pixels
+    Method Return: void
+*/
+function getScreenWidth(){
+    return window.innerWidth; // * pixelSomething density in the future?
+}
+/*
+    Method Name: getScreenHeight
+    Method Parameters: None
+    Method Description: Determines the screen height in real pixels
+    Method Return: void
+*/
+function getScreenHeight(){
+    return window.innerHeight;
+}
+
+/*
     Method Name: planeModelToType
     Method Parameters:
         model:
@@ -27,6 +46,74 @@ function copyArray(array){
         newArray.push(array[i]);
     }
     return newArray;
+}
+
+/*
+    Method Name: listMean
+    Method Parameters:
+        list:
+            An list to to find the mean of
+    Method Description: Finds the mean value of a list of numbers
+    Method Return: Number
+*/
+function listMean(list){
+    if (list.length == 0){ return -1; }
+    let total = 0;
+    for (let i = 0; i < list.length; i++){
+        total += list[i];
+    }
+    return total / list.length;
+}
+
+/*
+    Method Name: listMin
+    Method Parameters:
+        list:
+            An list to find the minimum number in
+    Method Description: Finds the min value of a list of numbers
+    Method Return: Number
+*/
+function listMin(list){
+    let min = Number.MAX_SAFE_INTEGER;
+    for (let i = 0; i < list.length; i++){
+        if (list[i] < min){
+            min = list[i];
+        }
+    }
+    return min;
+}
+
+/*
+    Method Name: listMax
+    Method Parameters:
+        list:
+            An list to find the max of
+    Method Description: Finds the max value of a list of numbers
+    Method Return: Number
+*/
+function listMax(list){
+    let max = Number.MIN_SAFE_INTEGER;
+    for (let i = 0; i < list.length; i++){
+        if (list[i] > max){
+            max = list[i];
+        }
+    }
+    return max;
+}
+
+/*
+    Method Name: listMedian
+    Method Parameters:
+        list:
+            An list to find the median of
+    Method Description: Finds the median number in a list
+    Method Return: Number
+*/
+function listMedian(list){
+    if (list.length == 0){ return -1; }
+    let newList = copyArray(list);
+    newList.sort();
+    return newList[Math.floor(newList.length/2)];
 }
 
 /*
@@ -149,7 +236,7 @@ function displacmentToRadians(dX, dY){
     Method Return: int
 */
 function randomNumberInclusive(min, maxInclusive){
-    return Math.floor(Math.random() * (maxInclusive - min + 1)) + min; 
+    return Math.floor(Math.random() * (maxInclusive - min + 1)) + min;
 }
 
 /*
@@ -482,6 +569,10 @@ if (typeof window === "undefined"){
         countryToAlliance,
         planeModelToCountry,
         planeModelToAlliance,
-        sleep
+        sleep,
+        listMean,
+        listMedian,
+        listMin,
+        listMax
     }
 }
