@@ -1,6 +1,9 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     Entity = require("../scripts/entity.js");
+    FILE_DATA = require("../data/data_json.js");
+    CircleHitbox = require("../scripts/hitboxes.js").CircleHitbox;
+    toRadians = require("../scripts/helper_functions.js").toRadians;
 }
 /*
     Class Name: Plane

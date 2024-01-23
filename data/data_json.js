@@ -5,52 +5,76 @@ var FILE_DATA = {
             "radius": 64,
             "max_speed": 594,
             "health": 12*5,
-            "country": "Britain"
+            "country": "Britain",
+            "type": "Fighter"
         },
         "a6m_zero": {
 //            "radius": 47,
             "radius": 64,
             "max_speed": 565,
             "health": 13*5,
-            "country": "Japan"
+            "country": "Japan",
+            "type": "Fighter"
         },
         "republic_p_47": {
 //            "radius": 46,
             "radius": 64,
             "max_speed": 686,
             "health": 12*5,
-            "country": "USA"
+            "country": "USA",
+            "type": "Fighter"
         },
         "me_bf_109": {
 //            "radius": 37,
             "radius": 64,
             "max_speed": 634,
             "health": 10*5,
-            "country": "Germany"
+            "country": "Germany",
+            "type": "Fighter"
         },
         "kawasaki_ki_45": {
             "radius": 64,
             "max_speed": 540,
             "health": 17*5,
-            "country": "Japan"
+            "country": "Japan",
+            "type": "Fighter"
         },
         "p51_mustang": {
             "radius": 64,
             "max_speed": 710,
             "health": 10*5,
-            "country": "USA"
+            "country": "USA",
+            "type": "Fighter"
         },
         "hawker_sea_fury": {
             "radius": 64,
             "max_speed": 740,
             "health": 9*5,
-            "country": "Britain"
+            "country": "Britain",
+            "type": "Fighter"
         },
         "me_309": {
             "radius": 64,
             "max_speed": 733,
             "health": 9*5,
-            "country": "Germany"
+            "country": "Germany",
+            "type": "Fighter"
+        },
+        "b24": {
+            "radius": 128,
+            "max_speed": 467,
+            "health": 20*5,
+            "country": "USA",
+            "type": "Bomber",
+            "guns": [
+                {
+                    "x_offset": 224-128,
+                    "y_offset": 128-132,
+                    "fov_1": 30,
+                    "fov_2": 330,
+                    "rate_of_fire": 500
+                }
+            ]
         }
     },
     "teams": ["Allies", "Axis"],

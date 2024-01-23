@@ -1,10 +1,6 @@
 // If using NodeJS -> Do required imports
 if (typeof window === "undefined"){
-    Plane = require("../scripts/plane.js");
-    FILE_DATA = require("../data/data_json.js");
     CooldownLock = require("../scripts/cooldown_lock.js");
-    CircleHitbox = require("../scripts/hitboxes.js").CircleHitbox;
-    toRadians = require("../scripts/helper_functions.js").toRadians;
 }
 /*
     Class Name: FighterPlane

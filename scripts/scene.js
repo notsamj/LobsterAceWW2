@@ -151,6 +151,18 @@ class Scene {
     }
 
     /*
+        Method Name: changeFromScreenY
+        Method Parameters: 
+            y:
+                An y coordinate in the game coordinate system
+        Method Description: Transforms an screen y to a game y
+        Method Return: float
+    */
+    changeFromScreenY(y){
+        return this.changeToScreenY(y);
+    }
+
+    /*
         Method Name: addEntity
         Method Parameters: 
             entity:

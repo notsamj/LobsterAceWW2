@@ -1,4 +1,4 @@
-// Global variables
+// Global Variables & Constants
 var scene;
 var menuManager;
 var setupDone = false;
@@ -9,6 +9,9 @@ var loadedPercent = 0;
 var debug = false;
 var mainTickLock = new Lock();
 var runningTicksBehind = 0;
+const USER_INPUT_MANAGER = new UserInputManager();
+USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
+USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 
 // Functions
 

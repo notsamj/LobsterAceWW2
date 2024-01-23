@@ -3,6 +3,17 @@ if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
 /*
+    Method Name: planeModelToType
+    Method Parameters:
+        model:
+            The model of a plane
+    Method Description: Determines the type of plane, given a model
+    Method Return: String
+*/
+function planeModelToType(model){
+    return FILE_DATA["plane_data"][model]["type"];
+}
+/*
     Method Name: copyArray
     Method Parameters:
         array:
@@ -245,7 +256,7 @@ function calculateAngleDiffDEGCCW(angle1, angle2){
     Method Return: int
 */
 function rotateCWDEG(angle, amount){
-    return fixDegrees(angle + amount);
+    return fixDegrees(angle - amount);
 }
 
 /*
@@ -259,7 +270,7 @@ function rotateCWDEG(angle, amount){
     Method Return: int
 */
 function rotateCCWDEG(angle, amount){
-    return fixDegrees(angle - amount);
+    return fixDegrees(angle + amount);
 }
 
 /*
@@ -275,11 +286,27 @@ function rotateCCWDEG(angle, amount){
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCWDEG(angle, eAngle1, eAngle2){
-    return calculateAngleDiffDEGCW(eAngle1, angle) <= calculateAngleDiffDEGCCW(eAngle1, angle) && calculateAngleDiffDEGCW(angle, eAngle2) <= calculateAngleDiffDEGCCW(angle, eAngle2);
+    angle = fixDegrees(Math.floor(angle));
+    eAngle1 = fixDegrees(Math.floor(eAngle1));
+    eAngle2 = fixDegrees(Math.floor(eAngle2));
+    let tAngle = eAngle1;
+    if (tAngle == eAngle2){
+        return true;
+    }
+    while (tAngle != eAngle2){
+        if (tAngle == angle){
+            return true;
+        }
+        tAngle -= 1;
+        if (tAngle == -1){
+            tAngle = 359;
+        }
+    }
+    return false;
 }
 
 /*
-    Method Name: angleBetweenCCWDEG
+    Method Name: angleBetweenCWDEG
     Method Parameters:
         angle:
             An angle in degrees
@@ -290,8 +317,24 @@ function angleBetweenCWDEG(angle, eAngle1, eAngle2){
     Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
-function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
-    return calculateAngleDiffDEGCCW(eAngle1, angle) <= calculateAngleDiffDEGCW(eAngle1, angle) && calculateAngleDiffDEGCCW(angle, eAngle2) <= calculateAngleDiffDEGCW(angle, eAngle2);
+function angleBetweenCWDEG(angle, eAngle1, eAngle2){
+    angle = fixDegrees(Math.floor(angle));
+    eAngle1 = fixDegrees(Math.floor(eAngle1));
+    eAngle2 = fixDegrees(Math.floor(eAngle2));
+    let tAngle = eAngle1
+    if (tAngle == eAngle2){
+        return true;
+    }
+    while (tAngle != eAngle2){
+        if (tAngle == angle){
+            return true;
+        }
+        tAngle += 1;
+        if (tAngle == 360){
+            tAngle = 0;
+        }
+    }
+    return false;
 }
 
 /*
@@ -431,7 +474,7 @@ if (typeof window === "undefined"){
         rotateCWDEG,
         rotateCCWDEG,
         angleBetweenCWDEG,
-        angleBetweenCCWDEG,
+        angleBetweenCWDEG,
         lessThanDir,
         lessThanEQDir,
         nextIntInDir,

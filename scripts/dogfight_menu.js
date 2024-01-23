@@ -351,14 +351,14 @@ class DogfightMenu extends Menu {
         let allyFacingRight = allyX < axisX;
 
         // Add user
-        let userEntityType = this.userPlanes[this.userPlaneIndex];
-        let userEntity = userEntityType == "freecam" ? new SpectatorCamera(scene) : new HumanFighterPlane(userEntityType, scene);
+        let userEntityModel = this.userPlanes[this.userPlaneIndex];
+        let userEntity = userEntityModel == "freecam" ? new SpectatorCamera(scene) : (planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, scene) : new HumanBomberPlane(userEntityModel, scene));
         let middleX = (allyX + axisX)/2;
         let middleY = (allyY + axisY)/2;
-        userEntity.setCenterX(userEntityType == "freecam" ? middleX : (planeModelToAlliance(userEntityType) == "Allies" ? allyX : axisX));
-        userEntity.setCenterY(userEntityType == "freecam" ? middleY : (planeModelToAlliance(userEntityType) == "Allies" ? allyY : axisY));
-        if (userEntityType != "freecam"){
-            userEntity.setFacingRight((planeModelToAlliance(userEntityType) == "Allies") ? allyFacingRight : !allyFacingRight);
+        userEntity.setCenterX(userEntityModel == "freecam" ? middleX : (planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX));
+        userEntity.setCenterY(userEntityModel == "freecam" ? middleY : (planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY));
+        if (userEntityModel != "freecam"){
+            userEntity.setFacingRight((planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);
         }
         planes.push(userEntity);
 
