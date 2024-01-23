@@ -78,6 +78,13 @@ async function setup() {
     };
     frameRate(0);
 
+    // Prevent auto page scrolling
+    document.addEventListener("keydown", (event) => {
+        if (event.keyCode === 32 || event.keyCode === 40){
+            event.preventDefault();
+        }
+    });
+
     // Prepare to start running
     startTime = Date.now();
     tickInterval = setInterval(tick, Math.floor(1000 / (FILE_DATA["constants"]["TICK_RATE"])));
