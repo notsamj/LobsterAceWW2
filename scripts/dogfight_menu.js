@@ -173,7 +173,7 @@ class DogfightMenu extends Menu {
         let botBodyX = (innerWidth) => { return botHeaderX(innerWidth); }
         let botBodyY = (innerHeight) => { return botHeaderY(innerHeight) - botHeaderYSize; }
         let botBodyXSize = botHeaderXSize;
-        let botBodyYSize = FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] - startButtonYSize - botHeaderYSize - [this.userPlanes.length-1]*25;
+        let botBodyYSize = FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"];
         this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
         this.components.push(this.botDetailsComponent);
         
@@ -332,7 +332,7 @@ class DogfightMenu extends Menu {
         for (let [planeName, planeCount] of axisDetails){
             botDetailsText += planeName + ": " + planeCount.toString() + "\n";
         }
-        this.botDetailsComponent.setText("\n" + botDetailsText);
+        this.botDetailsComponent.setText(botDetailsText);
     }
 
     /*
