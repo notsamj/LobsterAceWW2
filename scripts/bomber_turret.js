@@ -9,27 +9,49 @@ class BomberTurret extends Turret {
     }
 
     getX(){
-        // TODO: Test l/r if this is right
         let planeAngleRAD = toRadians(this.plane.getShootingAngle());
-        let rotatedX = Math.cos(planeAngleRAD) * this.xOffset - Math.sin(planeAngleRAD) * this.yOffset + this.plane.getX();
+        if (!this.isFacingRight()){
+            planeAngleRAD -= toRadians(180);
+        }
+        let rotatedX = Math.cos(planeAngleRAD) * this.getXOffset() - Math.sin(planeAngleRAD) * this.getYOffset() + this.plane.getX();
         return rotatedX;
     }
 
     getY(){
-        // TODO: Test l/r if this is right
         let planeAngleRAD = toRadians(this.plane.getShootingAngle());
-        let rotatedY = Math.sin(planeAngleRAD) * this.xOffset + Math.sin(planeAngleRAD) * this.xOffset + this.plane.getY();
+        if (!this.isFacingRight()){
+            planeAngleRAD -= toRadians(180);
+        }
+        let rotatedY = Math.sin(planeAngleRAD) * this.getXOffset() + Math.cos(planeAngleRAD) * this.getYOffset() + this.plane.getY();
         return rotatedY;
     }
 
+    getXOffset(){
+        return this.xOffset * (this.plane.isFacingRight() ? 1 : -1);
+    }
+
+    getYOffset(){
+        return this.yOffset;
+    }
+
+    isFacingRight(){
+        return this.plane.isFacingRight();
+    }
+
     getFov1(){
-        // TODO: Test this to confirm
-        return fixDegrees(this.fov1 + this.plane.getShootingAngle());
+        let adjustedFov = !this.isFacingRight() ? (180 - this.fov2) : this.fov1;
+        if (!this.isFacingRight()){
+            adjustedFov += 180;
+        }
+        return fixDegrees(adjustedFov + this.plane.getShootingAngle());
     }
 
     getFov2(){
-        // TODO: Test this to confirm
-        return fixDegrees(this.fov2 + this.plane.getShootingAngle());
+        let adjustedFov = !this.isFacingRight() ? (180 - this.fov1) : this.fov2;
+        if (!this.isFacingRight()){
+            adjustedFov += 180;
+        }
+        return fixDegrees(adjustedFov + this.plane.getShootingAngle());
     }
 
     getXVelocity(){

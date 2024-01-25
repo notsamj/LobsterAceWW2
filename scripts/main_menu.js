@@ -35,20 +35,24 @@ class MainMenu extends Menu {
         }));
 
         // Information
-        let infoY = 400;
+        let infoY = 250;
         let infoXSize = FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"];
         let infoYSize = 300;
         this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.\nScroll down for controls.", "black", 0, infoY, infoXSize, infoYSize));
 
-        // Do not set up the multiplayer button if its disabled
-        if (FILE_DATA["constants"]["MULTIPLAYER_DISABLED"]){
-            return;
+        // Set up Multiplayer button if enabled
+        if (!FILE_DATA["constants"]["MULTIPLAYER_DISABLED"]){
+            // Multiplayer
+            let multiplayerButtonY = (innerHeight) => { return 600; };
+            this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (instance) => {
+                menuManager.switchTo("multiplayer");
+            }));
         }
 
-        // Multiplayer
-        let multiplayerButtonY = (innerHeight) => { return 600; };
-        this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (instance) => {
-            menuManager.switchTo("multiplayer");
+        // Sound
+        let soundButtonY = 400;
+        this.components.push(new RectangleButton("Sound", "#3bc44b", "#e6f5f4", buttonX, soundButtonY, buttonSizeX, buttonSizeY, async (instance) => {
+            menuManager.switchTo("sound");
         }));
     }
 

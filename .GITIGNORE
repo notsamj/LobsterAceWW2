@@ -2,7 +2,6 @@
 ./images/me_309_old
 server
 server/node_modules
-sounds
 Python
 ./scripts/server_connection.js
 ./scripts/remote_dogfight.js
@@ -10,9 +9,7 @@ Python
 test.html
 *.pdn
 images/not-active/*
-<<<<<<< Updated upstream
-ww2planegame_mac.html
-=======
 ww2planegame_mac.html
 .DS_Store
->>>>>>> Stashed changes
+sounds/not-active/*
+*.ogg

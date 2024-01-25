@@ -1,4 +1,4 @@
-var FILE_DATA = {
+const FILE_DATA = {
     "plane_data": {
         "spitfire": {
 //            "radius": 48,
@@ -63,16 +63,37 @@ var FILE_DATA = {
         "b24": {
             "radius": 128,
             "max_speed": 467,
-            "health": 20*5,
+            "health": 50*5,
             "country": "USA",
             "type": "Bomber",
             "guns": [
-                {
+                { // Front gun
                     "x_offset": 224-128,
                     "y_offset": 128-132,
-                    "fov_1": 30,
-                    "fov_2": 330,
-                    "rate_of_fire": 500
+                    "fov_1": 40,
+                    "fov_2": 320,
+                    "rate_of_fire": 50
+                },
+                { // Top gun front
+                    "x_offset": 149-128,
+                    "y_offset": 128-93,
+                    "fov_1": 170,
+                    "fov_2": 10,
+                    "rate_of_fire": 50
+                },
+                { // Back bottom gun
+                    "x_offset": 110-128,
+                    "y_offset": 128-130,
+                    "fov_1": 260,
+                    "fov_2": 175,
+                    "rate_of_fire": 50
+                },
+                { // Top gun back
+                    "x_offset": 27-128,
+                    "y_offset": 128-89,
+                    "fov_1": 190,
+                    "fov_2": 10,
+                    "rate_of_fire": 50
                 }
             ]
         }
@@ -258,6 +279,18 @@ var FILE_DATA = {
     "team_to_colour": {
         "Axis": "red",
         "Allies": "green"
+    },
+
+    "sound_data": {
+        "sounds": [
+            "shoot",
+            "explode",
+            "damage",
+            "engine",
+            "bomb"
+        ],
+        "url": "./sounds",
+        "file_type": ".mp3"
     }
 }
 if (typeof window === "undefined"){

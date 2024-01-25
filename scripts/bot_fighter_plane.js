@@ -4,7 +4,7 @@ if (typeof window === "undefined"){
     onSameTeam = require("../scripts/helper_functions.js").onSameTeam;
     Bullet = require("../scripts/bullet.js");
     var helperFuncs = require("../scripts/helper_functions.js");
-    angleBetweenCWDEG = helperFuncs.angleBetweenCWDEG;
+    angleBetweenCCWDEG = helperFuncs.angleBetweenCCWDEG;
     fixDegrees = helperFuncs.fixDegrees;
     calculateAngleDiffDEGCW = helperFuncs.calculateAngleDiffDEGCW;
     calculateAngleDiffDEGCCW = helperFuncs.calculateAngleDiffDEGCCW;
@@ -56,7 +56,7 @@ class BotFighterPlane extends FighterPlane {
             let enemy = this.scene.getEntity(this.currentEnemyID);
             this.handleEnemy(enemy);
         }else{ // No enemy -> make sure not to crash into the ground
-            if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
+            if (this.closeToGround() && angleBetweenCCWDEG(this.getShootingAngle(), 180, 359)){
                 this.turnInDirection(90);
                 return;
             }
@@ -126,7 +126,7 @@ class BotFighterPlane extends FighterPlane {
     */
     handleMovement(angleDEG, distance, enemy){
         // If facing downwards and close to the ground then turn upwards
-        if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
+        if (this.closeToGround() && angleBetweenCCWDEG(this.getShootingAngle(), 180, 359)){
             this.turnInDirection(90);
             return;
         }
@@ -213,12 +213,12 @@ class BotFighterPlane extends FighterPlane {
         // Determine if we need to switch from left to right
         let myAngle = this.getShootingAngle();
         // If facing right and the angle to turn to is very far but close if the plane turned left
-        if (this.facingRight && angleBetweenCWDEG(angleDEG, 135, 225) && angleBetweenCWDEG(myAngle, 315, 45)){
+        if (this.facingRight && angleBetweenCCWDEG(angleDEG, 135, 225) && angleBetweenCCWDEG(myAngle, 315, 45)){
             this.face(false);
             return;
         }
         // If facing left and the angle to turn to is very far but close if the plane turned right
-        else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295, 45) && angleBetweenCWDEG(angleDEG, 135, 225)){
+        else if (!this.facingRight && angleBetweenCCWDEG(angleDEG, 295, 45) && angleBetweenCCWDEG(angleDEG, 135, 225)){
             this.face(true);
             return;
         }
@@ -232,7 +232,6 @@ class BotFighterPlane extends FighterPlane {
         if (calculateAngleDiffDEG(newAngleCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"]){
             return;
         }
-
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
             this.adjustAngle(1);
@@ -289,7 +288,7 @@ class BotFighterPlane extends FighterPlane {
         let entities = this.scene.getPlanes();
         let enemies = [];
         for (let entity of entities){
-            if (entity instanceof FighterPlane && !this.onSameTeam(entity)){
+            if (entity instanceof Plane && !this.onSameTeam(entity)){
                 enemies.push(entity);
             }
         }

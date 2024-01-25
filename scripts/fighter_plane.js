@@ -33,6 +33,7 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     shoot(){
+        SOUND_MANAGER.play("shoot", this.x, this.y);
         this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
     }
 

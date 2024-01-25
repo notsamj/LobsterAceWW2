@@ -37,9 +37,10 @@ class Turret {
     shoot(){
         if (this.shootCD.notReady()){ return; }
         let shootingAngle = this.getShootingAngle();
-        console.log(shootingAngle, this.getFov1(), this.getFov2(), angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2()))
+        console.log(this.getFov1(), this.getFov2())
         if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
         this.shootCD.lock();
+        SOUND_MANAGER.play("shoot", this.getX(), this.getY());
         this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
     }
 

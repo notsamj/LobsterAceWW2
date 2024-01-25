@@ -404,18 +404,30 @@ class PlaneGameScene extends Scene {
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
         let focusedEntity = null;
-        // If 
+
+        // Set up position of the displayed frame of the word based on the focused entity 
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
             //debugger
             lX = focusedEntity.getCenterX() - (this.getWidth()) / 2;
             bY = focusedEntity.getCenterY() - (this.getHeight()) / 2;
         }
+
+        // Play all sounds that are queued for this frame
+        SOUND_MANAGER.playAll(lX, lX + getScreenWidth(), bY, bY + getScreenHeight());
+
+        // Display the background
         this.displayBackground(lX, bY);
+        
+        // Display all planes associated with the team combat manager
         this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1);
+        
+        // Display the currently focused entity
         if (this.hasEntityFocused()){
             this.displayEntity(focusedEntity, lX, bY);
         }
+
+        // Display the HUD
         this.displayHUD();
     }
     

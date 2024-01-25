@@ -14,6 +14,7 @@ class MenuManager {
         this.multiplayerMenu = new MultiplayerMenu();
         this.pauseMenu = new PauseMenu();
         this.dogfightMenu = new DogfightMenu();
+        this.soundMenu = new SoundMenu();
         this.activeMenu = this.mainMenu;
     }
 
@@ -150,6 +151,8 @@ class MenuManager {
             this.activeMenu = null;
         }else if (newMenu == "multiplayer"){
             this.activeMenu = this.multiplayerMenu;
+        }else if (newMenu == "sound"){
+            this.activeMenu = this.soundMenu;
         }else{
             this.activeMenu = null;
         }

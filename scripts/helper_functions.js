@@ -22,6 +22,37 @@ function getScreenHeight(){
 }
 
 /*
+    Method Name: getDegreesFromDisplacement
+    Method Parameters:
+        dX:
+            Displacement in x
+        dY:
+            Displacement in y
+    Method Description: Determines the angle [0,359] from a x and y displacement
+    Method Return: int
+*/
+function getDegreesFromDisplacement(dX, dY){
+    let dXAbs = Math.abs(dX);
+    let dYAbs = Math.abs(dY);
+    if (dXAbs < 1){
+        return dY > 0 ? 90 : 270;
+    }else if (dYAbs < 1){
+        return dX > 0 ? 0 : 180;
+    }
+    let angle = Math.atan(dYAbs / dXAbs);
+    let angleDEG = toDegrees(angle);
+    if (dX < 0 && dY > 0){ // Quadrant 2
+        return fixDegrees(180 - angleDEG);
+    }else if (dX < 0 && dY < 0){ // Quadrant 3
+        return fixDegrees(180 + angleDEG);
+    }else if (dX > 0 && dY < 0){ // Quadrant 4
+        return fixDegrees(360 - angleDEG);
+    }else{ // Quadrant 1
+        return fixDegrees(angleDEG);
+    }
+}
+
+/*
     Method Name: planeModelToType
     Method Parameters:
         model:
@@ -32,6 +63,7 @@ function getScreenHeight(){
 function planeModelToType(model){
     return FILE_DATA["plane_data"][model]["type"];
 }
+
 /*
     Method Name: copyArray
     Method Parameters:
@@ -283,16 +315,16 @@ function calculateAngleDiffDEG(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCW
+    Method Name: calculateAngleDiffDEGCCW
     Method Parameters:
         angle1:
             An angle in degrees
         angle2:
             An angle in degrees
-    Method Description: Calculates the difference between two angles in degrees (in the clockwise direction)
+    Method Description: Calculates the difference between two angles in degrees (in the counter clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCW(angle1, angle2){
+function calculateAngleDiffDEGCCW(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -308,16 +340,16 @@ function calculateAngleDiffDEGCW(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCCW
+    Method Name: calculateAngleDiffDEGCW
     Method Parameters:
         angle1:
             An angle in degrees
         angle2:
             An angle in degrees
-    Method Description: Calculates the difference between two angles in degrees (in the counter clockwise direction)
+    Method Description: Calculates the difference between two angles in degrees (in the clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCCW(angle1, angle2){
+function calculateAngleDiffDEGCW(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -361,7 +393,7 @@ function rotateCCWDEG(angle, amount){
 }
 
 /*
-    Method Name: angleBetweenCWDEG
+    Method Name: angleBetweenCCWDEG
     Method Parameters:
         angle:
             An angle in degrees
@@ -372,7 +404,7 @@ function rotateCCWDEG(angle, amount){
     Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
-function angleBetweenCWDEG(angle, eAngle1, eAngle2){
+function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
     angle = fixDegrees(Math.floor(angle));
     eAngle1 = fixDegrees(Math.floor(eAngle1));
     eAngle2 = fixDegrees(Math.floor(eAngle2));
@@ -384,9 +416,9 @@ function angleBetweenCWDEG(angle, eAngle1, eAngle2){
         if (tAngle == angle){
             return true;
         }
-        tAngle -= 1;
-        if (tAngle == -1){
-            tAngle = 359;
+        tAngle += 1;
+        if (tAngle == 360){
+            tAngle = 0;
         }
     }
     return false;
@@ -416,9 +448,9 @@ function angleBetweenCWDEG(angle, eAngle1, eAngle2){
         if (tAngle == angle){
             return true;
         }
-        tAngle += 1;
-        if (tAngle == 360){
-            tAngle = 0;
+        tAngle -= 1;
+        if (tAngle == -1){
+            tAngle = 359;
         }
     }
     return false;

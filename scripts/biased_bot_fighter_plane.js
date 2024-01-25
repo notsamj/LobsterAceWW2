@@ -112,7 +112,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     handleMovement(angleDEG, distance, enemy){
         // If facing downwards and close to the ground then turn upwards
-        if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
+        if (this.closeToGround() && angleBetweenCCWDEG(this.getShootingAngle(), 180, 359)){
             // Bias
             this.turnInDirection(fixDegrees(90 + this.biases["angle_from_ground"]));
             return;
@@ -229,12 +229,12 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         // Determine if we need to switch from left to right
         let myAngle = this.getShootingAngle();
         // If facing right and the angle to turn to is very far but close if the plane turned left
-        if (this.facingRight && angleBetweenCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"]) && angleBetweenCWDEG(myAngle, 315 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"])){
+        if (this.facingRight && angleBetweenCCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"]) && angleBetweenCCWDEG(myAngle, 315 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"])){
             this.face(false);
             return;
         }
         // If facing left and the angle to turn to is very far but close if the plane turned right
-        else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"]) && angleBetweenCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"])){
+        else if (!this.facingRight && angleBetweenCCWDEG(angleDEG, 295 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"]) && angleBetweenCCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"])){
             this.face(true);
             return;
         }
@@ -243,7 +243,6 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         let newAngleCCW = fixDegrees(this.getShootingAngle() - 1);
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
-        
         // If the angle of the plane currently is very close to the desired angle, not worth moving
         if (calculateAngleDiffDEG(newAngleCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] + this.biases["min_angle_to_adjust"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] + this.biases["min_angle_to_adjust"]){
             return;
@@ -251,19 +250,19 @@ class BiasedBotFighterPlane extends BotFighterPlane {
 
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
-            this.adjustAngle(1);
+            this.adjustAngle(-1);
         }
         // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
         else if (dCW < dCCW && !this.facingRight){
-            this.adjustAngle(-1);
+            this.adjustAngle(1);
         }
         // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
         else if (dCCW < dCW && this.facingRight){
-            this.adjustAngle(-1);
+            this.adjustAngle(1);
         }
         // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
         else if (dCCW < dCW && !this.facingRight){
-            this.adjustAngle(1);
+            this.adjustAngle(-1);
         }
         // Otherwise just turn clockwise (Shouldn't actually be possible?)
         else{

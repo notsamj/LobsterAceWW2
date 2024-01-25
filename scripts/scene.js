@@ -94,13 +94,21 @@ class Scene {
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
         let focusedEntity = null;
-        // If 
+        
+        // Set up position of the displayed frame of the word based on the focused entity 
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
             lX = focusedEntity.getCenterX() - (this.getWidth()) / 2;
             bY = focusedEntity.getCenterY() - (this.getHeight()) / 2;
         }
+        
+        // Play all sounds that are queued for this frame
+        SOUND_MANAGER.playAll(lX, lX + getScreenWidth(), bY, bY + getScreenHeight());
+        
+        // Display the background
         this.displayBackground(lX, bY);
+
+        // Display the entities
         for (let [entity, entityIndex] of this.entities){
             if (this.hasEntityFocused() && entity.getID() == focusedEntity.getID()){ continue; }
             this.displayEntity(entity, lX, bY);

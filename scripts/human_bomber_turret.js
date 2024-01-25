@@ -5,14 +5,11 @@ class HumanBomberTurret extends BomberTurret {
     }
 
     getShootingAngle(){
-        // TODO: Stop using innerWidth
-        let x = window.mouseX - window.innerWidth / 2;
-        let y = this.scene.changeFromScreenY(window.mouseY) - window.innerHeight / 2;
+        let x = window.mouseX - getScreenWidth() / 2;
+        let y = this.scene.changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
         let x0 = 0;
         let y0 = 0;
-        if (x == x0){ return 90; }
-        let angleRAD = Math.atan((y - y0) / (x - x0));
-        return fixDegrees(toDegrees(angleRAD));
+        return getDegreesFromDisplacement(x - x0, y - y0);
     }
 
     checkShoot(){

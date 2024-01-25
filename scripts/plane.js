@@ -177,8 +177,10 @@ class Plane extends Entity {
         Method Return: void
     */
     damage(amount){
+        SOUND_MANAGER.play("damage", this.x, this.y);
         this.health -= amount;
         if (this.health <= 0){
+            SOUND_MANAGER.play("explode", this.x, this.y);
             this.die();
         }
     }
@@ -244,13 +246,7 @@ class Plane extends Entity {
         if (facingRight == this.facingRight){
             return;
         }
-        let newAngle = 360 - this.angle;
-        while (newAngle >= 360){
-            newAngle -= 360;
-        }
-        while (newAngle < 0){
-            newAngle += 360;
-        }
+        let newAngle = fixDegrees(360 - this.angle);
         this.angle = newAngle;
         this.facingRight = facingRight;
         this.speed *= (1 - FILE_DATA["constants"]["SLOW_DOWN_AMOUNT"]);
@@ -351,6 +347,7 @@ class Plane extends Entity {
         }
 
         this.x += this.getXVelocity() * timeProportion;
+        SOUND_MANAGER.play("engine", this.x, this.y);
     }
 
     /*
@@ -376,7 +373,7 @@ class Plane extends Entity {
     getEffectiveAngle(){
         let effectiveAngle = this.angle;
         if (!this.facingRight){
-            effectiveAngle = 360 - effectiveAngle;
+            effectiveAngle = fixDegrees(360 - effectiveAngle);
         }
         return effectiveAngle;
     }
