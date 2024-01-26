@@ -11,7 +11,7 @@ Step 4 (Optional). Select an axis plane by clicking on the image under the headi
 Step 4.1. Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight. \
 Step 5 (Optional). Review the bots that will be participating in the dogfight under the "Bot Details" header and remove as you see fit. You are recommended to use 40 or less planes for a dogfight, however, it varies with PC performance. \
 Step 6. Click on the start button to start the dogfight \
-Step 7. See below instructions depending on the role you have selected \
+Step 7. See below instructions depending on the role you have selected
 
 ### How to play as an allied plane
 If you start off as a plane facing right, then know you are an allied plane. Your task is to destroy all axis planes. These are the red dots on the radar in the top right. \
