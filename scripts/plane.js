@@ -178,7 +178,7 @@ class Plane extends Entity {
     */
     damage(amount){
         SOUND_MANAGER.play("damage", this.x, this.y);
-        this.health -= amount;
+        this.health -= amount * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"];
         if (this.health <= 0){
             SOUND_MANAGER.play("explode", this.x, this.y);
             this.die();
@@ -379,13 +379,13 @@ class Plane extends Entity {
     }
 
     /*
-        Method Name: getShootingAngle
+        Method Name: getNoseAngle
         Method Parameters: None
         Method Description: 
         Determine the angle at which bullets shoot out of the plane
         Method Return: int in range [0,360]
     */
-    getShootingAngle(){
+    getNoseAngle(){
         return fixDegrees(this.angle + (this.facingRight ? 0 : 180));
     }
 
@@ -453,6 +453,11 @@ class Plane extends Entity {
     */
     setHealth(amount){
         this.health = amount;
+    }
+
+    // TODO: Comments
+    isHuman(){
+        return false;
     }
 }
 // When this is opened in NodeJS, export the class

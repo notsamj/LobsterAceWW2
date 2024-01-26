@@ -3,7 +3,7 @@ class SoundManager {
     constructor(){
         this.soundQueue = new NotSamLinkedList();
         this.sounds = [];
-        this.mainVolume = 0; // TODO: Cookies
+        this.mainVolume = getLocalStorage("main volume", 0);
         this.loadSounds();
     }
 
@@ -50,6 +50,7 @@ class SoundManager {
     }
 
     updateVolume(soundName, newVolume){
+        setLocalStorage(soundName, newVolume);
         if (soundName == "main volume"){
             this.mainVolume = newVolume;
             for (let sound of this.sounds){
@@ -66,7 +67,7 @@ class SoundManager {
         if (soundName == "main volume"){
             return this.mainVolume;
         }
-        if (!this.hasSound(soundName)){ console.error("broken"); return 0; }
+        if (!this.hasSound(soundName)){ return 0; }
         let sound = this.findSound(soundName);
         return sound.getVolume();
     }
@@ -90,7 +91,7 @@ class Sound{
     constructor(soundName, mainVolume){
         this.name = soundName;
         this.audio = new Audio(FILE_DATA["sound_data"]["url"] + "/" + this.name + FILE_DATA["sound_data"]["file_type"]);
-        this.volume = 0; // TODO: Cookies
+        this.volume = getLocalStorage(soundName, 0);
         this.adjustByMainVolume(mainVolume);
     }
 

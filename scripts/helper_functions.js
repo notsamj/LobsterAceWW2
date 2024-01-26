@@ -2,6 +2,22 @@
 if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
+// TODO: Some functions new comments
+
+function getLocalStorage(key, valueIfNotFound=null){
+    let value = localStorage.getItem(key);
+    if (value == null){
+        return valueIfNotFound;
+    }
+    return value;
+}
+
+function setLocalStorage(key, value){
+    try {
+        localStorage.setItem(key, value);
+    }catch(e){}
+}
+
 /*
     Method Name: getScreenWidth
     Method Parameters: None

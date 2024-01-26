@@ -373,10 +373,8 @@ class PlaneGameScene extends Scene {
             // Add once more to get back to top left corner
             bottomDisplaySkyX += skyWidth;
 
-            //let bottomDisplaySkyY = bYP + skyImageOffsetY + skyHeight;
             let bottomDisplaySkyY = bYP - skyImageOffsetY;
             // Find bottom corner of image to display in window
-            // TODO: Find out why this bandaid works I was just tired and typing random stuff
             while (bottomDisplaySkyY < bYP + skyHeight - skyImageOffsetY){
                 bottomDisplaySkyY += skyHeight;
             }
@@ -384,9 +382,14 @@ class PlaneGameScene extends Scene {
             // Display ground images
             for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + this.getHeight() + skyHeight; y += skyHeight){
                 for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.getWidth() + skyWidth; x += skyWidth){
-                    //let displayY = y-bYP;
                     let displayX = x-lXP;
-                    drawingContext.drawImage(skyImage, displayX, this.getDisplayY(y, 0, bYP));
+                    let displayY = this.getDisplayY(y, 0, bYP);
+                    // TODO: Remove this
+                    if (displayX != Math.floor(displayX) || displayY != Math.floor(displayY)){
+                        console.error("TESTTTTTT", displayX, displayY);
+                        debugger;
+                    }
+                    drawingContext.drawImage(skyImage, displayX, displayY);
                 }
             }
         }

@@ -27,6 +27,11 @@ class MultiplayerHumanFighterPlane extends HumanFighterPlane {
         }
     }
 
+    // TODO: Comments
+    isHuman(){
+        return true;
+    }
+
     /*
         Method Name: tick
         Method Parameters:

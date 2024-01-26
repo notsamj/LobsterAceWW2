@@ -260,7 +260,6 @@ class Bullet extends Entity {
             // Update hitbox positions
             bHitbox.update(bX, bY);
             oHitbox.update(oX, oY);
-
             // If when @ x,y 
             if (bHitbox.collidesWith(oHitbox)){
                 return true;

@@ -28,6 +28,11 @@ class HumanBomberPlane extends BomberPlane {
         this.generateGuns();
     }
 
+    // TODO: Comments
+    isHuman(){
+        return true;
+    }
+
     /*
         Method Name: generateGuns
         Method Parameters: None

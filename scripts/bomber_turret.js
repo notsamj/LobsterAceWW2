@@ -9,7 +9,7 @@ class BomberTurret extends Turret {
     }
 
     getX(){
-        let planeAngleRAD = toRadians(this.plane.getShootingAngle());
+        let planeAngleRAD = toRadians(this.plane.getNoseAngle());
         if (!this.isFacingRight()){
             planeAngleRAD -= toRadians(180);
         }
@@ -18,7 +18,7 @@ class BomberTurret extends Turret {
     }
 
     getY(){
-        let planeAngleRAD = toRadians(this.plane.getShootingAngle());
+        let planeAngleRAD = toRadians(this.plane.getNoseAngle());
         if (!this.isFacingRight()){
             planeAngleRAD -= toRadians(180);
         }
@@ -43,7 +43,7 @@ class BomberTurret extends Turret {
         if (!this.isFacingRight()){
             adjustedFov += 180;
         }
-        return fixDegrees(adjustedFov + this.plane.getShootingAngle());
+        return fixDegrees(adjustedFov + this.plane.getNoseAngle());
     }
 
     getFov2(){
@@ -51,7 +51,7 @@ class BomberTurret extends Turret {
         if (!this.isFacingRight()){
             adjustedFov += 180;
         }
-        return fixDegrees(adjustedFov + this.plane.getShootingAngle());
+        return fixDegrees(adjustedFov + this.plane.getNoseAngle());
     }
 
     getXVelocity(){

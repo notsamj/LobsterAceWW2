@@ -1,23 +1,9 @@
-// When this is opened in NodeJS, import the required files
-if (typeof window === "undefined"){
-    FighterPlane = require("../scripts/fighter_plane.js");
-    onSameTeam = require("../scripts/helper_functions.js").onSameTeam;
-    Bullet = require("../scripts/bullet.js");
-    var helperFuncs = require("../scripts/helper_functions.js");
-    angleBetweenCCWDEG = helperFuncs.angleBetweenCCWDEG;
-    fixDegrees = helperFuncs.fixDegrees;
-    calculateAngleDiffDEGCW = helperFuncs.calculateAngleDiffDEGCW;
-    calculateAngleDiffDEGCCW = helperFuncs.calculateAngleDiffDEGCCW;
-    calculateAngleDiffDEG = helperFuncs.calculateAngleDiffDEG;
-    toDegrees = helperFuncs.toDegrees;
-    InfiniteLoopFinder = require("../scripts/infinite_loop_finder.js");
-}
 /*
-    Class Name: BotFighterPlane
-    Description: A subclass of the FighterPlane that determines actions without human input
+    TODO: Comment this
+    Class Name: BotBomberPlane
+    Description: A subclass of the BomberPlane that determines actions without human input
 */
-// TODO: Some stuff in this class might be fucked but saved by biased fighter plane
-class BotFighterPlane extends FighterPlane {
+class BotBomberPlane extends BomberPlane {
     /*
         Method Name: constructor
         Method Parameters:
@@ -35,9 +21,22 @@ class BotFighterPlane extends FighterPlane {
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
         this.currentEnemyID = null;
-        this.turningDirection = null;
-        this.ticksOnCourse = 0;
-        this.tickCD = 0;
+        this.udLock = new CooldownLock(40);
+        this.lrCDLock = new CooldownLock(10);
+        this.generateGuns();
+    }
+
+    /*
+        Method Name: generateGuns
+        Method Parameters: None
+        Method Description: Create gun objects for the plane
+        Method Return: void
+    */
+    generateGuns(){
+        this.guns = [];
+        for (let gunObj of FILE_DATA["plane_data"][this.planeClass]["guns"]){
+            this.guns.push(BotBomerTurret.create(gunObj, this.scene, this));
+        }
     }
 
     /*
@@ -50,17 +49,70 @@ class BotFighterPlane extends FighterPlane {
     */
     tick(timeDiffMS){
         super.tick(timeDiffMS);
+        let centerOfFriendyMass = this.findFriendlyCenter();
+        // If there are friendlies then the top priority is to be near them
+        if (!centerOfFriendyMass["empty"]){
+            let distance = this.distanceToPoint(centerOfFriendyMass["centerX"], centerOfFriendyMass["centerY"]);
+            // If we are far from friendlies then move to their center
+            if (distance > FILE_DATA["constants"]["BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT"]){
+                let angleDEG = displacementToDegrees(centerOfFriendyMass["centerX"] - this.x, centerOfFriendyMass["centerY"] - this.y);
+                this.turnInDirection(angleDEG);
+            }
+            this.checkGuns();
+            return;
+        }
+        // Otherwise we are just looking for enemies
+
         // Check if the selected enemy should be changed
         this.updateEnemy();
         // If there is an enemy then act accordingly
         if (this.hasCurrentEnemy()){
             let enemy = this.scene.getEntity(this.currentEnemyID);
             this.handleEnemy(enemy);
+            this.checkGuns();
         }else{ // No enemy -> make sure not to crash into the ground
             if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
                 this.turnInDirection(90);
+                this.checkGuns();
                 return;
             }
+        }
+    }
+
+    findFriendlyCenter(){
+        let totalX = 0;
+        let totalY = 0;
+        let friendlies = this.getFriendlyList();
+        if (friendlies.length == 0){
+            return {"empty": true};
+        }
+        let fC = 0;
+        // Loop through all friendlies and determine the center of them
+        for (let friendly of friendlies){
+            if (friendly instanceof BotBomberPlane){ continue; } // bot bomber's don't count so we don't end up in a loop
+            totalX += friendly.getX();
+            totalY += friendly.getY();
+            fC++;
+        }
+        if (fC == 0){ return {"empty": true}; }
+        return {"empty": false, "centerX": totalX/fC, "centerY": totalY/fC};
+    }
+
+    getFriendlyList(){
+        let entities = this.scene.getPlanes();
+        let enemies = [];
+        for (let entity of entities){
+            if (entity instanceof Plane && this.onSameTeam(entity)){
+                enemies.push(entity);
+            }
+        }
+        return enemies;
+    }
+
+    checkGuns(){
+        let enemyList = this.getEnemyList();
+        for (let gun of this.guns){
+            gun.checkShoot(enemyList);
         }
     }
 
@@ -74,17 +126,16 @@ class BotFighterPlane extends FighterPlane {
     */
     handleEnemy(enemy){
         // Separate into two things
-        let myX = this.getGunX();
-        let myY = this.getGunY();
+        let myX = this.getX();
+        let myY = this.getY();
         let enemyX = enemy.getX();
         let enemyY = enemy.getY();
         let enemyXDisplacement = enemyX - myX;
         let enemyYDisplacement = enemyY - myY;
         let distanceToEnemy = this.distance(enemy);
 
-        // To prevent issues in calculating angles, if the enemy is ontop of you just shoot and do nothing else
+        // To prevent issues in calculating angles, if the enemy is ontop of you no need to move
         if (distanceToEnemy < 1){
-            this.tryToShootAtEnemy(0, 1, 1);
             return;
         }
         // Otherwise enemy is not too much "on top" of the bot
@@ -94,23 +145,6 @@ class BotFighterPlane extends FighterPlane {
 
         // Give information to handleMovement and let it decide how to move
         this.handleMovement(angleDEG, distanceToEnemy, enemy);
-
-        // Shoot if the enemy is in front
-        let hasFiredShot = this.tryToShootAtEnemy(angleDifference, enemy.getHitbox().getRadius(), distanceToEnemy);
-        if (hasFiredShot){ return; }
-
-        // Look for other enemies that aren't the primary focus and if they are infront of the plane then shoot
-        for (let secondaryEnemy of this.getEnemyList()){
-            if (hasFiredShot){ break; }
-            enemyX = secondaryEnemy.getX();
-            enemyY = secondaryEnemy.getY();
-            enemyXDisplacement = enemyX - myX;
-            enemyYDisplacement = enemyY - myY;
-            angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
-            angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
-            distanceToEnemy = this.distance(secondaryEnemy);
-            hasFiredShot = this.tryToShootAtEnemy(angleDifference, secondaryEnemy.getHitbox().getRadius(), distanceToEnemy);
-        }
     }
 
     /*
@@ -135,61 +169,8 @@ class BotFighterPlane extends FighterPlane {
         // Point to enemy when very far away
         if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"]){
             this.turnInDirection(angleDEG);
-            this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
         }
-
-        // Else at a medium distance to enemy
-        this.handleClose(angleDEG, distance, enemy);
-    }
-
-    handleClose(angleDEG, distance, enemy){
-        let myAngle = this.getNoseAngle();
-
-        // If enemy is behind, so evasive manuevers
-        if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, 135), rotateCCWDEG(myAngle, 135)) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF){
-            this.evasiveManeuver(enemy, distance);
-            return;
-        }
-
-        // If on a movement cooldown
-        if (this.tickCD-- > 0){
-            return;
-        }
-
-        // Not doing evausive maneuevers
-        // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= FILE_DATA["ai"]["max_ticks_on_course"]){
-            this.tickCD = FILE_DATA["ai"]["tick_cd"];
-            this.ticksOnCourse = 0;
-        }
-
-        this.turningDirection = null;
-        this.ticksOnCourse += 1;
-        this.turnInDirection(angleDEG);
-    }
-
-    /*
-        Method Name: comeUpWithEvasiveTurningDirection
-        Method Parameters: None
-        Method Description: Pick a direction to turn when you must conduct evasive maneuvers
-        Method Return: True, turn cw, false then turn ccw
-    */
-    comeUpWithEvasiveTurningDirection(){
-        return (randomNumberInclusive(1, 2) == 1) ? 1 : -1;
-    }
-
-    /*
-        Method Name: evasiveManeuver
-        Method Parameters: None
-        Method Description: Turn to a direction as part of an evasive maneuver
-        Method Return: void
-    */
-    evasiveManeuver(){
-        if (this.turningDirection == null){
-            this.turningDirection = this.comeUpWithEvasiveTurningDirection();
-        }
-        this.adjustAngle(this.turningDirection);
     }
 
     /*
@@ -215,15 +196,21 @@ class BotFighterPlane extends FighterPlane {
         let myAngle = this.getNoseAngle();
         // If facing right and the angle to turn to is very far but close if the plane turned left
         if (this.facingRight && angleBetweenCCWDEG(angleDEG, 135, 225) && angleBetweenCCWDEG(myAngle, 315, 45)){
+             if (this.lrCDLock.notReady()){ return; }
+            this.lrCDLock.lock();
             this.face(false);
             return;
         }
         // If facing left and the angle to turn to is very far but close if the plane turned right
         else if (!this.facingRight && angleBetweenCCWDEG(angleDEG, 295, 45) && angleBetweenCCWDEG(angleDEG, 135, 225)){
+            if (this.lrCDLock.notReady()){ return; }
+            this.lrCDLock.lock();
             this.face(true);
             return;
         }
 
+        if (this.udLock.notReady()){ return; }
+        this.udLock.lock();
         let newAngleCW = fixDegrees(this.getNoseAngle() + 1);
         let newAngleCCW = fixDegrees(this.getNoseAngle() - 1);
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
@@ -257,35 +244,13 @@ class BotFighterPlane extends FighterPlane {
     }
 
     /*
-        Method Name: tryToShootAtEnemy
-        Method Parameters:
-            angleDifference:
-                Difference between current angle and the angle to the enemy
-            enemyRadius:
-                The radius of the enemy's hitbox
-            distanceToEnemy:
-                The distance to the enemy
-        Method Description: Turn the plane in a given direction. True if shot, false if not.
-        Method Return: boolean
-    */
-    tryToShootAtEnemy(angleDifference, enemyRadius, distanceToEnemy){
-        let angleAllowanceAtRangeDEG = toDegrees(Math.abs(Math.atan(enemyRadius / distanceToEnemy)));
-        // If ready to shoot and the angle & distance are acceptable then shoot
-        if (this.shootLock.isReady() && angleDifference < angleAllowanceAtRangeDEG && distanceToEnemy < this.getMaxShootingDistance()){
-            this.shootLock.lock();
-            this.shoot();
-            return true;
-        }
-        return false;
-    }
-
-    /*
         Method Name: getEnemyList
         Method Parameters: None
         Method Description: Find all the enemies and return them
         Method Return: List
     */
     getEnemyList(){
+        // TODO: Sort by distance (close -> far)
         let entities = this.scene.getPlanes();
         let enemies = [];
         for (let entity of entities){
@@ -315,7 +280,7 @@ class BotFighterPlane extends FighterPlane {
             if (bestRecord == null || distance < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? FILE_DATA["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
+                    "score": distance
                 }
             }
         }
@@ -362,30 +327,9 @@ class BotFighterPlane extends FighterPlane {
     getMaxShootingDistance(){
         return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"];
     }
-
-    /*
-        Method Name: isFocused
-        Method Parameters:
-            scene:
-                A Scene object related to the fighter plane
-            enemyID:
-                A string ID of the enemy plane
-            myID:
-                A string ID of the plane making the inquiry
-        Method Description: Determines if another plane is focused on an enemy that "I" am thinking about focusing on
-        Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
-    */
-    static isFocused(scene, enemyID, myID){
-        for (let entity of scene.getEntities()){
-            if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
-                return true;
-            }
-        }
-        return false;
-    }
 }
 
 // If using Node JS Export the class
 if (typeof window === "undefined"){
-    module.exports = BotFighterPlane;
+    module.exports = BotBomberPlane;
 }

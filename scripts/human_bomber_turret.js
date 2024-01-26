@@ -4,7 +4,7 @@ class HumanBomberTurret extends BomberTurret {
         super(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane);
     }
 
-    getShootingAngle(){
+    getNoseAngle(){
         let x = window.mouseX - getScreenWidth() / 2;
         let y = this.scene.changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
         let x0 = 0;

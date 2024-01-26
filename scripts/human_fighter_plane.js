@@ -27,6 +27,11 @@ class HumanFighterPlane extends FighterPlane {
         this.radar = new PlaneRadar(this);
     }
 
+    // TODO: Comments
+    isHuman(){
+        return true;
+    }
+    
     /*
         Method Name: die
         Method Parameters: None

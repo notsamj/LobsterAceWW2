@@ -47,49 +47,13 @@ class PlaneRadar extends Radar {
         let xOffsetAmount = Math.min(Math.floor(Math.abs(myX-enemyX)/this.blipDistance), (this.size - 2)/2);
         let yOffsetAmount = Math.min(Math.floor(Math.abs(myY-enemyY)/this.blipDistance), (this.size - 2)/2);
         if (enemyX < myX && enemyY > myY){
-            this.radarData[this.size/2-1-xOffsetAmount][this.size/2-1-yOffsetAmount] = true;
+            this.radarData[this.size/2-1-xOffsetAmount][this.size/2-1-yOffsetAmount] = "red";
         }else if (enemyX < myX && enemyY < myY){
-            this.radarData[this.size/2-1-xOffsetAmount][this.size/2+yOffsetAmount] = true;
+            this.radarData[this.size/2-1-xOffsetAmount][this.size/2+yOffsetAmount] = "red";
         }else if (enemyX > myX && enemyY < myY){
-            this.radarData[this.size/2+xOffsetAmount][this.size/2+yOffsetAmount] = true;
+            this.radarData[this.size/2+xOffsetAmount][this.size/2+yOffsetAmount] = "red";
         }else{ // if (enemyX > myX && enemyY > myY)
-            this.radarData[this.size/2+xOffsetAmount][this.size/2-1-yOffsetAmount] = true;
-        }
-    }
-
-    /*
-        Method Name: resetRadar
-        Method Parameters: None
-        Method Description: Resets the radar
-        Method Return: void
-    */
-    resetRadar(){
-        let array2D = [];
-        for (let i = 0; i < this.size; i++){
-            let newRow = [];
-            for (let j = 0; j < this.size; j++){
-                newRow.push(false);
-            }
-            array2D.push(newRow);
-        }
-        return array2D;
-    }
-
-    /*
-        Method Name: display
-        Method Parameters: None
-        Method Description: Displays the radar on the screen
-        Method Return: void
-    */
-    display(){
-        drawingContext.drawImage(this.radarOutline, this.getScreenX(), this.getScreenY());
-        let borderWidth = 2;
-        for (let x = 0; x < this.size; x++){
-            for (let y = 0; y < this.size; y++){
-                if (this.radarData[x][y]){
-                    drawingContext.drawImage(this.radarBlip, this.getScreenX() + borderWidth + this.blipSize * x, this.getScreenY() + borderWidth + this.blipSize * y);
-                }
-            }
+            this.radarData[this.size/2+xOffsetAmount][this.size/2-1-yOffsetAmount] = "red";
         }
     }
 }

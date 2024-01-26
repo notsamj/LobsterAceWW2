@@ -102,7 +102,21 @@ class Entity {
         Method Return: float
     */
     distance(entity){
-        return Math.sqrt(Math.pow(entity.getX() - this.x, 2) + Math.pow(entity.getY() - this.y, 2));
+        return this.distanceToPoint(entity.getX(), entity.getY());
+    }
+
+    /*
+        Method Name: distanceToPoint
+        Method Parameters:
+            x:
+                x location
+            y:
+                y location
+        Method Description: Calculates the euclidian distance between this entity and a point
+        Method Return: float
+    */
+    distanceToPoint(x, y){
+        return Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2));
     }
 
 

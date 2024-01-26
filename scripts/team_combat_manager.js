@@ -372,7 +372,7 @@ class TeamCombatManager {
     handleKill(bullet, deadPlane){
         let shooter = this.getEntity(bullet.getShooterID());
         // If human 
-        if (!(shooter instanceof BotFighterPlane) && !(shooter instanceof MultiplayerRemoteFighterPlane)){
+        if (shooter.isHuman()){
             AfterMatchStats.addPlayerKill(planeModelToAlliance(shooter.getPlaneClass()));
         }else{
             AfterMatchStats.addBotKill(shooter.getPlaneClass());

@@ -24,7 +24,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
             scene:
                 A Scene object related to the fighter plane
             biases:
-                A object containing keys and bias values
+                An object containing keys and bias values
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -52,8 +52,8 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     handleEnemy(enemy){
         // Establish basic facts
-        let myX = this.getX();
-        let myY = this.getY();
+        let myX = this.getGunX();
+        let myY = this.getGunY();
         let enemyX = enemy.getX();
         let enemyY = enemy.getY();
         let enemyXDisplacement = enemyX - myX;
@@ -69,7 +69,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         }
 
         // Otherwise enemy is not too much "on top" of the bot
-        let shootingAngle = this.getShootingAngle();
+        let shootingAngle = this.getNoseAngle();
         let angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
         
         // Bias
@@ -112,7 +112,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     handleMovement(angleDEG, distance, enemy){
         // If facing downwards and close to the ground then turn upwards
-        if (this.closeToGround() && angleBetweenCCWDEG(this.getShootingAngle(), 180, 359)){
+        if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
             // Bias
             this.turnInDirection(fixDegrees(90 + this.biases["angle_from_ground"]));
             return;
@@ -143,7 +143,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         Method Return: void
     */
     handleClose(angleDEG, distance, enemy){
-        let myAngle = this.getShootingAngle();
+        let myAngle = this.getNoseAngle();
 
         // If enemy is behind, then do evasive manuevers
         if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"])), rotateCCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"]))) && distance < this.getMaxSpeed() * FILE_DATA["constants"]["EVASIVE_SPEED_DIFF"] + this.biases["enemy_close_distance"]){
@@ -227,7 +227,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     turnInDirection(angleDEG){
         // Determine if we need to switch from left to right
-        let myAngle = this.getShootingAngle();
+        let myAngle = this.getNoseAngle();
         // If facing right and the angle to turn to is very far but close if the plane turned left
         if (this.facingRight && angleBetweenCCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"]) && angleBetweenCCWDEG(myAngle, 315 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"])){
             this.face(false);
@@ -239,8 +239,8 @@ class BiasedBotFighterPlane extends BotFighterPlane {
             return;
         }
         
-        let newAngleCW = fixDegrees(this.getShootingAngle() + 1);
-        let newAngleCCW = fixDegrees(this.getShootingAngle() - 1);
+        let newAngleCW = fixDegrees(this.getNoseAngle() + 1);
+        let newAngleCCW = fixDegrees(this.getNoseAngle() - 1);
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
         // If the angle of the plane currently is very close to the desired angle, not worth moving
