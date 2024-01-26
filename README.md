@@ -6,9 +6,9 @@ https://notsamj.github.io/WW2PlaneGame/
 Step 1. Click on Dogfight \
 Step 2. Select your chosen plane (or Camera) by clicking on the image under the heading "User" \
 Step 3 (Optional). Select an allied plane by clicking on the image under the heading "Allies" \
->  Step 3.1. Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight. \
+Step 3.1. Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight. \
 Step 4 (Optional). Select an axis plane by clicking on the image under the heading "Axis" \
->  Step 4.1. Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight. \
+Step 4.1. Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight. \
 Step 5 (Optional). Review the bots that will be participating in the dogfight under the "Bot Details" header and remove as you see fit. You are recommended to use 40 or less planes for a dogfight, however, it varies with PC performance. \
 Step 6. Click on the start button to start the dogfight \
 Step 7. See below instructions depending on the role you have selected \
