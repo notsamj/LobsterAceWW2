@@ -14,12 +14,22 @@ class Menu {
         this.components = [];
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getWidth
+        Method Parameters: None
+        Method Description: Finds the width of the screen and returns it
+        Method Return: int
+    */
     getWidth(){
         return getScreenWidth();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getHeight
+        Method Parameters: None
+        Method Description: Finds the height of the screen and returns it
+        Method Return: int
+    */
     getHeight(){
         return getScreenHeight();
     }

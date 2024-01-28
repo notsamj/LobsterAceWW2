@@ -384,11 +384,6 @@ class PlaneGameScene extends Scene {
                 for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.getWidth() + skyWidth; x += skyWidth){
                     let displayX = x-lXP;
                     let displayY = this.getDisplayY(y, 0, bYP);
-                    // TODO: Remove this
-                    if (displayX != Math.floor(displayX) || displayY != Math.floor(displayY)){
-                        console.error("TESTTTTTT", displayX, displayY);
-                        debugger;
-                    }
                     drawingContext.drawImage(skyImage, displayX, displayY);
                 }
             }

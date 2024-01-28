@@ -27,7 +27,12 @@ class HumanFighterPlane extends FighterPlane {
         this.radar = new PlaneRadar(this);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: isHuman
+        Method Parameters: None
+        Method Description: Determines whether the entity is controlled by a human.
+        Method Return: boolean, true -> is controlled by a human, false -> is not controlled by a human
+    */
     isHuman(){
         return true;
     }

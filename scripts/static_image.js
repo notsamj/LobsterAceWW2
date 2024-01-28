@@ -23,14 +23,32 @@ class StaticImage extends Component {
         this.onClick = null;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getX
+        Method Parameters: None
+        Method Description: Determines the x value of this component. Depends on whether it is set as a function of the screen dimensions or static.
+        Method Return: int
+    */
     getX(){
-        return this.x(getScreenWidth());
+        if (typeof this.x === "function"){
+            return this.x(getScreenWidth());
+        }else{
+            return this.x;
+        }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getY
+        Method Parameters: None
+        Method Description: Determines the y value of this component. Depends on whether it is set as a function of the screen dimensions or static.
+        Method Return: int
+    */
     getY(){
-        return this.y(getScreenHeight());
+        if (typeof this.y === "function"){
+            return this.y(getScreenHeight());
+        }else{
+            return this.y;
+        }
     }
 
     /*

@@ -1,5 +1,4 @@
 /*
-    TODO: Comment this
     Class Name: BotBomberPlane
     Description: A subclass of the BomberPlane that determines actions without human input
 */
@@ -79,6 +78,12 @@ class BotBomberPlane extends BomberPlane {
         }
     }
 
+    /*
+        Method Name: findFriendlyCenter
+        Method Parameters: None
+        Method Description: Finds the center location of all friendly planes (excluding bombers)
+        Method Return: JSON Object
+    */
     findFriendlyCenter(){
         let totalX = 0;
         let totalY = 0;
@@ -98,6 +103,12 @@ class BotBomberPlane extends BomberPlane {
         return {"empty": false, "centerX": totalX/fC, "centerY": totalY/fC};
     }
 
+    /*
+        Method Name: getFriendlyList
+        Method Parameters: None
+        Method Description: Creates a list of all friendly planes
+        Method Return: List of planes
+    */
     getFriendlyList(){
         let entities = this.scene.getPlanes();
         let enemies = [];
@@ -109,6 +120,12 @@ class BotBomberPlane extends BomberPlane {
         return enemies;
     }
 
+    /*
+        Method Name: checkGuns
+        Method Parameters: None
+        Method Description: Checks if each gun on the bomber plane can shoot
+        Method Return: void
+    */
     checkGuns(){
         let enemyList = this.getEnemyList();
         for (let gun of this.guns){

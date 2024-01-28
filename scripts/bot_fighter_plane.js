@@ -16,7 +16,7 @@ if (typeof window === "undefined"){
     Class Name: BotFighterPlane
     Description: A subclass of the FighterPlane that determines actions without human input
 */
-// TODO: Some stuff in this class might be fucked but saved by biased fighter plane
+// TODO: Some stuff in this class might be broken but saved by biased fighter plane (because BotFighterPlane is abstract and only the overridden functions are used in practice [at the moment])
 class BotFighterPlane extends FighterPlane {
     /*
         Method Name: constructor

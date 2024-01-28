@@ -28,7 +28,12 @@ class HumanBomberPlane extends BomberPlane {
         this.generateGuns();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: isHuman
+        Method Parameters: None
+        Method Description: Determines whether the entity is controlled by a human.
+        Method Return: boolean, true -> is controlled by a human, false -> is not controlled by a human
+    */
     isHuman(){
         return true;
     }
@@ -197,7 +202,12 @@ class HumanBomberPlane extends BomberPlane {
         }
     }
 
-    // TODO: Needs comment
+    /*
+        Method Name: checkShoot
+        Method Parameters: None
+        Method Description: Checks if each gun is able to shoot (and shoots if able)
+        Method Return: void
+    */
     checkShoot(){
         for (let gun of this.guns){
             gun.checkShoot();

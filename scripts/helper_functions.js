@@ -2,8 +2,17 @@
 if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
-// TODO: Some functions new comments
 
+/*
+    Method Name: getLocalStorage
+    Method Parameters:
+        key:
+            Key of the item in local storage
+        valueIfNotFound:
+            Value to return if the item cannot be found
+    Method Description: Finds a value from storage, returns valueIfNotFound if not found.
+    Method Return: void
+*/
 function getLocalStorage(key, valueIfNotFound=null){
     let value = localStorage.getItem(key);
     if (value == null){
@@ -12,6 +21,16 @@ function getLocalStorage(key, valueIfNotFound=null){
     return value;
 }
 
+/*
+    Method Name: setLocalStorage
+    Method Parameters:
+        key:
+            Key of the item in local storage
+        value:
+            Value to put in local storage
+    Method Description: Assignes a key to a value in local storage. Errors are not *really* handled.
+    Method Return: void
+*/
 function setLocalStorage(key, value){
     try {
         localStorage.setItem(key, value);

@@ -37,7 +37,12 @@ class RectangleButton extends Component {
         this.callBack = callBack;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getX
+        Method Parameters: None
+        Method Description: Determines the x value of this component. Depends on whether it is set as a function of the screen dimensions or static.
+        Method Return: int
+    */
     getX(){
         if (typeof this.x === "function"){
             return this.x(getScreenWidth());
@@ -46,7 +51,12 @@ class RectangleButton extends Component {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getY
+        Method Parameters: None
+        Method Description: Determines the y value of this component. Depends on whether it is set as a function of the screen dimensions or static.
+        Method Return: int
+    */
     getY(){
         if (typeof this.y === "function"){
             return this.y(getScreenHeight());
@@ -55,7 +65,12 @@ class RectangleButton extends Component {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getWidth
+        Method Parameters: None
+        Method Description: Determines the width value of this component. Depends on whether it is set as a function of the screen dimensions or static.
+        Method Return: int
+    */
     getWidth(){
         if (typeof this.width === "function"){
             return this.width(getScreenWidth());
@@ -64,7 +79,12 @@ class RectangleButton extends Component {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getHeight
+        Method Parameters: None
+        Method Description: Determines the height value of this component. Depends on whether it is set as a function of the screen dimensions or static.
+        Method Return: int
+    */
     getHeight(){
         if (typeof this.height === "function"){
             return this.height(getScreenHeight());

@@ -37,7 +37,12 @@ class FighterPlane extends Plane {
         this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
     }
 
-    // TODO: These functions need comments
+        /*
+        Method Name: getGunX
+        Method Parameters: None
+        Method Description: Calculates the location of the gun on the x axis. Takes into account the angle of the attached plane and its offset.
+        Method Return: float
+    */
     getGunX(){
         let planeAngleRAD = toRadians(this.getNoseAngle());
         if (!this.isFacingRight()){
@@ -47,6 +52,12 @@ class FighterPlane extends Plane {
         return rotatedX;
     }
 
+    /*
+        Method Name: getGunY
+        Method Parameters: None
+        Method Description: Calculates the location of the gun on the y axis. Takes into account the angle of the attached plane and its offset.
+        Method Return: float
+    */
     getGunY(){
         let planeAngleRAD = toRadians(this.getNoseAngle());
         if (!this.isFacingRight()){
