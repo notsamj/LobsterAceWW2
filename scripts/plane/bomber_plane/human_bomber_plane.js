@@ -1,30 +1,54 @@
 /*
-    Class Name: HumanFighterPlane
-    Description: A fighter plane operated by a human
+    Class Name: HumanBomberPlane
+    Description: A bomber plane operated by a human
 */
-class HumanFighterPlane extends FighterPlane {
+class HumanBomberPlane extends BomberPlane {
     /*
         Method Name: constructor
         Method Parameters:
             planeClass:
                 A string representing the type of plane
             scene:
-                A Scene object related to the fighter plane
+                A Scene object related to the bomber plane
             angle:
-                The starting angle of the fighter plane (integer)
+                The starting angle of the bomber plane (integer)
             facingRight:
-                The starting orientation of the fighter plane (boolean)
+                The starting orientation of the bomber plane (boolean)
         Method Description: Constructor
         Method Return: Constructor
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
+        this.udLock = new CooldownLock(40);
         this.lrCDLock = new CooldownLock(10);
         this.lrLock = new Lock();
         this.tLock = new CooldownLock(10);
-        this.sLock = new CooldownLock(10);
         this.radarLock = new CooldownLock(1000);
         this.radar = new PlaneRadar(this);
+        this.generateGuns();
+    }
+
+    /*
+        Method Name: isHuman
+        Method Parameters: None
+        Method Description: Determines whether the entity is controlled by a human.
+        Method Return: boolean, true -> is controlled by a human, false -> is not controlled by a human
+    */
+    isHuman(){
+        return true;
+    }
+
+    /*
+        Method Name: generateGuns
+        Method Parameters: None
+        Method Description: Create gun objects for the plane
+        Method Return: void
+    */
+    generateGuns(){
+        this.guns = [];
+        for (let gunObj of FILE_DATA["plane_data"][this.planeClass]["guns"]){
+            this.guns.push(HumanBomberTurret.create(gunObj, this.scene, this));
+        }
     }
 
     /*
@@ -62,8 +86,8 @@ class HumanFighterPlane extends FighterPlane {
         super.tick(timeDiffMS);
         this.checkMoveLeftRight();
         this.checkUpDown();
-        this.checkShoot();
         this.checkThrottle();
+        this.checkShoot();
         this.updateRadar();
     }
 
@@ -95,7 +119,7 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkMoveLeftRight(){
-        if (!this.lrCDLock.isReady()){ return; }
+        if (!this.lrCDLock.isReady()){ return; } // TODO: Why is this here, is this useful?
         this.lrCDLock.lock();
         let aKey = keyIsDown(65);
         let dKey = keyIsDown(68);
@@ -139,7 +163,10 @@ class HumanFighterPlane extends FighterPlane {
             return;
         }else if (numKeysDown > 1){ // Can't which while holding > 1 key
             return;
+        }else if (this.udLock.notReady()){
+            return;
         }
+        this.udLock.lock();
         if (wKey){
             this.adjustAngle(-1);
         }else if (sKey){
@@ -178,17 +205,12 @@ class HumanFighterPlane extends FighterPlane {
     /*
         Method Name: checkShoot
         Method Parameters: None
-        Method Description: Check if the user wishes to shoot
+        Method Description: Checks if each gun is able to shoot (and shoots if able)
         Method Return: void
     */
     checkShoot(){
-        if (!this.sLock.isReady()){ return; }
-        this.sLock.lock();
-        let spaceKey = keyIsDown(32);
-        if (!this.shootLock.isReady() || !spaceKey){
-            return;
+        for (let gun of this.guns){
+            gun.checkShoot();
         }
-        this.shootLock.lock();
-        this.shoot();
     }
 }

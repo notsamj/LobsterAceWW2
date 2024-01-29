@@ -203,73 +203,151 @@ class Bullet extends Entity {
         Method Return: boolean, true if collides, false otherwise
     */
     collidesWith(otherEntity, timeDiff){
-        let timeProportion = timeDiff / 1000;
-
-        let bHitbox = this.getHitbox();
-        let bXV = this.getXVelocity();
-        let bYV = this.getYVelocity();
-        let bEndX = this.x;
-        let bEndY = this.y;
-        let bStartX = bEndX - bXV * timeProportion;
-        let bStartY = bEndY - bYV * timeProportion;
-        let bX = bStartX;
-        let bY = bStartY;
-
-        let oHitbox = otherEntity.getHitbox();
-        let oXV = otherEntity.getXVelocity();
-        let oYV = otherEntity.getYVelocity();
-        let oEndX = otherEntity.getX();
-        let oEndY = otherEntity.getY();
-        let oStartX = oEndX - oXV * timeProportion;
-        let oStartY = oEndY - oYV * timeProportion;
-        let oX = oStartX;
-        let oY = oStartY;
-
-        // Before doing the costly interpolation, try to simplify
-        let bMinX = Math.min(bStartX, bEndX) - bHitbox.getRadiusEquivalentX();
-        let bMaxX = Math.max(bStartX, bEndX) + bHitbox.getRadiusEquivalentX();
-        let bMinY = Math.min(bStartY, bEndY) - bHitbox.getRadiusEquivalentY();
-        let bMaxY = Math.max(bStartY, bEndY) + bHitbox.getRadiusEquivalentY();
-
-        let oMinX = Math.min(oStartX, oEndX) - oHitbox.getRadiusEquivalentX();
-        let oMaxX = Math.max(oStartX, oEndX) + oHitbox.getRadiusEquivalentX();
-        let oMinY = Math.min(oStartY, oEndY) - oHitbox.getRadiusEquivalentY();
-        let oMaxY = Math.max(oStartY, oEndY) + oHitbox.getRadiusEquivalentY();
-
-        // Check if these objects are far enough apart that its not worth performing further computations
-        if (bMinX > oMaxX){ return false; }
-        if (bMinY > oMaxY){ return false; }
-        if (bMaxX < oMinX){ return false; }
-        if (bMaxY < oMinY){ return false; }
-
-        // Loop from start position to end position
-        while (lessThanEQDir(bX, bEndX, bXV) && lessThanEQDir(bY, bEndY, bYV) && lessThanEQDir(oX, oEndX, oXV) && lessThanEQDir(oY, oEndY, oYV)){
-            // Determine time or next pixel for either object
-            let bXTime = (Math.abs(bXV) >= FILE_DATA["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(bX, bXV) - bX))/(Math.abs(bXV))) : Number.MAX_SAFE_INTEGER;
-            let bYTime = (Math.abs(bYV) >= FILE_DATA["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(bY, bYV) - bY))/(Math.abs(bYV))) : Number.MAX_SAFE_INTEGER;
-            let oXTime = (Math.abs(oXV) >= FILE_DATA["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(oX, oXV) - oX))/(Math.abs(oXV))) : Number.MAX_SAFE_INTEGER;
-            let oYTime = (Math.abs(oYV) >= FILE_DATA["constants"]["MIN_VELOCITY_ASSUMPTION"]) ? ((Math.abs(nextIntInDir(oY, oYV) - oY))/(Math.abs(oYV))) : Number.MAX_SAFE_INTEGER;
-            // Depending on which pixel is going to next
-            let minTime = Math.min(bXTime, bYTime, oXTime, oYTime);
-            // Update positions based on time
-            bX += minTime * bXV;
-            bY += minTime * bYV;
-            oX += minTime * oXV;
-            oY += minTime * oYV;
-
-            // Update hitbox positions
-            bHitbox.update(bX, bY);
-            oHitbox.update(oX, oY);
-
-            // If when @ x,y 
-            if (bHitbox.collidesWith(oHitbox)){
-                return true;
-            }
-        }
-        return false;
+        return hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), otherEntity.getHitbox(), otherEntity.getX(), otherEntity.getY(), otherEntity.getXVelocity(), otherEntity.getYVelocity(), timeDiff/1000);
     }
 }
 // If using Node JS Export the class
 if (typeof window === "undefined"){
     module.exports = Bullet;
+}
+/*
+    Method Name: hitInTime
+    Method Parameters:
+        h1:
+            Hitbox of object 1
+        h1X:
+            Starting x of object 1
+        h1Y:
+            Starting y of object 1
+        h1VX:
+            Starting x velocity of object 1
+        h1VY:
+            Starting y velocity of object 1
+        h2:
+            Hitbox of object 2
+        h2X:
+            Starting x of object 2
+        h2Y:
+            Starting y of object 2
+        h2VX:
+            Starting x velocity of object 2
+        h2VY:
+            Starting y velocity of object 2
+        timeProportion:
+            Proportion of time over which to check (example: if velocity is 1m/s then timeProption will be [0,Infinity] in the unit m/s so if timeProportion is 1 then an object with 1m/s velocity will move 1 meter)
+    Method Description: Determine if two objects collide within a given time frame
+    Method Return: boolean, true if collide, false if don't collide
+    Note: 
+        - May expand hitboxes by up to 1 pixel.
+        - Doesn't seem to be performing better experimentally than the old function but it should be better in theory
+*/
+function hitInTime(h1, h1X, h1Y, h1VX, h1VY, h2, h2X, h2Y, h2VX, h2VY, timeProportion){
+    let h1Details = {
+        "start_x": h1X,
+        "start_y": h1Y,
+        "x_velocity": h1VX,
+        "y_velocity": h1VY 
+    }
+    let h2Details = {
+        "start_x": h2X,
+        "start_y": h2Y,
+        "x_velocity": h2VX,
+        "y_velocity": h2VY 
+    }
+    // Update the hitboxes to the starting locations
+    h1.update(h1X, h1Y);
+    h2.update(h2X, h2Y);
+
+    // If they immediately collide
+    if (h1.collidesWith(h2)){
+        return true;
+    }
+    // Separating code into two separate sequential blocks to try out the feature and to redeclare the time variable
+    {
+        // Try the l/r collision
+        let leftObject = h1;
+        let leftDetails = h1Details;
+        let rightObject = h2;
+        let rightDetails = h2Details;
+        if (h2X - h2.getRadiusEquivalentX() < h1X - h1.getRadiusEquivalentX()){
+            leftObject = h2;
+            leftDetails = h2Details;
+            rightObject = h1;
+            rightDetails = h1Details;
+        }
+
+        /* Calculations
+            leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
+            rightObjectLeftEnd = rightObject.getCenterX() - leftObject.getRadiusEquivalentX();
+            leftObjectRightEnd + leftObjectVX * time = rightObjectLeftEnd + rightObjectVX * time
+            leftObjectRightEnd - rightObjectLeftEnd = (rightObjectVX - leftObjectVX) * time
+            time = (leftObjectRightEnd - rightObjectLeftEnd) / (rightObjectVX - leftObjectVX)
+        */
+        let leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
+        let rightObjectLeftEnd = rightObject.getCenterX() - leftObject.getRadiusEquivalentX();
+        let time = safeDivide(leftObjectRightEnd - rightObjectLeftEnd, rightDetails["x_velocity"] - leftDetails["x_velocity"], 0.0000001, null);
+        /* Expected values for time:
+            null - Denominator close to zero
+            < 0 - Never collide in x
+            > 0 <= timeProportion - Collide in x at a reasonable time
+            > 0 > timeProportion - Collide later on (assuming 0 acceleration)
+        */
+        // If time is reasonable then compute their locations and see if they collide
+        if (time != null && time >= 0 && time <= timeProportion){
+            let leftObjectX = leftDetails["start_x"] + leftDetails["x_velocity"] * time + 1; // + 1 to make sure is enough to the right
+            let leftObjectY = leftDetails["start_y"] + leftDetails["y_velocity"] * time;
+            let rightObjectX = rightDetails["start_x"] + rightDetails["x_velocity"] * time;
+            let rightObjectY = rightDetails["start_y"] + rightDetails["y_velocity"] * time;
+            leftObject.update(leftObjectX, leftObjectY);
+            rightObject.update(rightObjectX, rightObjectY);
+            if (leftObject.collidesWith(rightObject)){
+                return true;
+            }
+        }
+    }
+    // This one isn't necessary but it just looks right to me
+    {
+        // Try the top/bottom collision
+        let bottomObject = h1;
+        let bottomDetails = h1Details;
+        let topObject = h2;
+        let topDetails = h2Details;
+        if (h2Y - h2.getRadiusEquivalentY() < h1Y - h1.getRadiusEquivalentY()){
+            bottomObject = h2;
+            bottomDetails = h2Details;
+            topObject = h1;
+            topDetails = h1Details;
+        }
+
+        /* Calculations
+            bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
+            topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
+            bottomObjectTopEnd + bottomObjectVY * time = topObjectBottomEnd + topObjectVY * time
+            bottomObjectTopEnd - topObjectBottomEnd = (topObjectVY - bottomObjectVY) * time
+            time = (bottomObjectTopEnd - topObjectBottomEnd) / (topObjectVY - bottomObjectVY)
+        */
+        let bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
+        let topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
+        let time = safeDivide(bottomObjectTopEnd - topObjectBottomEnd, topDetails["y_velocity"] - bottomObject["y_velocity"], 0.0000001, null);
+        /* Eypected values for time:
+            null - Denominator close to zero
+            < 0 - Never collide in y
+            > 0 <= timeProportion - Collide in y at a reasonable time
+            > 0 > timeProportion - Collide later on (assuming 0 acceleration)
+        */
+        // If time is reasonable then compute their locations and see if they collide
+        if (time != null && time >= 0 && time <= timeProportion){
+            let bottomObjectY = bottomDetails["start_y"] + bottomDetails["y_velocity"] * time + 1; // + 1 to make sure is enough to the top
+            let bottomObjectX = bottomDetails["start_x"] + bottomDetails["x_velocity"] * time;
+            let topObjectX = topDetails["start_x"] + topDetails["x_velocity"] * time;
+            let topObjectY = topDetails["start_y"] + topDetails["y_velocity"] * time;
+            bottomObject.update(bottomObjectX, bottomObjectY);
+            topObject.update(topObjectX, topObjectY);
+            if (bottomObject.collidesWith(topObject)){
+                return true;
+            }
+        }
+    }
+
+    return false;
 }

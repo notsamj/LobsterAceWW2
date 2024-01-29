@@ -94,13 +94,21 @@ class Scene {
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
         let focusedEntity = null;
-        // If 
+        
+        // Set up position of the displayed frame of the word based on the focused entity 
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
             lX = focusedEntity.getCenterX() - (this.getWidth()) / 2;
             bY = focusedEntity.getCenterY() - (this.getHeight()) / 2;
         }
+        
+        // Play all sounds that are queued for this frame
+        SOUND_MANAGER.playAll(lX, lX + getScreenWidth(), bY, bY + getScreenHeight());
+        
+        // Display the background
         this.displayBackground(lX, bY);
+
+        // Display the entities
         for (let [entity, entityIndex] of this.entities){
             if (this.hasEntityFocused() && entity.getID() == focusedEntity.getID()){ continue; }
             this.displayEntity(entity, lX, bY);
@@ -148,6 +156,18 @@ class Scene {
     */
     changeToScreenY(y){
         return this.getHeight() - y;
+    }
+
+    /*
+        Method Name: changeFromScreenY
+        Method Parameters: 
+            y:
+                An y coordinate in the game coordinate system
+        Method Description: Transforms an screen y to a game y
+        Method Return: float
+    */
+    changeFromScreenY(y){
+        return this.changeToScreenY(y);
     }
 
     /*
@@ -260,8 +280,8 @@ class Scene {
         // Find top left corner
         displayX = displayX - width / 2;
 
-        // Round to nearest pixel
-        displayX = Math.round(displayX);
+        // Round down to nearest pixel
+        displayX = Math.floor(displayX);
         return displayX;
     }
 
@@ -287,8 +307,8 @@ class Scene {
         // Find top left corner
         displayY = displayY - height / 2;
 
-        // Round to nearest pixel
-        displayY = Math.round(displayY);
+        // Round down to nearest pixel
+        displayY = Math.floor(displayY);
         return displayY;
     }
 

@@ -13,65 +13,78 @@
     <script src="data/user_data.js"></script>
 
     <!-- Dependencies -->
-    <script src="scripts/performance_timer.js"></script>
+    
+    <!-- General -->
+    <script src="scripts/general/performance_timer.js"></script>
+    <script src="scripts/general/notsam_linked_list.js"></script>
+    <script src="scripts/general/notsam_array_list.js"></script>
+    <script src="scripts/general/user_input_manager.js"></script>
+    <script src="scripts/general/sound_manager.js"></script>
+    <script src="scripts/general/value_history_manager.js"></script>
+    <script src="scripts/general/helper_functions.js"></script>
+    <script src="scripts/general/mail_box.js"></script>
+    <script src="scripts/general/infinite_loop_finder.js"></script>
+    <script src="scripts/general/frame_rate_counter.js"></script>
+    <script src="scripts/general/hitboxes.js"></script>
+    <script src="scripts/general/lock.js"></script>
+    <script src="scripts/general/cooldown_lock.js"></script>
+
+    <!-- Menu Specific -->
+    <script src="scripts/menu/component.js"></script>
+    <script src="scripts/menu/static_image.js"></script>
+    <script src="scripts/menu/text_component.js"></script>
+    <script src="scripts/menu/rectangle_button.js"></script>
+    <script src="scripts/menu/menu_manager.js"></script>
+    <script src="scripts/menu/menu.js"></script>
+    <script src="scripts/menu/main_menu.js"></script>
+    <script src="scripts/menu/multiplayer_menu.js"></script>
+    <script src="scripts/menu/sound_menu.js"></script>
+    <script src="scripts/menu/dogfight_menu.js"></script>
+    <script src="scripts/menu/pause_menu.js"></script>
+
+    <!-- Game Specific -->
     <script src="scripts/after_match_stats.js"></script>
-    <script src="scripts/value_history_manager.js"></script>
     <script src="scripts/scene_tick_manager.js"></script>
-    <script src="scripts/helper_functions.js"></script>
-    <script src="scripts/mail_box.js"></script>
-    <script src="scripts/game_mode.js"></script>
     <script src="scripts/server_connection.js"></script>
-    <script src="scripts/dogfight.js"></script>
-    <script src="scripts/remote_dogfight.js"></script>
-    <script src="scripts/local_dogfight.js"></script>
-    <script src="scripts/component.js"></script>
-    <script src="scripts/static_image.js"></script>
-    <script src="scripts/text_component.js"></script>
-    <script src="scripts/infinite_loop_finder.js"></script>
-    <script src="scripts/frame_rate_counter.js"></script>
-    <script src="scripts/rectangle_button.js"></script>
-    <script src="scripts/menu_manager.js"></script>
-    <script src="scripts/menu.js"></script>
-    <script src="scripts/main_menu.js"></script>
-    <script src="scripts/multiplayer_menu.js"></script>
-    <script src="scripts/dogfight_menu.js"></script>
-    <script src="scripts/pause_menu.js"></script>
-    <script src="scripts/hitboxes.js"></script>
     <script src="scripts/entity.js"></script>
     <script src="scripts/scene.js"></script>
     <script src="scripts/plane_game_scene.js"></script>
-    <script src="scripts/lock.js"></script>
-    <script src="scripts/cooldown_lock.js"></script>
-    <script src="scripts/radar.js"></script>
-    <script src="scripts/plane_radar.js"></script>
-    <script src="scripts/spectator_radar.js"></script>
     <script src="scripts/spectator_camera.js"></script>
     <script src="scripts/bullet.js"></script>
-    <script src="scripts/plane.js"></script>
-    <script src="scripts/fighter_plane.js"></script>
-    <script src="scripts/bot_fighter_plane.js"></script>
-    <script src="scripts/biased_bot_fighter_plane.js"></script>
-    <script src="scripts/human_fighter_plane.js"></script>
-    <script src="scripts/multiplayer_human_fighter_plane.js"></script>
-    <script src="scripts/multiplayer_remote_fighter_plane.js"></script>
-    <script src="scripts/notsam_linked_list.js"></script>
-    <script src="scripts/notsam_array_list.js"></script>
     <script src="scripts/team_combat_manager.js"></script>
 
-    <!-- Custom Sketch Script --> 
+    <script src="scripts/radar/radar.js"></script>
+    <script src="scripts/radar/plane_radar.js"></script>
+    <script src="scripts/radar/spectator_radar.js"></script>
+
+    <script src="scripts/turret/turret.js"></script>
+    <script src="scripts/turret/bomber_turret.js"></script>
+    <script src="scripts/turret/human_bomber_turret.js"></script>
+    <script src="scripts/turret/bot_bomber_turret.js"></script>
+    <script src="scripts/turret/biased_bot_bomber_turret.js"></script>
+
+    <script src="scripts/plane/plane.js"></script>
+
+    <script src="scripts/plane/fighter_plane/fighter_plane.js"></script>
+    <script src="scripts/plane/fighter_plane/bot_fighter_plane.js"></script>
+    <script src="scripts/plane/fighter_plane/biased_bot_fighter_plane.js"></script>
+    <script src="scripts/plane/fighter_plane/human_fighter_plane.js"></script>
+    <script src="scripts/plane/fighter_plane/remote/multiplayer_human_fighter_plane.js"></script>
+    <script src="scripts/plane/fighter_plane/remote/multiplayer_remote_fighter_plane.js"></script>
+
+    <script src="scripts/plane/bomber_plane/bomber_plane.js"></script>
+    <script src="scripts/plane/bomber_plane/bot_bomber_plane.js"></script>
+    <script src="scripts/plane/bomber_plane/biased_bot_bomber_plane.js"></script>
+    <script src="scripts/plane/bomber_plane/human_bomber_plane.js"></script>
+
+    <script src="scripts/game_modes/game_mode.js"></script>
+    <script src="scripts/game_modes/dogfight.js"></script>
+    <script src="scripts/game_modes/remote_dogfight.js"></script>
+    <script src="scripts/game_modes/local_dogfight.js"></script>
+
+    <!-- Main Script --> 
     <script src="scripts/ww2planegame.js"></script>
 </head>
 <body>
-    <audio id="shotSound">
-        <source src="sounds/shot.ogg" type="audio/ogg">
-    </audio>
-
-    <audio id="hitSound">
-        <source src="sounds/hit.ogg" type="audio/ogg">
-    </audio>
-
-    <audio id="explodeSound">
-        <source src="sounds/explode.ogg" type="audio/ogg">
-    </audio>
 </body>
 </html>

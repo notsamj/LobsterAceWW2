@@ -1,22 +1,21 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    FighterPlane = require("../scripts/fighter_plane.js");
-    onSameTeam = require("../scripts/helper_functions.js").onSameTeam;
-    Bullet = require("../scripts/bullet.js");
+    BotFighterPlane = require("../scripts/bot_fighter_plane.js");
+    CooldownLock = require("../scripts/cooldown_lock.js");
+    FILE_DATA = require("../data/data_json.js");
     var helperFuncs = require("../scripts/helper_functions.js");
-    angleBetweenCWDEG = helperFuncs.angleBetweenCWDEG;
-    fixDegrees = helperFuncs.fixDegrees;
-    calculateAngleDiffDEGCW = helperFuncs.calculateAngleDiffDEGCW;
-    calculateAngleDiffDEGCCW = helperFuncs.calculateAngleDiffDEGCCW;
-    calculateAngleDiffDEG = helperFuncs.calculateAngleDiffDEG;
-    toDegrees = helperFuncs.toDegrees;
-    InfiniteLoopFinder = require("../scripts/infinite_loop_finder.js");
+    rotateCWDEG = helperFuncs.rotateCWDEG;
+    rotateCCWDEG = helperFuncs.rotateCCWDEG;
+    lessThanEQDir = helperFuncs.lessThanEQDir;
+    randomNumberInclusive = helperFuncs.randomNumberInclusive;
+    displacementToDegrees = helperFuncs.displacementToDegrees;
+    nextIntInDir = helperFuncs.nextIntInDir;
 }
 /*
-    Class Name: BotFighterPlane
-    Description: A subclass of the FighterPlane that determines actions without human input
+    Class Name: BiasedBotFighterPlane
+    Description: A subclass of the BotFighterPlane with biases for its actions
 */
-class BotFighterPlane extends FighterPlane {
+class BiasedBotFighterPlane extends BotFighterPlane {
     /*
         Method Name: constructor
         Method Parameters:
@@ -24,6 +23,8 @@ class BotFighterPlane extends FighterPlane {
                 A string representing the type of plane
             scene:
                 A Scene object related to the fighter plane
+            biases:
+                An object containing keys and bias values
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -31,37 +32,15 @@ class BotFighterPlane extends FighterPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true){
+    constructor(planeClass, scene, biases, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
-        this.currentEnemyID = null;
-        this.turningDirection = null;
-        this.ticksOnCourse = 0;
-        this.tickCD = 0;
+        this.biases = biases;
+        this.throttle += this.biases["throttle"];
+        this.maxSpeed += this.biases["max_speed"];
+        this.health += this.biases["health"];
+        this.rotationCD = new CooldownLock(this.biases["rotation_time"]);
     }
 
-    /*
-        Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
-        Method Description: Conduct decisions to do each tick
-        Method Return: void
-    */
-    tick(timeDiffMS){
-        super.tick(timeDiffMS);
-        // Check if the selected enemy should be changed
-        this.updateEnemy();
-        // If there is an enemy then act accordingly
-        if (this.hasCurrentEnemy()){
-            let enemy = this.scene.getEntity(this.currentEnemyID);
-            this.handleEnemy(enemy);
-        }else{ // No enemy -> make sure not to crash into the ground
-            if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
-                this.turnInDirection(90);
-                return;
-            }
-        }
-    }
 
     /*
         Method Name: handleEnemy
@@ -72,28 +51,34 @@ class BotFighterPlane extends FighterPlane {
         Method Return: void
     */
     handleEnemy(enemy){
-        // Separate into two things
-        let myX = this.getX();
-        let myY = this.getY();
+        // Establish basic facts
+        let myX = this.getGunX();
+        let myY = this.getGunY();
         let enemyX = enemy.getX();
         let enemyY = enemy.getY();
         let enemyXDisplacement = enemyX - myX;
         let enemyYDisplacement = enemyY - myY;
         let distanceToEnemy = this.distance(enemy);
 
+        // Bias
+        distanceToEnemy += this.biases["distance_to_enemy"];
         // To prevent issues in calculating angles, if the enemy is ontop of you just shoot and do nothing else
         if (distanceToEnemy < 1){
             this.tryToShootAtEnemy(0, 1, 1);
             return;
         }
+
         // Otherwise enemy is not too much "on top" of the bot
-        let shootingAngle = this.getShootingAngle();
+        let shootingAngle = this.getNoseAngle();
         let angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
+        
+        // Bias
+        angleDEG = fixDegrees(angleDEG + this.biases["angle_to_enemy"]);
         let angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
 
         // Give information to handleMovement and let it decide how to move
         this.handleMovement(angleDEG, distanceToEnemy, enemy);
-
+        
         // Shoot if the enemy is in front
         let hasFiredShot = this.tryToShootAtEnemy(angleDifference, enemy.getHitbox().getRadius(), distanceToEnemy);
         if (hasFiredShot){ return; }
@@ -106,6 +91,7 @@ class BotFighterPlane extends FighterPlane {
             enemyXDisplacement = enemyX - myX;
             enemyYDisplacement = enemyY - myY;
             angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
+            angleDEG = fixDegrees(angleDEG + this.biases["angle_to_enemy"]);
             angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
             distanceToEnemy = this.distance(secondaryEnemy);
             hasFiredShot = this.tryToShootAtEnemy(angleDifference, secondaryEnemy.getHitbox().getRadius(), distanceToEnemy);
@@ -126,13 +112,14 @@ class BotFighterPlane extends FighterPlane {
     */
     handleMovement(angleDEG, distance, enemy){
         // If facing downwards and close to the ground then turn upwards
-        if (this.closeToGround() && angleBetweenCWDEG(this.getShootingAngle(), 180, 359)){
-            this.turnInDirection(90);
+        if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
+            // Bias
+            this.turnInDirection(fixDegrees(90 + this.biases["angle_from_ground"]));
             return;
         }
 
         // Point to enemy when very far away
-        if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"]){
+        if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"] + this.biases["enemy_far_away_distance"]){
             this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
@@ -142,27 +129,39 @@ class BotFighterPlane extends FighterPlane {
         this.handleClose(angleDEG, distance, enemy);
     }
 
-    handleClose(angleDEG, distance, enemy){
-        let myAngle = this.getShootingAngle();
 
-        // If enemy is behind, so evasive manuevers
-        if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, 135), rotateCCWDEG(myAngle, 135)) && distance < this.getMaxSpeed() * EVASIVE_SPEED_DIFF){
-            this.evasiveManeuver(enemy, distance);
+    /*
+        Method Name: handleClose
+        Method Parameters:
+            anlgeDEG:
+                An angle from the current location to that of the enemy
+            distance:
+                The current distance from the current location to the enemy
+            enemy:
+                An enemy fighter plane
+        Method Description: Decide how to handle an enemy is that very close by
+        Method Return: void
+    */
+    handleClose(angleDEG, distance, enemy){
+        let myAngle = this.getNoseAngle();
+
+        // If enemy is behind, then do evasive manuevers
+        if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"])), rotateCCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"]))) && distance < this.getMaxSpeed() * FILE_DATA["constants"]["EVASIVE_SPEED_DIFF"] + this.biases["enemy_close_distance"]){
+            this.evasiveManeuver();
             return;
         }
-
-        // If on a movement cooldown
+        // If on a movement cooldown then return because nothing to do
         if (this.tickCD-- > 0){
             return;
         }
-
+        
         // Not doing evausive maneuevers
+
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= FILE_DATA["ai"]["max_ticks_on_course"]){
-            this.tickCD = FILE_DATA["ai"]["tick_cd"];
+        if (this.ticksOnCourse >= FILE_DATA["ai"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
+            this.tickCD = FILE_DATA["ai"]["tick_cd"] + this.biases["ticks_cooldown"];
             this.ticksOnCourse = 0;
         }
-
         this.turningDirection = null;
         this.ticksOnCourse += 1;
         this.turnInDirection(angleDEG);
@@ -175,20 +174,37 @@ class BotFighterPlane extends FighterPlane {
         Method Return: True, turn cw, false then turn ccw
     */
     comeUpWithEvasiveTurningDirection(){
-        return (randomNumberInclusive(1, 2) == 1) ? 1 : -1;
+        return (randomNumberInclusive(1, 100) + this.biases["turn_direction"] <= 50) ? 1 : -1;
     }
 
     /*
-        Method Name: evasiveManeuver
-        Method Parameters: None
-        Method Description: Turn to a direction as part of an evasive maneuver
+        Method Name: adjustAngle
+        Method Parameters:
+            amount:
+                Amount to change the angle (and also the direction [pos/neg])
+        Method Description: Change the angle of the plane
         Method Return: void
     */
-    evasiveManeuver(){
-        if (this.turningDirection == null){
-            this.turningDirection = this.comeUpWithEvasiveTurningDirection();
+    adjustAngle(amount){
+        if (!this.rotationCD.isReady()){ return; }
+        this.rotationCD.lock();
+        let newAngle = this.angle;
+
+        // Determine angle
+        if (this.facingRight){
+            newAngle += amount;
+        }else{
+            newAngle -= amount;
         }
-        this.adjustAngle(this.turningDirection);
+
+        // Ensure the angle is between 0 and 360
+        while(newAngle >= 360){
+            newAngle -= 360;
+        }
+        while(newAngle < 0){
+            newAngle += 360;
+        }
+        this.angle = Math.floor(newAngle);
     }
 
     /*
@@ -198,7 +214,7 @@ class BotFighterPlane extends FighterPlane {
         Method Return: True if close to the ground, false if not close
     */
     closeToGround(){
-        return this.y < FILE_DATA["constants"]["CLOSE_TO_GROUND_CONSTANT"] * this.speed;
+        return this.y < FILE_DATA["constants"]["CLOSE_TO_GROUND_CONSTANT"] * this.speed + this.biases["close_to_ground"];
     }
 
     /*
@@ -211,43 +227,42 @@ class BotFighterPlane extends FighterPlane {
     */
     turnInDirection(angleDEG){
         // Determine if we need to switch from left to right
-        let myAngle = this.getShootingAngle();
+        let myAngle = this.getNoseAngle();
         // If facing right and the angle to turn to is very far but close if the plane turned left
-        if (this.facingRight && angleBetweenCWDEG(angleDEG, 135, 225) && angleBetweenCWDEG(myAngle, 315, 45)){
+        if (this.facingRight && angleBetweenCCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"]) && angleBetweenCCWDEG(myAngle, 315 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"])){
             this.face(false);
             return;
         }
         // If facing left and the angle to turn to is very far but close if the plane turned right
-        else if (!this.facingRight && angleBetweenCWDEG(angleDEG, 295, 45) && angleBetweenCWDEG(angleDEG, 135, 225)){
+        else if (!this.facingRight && angleBetweenCCWDEG(angleDEG, 295 + this.biases["flip_direction_lb"], 45 + this.biases["flip_direction_ub"]) && angleBetweenCCWDEG(angleDEG, 135 + this.biases["flip_direction_lb"], 225 + this.biases["flip_direction_ub"])){
             this.face(true);
             return;
         }
-
-        let newAngleCW = fixDegrees(this.getShootingAngle() + 1);
-        let newAngleCCW = fixDegrees(this.getShootingAngle() - 1);
+        
+        let newAngleCW = fixDegrees(this.getNoseAngle() + 1);
+        let newAngleCCW = fixDegrees(this.getNoseAngle() - 1);
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
-
         // If the angle of the plane currently is very close to the desired angle, not worth moving
-        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"]){
+        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] + this.biases["min_angle_to_adjust"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] + this.biases["min_angle_to_adjust"]){
             return;
         }
 
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
-            this.adjustAngle(1);
+            this.adjustAngle(-1);
         }
         // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
         else if (dCW < dCCW && !this.facingRight){
-            this.adjustAngle(-1);
+            this.adjustAngle(1);
         }
         // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
         else if (dCCW < dCW && this.facingRight){
-            this.adjustAngle(-1);
+            this.adjustAngle(1);
         }
         // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
         else if (dCCW < dCW && !this.facingRight){
-            this.adjustAngle(1);
+            this.adjustAngle(-1);
         }
         // Otherwise just turn clockwise (Shouldn't actually be possible?)
         else{
@@ -271,29 +286,12 @@ class BotFighterPlane extends FighterPlane {
     tryToShootAtEnemy(angleDifference, enemyRadius, distanceToEnemy){
         let angleAllowanceAtRangeDEG = toDegrees(Math.abs(Math.atan(enemyRadius / distanceToEnemy)));
         // If ready to shoot and the angle & distance are acceptable then shoot
-        if (this.shootLock.isReady() && angleDifference < angleAllowanceAtRangeDEG && distanceToEnemy < this.getMaxShootingDistance()){
+        if (this.shootLock.isReady() && angleDifference < angleAllowanceAtRangeDEG + this.biases["angle_allowance_at_range"] && distanceToEnemy < this.getMaxShootingDistance()){
             this.shootLock.lock();
             this.shoot();
             return true;
         }
         return false;
-    }
-
-    /*
-        Method Name: getEnemyList
-        Method Parameters: None
-        Method Description: Find all the enemies and return them
-        Method Return: List
-    */
-    getEnemyList(){
-        let entities = this.scene.getPlanes();
-        let enemies = [];
-        for (let entity of entities){
-            if (entity instanceof FighterPlane && !this.onSameTeam(entity)){
-                enemies.push(entity);
-            }
-        }
-        return enemies;
     }
 
     /*
@@ -304,7 +302,7 @@ class BotFighterPlane extends FighterPlane {
     */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
+        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= (FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -312,45 +310,22 @@ class BotFighterPlane extends FighterPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            if (bestRecord == null || distance < bestRecord["score"]){
+            let focusedCountMultiplier = (BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) + 1) * this.biases["enemy_taken_distance_multiplier"];
+            let score = distance;
+            // Do not modify score if its less than 1 because the bias is meant for having many enemies
+            if (focusedCountMultiplier > 1){
+                score *= focusedCountMultiplier; 
+            }
+            if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? FILE_DATA["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
+                    "score": score
                 }
             }
         }
+        // If none found then do nothing
         if (bestRecord == null){ return; }
         this.currentEnemyID = bestRecord["id"];
-    }
-
-    /*
-        Method Name: hasCurrentEnemy
-        Method Parameters: None
-        Method Description: Determine if there is currently a current enemy
-        Method Return: True if has an enemy (and they exist), otherwise false
-    */
-    hasCurrentEnemy(){
-        return this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID);
-    }
-
-    /*
-        Method Name: getCurrentEnemy
-        Method Parameters: None
-        Method Description: Get the id of the current enemy
-        Method Return: A string of the id of the current enemy
-    */
-    getCurrentEnemy(){
-        return this.currentEnemyID;
-    }
-
-    /*
-        Method Name: onSameTeam
-        Method Parameters: otherPlane
-        Method Description: Determine if this plane is on the same team as another plane
-        Method Return: True if the planes are on the same team, false otherwise
-    */
-    onSameTeam(otherPlane){
-        return onSameTeam(this.getPlaneClass(), otherPlane.getPlaneClass());
     }
 
     /*
@@ -360,32 +335,31 @@ class BotFighterPlane extends FighterPlane {
         Method Return: float
     */
     getMaxShootingDistance(){
-        return SHOOT_DISTANCE_CONSTANT * FILE_DATA["bullet_data"]["speed"];
+        return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance"];
     }
 
     /*
-        Method Name: getMaxShootingDistance
-        Method Parameters:
+        Method Name: createBiasedPlane
+        Method Parameters: 
+            planeClass:
+                A string representing the type of the plane
             scene:
-                A Scene object related to the fighter plane
-            enemyID:
-                A string ID of the enemy plane
-            myID:
-                A string ID of the plane making the inquiry
-        Method Description: Determines if another plane is focused on an enemy that "I" am thinking about focusing on
-        Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
+                A scene objet related to the plane
+        Method Description: Return the max shooting distance of this biased plane
+        Method Return: float
     */
-    static isFocused(scene, enemyID, myID){
-        for (let entity of scene.getEntities()){
-            if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
-                return true;
-            }
+    static createBiasedPlane(planeClass, scene){
+        let biases = {};
+        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bias_ranges"])){
+            let upperBound = bounds["upper_bound"];
+            let lowerBound = bounds["lower_bound"];
+            let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
+            biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return false;
+        return new BiasedBotFighterPlane(planeClass, scene, biases);
     }
 }
-
 // If using Node JS Export the class
 if (typeof window === "undefined"){
-    module.exports = BotFighterPlane;
+    module.exports = BiasedBotFighterPlane;
 }

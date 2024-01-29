@@ -1,4 +1,4 @@
-// Global variables
+// Global Variables & Constants
 const MAX_RUNNING_LATE = 500;
 var scene;
 var menuManager;
@@ -10,6 +10,10 @@ var loadedPercent = 0;
 var debug = false;
 var mainTickLock = new Lock();
 var runningTicksBehind = 0;
+const USER_INPUT_MANAGER = new UserInputManager();
+const SOUND_MANAGER = new SoundManager();
+USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
+USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 var tickInterval;
 // Functions
 
@@ -96,7 +100,7 @@ async function setup() {
     scene = new PlaneGameScene(getScreenWidth(), getScreenHeight());
     menuManager = new MenuManager(getScreenWidth(), getScreenHeight());
     MenuManager.setupClickListener();
-    
+
     setupDone = true;
 }
 
@@ -112,7 +116,7 @@ function draw() {
         textSize(200);
         fill("green");
         text(`Loading: ${loadedPercent}%`, 200, 200);
-        return; 
+        return;
     }
     scene.display();
     if (activeGameMode != null){

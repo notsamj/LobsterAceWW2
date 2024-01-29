@@ -90,9 +90,9 @@ class Dogfight extends GameMode {
         let axisCount = 0;
         // Loop through all the planes, count how many are alive
         for (let entity of this.startingEntities){
-            if (entity instanceof FighterPlane && !entity.isDead()){
-                let fighterPlane = entity;
-                if (planeModelToAlliance(fighterPlane.getPlaneClass()) == "Axis"){
+            if (entity instanceof Plane && !entity.isDead()){
+                let plane = entity;
+                if (planeModelToAlliance(plane.getPlaneClass()) == "Axis"){
                     axisCount++;
                 }else{
                     allyCount++;
@@ -117,9 +117,9 @@ class Dogfight extends GameMode {
         let allyCount = 0;
         let axisCount = 0;
         for (let entity of this.startingEntities){
-            if (entity instanceof FighterPlane){
-                let fighterPlane = entity;
-                if (planeModelToAlliance(fighterPlane.getPlaneClass()) == "Axis"){
+            if (entity instanceof Plane){
+                let plane = entity;
+                if (planeModelToAlliance(plane.getPlaneClass()) == "Axis"){
                     axisCount++;
                 }else{
                     allyCount++;

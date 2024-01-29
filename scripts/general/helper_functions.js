@@ -2,6 +2,60 @@
 if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
+
+/*
+    Method Name: safeDivide
+    Method Parameters:
+        numerator:
+            The numerator of a division
+        denominator:
+            The denominator of a division 
+        closeToZeroAmount:
+            Amount between [0,INF], if denominator < closeToZeroAmount then return valueIfCloseToZero
+        valueIfCloseToZero:
+            Value to return if the denominator is close to zero
+    Method Description: Divides two numbers, returning a special result if the denominator is close to zero
+    Method Return: float (or special value)
+*/
+function safeDivide(numerator, denominator, closeToZeroAmount, valueIfCloseToZero){
+    if (Math.abs(denominator) < closeToZeroAmount){ return valueIfCloseToZero; }
+    return numerator / denominator;
+}
+
+/*
+    Method Name: getLocalStorage
+    Method Parameters:
+        key:
+            Key of the item in local storage
+        valueIfNotFound:
+            Value to return if the item cannot be found
+    Method Description: Finds a value from storage, returns valueIfNotFound if not found.
+    Method Return: void
+*/
+function getLocalStorage(key, valueIfNotFound=null){
+    let value = localStorage.getItem(key);
+    if (value == null){
+        return valueIfNotFound;
+    }
+    return value;
+}
+
+/*
+    Method Name: setLocalStorage
+    Method Parameters:
+        key:
+            Key of the item in local storage
+        value:
+            Value to put in local storage
+    Method Description: Assignes a key to a value in local storage. Errors are not *really* handled.
+    Method Return: void
+*/
+function setLocalStorage(key, value){
+    try {
+        localStorage.setItem(key, value);
+    }catch(e){}
+}
+
 /*
     Method Name: getScreenWidth
     Method Parameters: None
@@ -20,6 +74,50 @@ function getScreenWidth(){
 function getScreenHeight(){
     return window.innerHeight;
 }
+
+/*
+    Method Name: getDegreesFromDisplacement
+    Method Parameters:
+        dX:
+            Displacement in x
+        dY:
+            Displacement in y
+    Method Description: Determines the angle [0,359] from a x and y displacement
+    Method Return: int
+*/
+function getDegreesFromDisplacement(dX, dY){
+    let dXAbs = Math.abs(dX);
+    let dYAbs = Math.abs(dY);
+    if (dXAbs < 1){
+        return dY > 0 ? 90 : 270;
+    }else if (dYAbs < 1){
+        return dX > 0 ? 0 : 180;
+    }
+    let angle = Math.atan(dYAbs / dXAbs);
+    let angleDEG = toDegrees(angle);
+    if (dX < 0 && dY > 0){ // Quadrant 2
+        return fixDegrees(180 - angleDEG);
+    }else if (dX < 0 && dY < 0){ // Quadrant 3
+        return fixDegrees(180 + angleDEG);
+    }else if (dX > 0 && dY < 0){ // Quadrant 4
+        return fixDegrees(360 - angleDEG);
+    }else{ // Quadrant 1
+        return fixDegrees(angleDEG);
+    }
+}
+
+/*
+    Method Name: planeModelToType
+    Method Parameters:
+        model:
+            The model of a plane
+    Method Description: Determines the type of plane, given a model
+    Method Return: String
+*/
+function planeModelToType(model){
+    return FILE_DATA["plane_data"][model]["type"];
+}
+
 /*
     Method Name: copyArray
     Method Parameters:
@@ -224,7 +322,7 @@ function displacmentToRadians(dX, dY){
     Method Return: int
 */
 function randomNumberInclusive(min, maxInclusive){
-    return Math.floor(Math.random() * (maxInclusive - min + 1)) + min; 
+    return Math.floor(Math.random() * (maxInclusive - min + 1)) + min;
 }
 
 /*
@@ -271,16 +369,16 @@ function calculateAngleDiffDEG(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCW
+    Method Name: calculateAngleDiffDEGCCW
     Method Parameters:
         angle1:
             An angle in degrees
         angle2:
             An angle in degrees
-    Method Description: Calculates the difference between two angles in degrees (in the clockwise direction)
+    Method Description: Calculates the difference between two angles in degrees (in the counter clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCW(angle1, angle2){
+function calculateAngleDiffDEGCCW(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -296,16 +394,16 @@ function calculateAngleDiffDEGCW(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCCW
+    Method Name: calculateAngleDiffDEGCW
     Method Parameters:
         angle1:
             An angle in degrees
         angle2:
             An angle in degrees
-    Method Description: Calculates the difference between two angles in degrees (in the counter clockwise direction)
+    Method Description: Calculates the difference between two angles in degrees (in the clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCCW(angle1, angle2){
+function calculateAngleDiffDEGCW(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -331,7 +429,7 @@ function calculateAngleDiffDEGCCW(angle1, angle2){
     Method Return: int
 */
 function rotateCWDEG(angle, amount){
-    return fixDegrees(angle + amount);
+    return fixDegrees(angle - amount);
 }
 
 /*
@@ -345,23 +443,7 @@ function rotateCWDEG(angle, amount){
     Method Return: int
 */
 function rotateCCWDEG(angle, amount){
-    return fixDegrees(angle - amount);
-}
-
-/*
-    Method Name: angleBetweenCWDEG
-    Method Parameters:
-        angle:
-            An angle in degrees
-        eAngle1:
-            An angle on one edge of a range
-        eAngle2:
-            An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction
-    Method Return: boolean, true -> angle is between, false -> angle is not between
-*/
-function angleBetweenCWDEG(angle, eAngle1, eAngle2){
-    return calculateAngleDiffDEGCW(eAngle1, angle) <= calculateAngleDiffDEGCCW(eAngle1, angle) && calculateAngleDiffDEGCW(angle, eAngle2) <= calculateAngleDiffDEGCCW(angle, eAngle2);
+    return fixDegrees(angle + amount);
 }
 
 /*
@@ -373,11 +455,59 @@ function angleBetweenCWDEG(angle, eAngle1, eAngle2){
             An angle on one edge of a range
         eAngle2:
             An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
-    return calculateAngleDiffDEGCCW(eAngle1, angle) <= calculateAngleDiffDEGCW(eAngle1, angle) && calculateAngleDiffDEGCCW(angle, eAngle2) <= calculateAngleDiffDEGCW(angle, eAngle2);
+    angle = fixDegrees(Math.floor(angle));
+    eAngle1 = fixDegrees(Math.floor(eAngle1));
+    eAngle2 = fixDegrees(Math.floor(eAngle2));
+    let tAngle = eAngle1;
+    if (tAngle == eAngle2){
+        return true;
+    }
+    while (tAngle != eAngle2){
+        if (tAngle == angle){
+            return true;
+        }
+        tAngle += 1;
+        if (tAngle == 360){
+            tAngle = 0;
+        }
+    }
+    return false;
+}
+
+/*
+    Method Name: angleBetweenCWDEG
+    Method Parameters:
+        angle:
+            An angle in degrees
+        eAngle1:
+            An angle on one edge of a range
+        eAngle2:
+            An angle on the other edge of a range
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction
+    Method Return: boolean, true -> angle is between, false -> angle is not between
+*/
+function angleBetweenCWDEG(angle, eAngle1, eAngle2){
+    angle = fixDegrees(Math.floor(angle));
+    eAngle1 = fixDegrees(Math.floor(eAngle1));
+    eAngle2 = fixDegrees(Math.floor(eAngle2));
+    let tAngle = eAngle1
+    if (tAngle == eAngle2){
+        return true;
+    }
+    while (tAngle != eAngle2){
+        if (tAngle == angle){
+            return true;
+        }
+        tAngle -= 1;
+        if (tAngle == -1){
+            tAngle = 359;
+        }
+    }
+    return false;
 }
 
 /*
@@ -517,7 +647,7 @@ if (typeof window === "undefined"){
         rotateCWDEG,
         rotateCCWDEG,
         angleBetweenCWDEG,
-        angleBetweenCCWDEG,
+        angleBetweenCWDEG,
         lessThanDir,
         lessThanEQDir,
         nextIntInDir,

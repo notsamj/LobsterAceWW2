@@ -1,56 +1,117 @@
-var FILE_DATA = {
+const FILE_DATA = {
     "plane_data": {
         "spitfire": {
 //            "radius": 48,
             "radius": 64,
             "max_speed": 594,
             "health": 12*5,
-            "country": "Britain"
+            "country": "Britain",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 126-64,
+            "GUN_OFFSET_Y": 64-61
         },
         "a6m_zero": {
 //            "radius": 47,
             "radius": 64,
             "max_speed": 565,
             "health": 13*5,
-            "country": "Japan"
+            "country": "Japan",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 89-64,
+            "GUN_OFFSET_Y": 64-78
         },
         "republic_p_47": {
 //            "radius": 46,
             "radius": 64,
             "max_speed": 686,
             "health": 12*5,
-            "country": "USA"
+            "country": "USA",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 84-64,
+            "GUN_OFFSET_Y": 64-75
         },
         "me_bf_109": {
 //            "radius": 37,
             "radius": 64,
             "max_speed": 634,
             "health": 10*5,
-            "country": "Germany"
+            "country": "Germany",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 60-64,
+            "GUN_OFFSET_Y": 64-86
         },
         "kawasaki_ki_45": {
             "radius": 64,
             "max_speed": 540,
             "health": 17*5,
-            "country": "Japan"
+            "country": "Japan",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 86-64,
+            "GUN_OFFSET_Y": 64-78
         },
         "p51_mustang": {
             "radius": 64,
             "max_speed": 710,
             "health": 10*5,
-            "country": "USA"
+            "country": "USA",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 81-64,
+            "GUN_OFFSET_Y": 64-74
         },
         "hawker_sea_fury": {
             "radius": 64,
             "max_speed": 740,
             "health": 9*5,
-            "country": "Britain"
+            "country": "Britain",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 87-64,
+            "GUN_OFFSET_Y": 64-85
         },
         "me_309": {
             "radius": 64,
             "max_speed": 733,
             "health": 9*5,
-            "country": "Germany"
+            "country": "Germany",
+            "type": "Fighter",
+            "GUN_OFFSET_X": 88-64,
+            "GUN_OFFSET_Y": 64-65
+        },
+        "b24": {
+            "radius": 128,
+            "max_speed": 467,
+            "health": 50*5,
+            "country": "USA",
+            "type": "Bomber",
+            "guns": [
+                { // Front gun
+                    "x_offset": 224-128,
+                    "y_offset": 128-132,
+                    "fov_1": 40,
+                    "fov_2": 320,
+                    "rate_of_fire": 50
+                },
+                { // Top gun front
+                    "x_offset": 149-128,
+                    "y_offset": 128-93,
+                    "fov_1": 170,
+                    "fov_2": 10,
+                    "rate_of_fire": 50
+                },
+                { // Back bottom gun
+                    "x_offset": 110-128,
+                    "y_offset": 128-130,
+                    "fov_1": 260,
+                    "fov_2": 175,
+                    "rate_of_fire": 50
+                },
+                { // Top gun back
+                    "x_offset": 27-128,
+                    "y_offset": 128-89,
+                    "fov_1": 190,
+                    "fov_2": 10,
+                    "rate_of_fire": 50
+                }
+            ]
         }
     },
     "teams": ["Allies", "Axis"],
@@ -106,7 +167,9 @@ var FILE_DATA = {
         "SAVED_TICKS": 500,
         "KEEP_ALIVE_INTERVAL": 5000,
         "TIME_TO_READY_UP": 5000, // 5000
-        "MULTIPLAYER_DISABLED": false
+        "MULTIPLAYER_DISABLED": false,
+        "BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT": 2000,
+        "BULLET_REDUCTION_COEFFICIENT": 2
     },
 
     "ai": {
@@ -215,8 +278,6 @@ var FILE_DATA = {
     },
     "extra_images_to_load": [
         "radar_outline",
-        "radar_blip",
-        "radar_blip_friendly",
         "bullet",
         "dirt",
         "above_ground",
@@ -232,8 +293,20 @@ var FILE_DATA = {
     ],
 
     "team_to_colour": {
-        "Axis": "red",
-        "Allies": "green"
+        "Axis": "#8427db",
+        "Allies": "#f5d442"
+    },
+
+    "sound_data": {
+        "sounds": [
+            "shoot",
+            "explode",
+            "damage",
+            "engine",
+            "bomb"
+        ],
+        "url": "./sounds",
+        "file_type": ".mp3"
     }
 }
 if (typeof window === "undefined"){

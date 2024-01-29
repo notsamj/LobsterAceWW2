@@ -1,16 +1,15 @@
-// If using NodeJS -> Do required imports
+// When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Plane = require("../scripts/plane.js");
+    Entity = require("../scripts/entity.js");
     FILE_DATA = require("../data/data_json.js");
-    CooldownLock = require("../scripts/cooldown_lock.js");
     CircleHitbox = require("../scripts/hitboxes.js").CircleHitbox;
     toRadians = require("../scripts/helper_functions.js").toRadians;
 }
 /*
-    Class Name: FighterPlane
-    Description: Abstract class representing a FighterPlane
+    Class Name: Plane
+    Description: A subclass of the Entity that represents a general plane
 */
-class FighterPlane extends Plane {
+class Plane extends Entity {
     /*
         Method Name: constructor
         Method Parameters:
@@ -26,17 +25,35 @@ class FighterPlane extends Plane {
         Method Return: Constructor
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
-        super(planeClass, scene);
+        super(scene);
+        this.planeClass = planeClass;
         this.facingRight = facingRight;
         this.angle = angle;
         this.throttle = FILE_DATA["constants"]["MAX_THROTTLE"];
         this.maxSpeed = FILE_DATA["plane_data"][planeClass]["max_speed"];
         this.speed = this.maxSpeed;
-        this.shootLock = new CooldownLock(FILE_DATA["constants"]["PLANE_SHOOT_GAP_MS"]);
         this.hitBox = new CircleHitbox(FILE_DATA["plane_data"][planeClass]["radius"]);
         this.health = FILE_DATA["plane_data"][planeClass]["health"];
         this.throttleConstant = Math.sqrt(this.maxSpeed) / FILE_DATA["constants"]["MAX_THROTTLE"];
     }
+
+    /*
+        Method Name: getPlaneClass
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: String
+    */
+    getPlaneClass(){
+        return this.planeClass;
+    }
+
+    /*
+        Method Name: goodToFollow
+        Method Parameters: None
+        Method Description: Provides the information that this object is "good to follow"
+        Method Return: boolean, true -> good to follow, false -> not good to follow
+    */
+    goodToFollow(){ return true; }
 
     /*
         Method Name: getSmokeNumber
@@ -160,8 +177,10 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     damage(amount){
-        this.health -= amount;
+        SOUND_MANAGER.play("damage", this.x, this.y);
+        this.health -= amount * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"];
         if (this.health <= 0){
+            SOUND_MANAGER.play("explode", this.x, this.y);
             this.die();
         }
     }
@@ -175,16 +194,6 @@ class FighterPlane extends Plane {
     getHitbox(){
         this.hitBox.update(this.x, this.y);
         return this.hitBox;
-    } 
-
-    /*
-        Method Name: shoot
-        Method Parameters: None
-        Method Description: Shoots a bullet from the plane
-        Method Return: void
-    */
-    shoot(){
-        this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.getPlaneClass()));
     }
 
     /*
@@ -237,13 +246,7 @@ class FighterPlane extends Plane {
         if (facingRight == this.facingRight){
             return;
         }
-        let newAngle = 360 - this.angle;
-        while (newAngle >= 360){
-            newAngle -= 360;
-        }
-        while (newAngle < 0){
-            newAngle += 360;
-        }
+        let newAngle = fixDegrees(360 - this.angle);
         this.angle = newAngle;
         this.facingRight = facingRight;
         this.speed *= (1 - FILE_DATA["constants"]["SLOW_DOWN_AMOUNT"]);
@@ -344,20 +347,7 @@ class FighterPlane extends Plane {
         }
 
         this.x += this.getXVelocity() * timeProportion;
-        this.checkHitGround();
-    }
-
-    /*
-        Method Name: checkHitGround
-        Method Parameters: None
-        Method Description: Check if hit the ground, if so -> die
-        Method Return: void
-    */
-    checkHitGround(){
-        // If hit the ground
-        if (this.y - this.hitBox.getRadius() <= 0){
-            this.die();
-        }
+        SOUND_MANAGER.play("engine", this.x, this.y);
     }
 
     /*
@@ -383,19 +373,19 @@ class FighterPlane extends Plane {
     getEffectiveAngle(){
         let effectiveAngle = this.angle;
         if (!this.facingRight){
-            effectiveAngle = 360 - effectiveAngle;
+            effectiveAngle = fixDegrees(360 - effectiveAngle);
         }
         return effectiveAngle;
     }
 
     /*
-        Method Name: getShootingAngle
+        Method Name: getNoseAngle
         Method Parameters: None
         Method Description: 
         Determine the angle at which bullets shoot out of the plane
         Method Return: int in range [0,360]
     */
-    getShootingAngle(){
+    getNoseAngle(){
         return fixDegrees(this.angle + (this.facingRight ? 0 : 180));
     }
 
@@ -465,8 +455,17 @@ class FighterPlane extends Plane {
         this.health = amount;
     }
 
+    /*
+        Method Name: isHuman
+        Method Parameters: None
+        Method Description: Determines whether the entity is controlled by a human.
+        Method Return: boolean, true -> is controlled by a human, false -> is not controlled by a human
+    */
+    isHuman(){
+        return false;
+    }
 }
-// If using Node JS Export the class
+// When this is opened in NodeJS, export the class
 if (typeof window === "undefined"){
-    module.exports = FighterPlane;
+    module.exports = Plane;
 }

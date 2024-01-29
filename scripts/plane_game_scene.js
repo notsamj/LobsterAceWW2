@@ -373,10 +373,8 @@ class PlaneGameScene extends Scene {
             // Add once more to get back to top left corner
             bottomDisplaySkyX += skyWidth;
 
-            //let bottomDisplaySkyY = bYP + skyImageOffsetY + skyHeight;
             let bottomDisplaySkyY = bYP - skyImageOffsetY;
             // Find bottom corner of image to display in window
-            // TODO: Find out why this bandaid works I was just tired and typing random stuff
             while (bottomDisplaySkyY < bYP + skyHeight - skyImageOffsetY){
                 bottomDisplaySkyY += skyHeight;
             }
@@ -384,9 +382,9 @@ class PlaneGameScene extends Scene {
             // Display ground images
             for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + this.getHeight() + skyHeight; y += skyHeight){
                 for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.getWidth() + skyWidth; x += skyWidth){
-                    //let displayY = y-bYP;
                     let displayX = x-lXP;
-                    drawingContext.drawImage(skyImage, displayX, this.getDisplayY(y, 0, bYP));
+                    let displayY = this.getDisplayY(y, 0, bYP);
+                    drawingContext.drawImage(skyImage, displayX, displayY);
                 }
             }
         }
@@ -404,18 +402,30 @@ class PlaneGameScene extends Scene {
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
         let focusedEntity = null;
-        // If 
+
+        // Set up position of the displayed frame of the word based on the focused entity 
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
             //debugger
             lX = focusedEntity.getCenterX() - (this.getWidth()) / 2;
             bY = focusedEntity.getCenterY() - (this.getHeight()) / 2;
         }
+
+        // Play all sounds that are queued for this frame
+        SOUND_MANAGER.playAll(lX, lX + getScreenWidth(), bY, bY + getScreenHeight());
+
+        // Display the background
         this.displayBackground(lX, bY);
+        
+        // Display all planes associated with the team combat manager
         this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1);
+        
+        // Display the currently focused entity
         if (this.hasEntityFocused()){
             this.displayEntity(focusedEntity, lX, bY);
         }
+
+        // Display the HUD
         this.displayHUD();
     }
     
@@ -443,7 +453,7 @@ class PlaneGameScene extends Scene {
             return; 
         }
 
-        if (entity instanceof FighterPlane){
+        if (entity instanceof Plane){
             let rotateX = displayX + entity.getWidth() / 2;
             let rotateY = displayY + entity.getHeight() / 2;
             translate(rotateX, rotateY);
