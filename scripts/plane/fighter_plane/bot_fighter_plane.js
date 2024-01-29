@@ -312,10 +312,12 @@ class BotFighterPlane extends FighterPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            if (bestRecord == null || distance < bestRecord["score"]){
+            let score = distance * (BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) + 1)
+            // If this new enemy is better
+            if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? FILE_DATA["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] : 1)
+                    "score": score
                 }
             }
         }
@@ -376,12 +378,29 @@ class BotFighterPlane extends FighterPlane {
         Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
     */
     static isFocused(scene, enemyID, myID){
+        return focusedCount(scene, enemyID, myID)
+    }
+
+    /*
+        Method Name: focusedCount
+        Method Parameters:
+            scene:
+                A Scene object related to the fighter plane
+            enemyID:
+                A string ID of the enemy plane
+            myID:
+                A string ID of the plane making the inquiry
+        Method Description: Determines how many other planes are focused on an enemy that "I" am thinking about focusing on
+        Method Return: int
+    */
+    static focusedCount(scene, enemyID, myID){
+        let count = 0;
         for (let entity of scene.getEntities()){
             if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
-                return true;
+                count += 1;
             }
         }
-        return false;
+        return count;
     }
 }
 

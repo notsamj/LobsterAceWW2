@@ -13,3 +13,4 @@ ww2planegame_mac.html
 .DS_Store
 sounds/not-active/*
 *.ogg
+*.ignore

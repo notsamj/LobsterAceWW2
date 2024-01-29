@@ -103,6 +103,7 @@ class Menu {
         textSize(calculatedTextSize);
         fill(textColour);
         textAlign(CENTER, CENTER);
+        textFont("courier new")
         text(textStr, screenX, screenY, width, height);
     }
 

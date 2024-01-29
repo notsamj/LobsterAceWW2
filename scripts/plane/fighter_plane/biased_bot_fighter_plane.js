@@ -310,10 +310,16 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            if (bestRecord == null || distance < bestRecord["score"]){
+            let focusedCountMultiplier = (BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) + 1) * this.biases["enemy_taken_distance_multiplier"];
+            let score = distance;
+            // Do not modify score if its less than 1 because the bias is meant for having many enemies
+            if (focusedCountMultiplier > 1){
+                score *= focusedCountMultiplier; 
+            }
+            if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance * (BotFighterPlane.isFocused(this.scene, enemy.getID(), this.getID()) ? (FILE_DATA["constants"]["ENEMY_TAKEN_DISTANCE_MULTIPLIER"] + this.biases["enemy_taken_distance_multiplier"]) : 1)
+                    "score": score
                 }
             }
         }
