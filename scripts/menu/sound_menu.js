@@ -46,7 +46,7 @@ class SoundMenu extends Menu {
         let infoY = 900;
         let infoXSize = 900;
         let infoYSize = 900;
-        this.components.push(new TextComponent("Note: I must caution\n the use of sounds.\nI recommend against\n explosion sound in particular.\nI find them useful, however,\n these are of poor quality\n and may be loud and annoying.\nThis is why I have disabled\n them by default.", "black", 0, infoY, infoXSize, infoYSize));
+        this.components.push(new TextComponent("Note: I must caution\n the use of sounds.\nI find them useful, however,\n these are of poor quality\n and may be loud and annoying.\nThis is why I have disabled\n them by default.", "black", 0, infoY, infoXSize, infoYSize));
         
     }
 

@@ -42,6 +42,7 @@ class MainMenu extends Menu {
 
         // Set up Multiplayer button if enabled
         if (!FILE_DATA["constants"]["MULTIPLAYER_DISABLED"]){
+            console.log("a", FILE_DATA, FILE_DATA["constants"]["MULTIPLAYER_DISABLED"])
             // Multiplayer
             let multiplayerButtonY = (innerHeight) => { return 600; };
             this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (instance) => {
