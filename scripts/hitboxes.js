@@ -1,4 +1,7 @@
 /*
+    Note: I just realized I never made an abstract class called Hitbox. I really wish JavaScript had the syntax of Java. These classes disgust me.
+*/
+/*
     Class Name: CircleHitbox
     Description: A circular hitbox
 */
@@ -66,6 +69,26 @@ class CircleHitbox {
     */
     getY(){
         return this.y;
+    }
+
+    /*
+        Method Name: getCenterX
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: float
+    */
+    getCenterX(){
+        return this.getX();
+    }
+
+    /*
+        Method Name: getCenterY
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: float
+    */
+    getCenterY(){
+        return this.getY();
     }
 
     /*

@@ -4,6 +4,25 @@ if (typeof window === "undefined"){
 }
 
 /*
+    Method Name: safeDivide
+    Method Parameters:
+        numerator:
+            The numerator of a division
+        denominator:
+            The denominator of a division 
+        closeToZeroAmount:
+            Amount between [0,INF], if denominator < closeToZeroAmount then return valueIfCloseToZero
+        valueIfCloseToZero:
+            Value to return if the denominator is close to zero
+    Method Description: Divides two numbers, returning a special result if the denominator is close to zero
+    Method Return: float (or special value)
+*/
+function safeDivide(numerator, denominator, closeToZeroAmount, valueIfCloseToZero){
+    if (Math.abs(denominator) < closeToZeroAmount){ return valueIfCloseToZero; }
+    return numerator / denominator;
+}
+
+/*
     Method Name: getLocalStorage
     Method Parameters:
         key:
