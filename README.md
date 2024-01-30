@@ -25,6 +25,15 @@ See plane controls below.
 If you start off after selecting the camera, then know you are a spectator. Your task is to spectate however you wish. The yellow dots on the radar are allied planes, the purple are axis planes. \
 See spectator camera controls below.
 
+### How to play as a fighter plane
+Fighter planes can shoot in the direction that their nose is pointed.
+For controls, see Plane and Fighter Plane below.
+
+### How to play as a bomber plane
+Bomber planes can drop bombs (currently useless) and shoot with their turrets. The turrets will point at the
+cursor location and will shoot when instructed.
+For controls, see Plane and Bomber Plane below.
+
 ## Controls
 
 ### Escape (Press): Open pause menu
@@ -47,8 +56,6 @@ See spectator camera controls below.
 
 ## Plane
 
-### Space (Hold): Shoot
-
 ### r (Hold): Increase throttle
 ### f (Hold): Decrease throttle
 
@@ -57,3 +64,14 @@ See spectator camera controls below.
 
 ### a (Press): Sharp turn left
 ### d (Press): Sharp turn right
+
+
+## Fighter Plane
+
+### Space (Hold): Shoot
+
+## Bomber Plane
+
+### Space (Hold): Drop bombs
+
+### Left click (Hold): Shoot
