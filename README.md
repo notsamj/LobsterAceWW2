@@ -22,7 +22,7 @@ If you start off as a plane facing left, then know you are an axis plane. Your t
 See plane controls below.
 
 ### How to play as a spectator
-If you start off after selecting the camera, then know you are a spectator. Your task is to spectate however you wish. The green dots on the radar are allied planes, the red are axis planes. \
+If you start off after selecting the camera, then know you are a spectator. Your task is to spectate however you wish. The yellow dots on the radar are allied planes, the purple are axis planes. \
 See spectator camera controls below.
 
 ## Controls
