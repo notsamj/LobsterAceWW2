@@ -159,8 +159,8 @@ class BotFighterPlane extends FighterPlane {
 
         // Not doing evausive maneuevers
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= FILE_DATA["ai"]["max_ticks_on_course"]){
-            this.tickCD = FILE_DATA["ai"]["tick_cd"];
+        if (this.ticksOnCourse >= FILE_DATA["ai"]["fighter_plane"]["max_ticks_on_course"]){
+            this.tickCD = FILE_DATA["ai"]["fighter_plane"]["tick_cd"];
             this.ticksOnCourse = 0;
         }
 
@@ -312,7 +312,7 @@ class BotFighterPlane extends FighterPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let score = distance * (BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) + 1)
+            let score = calculateEnemyScore(distance, BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()));
             // If this new enemy is better
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
@@ -378,7 +378,7 @@ class BotFighterPlane extends FighterPlane {
         Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
     */
     static isFocused(scene, enemyID, myID){
-        return focusedCount(scene, enemyID, myID)
+        return focusedCount(scene, enemyID, myID) == 0;
     }
 
     /*
@@ -395,13 +395,17 @@ class BotFighterPlane extends FighterPlane {
     */
     static focusedCount(scene, enemyID, myID){
         let count = 0;
-        for (let entity of scene.getEntities()){
-            if (entity instanceof BotFighterPlane && entity.getID() != myID && entity.getCurrentEnemy() == enemyID){
+        for (let plane of scene.getPlanes()){
+            if (plane instanceof BotFighterPlane && plane.getID() != myID && plane.getCurrentEnemy() == enemyID){
                 count += 1;
             }
         }
         return count;
     }
+}
+
+function calculateEnemyScore(distance, focusedCount){
+    return distance + focusedCount * FILE_DATA["constants"]["FOCUSED_COUNT_DISTANCE_EQUIVALENT"];
 }
 
 // If using Node JS Export the class

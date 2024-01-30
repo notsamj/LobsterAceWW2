@@ -219,6 +219,18 @@ class PlaneGameScene extends Scene {
     }
 
     /*
+        Method Name: addBomb
+        Method Parameters:
+            bomb:
+                A bomb dropped from a plane
+        Method Description: Adds a bomb to the scene
+        Method Return: void
+    */
+    addBomb(bomb){
+        this.addEntity(bomb);
+    }
+
+    /*
         Method Name: tick
         Method Parameters:
             timeDiff:
@@ -419,6 +431,11 @@ class PlaneGameScene extends Scene {
         
         // Display all planes associated with the team combat manager
         this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1);
+
+        // Display all extra entities
+        for (let [entity, eI] of this.entities){
+            this.displayEntity(entity, lX, bY);
+        }
         
         // Display the currently focused entity
         if (this.hasEntityFocused()){
@@ -448,7 +465,7 @@ class PlaneGameScene extends Scene {
         if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
         let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);
         let displayY = this.getDisplayY(entity.getCenterY(), entity.getHeight(), bY);
-        if (entity.isDead()){
+        if (entity.isDead() && entity instanceof Plane){
             drawingContext.drawImage(images["explosion"], displayX, displayY); 
             return; 
         }

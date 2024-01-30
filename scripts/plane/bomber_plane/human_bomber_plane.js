@@ -25,6 +25,7 @@ class HumanBomberPlane extends BomberPlane {
         this.tLock = new CooldownLock(10);
         this.radarLock = new CooldownLock(1000);
         this.radar = new PlaneRadar(this);
+        this.bombLock = new CooldownLock(1000);
         this.generateGuns();
     }
 
@@ -88,6 +89,7 @@ class HumanBomberPlane extends BomberPlane {
         this.checkUpDown();
         this.checkThrottle();
         this.checkShoot();
+        this.checkBomb();
         this.updateRadar();
     }
 
@@ -172,6 +174,21 @@ class HumanBomberPlane extends BomberPlane {
         }else if (sKey){
             this.adjustAngle(1);
         }
+    }
+
+    /*
+        Method Name: checkBomb
+        Method Parameters: None
+        Method Description: Check if the user wishes to drop a bomb
+        Method Return: void
+    */
+    checkBomb(){
+        let spaceKey = keyIsDown(32);
+        if (!this.bombLock.isReady() || !spaceKey){
+            return;
+        }
+        this.bombLock.lock();
+        this.dropBomb();
     }
 
     /*

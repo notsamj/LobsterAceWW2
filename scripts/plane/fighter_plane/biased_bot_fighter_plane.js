@@ -158,8 +158,8 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         // Not doing evausive maneuevers
 
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= FILE_DATA["ai"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
-            this.tickCD = FILE_DATA["ai"]["tick_cd"] + this.biases["ticks_cooldown"];
+        if (this.ticksOnCourse >= FILE_DATA["ai"]["fighter_plane"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
+            this.tickCD = FILE_DATA["ai"]["fighter_plane"]["tick_cd"] + this.biases["ticks_cooldown"];
             this.ticksOnCourse = 0;
         }
         this.turningDirection = null;
@@ -310,12 +310,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let focusedCountMultiplier = (BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) + 1) * this.biases["enemy_taken_distance_multiplier"];
-            let score = distance;
-            // Do not modify score if its less than 1 because the bias is meant for having many enemies
-            if (focusedCountMultiplier > 1){
-                score *= focusedCountMultiplier; 
-            }
+            let score = calculateEnemyScore(distance, BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
@@ -350,7 +345,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     static createBiasedPlane(planeClass, scene){
         let biases = {};
-        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bias_ranges"])){
+        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])){
             let upperBound = bounds["upper_bound"];
             let lowerBound = bounds["lower_bound"];
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;

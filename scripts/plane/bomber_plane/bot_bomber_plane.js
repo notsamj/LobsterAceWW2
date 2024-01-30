@@ -1,6 +1,6 @@
 /*
     Class Name: BotBomberPlane
-    Description: A subclass of the BomberPlane that determines actions without human input
+    Description: An abstract subclass of the BomberPlane that determines actions without human input
 */
 class BotBomberPlane extends BomberPlane {
     /*
@@ -19,10 +19,6 @@ class BotBomberPlane extends BomberPlane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
-        this.currentEnemyID = null;
-        this.udLock = new CooldownLock(40);
-        this.lrCDLock = new CooldownLock(10);
-        this.generateGuns();
     }
 
     /*
@@ -137,7 +133,7 @@ class BotBomberPlane extends BomberPlane {
         Method Name: handleEnemy
         Method Parameters:
             enemy:
-                An object of an enemy fighter plane
+                An object of an enemy plane
         Method Description: Decide what to do when given an enemy to attack. Can move and can shoot.
         Method Return: void
     */
@@ -294,10 +290,17 @@ class BotBomberPlane extends BomberPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            if (bestRecord == null || distance < bestRecord["score"]){
+            let focusedCountMultiplier = (BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID())) * FILE_DATA["constants"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"];
+            let score = distance;
+            // Do not modify score if its less than 1 because the bias is meant for having many enemies
+            if (focusedCountMultiplier > 1){
+                score *= focusedCountMultiplier;
+            }
+            // If this new enemy is better
+            if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
-                    "score": distance
+                    "score": score
                 }
             }
         }
@@ -338,7 +341,7 @@ class BotBomberPlane extends BomberPlane {
     /*
         Method Name: getMaxShootingDistance
         Method Parameters: None
-        Method Description: Return the max shooting distance of this biased plane
+        Method Description: Return the max shooting distance of this plane
         Method Return: float
     */
     getMaxShootingDistance(){

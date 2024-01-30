@@ -1,7 +1,6 @@
 /*
     Class Name: BiasedBotBomberPlane
     Description: A subclass of the BotBomberPlane with biases for its actions
-    Note: (TODO) This is a WORK IN PROGRESS but functional just no biases currently active
 */
 class BiasedBotBomberPlane extends BotBomberPlane {
     /*
@@ -54,12 +53,47 @@ class BiasedBotBomberPlane extends BotBomberPlane {
     */
     static createBiasedPlane(planeClass, scene){
         let biases = {};
-        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bias_ranges"])){
+        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bomber_plane"]["bias_ranges"])){
             let upperBound = bounds["upper_bound"];
             let lowerBound = bounds["lower_bound"];
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
         return new BiasedBotBomberPlane(planeClass, scene, true, 0, biases); // Temporary values some will be changed
+    }
+
+    /*
+        Method Name: findFriendlyCenter
+        Method Parameters: None
+        Method Description: Finds the center location of all friendly planes (excluding bombers)
+        Method Return: JSON Object
+    */
+    findFriendlyCenter(){
+        let totalX = 0;
+        let totalY = 0;
+        let friendlies = this.getFriendlyList();
+        if (friendlies.length == 0){
+            return {"empty": true};
+        }
+        let fC = 0;
+        // Loop through all friendlies and determine the center of them
+        for (let friendly of friendlies){
+            if (friendly instanceof BotBomberPlane){ continue; } // bot bomber's don't count so we don't end up in a loop
+            totalX += friendly.getX();
+            totalY += friendly.getY();
+            fC++;
+        }
+        if (fC == 0){ return {"empty": true}; }
+        return {"empty": false, "centerX": totalX/fC + this.biases["friendly_center_x_offset"], "centerY": totalY/fC + this.biases["friendly_center_y_offset"]};
+    }
+
+    /*
+        Method Name: getMaxShootingDistance
+        Method Parameters: None
+        Method Description: Return the max shooting distance of this biased plane
+        Method Return: float
+    */
+    getMaxShootingDistance(){
+        return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance_offset"];
     }
 }

@@ -192,8 +192,9 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkShoot(){
-        if (!this.sLock.isReady()){ return; }
-        this.sLock.lock();
+        // TODO: Delete slock? I have no idea why I made it
+        /*if (!this.sLock.isReady()){ return; }
+        this.sLock.lock();*/
         let spaceKey = keyIsDown(32);
         if (!this.shootLock.isReady() || !spaceKey){
             return;

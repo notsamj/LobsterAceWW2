@@ -1,7 +1,6 @@
 const FILE_DATA = {
     "plane_data": {
         "spitfire": {
-//            "radius": 48,
             "radius": 64,
             "max_speed": 594,
             "health": 12*5,
@@ -11,7 +10,6 @@ const FILE_DATA = {
             "GUN_OFFSET_Y": 64-61
         },
         "a6m_zero": {
-//            "radius": 47,
             "radius": 64,
             "max_speed": 565,
             "health": 13*5,
@@ -21,7 +19,6 @@ const FILE_DATA = {
             "GUN_OFFSET_Y": 64-78
         },
         "republic_p_47": {
-//            "radius": 46,
             "radius": 64,
             "max_speed": 686,
             "health": 12*5,
@@ -31,7 +28,6 @@ const FILE_DATA = {
             "GUN_OFFSET_Y": 64-75
         },
         "me_bf_109": {
-//            "radius": 37,
             "radius": 64,
             "max_speed": 634,
             "health": 10*5,
@@ -82,6 +78,8 @@ const FILE_DATA = {
             "health": 50*5,
             "country": "USA",
             "type": "Bomber",
+            "BOMB_OFFSET_X": 123-128,
+            "BOMB_OFFSET_Y": 128-136,
             "guns": [
                 { // Front gun
                     "x_offset": 224-128,
@@ -116,9 +114,15 @@ const FILE_DATA = {
     },
     "teams": ["Allies", "Axis"],
     "bullet_data": {
-        "speed": 800,
+        "speed": 1600,
         "picture": "bullet",
-        "radius": 2
+        "radius": 1
+    },
+
+    "bomb_data": {
+        "picture": "bomb",
+        "radius": 8,
+        "initial_y_velocity": -300
     },
 
     "radar": {
@@ -169,101 +173,131 @@ const FILE_DATA = {
         "TIME_TO_READY_UP": 5000, // 5000
         "MULTIPLAYER_DISABLED": false,
         "BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT": 2000,
-        "BULLET_REDUCTION_COEFFICIENT": 2
+        "BULLET_REDUCTION_COEFFICIENT": 1.5,
+        "FOCUSED_COUNT_DISTANCE_EQUIVALENT": 1500
     },
 
     "ai": {
-        "max_ticks_on_course": 6000,
-        "tick_cd": 500,
-        "bias_ranges": {
-            "distance_to_enemy": {
-                "upper_bound": 50,
-                "lower_bound": -50
-            },
-            "angle_to_enemy": {
-                "upper_bound": 2,
-                "lower_bound": -2
-            },
-            "angle_from_ground": {
-                "upper_bound": 4,
-                "lower_bound": -4
-            },
-            "enemy_far_away_distance": {
-                "upper_bound": 25,
-                "lower_bound": -25
-            },
-            "enemy_behind_angle": {
-                "upper_bound": 5,
-                "lower_bound": -5
-            },
-            "enemy_close_distance": {
-                "upper_bound": 50,
-                "lower_bound": -50
-            },
-            "max_ticks_on_course": {
-                "upper_bound": 200,
-                "lower_bound": -100
-            },
-            "ticks_cooldown": {
-                "upper_bound": 300,
-                "lower_bound": -100
-            },
-            "turn_direction": {
-                "upper_bound": 5,
-                "lower_bound": -5
-            },
-            "close_to_ground": {
-                "upper_bound": 200,
-                "lower_bound": -200
-            },
-            "flip_direction_lb": {
-                "upper_bound": 2,
-                "lower_bound": -3
-            },
-            "flip_direction_ub": {
-                "upper_bound": 3,
-                "lower_bound": -2
-            },
-            "min_angle_to_adjust": {
-                "upper_bound": 5,
-                "lower_bound": 0
-            },
-            "angle_allowance_at_range": {
-                "upper_bound": 3,
-                "lower_bound": -4
-            },
-            "enemy_disregard_distance_time_constant": {
-                "upper_bound": 0.05,
-                "lower_bound": -0.15
-            },
-            "enemy_taken_distance_multiplier": {
-                "upper_bound": 5,
-                "lower_bound": 0.95
-            },
-            "max_shooting_distance": {
-                "upper_bound": 200,
-                "lower_bound": -200
-            },
-            "throttle": {
-                "upper_bound": 0,
-                "lower_bound": -5
-            },
-            "max_speed": {
-                "upper_bound": 20,
-                "lower_bound": -30
-            },
-            "health": {
-                "upper_bound": 3,
-                "lower_bound": -3
-            },
-            "rotation_time": {
-                "upper_bound": 18,
-                "lower_bound": 12
+        "fighter_plane": {
+            "max_ticks_on_course": 6000,
+            "tick_cd": 500,
+            "bias_ranges": {
+                "distance_to_enemy": {
+                    "upper_bound": 50,
+                    "lower_bound": -50
+                },
+                "angle_to_enemy": {
+                    "upper_bound": 2,
+                    "lower_bound": -2
+                },
+                "angle_from_ground": {
+                    "upper_bound": 4,
+                    "lower_bound": -4
+                },
+                "enemy_far_away_distance": {
+                    "upper_bound": 25,
+                    "lower_bound": -25
+                },
+                "enemy_behind_angle": {
+                    "upper_bound": 5,
+                    "lower_bound": -5
+                },
+                "enemy_close_distance": {
+                    "upper_bound": 50,
+                    "lower_bound": -50
+                },
+                "max_ticks_on_course": {
+                    "upper_bound": 200,
+                    "lower_bound": -100
+                },
+                "ticks_cooldown": {
+                    "upper_bound": 300,
+                    "lower_bound": -100
+                },
+                "turn_direction": {
+                    "upper_bound": 5,
+                    "lower_bound": -5
+                },
+                "close_to_ground": {
+                    "upper_bound": 200,
+                    "lower_bound": -200
+                },
+                "flip_direction_lb": {
+                    "upper_bound": 2,
+                    "lower_bound": -3
+                },
+                "flip_direction_ub": {
+                    "upper_bound": 3,
+                    "lower_bound": -2
+                },
+                "min_angle_to_adjust": {
+                    "upper_bound": 5,
+                    "lower_bound": 0
+                },
+                "angle_allowance_at_range": {
+                    "upper_bound": 3,
+                    "lower_bound": -4
+                },
+                "enemy_disregard_distance_time_constant": {
+                    "upper_bound": 0.05,
+                    "lower_bound": -0.15
+                },
+                "enemy_taken_distance_multiplier": {
+                    "upper_bound": 5,
+                    "lower_bound": 0.95
+                },
+                "max_shooting_distance": {
+                    "upper_bound": 200,
+                    "lower_bound": -200
+                },
+                "throttle": {
+                    "upper_bound": 0,
+                    "lower_bound": -5
+                },
+                "max_speed": {
+                    "upper_bound": 20,
+                    "lower_bound": -30
+                },
+                "health": {
+                    "upper_bound": 3,
+                    "lower_bound": -3
+                },
+                "rotation_time": {
+                    "upper_bound": 18,
+                    "lower_bound": 12
+                }
+            }
+        },
+
+        "bomber_plane": {
+            "bias_ranges": {
+                "friendly_center_x_offset": {
+                    "upper_bound": 2000,
+                    "lower_bound": -2000
+                },
+                "friendly_center_y_offset": {
+                    "upper_bound": 2000,
+                    "lower_bound": -2000
+                },
+                "max_shooting_distance_offset": {
+                    "upper_bound": 1500,
+                    "lower_bound": -1500
+                },
+                // Turret specific biases
+                "shooting_angle_offset": {
+                    "upper_bound": 5,
+                    "lower_bound": -5
+                },
+                // Note: Upper bound makes it slower, lower -> faster. I probably messed up the proper terms a lot in this program idc will just live with the consequences
+                "rate_of_fire_multiplier": {
+                    "upper_bound": 1.2,
+                    "lower_bound": 0.75
+                }
             }
         }
     },
 
-    "dogfight_settings":{
+    "dogfight_settings": {
         "ally_spawn_x": 50000,
         "ally_spawn_y": 50000,
         "axis_spawn_x": 70000,
@@ -279,6 +313,7 @@ const FILE_DATA = {
     "extra_images_to_load": [
         "radar_outline",
         "bullet",
+        "bomb",
         "dirt",
         "above_ground",
         "clouds",
