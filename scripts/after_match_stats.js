@@ -81,6 +81,16 @@ class AfterMatchStats {
     }
 
     /*
+        Method Name: getWinner
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: String
+    */
+    getWinner(){
+        return this.winner;
+    }
+
+    /*
         Method Name: makeTeamText
         Method Parameters:
             team:
@@ -158,17 +168,25 @@ class AfterMatchStats {
     static addPlayerKill(alliance){
         AfterMatchStats.instance.addPlayerKill(alliance);
     }
+    
     // Interface for non-static function
     static getWinnerColour(){
         return AfterMatchStats.instance.getWinnerColour();
     }
+
     // Interface for non-static function
     static setWinner(winner){
         AfterMatchStats.instance.setWinner(winner);
     }
+
     // Interface for non-static function
     static display(){
         AfterMatchStats.instance.display();
+    }
+
+    // Interface for non-static function
+    static getWinner(){
+        return AfterMatchStats.instance.getWinner();
     }
 
     // Creates the instance of AfterMatchStats to be used in the singleton pattern

@@ -23,6 +23,8 @@ class DogfightMenu extends Menu {
         this.botDetailsComponent = null;
         this.setup();
         this.updateBotDetails();
+        this.allyDifficulty = "easy";
+        this.axisDifficulty = "easy";
     }
 
     /*
@@ -91,6 +93,12 @@ class DogfightMenu extends Menu {
             this.modifyDisplayedBotPlaneCount("Allies", -5);
         }));
 
+        let allyDifficultyButtonX = (innerWidth) => { return alliesHeaderX(innerWidth); }
+        let allyDifficultyButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight() - addRemoveButtonSize; }
+        this.components.push(new RectangleButton(() => { return this.getAllyDifficulty(); }, FILE_DATA["team_to_colour"]["Allies"], "#e6f5f4", allyDifficultyButtonX, allyDifficultyButtonY, addRemoveButtonSize*3, addRemoveButtonSize*3, (instance) => {
+            this.cycleAllyDifficulty();
+        }));
+
         let alliedMinus1ButtonX = (innerWidth) => { return alliedMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
         let alliedMinus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
         this.components.push(new RectangleButton("-1", FILE_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus1ButtonX, alliedMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
@@ -136,6 +144,12 @@ class DogfightMenu extends Menu {
         let axisMinute5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
         this.components.push(new RectangleButton("-5", FILE_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus5ButtonX, axisMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -5);
+        }));
+
+        let axisDifficultyButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
+        let axisDifficultyButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight() - addRemoveButtonSize; }
+        this.components.push(new RectangleButton(() => { return this.getAxisDifficulty(); }, FILE_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisDifficultyButtonX, axisDifficultyButtonY, addRemoveButtonSize*3, addRemoveButtonSize*3, (instance) => {
+            this.cycleAxisDifficulty();
         }));
 
         let axisMinus1ButtonX = (innerWidth) => { return axisMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
@@ -364,13 +378,14 @@ class DogfightMenu extends Menu {
 
         // Add bots
         for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
-            let x = (planeModelToAlliance(planeName) == "Allies") ? allyX : axisX; 
-            let y = (planeModelToAlliance(planeName) == "Allies") ? allyY : axisY;
+            let allied = (planeModelToAlliance(planeName) == "Allies");
+            let x = allied ? allyX : axisX; 
+            let y = allied ? allyY : axisY;
             let facingRight = (planeModelToAlliance(planeName) == "Allies") ? allyFacingRight : !allyFacingRight;
             for (let i = 0; i < planeCount; i++){
                 let aX = x + randomFloatBetween(-1 * FILE_DATA["dogfight_settings"]["spawn_offset"], FILE_DATA["dogfight_settings"]["spawn_offset"]);
                 let aY = y + randomFloatBetween(-1 * FILE_DATA["dogfight_settings"]["spawn_offset"], FILE_DATA["dogfight_settings"]["spawn_offset"]);
-                planes.push(DogfightMenu.createBiasedBot(planeName, aX, aY, facingRight));
+                planes.push(DogfightMenu.createBiasedBot(planeName, aX, aY, facingRight, (allied ? this.allyDifficulty : this.axisDifficulty)));
             }
         }
         return planes;
@@ -387,16 +402,18 @@ class DogfightMenu extends Menu {
                 Starting y of new plane
             facingRight:
                 Orientation of new plane
+            difficulty:
+                The difficulty setting
         Method Description: Create the fighter plane bot object and return it
         Method Return: BiasedBotFighterPlane object
         TODO: Move to dogfight class?
     */
-    static createBiasedBot(model, x, y, facingRight){
+    static createBiasedBot(model, x, y, facingRight, difficulty){
         let botPlane;
         if (planeModelToType(model) == "Fighter"){
-            botPlane = BiasedBotFighterPlane.createBiasedPlane(model, scene);
+            botPlane = BiasedBotFighterPlane.createBiasedPlane(model, scene, difficulty);
         }else{
-            botPlane = BiasedBotBomberPlane.createBiasedPlane(model, scene);
+            botPlane = BiasedBotBomberPlane.createBiasedPlane(model, scene, difficulty);
         }
         botPlane.setCenterX(x);
         botPlane.setCenterY(y);
@@ -422,5 +439,65 @@ class DogfightMenu extends Menu {
     */
     goToMainMenu(){
         menuManager.switchTo("main");
+    }
+
+    /*
+        Method Name: cycleAxisDifficulty
+        Method Parameters: None
+        Method Description: Cycles the ally difficulty
+        Method Return: void
+        Note: There are many ways to do this. Maybe some are better? Definitely some are cleaner. It's not a big anyway idc.
+    */
+    cycleAxisDifficulty(){
+        let currentIndex = 0;
+        for (let key of Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])){
+            if (key == this.axisDifficulty){
+                break;
+            }
+            currentIndex++;   
+        }
+        let maxIndex = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"]).length;
+        currentIndex = (currentIndex + 1) % maxIndex;
+        this.axisDifficulty = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])[currentIndex];
+    }
+
+    /*
+        Method Name: cycleAllyDifficulty
+        Method Parameters: None
+        Method Description: Cycles the ally difficulty
+        Method Return: void
+        Note: There are many ways to do this. Maybe some are better? Definitely some are cleaner. It's not a big anyway idc.
+    */
+    cycleAllyDifficulty(){
+        let currentIndex = 0;
+        for (let key of Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])){
+            if (key == this.allyDifficulty){
+                break;
+            }
+            currentIndex++;   
+        }
+        let maxIndex = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"]).length;
+        currentIndex = (currentIndex + 1) % maxIndex;
+        this.allyDifficulty = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])[currentIndex];
+    }
+
+    /*
+        Method Name: getAllyDifficulty
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: void
+    */
+    getAllyDifficulty(){
+        return this.allyDifficulty;
+    }
+
+    /*
+        Method Name: getAxisDifficulty
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: void
+    */
+    getAxisDifficulty(){
+        return this.axisDifficulty;
     }
 }

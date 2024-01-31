@@ -48,14 +48,23 @@ class BiasedBotBomberPlane extends BotBomberPlane {
                 A string representing the type of the plane
             scene:
                 A scene objet related to the plane
+            difficulty:
+                The current difficulty setting
         Method Description: Return the max shooting distance of this biased plane
         Method Return: float
     */
-    static createBiasedPlane(planeClass, scene){
+    static createBiasedPlane(planeClass, scene, difficulty){
         let biases = {};
-        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bomber_plane"]["bias_ranges"])){
-            let upperBound = bounds["upper_bound"];
-            let lowerBound = bounds["lower_bound"];
+        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
+            let upperBound = bounds["upper_range"]["upper_bound"];
+            let lowerBound = bounds["upper_range"]["lower_bound"];
+            let upperRangeSize = bounds["upper_range"]["upper_bound"] - bounds["upper_range"]["lower_bound"];
+            let lowerRangeSize = bounds["lower_range"]["upper_bound"] - bounds["lower_range"]["lower_bound"];
+            // Chance of using the lower range instead of the upper range
+            if (randomFloatBetween(0, upperRangeSize + lowerRangeSize) < lowerRangeSize){
+                upperBound = bounds["lower_range"]["upper_bound"];
+                lowerBound = bounds["lower_range"]["lower_bound"];
+            }
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
