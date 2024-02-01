@@ -43,10 +43,10 @@ class SoundMenu extends Menu {
         }
 
         // Information
-        let infoY = 900;
-        let infoXSize = 900;
-        let infoYSize = 900;
-        this.components.push(new TextComponent("Note: I must caution\n the use of sounds.\nI find them useful, however,\n these are of poor quality\n and may be loud and annoying.\nThis is why I have disabled\n them by default.", "black", 0, infoY, infoXSize, infoYSize));
+        let infoY = 700;
+        let infoXSize = 600;
+        let infoYSize = 400;
+        this.components.push(new TextComponent("Note: I must caution the use of sounds.\nI find them useful, however,\n these are of poor quality\nand may be loud and annoying.\nThis is why I have\n disabled them by default.", "black", 20, infoY, infoXSize, infoYSize));
         
     }
 
@@ -55,10 +55,10 @@ class SoundMenu extends Menu {
         let addRemoveButtonSize = 50;
         let sectionYStart = sectionYSize * offSetIndex;
 
-        let soundLabelX = 600;
-        let soundLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
         let soundLabelXSize = 300;
-        let soundLabelYSize = sectionYSize;
+        let soundLabelX = 600;
+        let soundLabelYSize = 100;
+        let soundLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart + addRemoveButtonSize/2; }
 
         let soundMinus5ButtonX = soundLabelX + soundLabelXSize;
         let soundMinute5ButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
@@ -80,10 +80,10 @@ class SoundMenu extends Menu {
         // Components
         let startVolume = SOUND_MANAGER.getVolume(soundName);
 
-        let currentVolumeComponent = new TextComponent(startVolume.toString(), "#f5d442", soundCurrentCountTextX, soundCurrentCountTextY, soundCurrentCountTextXSize, soundCurrentCountTextYSize);
+        let currentVolumeComponent = new TextComponent(startVolume.toString(), "#f5d442", soundCurrentCountTextX, soundCurrentCountTextY, soundCurrentCountTextXSize, soundCurrentCountTextYSize, CENTER, CENTER);
         this.components.push(currentVolumeComponent);
 
-        this.components.push(new TextComponent(soundName, "#f5d442", soundLabelX, soundLabelY, soundLabelXSize, soundLabelYSize));
+        this.components.push(new TextComponent(soundName, "#f5d442", soundLabelX, soundLabelY, soundLabelXSize, soundLabelYSize, CENTER, CENTER));
 
         this.components.push(new RectangleButton("-10", "#f5d442", "#e6f5f4", soundMinus5ButtonX, soundMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             let currentVolume = SOUND_MANAGER.getVolume(soundName);

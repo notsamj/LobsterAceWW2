@@ -286,9 +286,10 @@ class PlaneGameScene extends Scene {
                 focusedEntity.getRadar().display();
             }
         }
+        // TODO: Use Menu make text in the future
         textSize(20);
         fill("green");
-        textAlign(LEFT);
+        textAlign(LEFT, TOP);
         text(`x: ${x}`, 10, 20);
         text(`y: ${y}`, 10, 40);
         text(`Speed: ${planeSpeed}`, 10, 60);

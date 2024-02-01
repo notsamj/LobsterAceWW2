@@ -109,7 +109,7 @@ class DogfightMenu extends Menu {
         let alliedCurrentCountTextY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
         let alliedCurrentCountTextXSize = 50;
         let alliedCurrentCountTextYSize = 50;
-        this.currentAlliedPlaneCountComponent = new TextComponent("0", FILE_DATA["team_to_colour"]["Allies"], alliedCurrentCountTextX, alliedCurrentCountTextY, alliedCurrentCountTextXSize, alliedCurrentCountTextYSize);
+        this.currentAlliedPlaneCountComponent = new TextComponent("0", FILE_DATA["team_to_colour"]["Allies"], alliedCurrentCountTextX, alliedCurrentCountTextY, alliedCurrentCountTextXSize, alliedCurrentCountTextYSize, CENTER, CENTER);
         this.components.push(this.currentAlliedPlaneCountComponent);
 
         let alliedPlus1ButtonX = (innerWidth) => { return alliedCurrentCountTextX(innerWidth) + alliedCurrentCountTextXSize; }
@@ -162,7 +162,7 @@ class DogfightMenu extends Menu {
         let axisCurrentCountTextY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
         let axisCurrentCountTextXSize = 50;
         let axisCurrentCountTextYSize = 50;
-        this.currentAxisPlaneCountComponent = new TextComponent("0", FILE_DATA["team_to_colour"]["Axis"], axisCurrentCountTextX, axisCurrentCountTextY, axisCurrentCountTextXSize, axisCurrentCountTextYSize);
+        this.currentAxisPlaneCountComponent = new TextComponent("0", FILE_DATA["team_to_colour"]["Axis"], axisCurrentCountTextX, axisCurrentCountTextY, axisCurrentCountTextXSize, axisCurrentCountTextYSize, CENTER, CENTER);
         this.components.push(this.currentAxisPlaneCountComponent);
 
         let axisPlus1ButtonX = (innerWidth) => { return axisCurrentCountTextX(innerWidth) + axisCurrentCountTextXSize; }
@@ -178,7 +178,7 @@ class DogfightMenu extends Menu {
         }));
 
         // Bot Details Section
-        let botHeaderX = (innerWidth) => { return 1000; }
+        let botHeaderX = (innerWidth) => { return 1200; }
         let botHeaderY = (innerHeight) => { return innerHeight-27; }
         let botHeaderXSize = 700;
         let botHeaderYSize = 150;
@@ -187,7 +187,7 @@ class DogfightMenu extends Menu {
         let botBodyX = (innerWidth) => { return botHeaderX(innerWidth); }
         let botBodyY = (innerHeight) => { return botHeaderY(innerHeight) - botHeaderYSize; }
         let botBodyXSize = botHeaderXSize;
-        let botBodyYSize = FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"];
+        let botBodyYSize = FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] - botHeaderYSize - startButtonYSize;
         this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
         this.components.push(this.botDetailsComponent);
         

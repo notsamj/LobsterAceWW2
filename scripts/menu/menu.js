@@ -60,11 +60,35 @@ class Menu {
         let screenY = menuManager.changeToScreenY(y);
 
         // Make the rectangle
+        rectMode(CORNER);
         fill(colour);
         rect(screenX, screenY, width, height);
 
         // Make the text
-        Menu.makeText(textStr, textColour, x, y, width, height);
+        Menu.makeText(textStr, textColour, x, y, width, height, CENTER, CENTER);
+    }
+
+    // TODO: Comments
+    static determineMaxTextSizeByWidth(textLines, boxWidth){
+        let currentTextSize = 10; // Using as a standard
+        textSize(currentTextSize)
+        let longestLine = textLines[0];
+        let longestLineWidth = textWidth(longestLine);
+        
+        // Find the longest line
+        for (let i = 0; i < textLines.length; i++){
+            let currentLineWidth = textWidth(textLines[i])
+            if (currentLineWidth > longestLineWidth){
+                longestLine = textLines[i];
+                longestLineWidth = currentLineWidth;
+            }
+        }
+
+        // Loop until the text is too big
+        while (textWidth(longestLine) + FILE_DATA["constants"]["TEXT_BOX_PADDING_PX"] < boxWidth){
+            textSize(++currentTextSize);
+        }
+        return currentTextSize - 1; // -1 because we've established that this is 1 size too big for the width
     }
 
     /*
@@ -78,33 +102,32 @@ class Menu {
             The x location of the top left of the text box
         y:
             The y location of the top left of the text box
-        width:
-            The width of the text
-        height:
-            The height of the text
+        boxWidth:
+            The width of the text box
+        boxHeight:
+            The height of the text box
 
         Method Description: Create text box filled with text
         Method Return: void
     */
-    static makeText(textStr, textColour, x, y, width, height){
-        let textLength = 0;
+    static makeText(textStr, textColour, x, y, boxWidth, boxHeight, alignLR=LEFT, alignTB=TOP){
         let splitByLine = textStr.split("\n");
-        for (let line of splitByLine){
-            textLength = Math.max(textLength, line.length);
-        }
         let numLines = splitByLine.length;
-        if (textLength == 0){ return; }
         let screenX = x;
         let screenY = menuManager.changeToScreenY(y);
-        let maxTextSizeW = Math.floor(width / textLength);
-        let maxTextSizeH = Math.floor(height / numLines);
+        let maxTextSizeW = Menu.determineMaxTextSizeByWidth(splitByLine, boxWidth);
+        let maxTextSizeH = Math.floor((boxHeight - FILE_DATA["constants"]["TEXT_BOX_PADDING_PX"]) / numLines);
         let calculatedTextSize = Math.min(maxTextSizeW, maxTextSizeH);
         calculatedTextSize = Math.max(calculatedTextSize, 1);
         textSize(calculatedTextSize);
+        textFont("Arial")
         fill(textColour);
-        textAlign(CENTER, CENTER);
-        textFont("courier new")
-        text(textStr, screenX, screenY, width, height);
+        textAlign(alignLR, alignTB);
+        let i = 0;
+        for (let line of splitByLine){
+            text(line, screenX, screenY + i * calculatedTextSize, boxWidth, boxHeight);
+            i++;
+        }
     }
 
     /*

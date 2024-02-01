@@ -21,13 +21,14 @@ class TextComponent extends Component {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(textStr, textColour, x, y, width, height){
+    constructor(textStr, textColour, x, y, width, height, alignLR=LEFT, alignTB=TOP){
         super();
         this.textStr = textStr;
         this.textColour = textColour;
         this.x = x;
         this.y = y;
-
+        this.alignLR = alignLR;
+        this.alignTB = alignTB;
         this.width = width;
         this.height = height;
     }
@@ -58,7 +59,7 @@ class TextComponent extends Component {
     */
     display(){
         if (!this.enabled){ return; }
-        Menu.makeText(this.textStr, this.textColour, this.getX(), this.getY(), this.width, this.height);
+        Menu.makeText(this.textStr, this.textColour, this.getX(), this.getY(), this.width, this.height, this.alignLR, this.alignTB);
     }
 
     /*
