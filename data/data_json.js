@@ -171,7 +171,7 @@ const FILE_DATA = {
         "SAVED_TICKS": 500,
         "KEEP_ALIVE_INTERVAL": 5000,
         "TIME_TO_READY_UP": 5000, // 5000
-        "MULTIPLAYER_DISABLED": false,
+        "MULTIPLAYER_DISABLED": true,
         "BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT": 2000,
         "BULLET_REDUCTION_COEFFICIENT": 1.5,
         "FOCUSED_COUNT_DISTANCE_EQUIVALENT": 1500,
@@ -245,7 +245,18 @@ const FILE_DATA = {
         ],
         "url": "./sounds",
         "file_type": ".mp3"
-    }
+    },
+
+    "missions": [
+        {
+            "description": "This is placeholder text.\nThis is placeholder text. This is placeholder text.\nThis is placeholder text. This is placeholder text. This is placeholder text. This is placeholder text.",
+            "nextThing": null
+        },
+        {
+            "description": "222222This is placeholder text.\nThis is placeholder text. This is placeholder text.\nThis is placeholder text. This is placeholder text. This is placeholder text. This is placeholder text.",
+            "nextThing": null
+        }
+    ]
 }
 if (typeof window === "undefined"){
     module.exports = FILE_DATA;
