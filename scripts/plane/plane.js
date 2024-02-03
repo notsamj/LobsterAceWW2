@@ -34,7 +34,28 @@ class Plane extends Entity {
         this.speed = this.maxSpeed;
         this.hitBox = new CircleHitbox(FILE_DATA["plane_data"][planeClass]["radius"]);
         this.health = FILE_DATA["plane_data"][planeClass]["health"];
+        this.startingHealth = this.health;
         this.throttleConstant = Math.sqrt(this.maxSpeed) / FILE_DATA["constants"]["MAX_THROTTLE"];
+    }
+
+    /*
+        Method Name: onSameTeam
+        Method Parameters: otherPlane
+        Method Description: Determine if this plane is on the same team as another plane
+        Method Return: True if the planes are on the same team, false otherwise
+    */
+    onSameTeam(otherPlane){
+        return onSameTeam(this.getPlaneClass(), otherPlane.getPlaneClass());
+    }
+
+    /*
+        Method Name: toString
+        Method Parameters: None
+        Method Description: Creates a string representation of the plane
+        Method Return: void
+    */
+    toString(){
+        return `"Model: ${this.planeClass}\nFacing Right: ${this.facingRight}\nAngle: ${this.angle}\nHealth: ${this.health}`;
     }
 
     /*
@@ -62,7 +83,7 @@ class Plane extends Entity {
         Method Return: an integer number in range [0, Number of smoke images]
     */
     getSmokeNumber(){
-        let hpMissingProportion = (FILE_DATA["plane_data"][this.planeClass]["health"] - this.health) / FILE_DATA["plane_data"][this.planeClass]["health"];
+        let hpMissingProportion = (this.startingHealth - this.health) / this.startingHealth;
         let phaseTotal = FILE_DATA["smoke_images"].length + 1;
         let phaseIntervalSize = 1 / phaseTotal;
         let smokeNumber = Math.floor(hpMissingProportion / phaseIntervalSize);
@@ -345,7 +366,6 @@ class Plane extends Entity {
         }else{
             this.y -= FILE_DATA["constants"]["FALL_SPEED"] * timeProportion;
         }
-
         this.x += this.getXVelocity() * timeProportion;
         SOUND_MANAGER.play("engine", this.x, this.y);
     }

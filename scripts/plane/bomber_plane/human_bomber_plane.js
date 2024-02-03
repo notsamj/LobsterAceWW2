@@ -19,13 +19,11 @@ class HumanBomberPlane extends BomberPlane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
-        this.udLock = new CooldownLock(40);
-        this.lrCDLock = new CooldownLock(10);
+        this.udLock = new TickLock(40 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.lrLock = new Lock();
-        this.tLock = new CooldownLock(10);
-        this.radarLock = new CooldownLock(1000);
+        this.radarLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.radar = new PlaneRadar(this);
-        this.bombLock = new CooldownLock(1000);
+        this.bombLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.generateGuns();
     }
 
@@ -84,13 +82,20 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     tick(timeDiffMS){
-        super.tick(timeDiffMS);
+        this.udLock.tick();
+        this.radarLock.tick();
+        this.bombLock.tick();
+        for (let gun of this.guns){
+            gun.tick();
+        }
         this.checkMoveLeftRight();
         this.checkUpDown();
         this.checkThrottle();
         this.checkShoot();
         this.checkBomb();
         this.updateRadar();
+        // TODO: I moved the above lines above super call (they were below), seems right to me...
+        super.tick(timeDiffMS);
     }
 
     /*
@@ -121,8 +126,6 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     checkMoveLeftRight(){
-        if (!this.lrCDLock.isReady()){ return; } // TODO: Why is this here, is this useful?
-        this.lrCDLock.lock();
         let aKey = keyIsDown(65);
         let dKey = keyIsDown(68);
         let numKeysDown = 0;
@@ -198,8 +201,6 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     checkThrottle(){
-        if (!this.tLock.isReady()){ return; }
-        this.tLock.lock();
         let rKey = keyIsDown(82);
         let fKey = keyIsDown(70);
         let numKeysDown = 0;

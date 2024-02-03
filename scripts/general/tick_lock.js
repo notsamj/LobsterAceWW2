@@ -17,10 +17,10 @@ class TickLock extends Lock{
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(cooldown, ready=true){
+    constructor(numTicks, ready=true){
         super(ready);
-        this.cooldown = cooldown;
-        this.lastLocked = 0;
+        this.numTicks = numTicks;
+        this.ticksLeft = 0;
     }
     
     /*
@@ -30,8 +30,9 @@ class TickLock extends Lock{
         Method Return: void
     */
     tick(){
-        super.lock();
-        this.lastLocked = Date.now();
+        if (!this.isReady()){
+            this.ticksLeft--;
+        }
     }
 
     /*
@@ -41,10 +42,17 @@ class TickLock extends Lock{
         Method Return: boolean, true -> ready, false -> not ready
     */
     isReady(){
-        if (Date.now() > this.lastLocked + this.cooldown){
-            this.unlock();
-        }
-        return this.ready;
+        return this.ticksLeft <= 0;
+    }
+
+    /*
+        Method Name: lock
+        Method Parameters: None
+        Method Description: Adds the lock time to the time left, locking the lock for some time
+        Method Return: void
+    */
+    lock(){
+        this.ticksLeft += this.numTicks;
     }
 
     /*
@@ -54,7 +62,7 @@ class TickLock extends Lock{
         Method Return: long, the cooldown of the lock
     */
     getCooldown(){
-        return this.cooldown;
+        return this.numTicks;
     }
 }
 // When this is opened in NodeJS, export the class

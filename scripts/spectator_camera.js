@@ -21,13 +21,13 @@ class SpectatorCamera extends Entity {
         this.y = y;
         this.followingEntity = null;
         this.followToggleLock = new Lock();
-        this.leftRightLock = new CooldownLock(250);
+        this.leftRightLock = new TickLock(250 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.xVelocity = 0;
         this.yVelocity = 0;
-        this.xLock = new CooldownLock(0);
-        this.yLock = new CooldownLock(0);
+        this.xLock = new TickLock(0);
+        this.yLock = new TickLock(0);
         this.radar = new SpectatorRadar(this);
-        this.radarLock = new CooldownLock(250);
+        this.radarLock = new TickLock(250 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
     }
 
 
@@ -69,8 +69,9 @@ class SpectatorCamera extends Entity {
     */
     isFollowing(){
         // Check if the entity is still around
-        if (this.followingEntity != null && !scene.hasEntity(this.followingEntity.getID())){
+        if (this.followingEntity != null && this.followingEntity.isDead()){
             this.followingEntity = null;
+            this.spectateFirstEntity();
         }
         return this.followingEntity != null;
     }
@@ -194,8 +195,18 @@ class SpectatorCamera extends Entity {
     */
     spectateFirstEntity(){
         let followableEntities = this.scene.getGoodToFollowEntities();
-        
-        if (followableEntities.length > 0){ this.followingEntity = followableEntities[0]; }
+        if (followableEntities.length > 0){
+            let bestEntity = null;
+            let bestDistance = null;
+            for (let entity of followableEntities){
+                let distance = this.distance(entity);
+                if (bestDistance == null || distance < bestDistance){
+                    bestEntity = entity;
+                    bestDistance = distance;
+                }
+            }
+            this.followingEntity = bestEntity;
+        }
     }
 
     /*
@@ -309,6 +320,11 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     tick(){
+        // Update tick locks
+        this.xLock.tick();
+        this.yLock.tick();
+        this.leftRightLock.tick();
+        this.radarLock.tick();
         this.updateRadar();
         this.checkFollowToggle();
         if (this.isFollowing()){

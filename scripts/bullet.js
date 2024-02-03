@@ -55,7 +55,6 @@ class Bullet extends Entity {
 
         // Apply acceleration
         this.yVelocity = this.yVelocity - yAcceleration;
-        
         this.x += this.xVelocity * timeProportion;
         this.y += this.yVelocity * timeProportion;
 
@@ -165,7 +164,8 @@ class Bullet extends Entity {
     */
     expectedToDie(){
         let belowGround = this.y < 0;
-        let movingTooFast = Math.abs(this.yVelocity) > FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] * FILE_DATA["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"];
+        let movingDownTooFast = this.yVelocity < 0 && Math.abs(this.yVelocity) > FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] * FILE_DATA["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"] * FILE_DATA["bullet_data"]["speed"];
+        if (movingDownTooFast || belowGround){ return true; }
         let maxX = null;
         let maxY = null;
         let minX = null;
@@ -188,8 +188,7 @@ class Bullet extends Entity {
         }
         let tooFarToTheLeftOrRight = maxX != null && (this.x + FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"] < minX || this.x - FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"] > maxX);
         let tooFarToUpOrDown = maxY != null && (this.y + FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] < minY || this.y - FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] > maxY);
-        
-        return belowGround || movingTooFast || tooFarToTheLeftOrRight || tooFarToUpOrDown;
+        return tooFarToTheLeftOrRight || tooFarToUpOrDown;
     }
 
     /*

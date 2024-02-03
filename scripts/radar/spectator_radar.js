@@ -32,9 +32,9 @@ class SpectatorRadar extends Radar {
         Method Name: placeOnRadar
         Method Parameters:
             enemyX:
-                The x location of an enemy
+                The x location of a plane
             enemeyY:
-                The y location of an enemy
+                The y location of a plane
             colour:
                 Colour of radar blip
 

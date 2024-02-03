@@ -25,11 +25,23 @@ class Turret {
     constructor(x, y, fov1, fov2, rateOfFire, scene){
         this.x = x;
         this.y = y;
-        this.shootCD = new CooldownLock(rateOfFire * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"]);
+        this.shootCD = new TickLock(rateOfFire * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.fov1 = fov1;
         this.fov2 = fov2;
         this.scene = scene;
         this.model = "turret";
+    }
+
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiffMS:
+                The time between ticks
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    tick(timeDiffMS){
+        this.shootCD.tick();
     }
 
     /*

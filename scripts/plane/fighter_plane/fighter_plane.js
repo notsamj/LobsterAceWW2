@@ -23,7 +23,20 @@ class FighterPlane extends Plane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene);
-        this.shootLock = new CooldownLock(FILE_DATA["constants"]["PLANE_SHOOT_GAP_MS"] * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"]);
+        this.shootLock = new TickLock(FILE_DATA["constants"]["PLANE_SHOOT_GAP_MS"] * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+    }
+
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiffMS:
+                The time between ticks
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    tick(timeDiffMS){
+        this.shootLock.tick();
+        super.tick(timeDiffMS);
     }
 
     /*

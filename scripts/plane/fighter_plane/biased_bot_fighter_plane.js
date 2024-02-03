@@ -34,13 +34,42 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     constructor(planeClass, scene, biases, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
+            this.currentEnemyID = null;
+        this.turningDirection = null;
+        this.ticksOnCourse = 0;
+        this.tickCD = 0;
         this.biases = biases;
         this.throttle += this.biases["throttle"];
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
-        this.rotationCD = new CooldownLock(this.biases["rotation_time"]);
+        this.startingHealth = this.health;
+        this.rotationCD = new TickLock(this.biases["rotation_time"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiffMS:
+                The time between ticks
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    tick(timeDiffMS){
+        this.rotationCD.tick();
+        // Check if the selected enemy should be changed
+        this.updateEnemy();
+        // If there is an enemy then act accordingly
+        if (this.hasCurrentEnemy()){
+            let enemy = this.scene.getEntity(this.currentEnemyID);
+            this.handleEnemy(enemy);
+        }else{ // No enemy -> make sure not to crash into the ground
+            if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
+                this.turnInDirection(90);
+            }
+        }
+        // TODO: I moved the above lines above super call, seems right to me...
+        super.tick(timeDiffMS);
+    }
 
     /*
         Method Name: handleEnemy
@@ -165,6 +194,19 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         this.turningDirection = null;
         this.ticksOnCourse += 1;
         this.turnInDirection(angleDEG);
+    }
+
+    /*
+        Method Name: evasiveManeuver
+        Method Parameters: None
+        Method Description: Turn to a direction as part of an evasive maneuver
+        Method Return: void
+    */
+    evasiveManeuver(){
+        if (this.turningDirection == null){
+            this.turningDirection = this.comeUpWithEvasiveTurningDirection();
+        }
+        this.adjustAngle(this.turningDirection);
     }
 
     /*
@@ -295,6 +337,23 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     }
 
     /*
+        Method Name: getEnemyList
+        Method Parameters: None
+        Method Description: Find all the enemies and return them
+        Method Return: List
+    */
+    getEnemyList(){
+        let entities = this.scene.getPlanes();
+        let enemies = [];
+        for (let entity of entities){
+            if (entity instanceof Plane && !this.onSameTeam(entity)){
+                enemies.push(entity);
+            }
+        }
+        return enemies;
+    }
+
+    /*
         Method Name: updateEnemy
         Method Parameters: None
         Method Description: Determine the id of the current enemy
@@ -310,7 +369,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let score = calculateEnemyScore(distance, BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
+            let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "id": enemy.getID(),
@@ -331,6 +390,26 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     getMaxShootingDistance(){
         return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance"];
+    }
+
+    /*
+        Method Name: hasCurrentEnemy
+        Method Parameters: None
+        Method Description: Determine if there is currently a current enemy
+        Method Return: True if has an enemy (and they exist), otherwise false
+    */
+    hasCurrentEnemy(){
+        return this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID);
+    }
+
+    /*
+        Method Name: getCurrentEnemy
+        Method Parameters: None
+        Method Description: Get the id of the current enemy
+        Method Return: A string of the id of the current enemy
+    */
+    getCurrentEnemy(){
+        return this.currentEnemyID;
     }
 
     /*
@@ -363,7 +442,50 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         }
         return new BiasedBotFighterPlane(planeClass, scene, biases);
     }
+
+    /*
+        Method Name: isFocused
+        Method Parameters:
+            scene:
+                A Scene object related to the fighter plane
+            enemyID:
+                A string ID of the enemy plane
+            myID:
+                A string ID of the plane making the inquiry
+        Method Description: Determines if another plane is focused on an enemy that "I" am thinking about focusing on
+        Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
+    */
+    static isFocused(scene, enemyID, myID){
+        return focusedCount(scene, enemyID, myID) == 0;
+    }
+
+    /*
+        Method Name: focusedCount
+        Method Parameters:
+            scene:
+                A Scene object related to the fighter plane
+            enemyID:
+                A string ID of the enemy plane
+            myID:
+                A string ID of the plane making the inquiry
+        Method Description: Determines how many other planes are focused on an enemy that "I" am thinking about focusing on
+        Method Return: int
+    */
+    static focusedCount(scene, enemyID, myID){
+        let count = 0;
+        for (let plane of scene.getPlanes()){
+            if (plane instanceof BotFighterPlane && plane.getID() != myID && plane.getCurrentEnemy() == enemyID){
+                count += 1;
+            }
+        }
+        return count;
+    }
 }
+
+function calculateEnemyScore(distance, focusedCount){
+    return distance + focusedCount * FILE_DATA["constants"]["FOCUSED_COUNT_DISTANCE_EQUIVALENT"];
+}
+
 // If using Node JS Export the class
 if (typeof window === "undefined"){
     module.exports = BiasedBotFighterPlane;

@@ -68,7 +68,16 @@ class Menu {
         Menu.makeText(textStr, textColour, x, y, width, height, CENTER, CENTER);
     }
 
-    // TODO: Comments
+        /*
+        Method Name: determineMaxTextSizeByWidth
+        Method Parameters:
+        textLines:
+            Array of strings, lines of text
+        boxWidth:
+            The width of the text box
+        Method Description: Determines the maximum text size based on the width of the text
+        Method Return: int
+    */
     static determineMaxTextSizeByWidth(textLines, boxWidth){
         let currentTextSize = 10; // Using as a standard
         textSize(currentTextSize)
@@ -85,7 +94,7 @@ class Menu {
         }
 
         // Loop until the text is too big
-        while (textWidth(longestLine) + FILE_DATA["constants"]["TEXT_BOX_PADDING_PX"] < boxWidth){
+        while (textWidth(longestLine) + FILE_DATA["constants"]["TEXT_BOX_PADDING_PERCENT"] * boxWidth < boxWidth){
             textSize(++currentTextSize);
         }
         return currentTextSize - 1; // -1 because we've established that this is 1 size too big for the width
@@ -116,18 +125,14 @@ class Menu {
         let screenX = x;
         let screenY = menuManager.changeToScreenY(y);
         let maxTextSizeW = Menu.determineMaxTextSizeByWidth(splitByLine, boxWidth);
-        let maxTextSizeH = Math.floor((boxHeight - FILE_DATA["constants"]["TEXT_BOX_PADDING_PX"]) / numLines);
+        let maxTextSizeH = Math.floor((boxHeight - FILE_DATA["constants"]["TEXT_BOX_PADDING_PERCENT"] * boxHeight) / numLines);
         let calculatedTextSize = Math.min(maxTextSizeW, maxTextSizeH);
         calculatedTextSize = Math.max(calculatedTextSize, 1);
         textSize(calculatedTextSize);
         textFont("Arial")
         fill(textColour);
         textAlign(alignLR, alignTB);
-        let i = 0;
-        for (let line of splitByLine){
-            text(line, screenX, screenY + i * calculatedTextSize, boxWidth, boxHeight);
-            i++;
-        }
+        text(textStr, screenX, screenY, boxWidth, boxHeight);
     }
 
     /*
