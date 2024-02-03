@@ -250,11 +250,15 @@ const FILE_DATA = {
     "missions": [
         {
             "description": "This is placeholder text.\nThis is placeholder text. This is placeholder text.\nThis is placeholder text. This is placeholder text. This is placeholder text. This is placeholder text.",
-            "nextThing": null
+            "user_planes": [
+                "spitfire"
+            ]
         },
         {
             "description": "222222This is placeholder text.\nThis is placeholder text. This is placeholder text.\nThis is placeholder text. This is placeholder text. This is placeholder text. This is placeholder text.",
-            "nextThing": null
+            "user_planes": [
+                "spitfire"
+            ]
         }
     ]
 }
