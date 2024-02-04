@@ -366,6 +366,7 @@ class Plane extends Entity {
         }else{
             this.y -= FILE_DATA["constants"]["FALL_SPEED"] * timeProportion;
         }
+        // TODO: Check if you hit the damn ground and die
         this.x += this.getXVelocity() * timeProportion;
         SOUND_MANAGER.play("engine", this.x, this.y);
     }

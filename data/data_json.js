@@ -251,14 +251,21 @@ const FILE_DATA = {
         {
             "description": "This is placeholder text.\nThis is placeholder text. This is placeholder text.\nThis is placeholder text. This is placeholder text. This is placeholder text. This is placeholder text.",
             "user_planes": [
-                "spitfire"
-            ]
-        },
-        {
-            "description": "222222This is placeholder text.\nThis is placeholder text. This is placeholder text.\nThis is placeholder text. This is placeholder text. This is placeholder text. This is placeholder text.",
-            "user_planes": [
-                "spitfire"
-            ]
+                "republic_p_47",
+                "p51_mustang",
+                "b24"
+            ],
+            "attacker_planes": [
+                "republic_p_47",
+                "p51_mustang",
+                "b24"
+            ],
+            "defender_planes": [
+                "me_309",
+                "me_bf_109"
+            ],
+            "attackers": "Allies",
+            "defenders": "Axis"
         }
     ]
 }

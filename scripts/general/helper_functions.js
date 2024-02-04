@@ -4,6 +4,27 @@ if (typeof window === "undefined"){
 }
 
 /*
+    Method Name: appendLists
+    Method Parameters:
+        list1:
+            A list
+        list2:
+            Another list
+    Method Description: Attaches two lists, list1=[l1i0, l1i1, ...], list2=[l2i0, l2i1, ...] result: [l1i0, l1i1, ..., l2i0, l2i1, ...]
+    Method Return: list
+*/
+function appendLists(list1, list2){
+    let appendedList = [];
+    for (let item of list1){
+        appendedList.push(item);
+    }
+    for (let item of list2){
+        appendedList.push(item);
+    }
+    return appendedList;
+}
+
+/*
     Method Name: safeDivide
     Method Parameters:
         numerator:

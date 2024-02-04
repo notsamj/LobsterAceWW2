@@ -58,7 +58,7 @@ class Dogfight extends GameMode {
     /*
         Method Name: isRunning
         Method Parameters: None
-        Method Description: Proxity for accessing a boolean value
+        Method Description: Proxy for accessing a boolean value
         Method Return: boolean, true -> running, false -> not running
     */
     isRunning(){

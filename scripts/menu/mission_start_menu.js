@@ -58,7 +58,7 @@ class MissionStartMenu extends Menu {
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            activeGameMode = new Mission(this.getFighterPlanes());
+            activeGameMode = new Mission(this.mission, this.userPlanes[this.userPlaneIndex]);
             this.goToGame();
         }));
 
