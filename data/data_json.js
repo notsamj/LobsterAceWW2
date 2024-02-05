@@ -182,6 +182,7 @@ const FILE_DATA = {
 
     "ai": {
         "fighter_plane": {
+            "update_enemy_cooldown": 1000,
             "max_ticks_on_course": 6000,
             "tick_cd": 500,
             "bias_ranges": {

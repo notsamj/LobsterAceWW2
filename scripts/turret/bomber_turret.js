@@ -32,6 +32,25 @@ class BomberTurret extends Turret {
     }
 
     /*
+        Method Name: shoot
+        Method Parameters: None
+        Method Description: Shoots the turret, if it is ready and the angle is in an allowed range.
+        Method Return: void
+    */
+    shoot(){
+        if (!this.readyToShoot()){ return; }
+        let shootingAngle = this.getShootingAngle();
+        if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
+        this.shootCD.lock();
+        SOUND_MANAGER.play("shoot", this.getX(), this.getY());
+        if (FILE_DATA["constants"]["USE_PHYSICS_BULLETS"]){
+            this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
+        }else{ // Fake bullets
+            this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
+        }
+    }
+
+    /*
         Method Name: getX
         Method Parameters: None
         Method Description: Calculates the location of the turret on the x axis. Takes into account the angle of the attached plane and its offset.

@@ -96,7 +96,15 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     display(lX, bY){
+        let rX = lX + getScreenWidth() - 1;
+        let tY = bY + getScreenHeight() - 1;
+
+        // If not on screen then return
+        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+
+        // Super call to remove (some) code repetition
         super.display(lX, bY);
+
         // If you've previously shot then display a flash to indicate
         if (this.shootLock.notReady()){
             // Display flash

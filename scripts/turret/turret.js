@@ -111,12 +111,17 @@ class Turret {
         Method Return: void
     */
     shoot(){
-        if (this.shootCD.notReady()){ return; }
+        if (!this.readyToShoot()){ return; }
         let shootingAngle = this.getShootingAngle();
         if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
         this.shootCD.lock();
         SOUND_MANAGER.play("shoot", this.getX(), this.getY());
         this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
+    }
+
+    // TODO COmments
+    readyToShoot(){
+        return this.shootCD.isReady();
     }
 
     // Abstract
