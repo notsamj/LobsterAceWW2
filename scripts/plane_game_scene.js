@@ -435,74 +435,18 @@ class PlaneGameScene extends Scene {
 
         // Display all extra entities
         for (let [entity, eI] of this.entities){
-            this.displayEntity(entity, lX, bY);
+            entity.display(lX, bY);
         }
         
         // Display the currently focused entity
         if (this.hasEntityFocused()){
-            this.displayEntity(focusedEntity, lX, bY);
+            this.focusedEntity.display(lX, bY);
         }
 
         // Display the HUD
         this.displayHUD();
     }
     
-    /*
-        Method Name: displayEntity
-        Method Parameters:
-            entity:
-                The entity to display
-            lX:
-                The bottom left x displayed on the canvas relative to the focused entity
-            bY:
-                The bottom left y displayed on the canvas relative to the focused entity
-        Method Description: Displays an entity on the screen (if it is within the bounds)
-        Method Return: void
-    */
-    displayEntity(entity, lX, bY){
-        let rX = lX + this.getWidth() - 1;
-        let tY = bY + this.getHeight() - 1;
-        // Is on screen
-        if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
-        let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);
-        let displayY = this.getDisplayY(entity.getCenterY(), entity.getHeight(), bY);
-        if (entity.isDead() && entity instanceof Plane){
-            drawingContext.drawImage(images["explosion"], displayX, displayY); 
-            return; 
-        }
-
-        if (entity instanceof Plane){
-            let rotateX = displayX + entity.getWidth() / 2;
-            let rotateY = displayY + entity.getHeight() / 2;
-            translate(rotateX, rotateY);
-            rotate(-1 * toRadians(entity.getAngle()));
-            if (!entity.isFacingRight()){
-                scale(-1, 1);
-            }
-            drawingContext.drawImage(entity.getImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
-            if (!entity.isFacingRight()){
-                scale(-1, 1);
-            }
-            rotate(toRadians(entity.getAngle()));
-            translate(-1 * rotateX, -1 * rotateY);
-
-            if (entity.isSmoking()){
-                translate(rotateX, rotateY);
-                rotate(-1 * toRadians(entity.getAngle()));
-                if (!entity.isFacingRight()){
-                    scale(-1, 1);
-                }
-                drawingContext.drawImage(entity.getSmokeImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
-                if (!entity.isFacingRight()){
-                    scale(-1, 1);
-                }
-                rotate(toRadians(entity.getAngle()));
-                translate(-1 * rotateX, -1 * rotateY);
-            }
-        }else{
-            drawingContext.drawImage(entity.getImage(), displayX, displayY); 
-        }
-    }
     /*
         Method Name: enable
         Method Parameters: None

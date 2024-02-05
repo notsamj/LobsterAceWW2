@@ -291,6 +291,7 @@ class Entity {
     getImage(){}
     tick(){}
     setGameMode(){}
+    display(){}
 }
 
 // If using Node JS Export the class

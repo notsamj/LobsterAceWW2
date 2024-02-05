@@ -5,8 +5,7 @@ class Mission extends GameMode {
 		this.missionObject = missionObject;
 		this.running = true;
 		this.tickManager = new SceneTickManager(Date.now(), scene, FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
-		this.buildings = [];
-		// this.buildings = this.createBuildings();
+		this.buildings = this.createBuildings();
 		this.planes = this.createPlanes(userEntityType);
 		scene.setEntities(appendLists(this.planes, this.buildings));
 	}
@@ -43,7 +42,7 @@ class Mission extends GameMode {
 
     	// If all buildings are destroyed then the attackers win
     	if (!livingBuildings){
-    		endGame(true);
+    		this.endGame(true);
     	}
 
     	let livingBombers = false;
@@ -54,14 +53,17 @@ class Mission extends GameMode {
     		}
     	}
 
+        // Temp
+        livingBombers = true;
+
     	// If all bombers are dead then the attacker loses
     	if (!livingBombers){
-    		endGame(false);
+    		this.endGame(false);
     	}
     }
 
     endGame(attackerWon){
-    	console.log(this.mission["attackers"], "won!");
+    	console.log(this.missionObject["attackers"], "won!");
     }
 
     createPlanes(userEntityType){
@@ -78,6 +80,10 @@ class Mission extends GameMode {
     	planes[0].setY(500);
     	scene.setFocusedEntity(planes[0]);
     	return planes;
+    }
+
+    createBuildings(){
+        return [new Building(5000, 100, 500, 50)];
     }
 
     display(){

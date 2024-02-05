@@ -366,7 +366,11 @@ class Plane extends Entity {
         }else{
             this.y -= FILE_DATA["constants"]["FALL_SPEED"] * timeProportion;
         }
-        // TODO: Check if you hit the damn ground and die
+        
+        // If hit the ground
+        if (this.y - this.hitBox.getRadiusEquivalentY() <= 0){
+            this.die();
+        }
         this.x += this.getXVelocity() * timeProportion;
         SOUND_MANAGER.play("engine", this.x, this.y);
     }
@@ -484,6 +488,79 @@ class Plane extends Entity {
     */
     isHuman(){
         return false;
+    }
+
+    /*
+        Method Name: display
+        Method Parameters:
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+        Method Description: Displays a plane on the screen (if it is within the bounds)
+        Method Return: void
+    */
+    display(lX, bY){
+        let rX = lX + getScreenWidth() - 1;
+        let tY = bY + getScreenHeight() - 1;
+
+        // If not on screen then return
+        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+
+        // Determine the location it will be displayed at
+        let displayX = this.scene.getDisplayX(this.getCenterX(), this.getWidth(), lX);
+        let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
+
+        // If dead then draw the explosion instead
+        if (this.isDead()){
+            drawingContext.drawImage(images["explosion"], displayX, displayY); 
+            return; 
+        }
+
+        // Find x and y of image given its rotation
+        let rotateX = displayX + this.getWidth() / 2;
+        let rotateY = displayY + this.getHeight() / 2;
+
+        // Prepare the display
+        translate(rotateX, rotateY);
+        rotate(-1 * toRadians(this.getAngle()));
+        // If facing left then turn around the display
+        if (!this.isFacingRight()){
+            scale(-1, 1);
+        }
+
+        // Display plane
+        drawingContext.drawImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
+
+        // If facing left then turn around the display (reset)
+        if (!this.isFacingRight()){
+            scale(-1, 1);
+        }
+        // Reset the rotation and translation
+        rotate(toRadians(this.getAngle()));
+        translate(-1 * rotateX, -1 * rotateY);
+
+        // If smoking then draw a smoke image overtop
+        if (this.isSmoking()){
+            // Prepare the display
+            translate(rotateX, rotateY);
+            rotate(-1 * toRadians(this.getAngle()));
+            // If facing left then turn around the display
+            if (!this.isFacingRight()){
+                scale(-1 * this.getWidth() / this.getSmokeImage().getWidth(), this.getHeight() / this.getSmokeImage().getHeight());
+            }
+
+            // Display smoke
+            drawingContext.drawImage(this.getSmokeImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
+
+            // If facing left then turn around the display (reset)
+            if (!this.isFacingRight()){
+                scale(-1 * this.getSmokeImage().getWidth() / this.getWidth(), this.getSmokeImage().getHeight() / this.getHeight());
+            }
+            // Reset the rotation and translation
+            rotate(toRadians(this.getAngle()));
+            translate(-1 * rotateX, -1 * rotateY);
+        }
     }
 }
 // When this is opened in NodeJS, export the class

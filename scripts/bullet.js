@@ -204,6 +204,29 @@ class Bullet extends Entity {
     collidesWith(otherEntity, timeDiff){
         return hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), otherEntity.getHitbox(), otherEntity.getX(), otherEntity.getY(), otherEntity.getXVelocity(), otherEntity.getYVelocity(), timeDiff/1000);
     }
+
+    /*
+        Method Name: display
+        Method Parameters:
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+        Method Description: Displays a plane on the screen (if it is within the bounds)
+        Method Return: void
+    */
+    display(lX, bY){
+        let rX = lX + getScreenWidth() - 1;
+        let tY = bY + getScreenHeight() - 1;
+
+        // If not on screen then return
+        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+
+        // Determine the location it will be displayed at
+        let displayX = this.getDisplayX(this.getCenterX(), this.getWidth(), lX);
+        let displayY = this.getDisplayY(this.getCenterY(), this.getHeight(), bY);
+        drawingContext.drawImage(entity.getImage(), displayX, displayY); 
+    }
 }
 // If using Node JS Export the class
 if (typeof window === "undefined"){
