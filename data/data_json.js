@@ -175,7 +175,9 @@ const FILE_DATA = {
         "BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT": 2000,
         "BULLET_REDUCTION_COEFFICIENT": 1.5,
         "FOCUSED_COUNT_DISTANCE_EQUIVALENT": 1500,
-        "TEXT_BOX_PADDING_PERCENT": 0.1
+        "TEXT_BOX_PADDING_PERCENT": 0.1,
+        "USE_PHYSICS_BULLETS": false,
+        "INSTANT_SHOT_MAX_DISTANCE": 3000
     },
 
     "ai": {
@@ -221,7 +223,8 @@ const FILE_DATA = {
         "above_ground",
         "clouds",
         "freecam",
-        "explosion"
+        "explosion",
+        "flash"
     ],
 
     "smoke_images": [

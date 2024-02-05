@@ -223,9 +223,9 @@ class Bullet extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.getDisplayX(this.getCenterX(), this.getWidth(), lX);
-        let displayY = this.getDisplayY(this.getCenterY(), this.getHeight(), bY);
-        drawingContext.drawImage(entity.getImage(), displayX, displayY); 
+        let displayX = this.scene.getDisplayX(this.getCenterX(), this.getWidth(), lX);
+        let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
+        drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 }
 // If using Node JS Export the class

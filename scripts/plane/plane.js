@@ -547,7 +547,7 @@ class Plane extends Entity {
             rotate(-1 * toRadians(this.getAngle()));
             // If facing left then turn around the display
             if (!this.isFacingRight()){
-                scale(-1 * this.getWidth() / this.getSmokeImage().getWidth(), this.getHeight() / this.getSmokeImage().getHeight());
+                scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
             }
 
             // Display smoke
@@ -555,11 +555,90 @@ class Plane extends Entity {
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){
-                scale(-1 * this.getSmokeImage().getWidth() / this.getWidth(), this.getSmokeImage().getHeight() / this.getHeight());
+                scale(-1 * this.getSmokeImage().width / this.getWidth(), this.getSmokeImage().height / this.getHeight());
             }
             // Reset the rotation and translation
             rotate(toRadians(this.getAngle()));
             translate(-1 * rotateX, -1 * rotateY);
+        }
+    }
+
+    // TODO: Needs comments
+    instantShot(gunX, gunY, angleDEG){
+        // Determine if the plane is facing -x or +x (not proper if plane is perpenticular to the x axis)
+        let xDir = (angleBetweenCCWDEG(angleDEG, 91, 269)) ? -1 : 1;
+        if (angleDEG == 90 || angleDEG == 270){
+            xDir = this.isFacingRight() ? 1 : -1;
+        }
+
+        // Determine if the plane is facing -y or +y (not proper if plane is perpenticular to the y axis)
+        let yDir = (angleBetweenCCWDEG(angleDEG, 0, 180)) ? 1 : -1;
+
+        let bestPlane = null;
+        let bestDistance = null;
+        // Find the best plane to shoot at
+        for (let plane of scene.getPlanes()){
+            // Check 1 - If the planes are on the same team then the shot won't hit this plane
+            if (this.onSameTeam(plane)){ continue; }
+            // Check 2 - If the plane located is in the correct x direction
+            let planeHitbox = plane.getHitbox();
+            planeHitbox.update(plane.getX(), plane.getY());
+            // If the gun is shooting in a positive x direction
+            if (xDir > 0){
+                // If the gun is to the right of the right side of the enemy hitbox then definitely won't hit
+                if (gunX > planeHitbox.getRightX()){
+                    continue;
+                }
+            }else{ // If the gun is shooting in a negative x direction
+                if (gunX < planeHitbox.getLeftX()){
+                    continue;
+                }
+            }
+            // Check 3 - If the plane located is in the correct y direction
+            // If the gun is shooting in a positive y direction
+            if (yDir > 0){
+                // If the gun is above of the top side of the enemy hitbox (and facing up) then definitely won't hit
+                if (gunY > planeHitbox.getTopY()){
+                    continue;
+                }
+            }else{ // If the gun is shooting in a negative y direction
+                if (gunY < planeHitbox.getBottomY()){
+                    continue;
+                }
+            }
+            // At this point the enemy plane is in the correct quadrant that the (this) plane is shooting in
+
+            // I'm pretty sure that given what is known, just find closest plane and if it can be hit at the given angle it is the plane that gets hit
+            let distance = plane.distanceToPoint(gunX, gunY);
+            
+            // If best distance plane is closer then this one is useless to look at further
+            if (bestDistance != null && bestDistance < distance || distance > FILE_DATA["constants"]["INSTANT_SHOT_MAX_DISTANCE"]){
+                continue;
+            }
+
+            // To check if the shot will hit this plane. Check if the shooting angle is between the angle to top of the plane and angle to bottom
+            
+            // Let theta represent the angle from the gun to the center of the enemy plane's hitbox
+            let theta = displacementToDegrees(plane.getX() - gunX, plane.getY() - gunY);
+            // Let alpha represent the maximum difference of angle allowed at the distance to hit the hitbox
+            let alpha = fixDegrees(toDegrees(Math.asin(safeDivide(planeHitbox.getRadius(), distance, 1, 0))));
+            // If the difference is too big then ignore
+            if (calculateAngleDiffDEG(angleDEG, theta) > alpha){
+                continue;
+            }
+            // Otherwise this is currently the plane that will be hit
+            bestPlane = plane;
+            bestDistance = distance;
+        }
+
+        // If we failed to find a plane getting shot then return
+        if (bestPlane == null){ return; }
+        // Hit the plane
+        bestPlane.damage(1);
+        if (bestPlane.isDead()){
+            // Make a fake bullet just because that's how the handlekill function works
+            let fauxBullet = new Bullet(null, null, null, null, null, null, this.getID(), null);
+            scene.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
         }
     }
 }

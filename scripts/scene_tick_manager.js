@@ -83,7 +83,7 @@ class SceneTickManager {
         Test Mode is available to forcefully run 1 tick.
         Method Return: void
     */
-    async tick(callOnTick=null, testMode=true){
+    async tick(callOnTick=null, testMode=false){
         if (this.tickLock.notReady()){
             return;
         }

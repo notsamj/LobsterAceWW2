@@ -121,6 +121,24 @@ class CircleHitbox {
         return this.getRadius();
     }
 
+    // TODO: These methods need comments
+
+    getRightX(){
+        return this.x + this.radius;
+    }
+
+    getLeftX(){
+        return this.x - this.radius;
+    }
+
+    getTopY(){
+        return this.y + this.radius;
+    }
+
+    getBottomY(){
+        return this.y - this.radius;
+    }
+
 
 }
 
@@ -307,6 +325,24 @@ class RectangleHitbox {
     */
     getRadiusEquivalentY(){
         return this.height / 2;
+    }
+    
+    // TODO: These methods need comments
+
+    getRightX(){
+        return Math.max(this.getX1(), this.getX2());
+    }
+
+    getLeftX(){
+        return Math.min(this.getX1(), this.getX2());
+    }
+
+    getTopY(){
+        return Math.max(this.getY1(), this.getY2());
+    }
+
+    getBottomY(){
+        return Math.min(this.getY1(), this.getY2());
     }
 }
 

@@ -12,6 +12,7 @@ var mainTickLock = new Lock();
 var runningTicksBehind = 0;
 const USER_INPUT_MANAGER = new UserInputManager();
 const SOUND_MANAGER = new SoundManager();
+var performanceTimer = new PerformanceTimer();
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 var tickInterval;

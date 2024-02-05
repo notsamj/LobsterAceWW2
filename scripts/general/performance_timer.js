@@ -205,4 +205,9 @@ class PerformanceTimerNode {
         this.runTotalTime = 0;
         this.runCount = 0;
     }
+
+    // TODO Comments
+    getLastTime(){
+        return this.runTimes[this.runTimes.length-1];
+    }
 }

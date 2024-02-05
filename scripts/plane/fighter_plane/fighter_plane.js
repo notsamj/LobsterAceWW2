@@ -47,7 +47,12 @@ class FighterPlane extends Plane {
     */
     shoot(){
         SOUND_MANAGER.play("shoot", this.x, this.y);
-        this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
+        // If using physical bullets then do it this way
+        if (FILE_DATA["constants"]["USE_PHYSICS_BULLETS"]){
+            this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
+        }else{ // Fake bullets
+            this.instantShot(this.getGunX(), this.getGunY(), this.getNoseAngle());
+        }
     }
 
     /*
@@ -78,6 +83,47 @@ class FighterPlane extends Plane {
         }
         let rotatedY = Math.sin(planeAngleRAD) * (FILE_DATA["plane_data"][this.getPlaneClass()]["GUN_OFFSET_X"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * FILE_DATA["plane_data"][this.getPlaneClass()]["GUN_OFFSET_Y"] + this.getY();
         return rotatedY;
+    }
+
+    /*
+        Method Name: display
+        Method Parameters:
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+        Method Description: Displays a plane on the screen (if it is within the bounds)
+        Method Return: void
+    */
+    display(lX, bY){
+        super.display(lX, bY);
+        // If you've previously shot then display a flash to indicate
+        if (this.shootLock.notReady()){
+            // Display flash
+            let rotateX = this.scene.getDisplayX(this.getGunX(), 0, lX);
+            let rotateY = this.scene.getDisplayY(this.getGunY(), 0, bY);
+            let flashImageWidth = images["flash"].width;
+            let flashImageHeight = images["flash"].height;
+
+            // Prepare the display
+            translate(rotateX, rotateY);
+            rotate(-1 * toRadians(this.getAngle()));
+            // If facing left then turn around the display
+            if (!this.isFacingRight()){
+                scale(-1, 1);
+            }
+
+            // Display flash
+            drawingContext.drawImage(images["flash"], 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+
+            // If facing left then turn around the display (reset)
+            if (!this.isFacingRight()){
+                scale(-1, 1);
+            }
+            // Reset the rotation and translation
+            rotate(toRadians(this.getAngle()));
+            translate(-1 * rotateX, -1 * rotateY);
+        }
     }
 
 }

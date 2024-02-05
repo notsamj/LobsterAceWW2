@@ -50,6 +50,16 @@ class PlaneGameScene extends Scene {
     }
 
     /*
+        Method Name: getTeamCombatManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: TeamCombatManager
+    */
+    getTeamCombatManager(){
+        return this.teamCombatManager;
+    }
+
+    /*
         Method Name: forceUpdatePlanes
         Method Parameters:
             listOfPlaneObjects:
@@ -240,9 +250,11 @@ class PlaneGameScene extends Scene {
     */
     async tick(timeDiff){
         if (!this.ticksEnabled){ return; }
+        performanceTimer.get("regular_entities").start();
         for (let [entity, entityIndex] of this.entities){
             await entity.tick(timeDiff);
         }
+        performanceTimer.get("regular_entities").end();
         await this.teamCombatManager.tick(timeDiff);
     }
 

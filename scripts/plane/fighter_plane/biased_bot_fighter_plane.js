@@ -34,7 +34,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     constructor(planeClass, scene, biases, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
-            this.currentEnemyID = null;
+        this.currentEnemyID = null;
         this.turningDirection = null;
         this.ticksOnCourse = 0;
         this.tickCD = 0;
@@ -57,7 +57,17 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     tick(timeDiffMS){
         this.rotationCD.tick();
         // Check if the selected enemy should be changed
+        let c1 = Date.now();
+        performanceTimer.get("bot_plane_part").start();
         this.updateEnemy();
+        let c2 = Date.now();
+        performanceTimer.get("bot_plane_part").end();
+        if (performanceTimer.get("bot_plane_part").getLastTime() > 1){
+            console.log(performanceTimer.get("bot_plane_part").getLastTime())
+            console.log(this.currentEnemyID)
+            console.log(c1, c2)
+            debugger;
+        }
         // If there is an enemy then act accordingly
         if (this.hasCurrentEnemy()){
             let enemy = this.scene.getEntity(this.currentEnemyID);
@@ -68,7 +78,9 @@ class BiasedBotFighterPlane extends BotFighterPlane {
             }
         }
         // TODO: I moved the above lines above super call, seems right to me...
+        performanceTimer.get("normal_plane_part").start();
         super.tick(timeDiffMS);
+        performanceTimer.get("normal_plane_part").end();
     }
 
     /*

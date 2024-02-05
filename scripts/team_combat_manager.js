@@ -171,18 +171,24 @@ class TeamCombatManager {
         Method Return: void
     */
     async tick(timeDiff){
+        performanceTimer.get("tcm_tick").start();
         for (let team of this.teams){
+            performanceTimer.get("planes" + team).start();
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
                 await plane.tick(timeDiff);
             }
+            performanceTimer.get("planes" + team).end();
 
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead()){ continue; }
                 await bullet.tick(timeDiff);
             }
         }
+        performanceTimer.get("tcm_tick").end();
+        performanceTimer.get("cc").start();
         this.checkCollisions(timeDiff);
+        performanceTimer.get("cc").end();
     }
 
     /*
@@ -273,7 +279,7 @@ class TeamCombatManager {
             for (let [plane, pIndex] of this.planes[team]){
                 //if (!plane.isDead() && plane.getID() != excludeID){
                 if (plane.getID() != excludeID){
-                    this.displayEntity(scene, plane, lX, bY);
+                    plane.display(lX, bY);
                 }
             }
         }
@@ -281,7 +287,7 @@ class TeamCombatManager {
         for (let team of this.teams){
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (!bullet.isDead() && bullet.getID() != excludeID){
-                    this.displayEntity(scene, bullet, lX, bY);
+                    bullet.display(lX, bY);
                 }
             }
         }
@@ -321,24 +327,6 @@ class TeamCombatManager {
             }
         }
         return bullets;
-    }
-
-    /*
-        Method Name: displayAll
-        Method Parameters:
-            scene:
-                Scene on which to display entities
-            entity:
-                Entity to display
-            lX:
-                Lower x bound of the displayed area
-            bY:
-                Lower y bound of the displayed area
-        Method Description: Displays an entity
-        Method Return: void
-    */
-    displayEntity(scene, entity, lX, bY){
-        scene.displayEntity(entity, lX, bY);
     }
 
     /*

@@ -476,7 +476,7 @@ function rotateCCWDEG(angle, amount){
             An angle on one edge of a range
         eAngle2:
             An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction (inclusive)
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
@@ -508,7 +508,7 @@ function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
             An angle on one edge of a range
         eAngle2:
             An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction (inclusive)
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCWDEG(angle, eAngle1, eAngle2){
