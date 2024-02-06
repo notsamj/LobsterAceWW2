@@ -23,13 +23,14 @@ class MainMenu extends Menu {
     setup(){
         let buttonSizeX = 800;
         let buttonSizeY = 120;
+        let gapSize = 40;
         let buttonX = (innerWidth) => { return (innerWidth - buttonSizeX)/2; }
             
         // Background
         this.components.push(new StaticImage(images["clouds"], () => { return 0; }, (innerHeight) => { return innerHeight; }));
 
         // Dog Fight
-        let dogFightButtonY = (innerHeight) => { return 800; };
+        let dogFightButtonY = (innerHeight) => { return 927 - gapSize; };
         this.components.push(new RectangleButton("Dogfight", "#3bc44b", "#e6f5f4", buttonX, dogFightButtonY, buttonSizeX, buttonSizeY, (menuInstance) => {
             menuManager.switchTo("dogfight");
         }));
@@ -41,7 +42,7 @@ class MainMenu extends Menu {
         this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.\nScroll down for controls.", "black", 0, infoY, infoXSize, infoYSize));
 
         // Campaign
-        let campaignButtonY = 600;
+        let campaignButtonY = dogFightButtonY() - buttonSizeY - gapSize;
         this.components.push(new RectangleButton("Campaign", "#3bc44b", "#e6f5f4", buttonX, campaignButtonY, buttonSizeX, buttonSizeY, (menuInstance) => {
             menuManager.switchTo("campaign");
         }));
@@ -56,9 +57,15 @@ class MainMenu extends Menu {
         }
 
         // Sound
-        let soundButtonY = 400;
+        let soundButtonY = campaignButtonY - buttonSizeY - gapSize;
         this.components.push(new RectangleButton("Sound", "#3bc44b", "#e6f5f4", buttonX, soundButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
             menuManager.switchTo("sound");
+        }));
+
+        // Extra Settings
+        let extraSettingsY = soundButtonY - buttonSizeY - gapSize;
+        this.components.push(new RectangleButton("Settings", "#3bc44b", "#e6f5f4", buttonX, extraSettingsY, buttonSizeX, buttonSizeY, async (menuInstance) => {
+            menuManager.switchTo("extraSettings");
         }));
     }
 

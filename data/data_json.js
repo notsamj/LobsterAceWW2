@@ -180,6 +180,13 @@ const FILE_DATA = {
         "INSTANT_SHOT_MAX_DISTANCE": 1200
     },
 
+    "extra_settings": [
+        {
+            "name": "USE_PHYSICS_BULLETS",
+            "path": ["constants"]
+        }
+    ],
+
     "ai": {
         "fighter_plane": {
             "update_enemy_cooldown": 1000,

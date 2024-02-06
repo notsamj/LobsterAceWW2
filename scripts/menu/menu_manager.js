@@ -17,6 +17,7 @@ class MenuManager {
         this.soundMenu = new SoundMenu();
         this.missionStartMenu = new MissionStartMenu();
         this.campaignMenu = new CampaignMenu();
+        this.extraSettingsMenu = new ExtraSettingsMenu();
         this.activeMenu = this.mainMenu;
     }
 
@@ -159,6 +160,8 @@ class MenuManager {
             this.activeMenu = this.campaignMenu;
         }else if (newMenu == "missionStart"){
             this.activeMenu = this.missionStartMenu;
+        }else if (newMenu == "extraSettings"){
+            this.activeMenu = this.extraSettingsMenu;
         }else{
             this.activeMenu = null;
         }
@@ -187,6 +190,8 @@ class MenuManager {
             return this.campaignMenu;
         }else if (menuName == "missionStart"){
             return this.missionStartMenu;
+        }else if (menuName == "extraSettings"){
+            return this.extraSettingsMenu;
         }
         // Else
         return null;

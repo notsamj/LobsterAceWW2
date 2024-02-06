@@ -50,6 +50,7 @@ class SoundMenu extends Menu {
         
     }
 
+    // TODO COmments
     createSoundSettings(soundName, offSetIndex){
         let sectionYSize = 150;
         let addRemoveButtonSize = 50;
@@ -60,22 +61,22 @@ class SoundMenu extends Menu {
         let soundLabelYSize = 100;
         let soundLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart + addRemoveButtonSize/2; }
 
-        let soundMinus5ButtonX = soundLabelX + soundLabelXSize;
-        let soundMinute5ButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
+        let soundMinusBigButtonX = soundLabelX + soundLabelXSize;
+        let soundMinuteBigButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
-        let soundMinus1ButtonX = soundMinus5ButtonX + addRemoveButtonSize;
-        let soundMinus1ButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
+        let soundMinusSmallButtonX = soundMinusBigButtonX + addRemoveButtonSize;
+        let soundMinusSmallButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
-        let soundCurrentCountTextX = soundMinus1ButtonX + addRemoveButtonSize;
+        let soundCurrentCountTextX = soundMinusSmallButtonX + addRemoveButtonSize;
         let soundCurrentCountTextY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
         let soundCurrentCountTextXSize = 50;
         let soundCurrentCountTextYSize = 50;
 
-        let soundPlus1ButtonX = soundCurrentCountTextX + soundCurrentCountTextXSize;
-        let soundPlus1ButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
+        let soundPlusSmallButtonX = soundCurrentCountTextX + soundCurrentCountTextXSize;
+        let soundPlusSmallButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
-        let soundPlus5ButtonX = soundPlus1ButtonX + addRemoveButtonSize;
-        let soundPlus5ButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
+        let soundPlusBigButtonX = soundPlusSmallButtonX + addRemoveButtonSize;
+        let soundPlusBigButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
         // Components
         let startVolume = SOUND_MANAGER.getVolume(soundName);
@@ -85,28 +86,28 @@ class SoundMenu extends Menu {
 
         this.components.push(new TextComponent(soundName, "#f5d442", soundLabelX, soundLabelY, soundLabelXSize, soundLabelYSize, CENTER, CENTER));
 
-        this.components.push(new RectangleButton("-10", "#f5d442", "#e6f5f4", soundMinus5ButtonX, soundMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.components.push(new RectangleButton("-10", "#f5d442", "#e6f5f4", soundMinusBigButtonX, soundMinuteBigButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             let currentVolume = SOUND_MANAGER.getVolume(soundName);
             let newVolume = Math.max(currentVolume - 10, 0);
             SOUND_MANAGER.updateVolume(soundName, newVolume);
             currentVolumeComponent.setText(newVolume.toString());
         }));
 
-        this.components.push(new RectangleButton("-1", "#f5d442", "#e6f5f4", soundMinus1ButtonX, soundMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.components.push(new RectangleButton("-1", "#f5d442", "#e6f5f4", soundMinusSmallButtonX, soundMinusSmallButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             let currentVolume = SOUND_MANAGER.getVolume(soundName);
             let newVolume = Math.max(currentVolume - 1, 0);
             SOUND_MANAGER.updateVolume(soundName, newVolume);
             currentVolumeComponent.setText(newVolume.toString());
         }));
 
-        this.components.push(new RectangleButton("+1", "#f5d442", "#e6f5f4", soundPlus1ButtonX, soundPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.components.push(new RectangleButton("+1", "#f5d442", "#e6f5f4", soundPlusSmallButtonX, soundPlusSmallButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             let currentVolume = SOUND_MANAGER.getVolume(soundName);
             let newVolume = Math.min(currentVolume + 1, 100);
             SOUND_MANAGER.updateVolume(soundName, newVolume);
             currentVolumeComponent.setText(newVolume.toString());
         }));
 
-        this.components.push(new RectangleButton("+10", "#f5d442", "#e6f5f4", soundPlus5ButtonX, soundPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.components.push(new RectangleButton("+10", "#f5d442", "#e6f5f4", soundPlusBigButtonX, soundPlusBigButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             let currentVolume = SOUND_MANAGER.getVolume(soundName);
             let newVolume = Math.min(currentVolume + 10, 100);
             SOUND_MANAGER.updateVolume(soundName, newVolume);
