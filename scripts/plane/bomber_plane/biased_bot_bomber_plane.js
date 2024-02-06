@@ -21,8 +21,9 @@ class BiasedBotBomberPlane extends BotBomberPlane {
     */
     constructor(planeClass, scene, angle, facingRight, biases){
         super(planeClass, scene, angle, facingRight);
-        this.currentEnemyID = null;
+        this.currentEnemy = null;
         this.udLock = new TickLock(40 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.updateEnemyLock = new TickLock(FILE_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.biases = biases;
         this.generateGuns(biases);
     }
@@ -68,6 +69,7 @@ class BiasedBotBomberPlane extends BotBomberPlane {
     */
     tick(timeDiffMS){
         this.udLock.tick();
+        this.updateEnemyLock.tick();
         for (let gun of this.guns){
             gun.tick();
         }
@@ -81,22 +83,23 @@ class BiasedBotBomberPlane extends BotBomberPlane {
                 this.turnInDirection(angleDEG);
             }
             this.checkGuns();
-            return;
         }
         // Otherwise we are just looking for enemies
 
-        // Check if the selected enemy should be changed
-        this.updateEnemy();
+        if (this.updateEnemyLock.isReady()){
+            this.updateEnemyLock.lock();
+            // Check if the selected enemy should be changed
+            this.updateEnemy();
+        }
         // If there is an enemy then act accordingly
         if (this.hasCurrentEnemy()){
-            let enemy = this.scene.getEntity(this.currentEnemyID);
+            let enemy = this.currentEnemy;
             this.handleEnemy(enemy);
             this.checkGuns();
         }else{ // No enemy -> make sure not to crash into the ground
             if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
                 this.turnInDirection(90);
                 this.checkGuns();
-                return;
             }
         }
         super.tick(timeDiffMS);
@@ -188,7 +191,7 @@ class BiasedBotBomberPlane extends BotBomberPlane {
     */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
+        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -197,22 +200,20 @@ class BiasedBotBomberPlane extends BotBomberPlane {
         for (let enemy of enemies){
             let distance = this.distance(enemy);
             // TODO: Update when this becomes BiasedBotDogfightFighterPlane
-            let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID())) * FILE_DATA["constants"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"];
-            let score = distance;
-            // Do not modify score if its less than 1 because the bias is meant for having many enemies
-            if (focusedCountMultiplier > 1){
-                score *= focusedCountMultiplier;
-            }
+            let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * FILE_DATA["constants"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"]);
+            if (focusedCountMultiplier < 1 ){ focusedCountMultiplier = 1; }
+            let score = distance / focusedCountMultiplier; // Most focusing the better (from POV of bomber)
+
             // If this new enemy is better
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
-                    "id": enemy.getID(),
+                    "enemy": enemy,
                     "score": score
                 }
             }
         }
         if (bestRecord == null){ return; }
-        this.currentEnemyID = bestRecord["id"];
+        this.currentEnemy = bestRecord["enemy"];
     }
 
     /*
@@ -344,7 +345,6 @@ class BiasedBotBomberPlane extends BotBomberPlane {
         Method Return: List
     */
     getEnemyList(){
-        // TODO: Sort by distance (close -> far)
         let entities = this.scene.getPlanes();
         let enemies = [];
         for (let entity of entities){
@@ -352,7 +352,18 @@ class BiasedBotBomberPlane extends BotBomberPlane {
                 enemies.push(entity);
             }
         }
-        return enemies;
+        let me = this;
+        return enemies.sort((enemy1, enemy2) => {
+            let d1 = enemy1.distance(me);
+            let d2 = enemy2.distance(me);
+            if (d1 < d2){
+                return -1;
+            }else if (d1 > d2){
+                return 1;
+            }else{
+                return 0;
+            }
+        });
     }
 
     /*
@@ -362,16 +373,16 @@ class BiasedBotBomberPlane extends BotBomberPlane {
         Method Return: True if has an enemy (and they exist), otherwise false
     */
     hasCurrentEnemy(){
-        return this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID);
+        return this.currentEnemy != null && this.currentEnemy.isAlive();
     }
 
     /*
         Method Name: getCurrentEnemy
         Method Parameters: None
-        Method Description: Get the id of the current enemy
-        Method Return: A string of the id of the current enemy
+        Method Description: Get the current enemy
+        Method Return: Plane
     */
     getCurrentEnemy(){
-        return this.currentEnemyID;
+        return this.currentEnemy;
     }
 }

@@ -171,7 +171,6 @@ class TeamCombatManager {
         Method Return: void
     */
     async tick(timeDiff){
-        performanceTimer.get("tcm_tick").start();
         for (let team of this.teams){
             performanceTimer.get("planes" + team).start();
             for (let [plane, pIndex] of this.planes[team]){
@@ -185,10 +184,7 @@ class TeamCombatManager {
                 await bullet.tick(timeDiff);
             }
         }
-        performanceTimer.get("tcm_tick").end();
-        performanceTimer.get("cc").start();
         this.checkCollisions(timeDiff);
-        performanceTimer.get("cc").end();
     }
 
     /*

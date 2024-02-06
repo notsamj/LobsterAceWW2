@@ -74,9 +74,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
             }
         }
         // TODO: I moved the above lines above super call, seems right to me...
-        performanceTimer.get("normal_plane_part").start();
         super.tick(timeDiffMS);
-        performanceTimer.get("normal_plane_part").end();
     }
 
     /*
@@ -379,8 +377,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let score = distance;
-            // let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
+            let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "enemy": enemy,
