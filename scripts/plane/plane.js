@@ -513,7 +513,9 @@ class Plane extends Entity {
 
         // If dead then draw the explosion instead
         if (this.isDead()){
-            drawingContext.drawImage(images["explosion"], displayX, displayY); 
+            scale(this.getWidth() / images["explosion"].width, this.getHeight() / images["explosion"].height);
+            drawingContext.drawImage(images["explosion"], displayX  / (this.getWidth() / images["explosion"].width), displayY / (this.getHeight() / images["explosion"].height));
+            scale(images["explosion"].width / this.getWidth(),images["explosion"].height / this.getHeight()); 
             return; 
         }
 
