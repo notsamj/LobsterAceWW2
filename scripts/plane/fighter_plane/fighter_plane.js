@@ -105,6 +105,11 @@ class FighterPlane extends Plane {
         // Super call to remove (some) code repetition
         super.display(lX, bY);
 
+        // If dead don't display gun flash
+        if (this.isDead()){
+            return;
+        }
+
         // If you've previously shot then display a flash to indicate
         if (this.shootLock.notReady()){
             // Display flash

@@ -81,6 +81,11 @@ class BomberPlane extends Plane {
 
         // Super call to remove (some) code repetition
         super.display(lX, bY);
+        
+        // If dead don't display gun flashes
+        if (this.isDead()){
+            return;
+        }
 
         // For each gun, if on shooting cooldown then show the flash image
         for (let gun of this.guns){
