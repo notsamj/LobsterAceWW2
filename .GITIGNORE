@@ -16,3 +16,4 @@ sounds/not-active/*
 *.ignore
 backups/*
 test_difficulties.html
+test_random.html

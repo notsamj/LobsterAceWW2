@@ -159,7 +159,7 @@ const FILE_DATA = {
         "SLOW_DOWN_AMOUNT": 0.1,
         "EXPECTED_CANVAS_WIDTH": 1920,
         "EXPECTED_CANVAS_HEIGHT": 927,
-        "FRAME_RATE": 60,
+        "FRAME_RATE": 60, // 60
         "TICK_RATE": 100, // 100
         "MS_BETWEEN_TICKS": 10, // 10
         "GRAVITY": 9.81,
@@ -177,7 +177,9 @@ const FILE_DATA = {
         "FOCUSED_COUNT_DISTANCE_EQUIVALENT": 1500,
         "TEXT_BOX_PADDING_PERCENT": 0.1,
         "USE_PHYSICS_BULLETS": false,
-        "INSTANT_SHOT_MAX_DISTANCE": 1200
+        "INSTANT_SHOT_MAX_DISTANCE": 1200,
+        "MAX_EXPECTED_SCREEN_WIDTH": 3840,
+        "MAX_EXPECTED_SCREEN_HEIGHT": 2160
     },
 
     "extra_settings": [
@@ -278,7 +280,20 @@ const FILE_DATA = {
             "attackers": "Allies",
             "defenders": "Axis"
         }
-    ]
+    ],
+
+    "cloud_generation": {
+        "SKY_COLOUR": "#5bb8ff",
+        "CLOUD_COLOUR": "#e8ecff",
+        "CLOUD_CLUSTER_WIDTH": 3840,
+        "CLOUD_CLUSTER_HEIGHT": 2160,
+        "MIN_RADIUS": 30,
+        "MAX_RADIUS": 70,
+        "MIN_CIRCLES_PER_CLOUD": 2,
+        "MAX_CIRCLES_PER_CLOUD": 5,
+        "MIN_CLOUDS_PER_CLUSTER": 40,
+        "MAX_CLOUDS_PER_CLUSTER": 60,
+    }
 }
 if (typeof window === "undefined"){
     module.exports = FILE_DATA;

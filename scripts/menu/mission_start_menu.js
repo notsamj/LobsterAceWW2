@@ -31,6 +31,7 @@ class MissionStartMenu extends Menu {
         this.allyDifficulty = "easy";
         this.axisDifficulty = "easy";
         this.userPlaneIndex = 0;
+        this.userPlane.setImage(images[this.userPlanes[this.userPlaneIndex]]); 
     }
 
     /*
@@ -72,11 +73,12 @@ class MissionStartMenu extends Menu {
 
         let userPlaneX = () => { return 350; };
         let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        let userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
-        userPlane.setOnClick(() => {
-            userPlane.setImage(this.switchPlanes()); 
+        this.userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
+        let userPlaneImage = this.userPlane;
+        this.userPlane.setOnClick(() => {
+            userPlaneImage.setImage(this.switchPlanes()); 
         });
-        this.components.push(userPlane);
+        this.components.push(this.userPlane);
 
         // Allied Section
         let alliesHeaderX = () => { return 600; }

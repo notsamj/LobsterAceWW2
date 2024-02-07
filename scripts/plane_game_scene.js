@@ -327,6 +327,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     displayBackground(lX, bY){
+        CLOUD_MANAGER.display(lX, bY);
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
         let groundImage = images[FILE_DATA["background"]["ground"]["picture"]];
@@ -377,38 +378,6 @@ class PlaneGameScene extends Scene {
             for (let x = bottomDisplayAboveGroundX; x < this.getWidth() + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
                 let displayX = x-lXP;
                 drawingContext.drawImage(aboveGroundImage, displayX, this.getDisplayY(aboveGroundHeight, 0, bYP));
-            }
-        }
-
-        // Display sky
-        if (bYP + this.getHeight() > aboveGroundHeight){
-            let skyImage = images[FILE_DATA["background"]["sky"]["picture"]];
-            let skyHeight = skyImage.height;
-            let skyWidth = skyImage.width;
-            let skyImageOffsetY = (bYP-aboveGroundHeight) % skyHeight;
-            let skyImageOffsetX = Math.abs(lXP) % skyWidth;
-
-            let bottomDisplaySkyX = lXP - skyImageOffsetX * (lXP < 0 ? -1 : 1);
-            // Find bottom corner of image to display in window
-            while (bottomDisplaySkyX + skyWidth > lXP){
-                bottomDisplaySkyX -= skyWidth;
-            }
-            // Add once more to get back to top left corner
-            bottomDisplaySkyX += skyWidth;
-
-            let bottomDisplaySkyY = bYP - skyImageOffsetY;
-            // Find bottom corner of image to display in window
-            while (bottomDisplaySkyY < bYP + skyHeight - skyImageOffsetY){
-                bottomDisplaySkyY += skyHeight;
-            }
-            // Add once more to get back to top left corner
-            // Display ground images
-            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + this.getHeight() + skyHeight; y += skyHeight){
-                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.getWidth() + skyWidth; x += skyWidth){
-                    let displayX = x-lXP;
-                    let displayY = this.getDisplayY(y, 0, bYP);
-                    drawingContext.drawImage(skyImage, displayX, displayY);
-                }
             }
         }
 

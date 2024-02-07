@@ -13,6 +13,7 @@ var runningTicksBehind = 0;
 const USER_INPUT_MANAGER = new UserInputManager();
 const SOUND_MANAGER = new SoundManager();
 var performanceTimer = new PerformanceTimer();
+const CLOUD_MANAGER = new CloudManager();
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 var tickInterval;
@@ -75,6 +76,7 @@ async function loadExtraImages(){
     Method Return: void
 */
 async function setup() {
+    noStroke();
     // Create Canvas
     createCanvas(getScreenWidth(), getScreenHeight());
     window.onresize = function(event) {
