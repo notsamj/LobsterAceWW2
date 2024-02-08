@@ -54,6 +54,12 @@ class Bomb extends Entity {
         }
     }
 
+    // TODO: Comments
+    die(){
+        super.die();
+        scene.delete(this.getID());
+    }
+
     /*
         Method Name: getWidth
         Method Parameters: None
@@ -129,15 +135,16 @@ class Bomb extends Entity {
     /*
         Method Name: collidesWith
         Method Parameters:
-            otherEntity:
-                An entity that the bomb might collide with
+            building:
+                An building that the bomb might collide with
             timeDiff:
                 The time passed between two ticks
         Method Description: Checks if the bomb collides with another entity
         Method Return: boolean, true if collides, false otherwise
     */
-    collidesWith(otherEntity, timeDiff){
-        return hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), otherEntity.getHitbox(), otherEntity.getX(), otherEntity.getY(), otherEntity.getXVelocity(), otherEntity.getYVelocity(), timeDiff/1000);
+    collidesWith(building, timeDiff){
+        let result = hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), building.getHitbox(), building.getCenterX(), building.getCenterY(), 0, 0, timeDiff/1000);
+        return result;
     }
 
     /*
@@ -151,6 +158,7 @@ class Bomb extends Entity {
         Method Return: void
     */
     display(lX, bY){
+        if (this.isDead()){ return; }
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 

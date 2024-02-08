@@ -179,7 +179,9 @@ const FILE_DATA = {
         "USE_PHYSICS_BULLETS": false,
         "INSTANT_SHOT_MAX_DISTANCE": 1200,
         "MAX_EXPECTED_SCREEN_WIDTH": 3840,
-        "MAX_EXPECTED_SCREEN_HEIGHT": 2160
+        "MAX_EXPECTED_SCREEN_HEIGHT": 2160,
+        "max_cloud_animation_speed_y": 1,
+        "max_cloud_animation_speed_x": 2
     },
 
     "extra_settings": [
@@ -288,11 +290,11 @@ const FILE_DATA = {
         "CLOUD_CLUSTER_WIDTH": 3840,
         "CLOUD_CLUSTER_HEIGHT": 2160,
         "MIN_RADIUS": 30,
-        "MAX_RADIUS": 70,
-        "MIN_CIRCLES_PER_CLOUD": 2,
-        "MAX_CIRCLES_PER_CLOUD": 5,
-        "MIN_CLOUDS_PER_CLUSTER": 40,
-        "MAX_CLOUDS_PER_CLUSTER": 60,
+        "MAX_RADIUS": 80,
+        "MIN_CIRCLES_PER_CLOUD": 3,
+        "MAX_CIRCLES_PER_CLOUD": 7,
+        "MIN_CLOUDS_PER_CLUSTER": 50,
+        "MAX_CLOUDS_PER_CLUSTER": 70,
     }
 }
 if (typeof window === "undefined"){

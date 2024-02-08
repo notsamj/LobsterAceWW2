@@ -76,7 +76,6 @@ async function loadExtraImages(){
     Method Return: void
 */
 async function setup() {
-    noStroke();
     // Create Canvas
     createCanvas(getScreenWidth(), getScreenHeight());
     window.onresize = function(event) {

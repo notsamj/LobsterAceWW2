@@ -24,7 +24,7 @@ class ExtraSettingsMenu extends Menu {
         let sectionYSize = 50;
 
         // Background
-        this.components.push(new StaticImage(images["clouds"], () => { return 0; }, (innerHeight) => { return innerHeight; }));
+        this.components.push(new AnimatedCloudBackground())
 
         // Back Button
         let backButtonX = () => { return 50; }

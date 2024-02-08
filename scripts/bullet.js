@@ -306,7 +306,7 @@ function hitInTime(h1, h1X, h1Y, h1VX, h1VY, h2, h2X, h2Y, h2VX, h2VY, timePropo
             time = (leftObjectRightEnd - rightObjectLeftEnd) / (rightObjectVX - leftObjectVX)
         */
         let leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
-        let rightObjectLeftEnd = rightObject.getCenterX() - leftObject.getRadiusEquivalentX();
+        let rightObjectLeftEnd = rightObject.getCenterX() - rightObject.getRadiusEquivalentX();
         let time = safeDivide(leftObjectRightEnd - rightObjectLeftEnd, rightDetails["x_velocity"] - leftDetails["x_velocity"], 0.0000001, null);
         /* Expected values for time:
             null - Denominator close to zero
@@ -349,7 +349,7 @@ function hitInTime(h1, h1X, h1Y, h1VX, h1VY, h2, h2X, h2Y, h2VX, h2VY, timePropo
             time = (bottomObjectTopEnd - topObjectBottomEnd) / (topObjectVY - bottomObjectVY)
         */
         let bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
-        let topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
+        let topObjectBottomEnd = topObject.getCenterY() - topObject.getRadiusEquivalentY();
         let time = safeDivide(bottomObjectTopEnd - topObjectBottomEnd, topDetails["y_velocity"] - bottomObject["y_velocity"], 0.0000001, null);
         /* Eypected values for time:
             null - Denominator close to zero

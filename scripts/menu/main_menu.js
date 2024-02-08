@@ -27,7 +27,7 @@ class MainMenu extends Menu {
         let buttonX = (innerWidth) => { return (innerWidth - buttonSizeX)/2; }
             
         // Background
-        this.components.push(new StaticImage(images["clouds"], () => { return 0; }, (innerHeight) => { return innerHeight; }));
+        this.components.push(new AnimatedCloudBackground())
 
         // Dog Fight
         let dogFightButtonY = (innerHeight) => { return 927 - gapSize; };

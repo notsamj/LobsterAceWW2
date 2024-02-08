@@ -36,7 +36,7 @@ class MultiplayerMenu extends Menu {
         let addRemoveButtonSize = 50;
 
         // Background
-        this.components.push(new StaticImage(images["clouds"], 0, 927));
+        this.components.push(new AnimatedCloudBackground())
         // Welcome Message
         let welcomeMessageX = 0;
         let welcomeMessageY = 500;

@@ -9,6 +9,13 @@ class Building extends Entity {
         this.health = health;
     }
 
+    damage(amount){
+        this.health -= amount;
+        if (this.health < 0){
+            this.die();
+        }
+    }
+
     getCenterX(){
         return this.x + this.width / 2;
     }
@@ -25,7 +32,12 @@ class Building extends Entity {
         return this.height;
     }
 
+    getHitbox(){
+        return this.hitBox;
+    }
+
     display(lX, bY){
+        if (this.isDead()){ return; }
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 

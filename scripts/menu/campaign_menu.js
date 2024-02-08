@@ -23,7 +23,7 @@ class CampaignMenu extends Menu {
     */
     setup(){
         // Background
-        this.components.push(new StaticImage(images["clouds"], () => { return 0; }, (innerHeight) => { return innerHeight; }));
+        this.components.push(new AnimatedCloudBackground())
 
         let backButtonX = () => { return 50; }
         let backButtonY = (innerHeight) => { return innerHeight-27; }

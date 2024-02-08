@@ -93,8 +93,8 @@ class CloudCluster {
         let random = new SeededRandomizer(seed);
         let numClouds = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_CLOUDS_PER_CLUSTER"], FILE_DATA["cloud_generation"]["MAX_CLOUDS_PER_CLUSTER"]);
         for (let i = 0; i < numClouds; i++){
-            let newCloudX = random.getIntInRangeExclusive(leftX + FILE_DATA["cloud_generation"]["MAX_RADIUS"], leftX + FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"] - FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
-            let newCloudY = random.getIntInRangeExclusive(bottomY + FILE_DATA["cloud_generation"]["MAX_RADIUS"], bottomY + FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"] - FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
+            let newCloudX = random.getIntInRangeExclusive(leftX + FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2, leftX + FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"] - FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2);
+            let newCloudY = random.getIntInRangeExclusive(bottomY + FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2, bottomY + FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"] - FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2);
             this.clouds.push(Cloud.create(newCloudX, newCloudY, random))
         }
     }
@@ -115,16 +115,20 @@ class Cloud {
         for (let circleObject of this.circles){
             let screenX = scene.getDisplayX(circleObject["x"], 0, lX);
             let screenY = scene.getDisplayY(circleObject["y"], 0, bY);
+            strokeWeight(0);
             fill(FILE_DATA["cloud_generation"]["CLOUD_COLOUR"]);
             circle(screenX, screenY, circleObject["radius"]*2);
+            strokeWeight(1);
         }
     }
     static create(x, y, random){
         let circles = [];
         let numCircles = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_CIRCLES_PER_CLOUD"], FILE_DATA["cloud_generation"]["MAX_CIRCLES_PER_CLOUD"]);
-        for (let i = 0; i < numCircles; i++){
-            let circleX = x + random.getIntInRangeInclusive(-1 * FILE_DATA["cloud_generation"]["MAX_RADIUS"], FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
-            let circleY = y + random.getIntInRangeInclusive(-1 * FILE_DATA["cloud_generation"]["MAX_RADIUS"], FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
+        let mainRadius = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_RADIUS"], FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
+        circles.push({"x": x, "y": y, "radius": mainRadius});
+        for (let i = 0; i < numCircles - 1; i++){
+            let circleX = x + random.getIntInRangeInclusive(-1 * mainRadius, mainRadius);
+            let circleY = y + random.getIntInRangeInclusive(-1 * mainRadius, mainRadius);
             let circleRadius = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_RADIUS"], FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
             circles.push({"x": circleX, "y": circleY, "radius": circleRadius});
         }

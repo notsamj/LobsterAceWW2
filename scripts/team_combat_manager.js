@@ -172,12 +172,10 @@ class TeamCombatManager {
     */
     async tick(timeDiff){
         for (let team of this.teams){
-            performanceTimer.get("planes" + team).start();
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
                 await plane.tick(timeDiff);
             }
-            performanceTimer.get("planes" + team).end();
 
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead()){ continue; }
@@ -196,10 +194,28 @@ class TeamCombatManager {
         Method Return: void
     */
     checkCollisions(timeDiff){
+        // Check ally and axis bullet hits
         for (let team of this.teams){
             for (let otherTeam of this.teams){
                 if (team == otherTeam){ continue; }
                 this.checkBulletCollisionsFromTeamToTeam(team, otherTeam, timeDiff);
+            }
+        }
+
+        // For each bomb check each building for collisions
+        for (let [entity, eI] of scene.getEntities()){
+            if (entity instanceof Building){
+                for (let [entity2, eI2] of scene.getEntities()){
+                    if (entity2 instanceof Bomb){
+                        let building = entity;
+                        let bomb = entity2;
+                        if (bomb.collidesWith(building, timeDiff)){
+                            building.damage(1);
+                            bomb.die();
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
