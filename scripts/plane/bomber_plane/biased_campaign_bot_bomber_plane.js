@@ -41,6 +41,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     tick(timeDiffMS){
         this.udLock.tick();
         this.facingLock.tick();
+        this.bombLock.tick();
 
         // Make decisions
 

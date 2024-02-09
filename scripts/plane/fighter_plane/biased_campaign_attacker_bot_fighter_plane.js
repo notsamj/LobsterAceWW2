@@ -18,6 +18,27 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     */
     constructor(planeClass, scene, biases, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
+        this.startingThrottle = this.throttle;
+    }
+
+    tick(timeMS){
+        super.tick(timeMS);
+        // Always make sure throttle is at max if fighting 
+        if (this.currentEnemy != null){
+            this.adjustThrottle(1);
+        }
+    }
+
+    /*
+        Method Name: adjustThrottle
+        Method Parameters:
+            amt:
+                Amount by which the throttle is changed (can be pos/neg)
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    adjustThrottle(amt){
+        this.throttle = Math.min(Math.max(1, this.throttle + amt), this.startingThrottle);
     }
 
     // TODO: Comments
@@ -28,7 +49,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     findMyBomber(){
         let furthestBomber = null;
         for (let plane of this.scene.getPlanes()){
-            if (!(plane instanceof Bomber)){ continue; }
+            if (!(plane instanceof Bomber) || plane.isDead()){ continue; }
             if (furthestBomber == null || plane.getX() > furthestBomber.getX()){
                 furthestBomber = plane;
             }
@@ -69,6 +90,12 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             this.adjustAngle(-1);
         }else if (dCCW < dCW){
             this.adjustAngle(1);
+        }
+        // Speed up or slow down depending on bomber's speed
+        if (this.getSpeed() > bomber.getSpeed()){
+            this.adjustThrottle(-1);
+        }else{
+            this.adjustThrottle(1);
         }
     }
 

@@ -92,7 +92,7 @@ class Mission extends GameMode {
         for (let planeModel of Object.keys(this.planeCounts)){
             let count = this.planeCounts[planeModel];
             for (let i = 0; i < count; i++){
-                let alliance = planeModelToAlliance(plane.getModel());
+                let alliance = planeModelToAlliance(planeModel);
                 let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
                 let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
                 if (FILE_DATA["plane_data"][planeModel]["type"] == "Bomber"){
@@ -126,7 +126,18 @@ class Mission extends GameMode {
     }
 
     createBuildings(){
-        return [new Building(30000, 100, 500, 1)];
+        let buildingRules = this.missionObject["buildings"];
+        let nextX = buildingRules["start_x"];
+        let buildings = [];
+        for (let i = 0; i < buildingRules["count"]; i++){
+            let hp = randomNumberInclusive(buildingRules["min_health"], buildingRules["max_health"]);
+            let width = randomNumberInclusive(buildingRules["min_width"], buildingRules["max_width"]);
+            let height = randomNumberInclusive(buildingRules["min_height"], buildingRules["max_height"]);
+            let building = new Building(nextX, width, height, hp);
+            buildings.push(building);
+            nextX += width + randomNumberInclusive(buildingRules["min_gap"], buildingRules["max_gap"]);
+        }
+        return buildings;
     }
 
     display(){

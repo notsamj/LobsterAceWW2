@@ -13,6 +13,7 @@ class Building extends Entity {
         this.health -= amount;
         if (this.health <= 0){
             this.die();
+            //scene.delete(this.getID());
         }
     }
 

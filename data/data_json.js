@@ -122,7 +122,8 @@ const FILE_DATA = {
     "bomb_data": {
         "picture": "bomb",
         "radius": 8,
-        "initial_y_velocity": -300
+        "initial_y_velocity": -300,
+        "bomb_explosion_radius": 100
     },
 
     "radar": {
@@ -250,8 +251,18 @@ const FILE_DATA = {
     ],
 
     "team_to_colour": {
+        // General
         "Axis": "#8427db",
-        "Allies": "#f5d442"
+        "Allies": "#f5d442",
+        // Plane Type Specific
+        "fighter_plane": {
+            "Axis": "#8427db",
+            "Allies": "#f5d442"
+        },
+        "bomber_plane": {
+            "Axis": "#591994",
+            "Allies": "#c2a213"
+        }
     },
 
     "sound_data": {
@@ -309,13 +320,16 @@ const FILE_DATA = {
                 }
             },
             "buildings": {
-                "start_x": 70000
-                "count": 20,
+                "start_x": 14e3, // 70e3
+                "count": 20, // 20?
                 "min_gap": 50,
                 "max_gap": 200,
+                "min_height": 60,
+                "max_height": 300,
                 "min_width": 50,
                 "max_width": 150,
-                "max_health": 10
+                "min_health": 1,
+                "max_health": 10 // 5?
             },
             "respawn_times": {
                 "attackers": 50e3,

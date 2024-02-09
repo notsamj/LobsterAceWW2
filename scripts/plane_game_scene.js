@@ -113,6 +113,17 @@ class PlaneGameScene extends Scene {
         return followableEntities;
     }
 
+    // TODO: Comments
+    getBuildings(){
+        let buildings = [];
+        for (let [entity, entityIndex] of this.entities){
+            if (entity instanceof Building){
+                buildings.push(entity);
+            }
+        }
+        return buildings;
+    }
+
     /*
         Method Name: getPlanes
         Method Parameters: None
@@ -250,10 +261,13 @@ class PlaneGameScene extends Scene {
     */
     async tick(timeDiff){
         if (!this.ticksEnabled){ return; }
+        // Tick all entities
         for (let [entity, entityIndex] of this.entities){
             await entity.tick(timeDiff);
         }
         await this.teamCombatManager.tick(timeDiff);
+        // Delete all dead buildings and bombs and other entities?
+        this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
     }
 
     /*
@@ -264,7 +278,7 @@ class PlaneGameScene extends Scene {
         Note: May not count freecam and in the future may need modification
     */
     getNumberOfEntities(){
-        return this.teamCombatManager.getNumberOfEntities();
+        return this.teamCombatManager.getNumberOfEntities() + this.entities.getLength();
     }
 
     /*

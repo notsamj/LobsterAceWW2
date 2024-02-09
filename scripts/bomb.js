@@ -49,15 +49,25 @@ class Bomb extends Entity {
 
         // If below ground then die
         if (this.isBelowGround()){
-            this.die();
+            this.explode();
             return;
         }
     }
 
     // TODO: Comments
+    explode(){
+        for (let building of this.scene.getBuildings()){
+            if (building.distance(this) < FILE_DATA["bomb_data"]["bomb_explosion_radius"]){
+                building.damage(1);
+            }
+        }
+        this.die();
+    }
+
+    // TODO: Comments
     die(){
+        SOUND_MANAGER.play("explode", this.x, this.y);
         super.die();
-        scene.delete(this.getID());
     }
 
     /*

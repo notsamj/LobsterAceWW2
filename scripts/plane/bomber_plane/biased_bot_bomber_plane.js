@@ -38,7 +38,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         let entities = this.scene.getPlanes();
         let enemies = [];
         for (let entity of entities){
-            if (entity instanceof Plane && this.onSameTeam(entity)){
+            if (entity instanceof Plane && this.onSameTeam(entity) && entity.isAlive()){
                 enemies.push(entity);
             }
         }
@@ -348,7 +348,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         let entities = this.scene.getPlanes();
         let enemies = [];
         for (let entity of entities){
-            if (entity instanceof Plane && !this.onSameTeam(entity)){
+            if (entity instanceof Plane && !this.onSameTeam(entity) && entity.isAlive()){
                 enemies.push(entity);
             }
         }
