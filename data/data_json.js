@@ -313,7 +313,7 @@ const FILE_DATA = {
                     "y": 10e3
                 },
                 "defenders": {
-                    "x": 60e3,
+                    "x": 20e3, // 60e3?
                     "y": 200
                 },
                 "offsets": {
@@ -351,6 +351,12 @@ const FILE_DATA = {
         "MAX_CIRCLES_PER_CLOUD": 7,
         "MIN_CLOUDS_PER_CLUSTER": 50,
         "MAX_CLOUDS_PER_CLUSTER": 70,
+    },
+
+    "hud": {
+        "text_size": 20,
+        "key_colour": "#ff6700",
+        "value_colour": "#0066ff"
     }
 }
 if (typeof window === "undefined"){

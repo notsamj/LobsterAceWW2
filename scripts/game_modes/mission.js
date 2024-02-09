@@ -2,6 +2,7 @@
 class Mission extends GameMode {
 	constructor(missionObject, userEntityType){
 		super();
+        this.userEntityType = userEntityType;
 		this.missionObject = missionObject;
 		this.running = true;
 		this.tickManager = new SceneTickManager(Date.now(), scene, FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
@@ -52,6 +53,15 @@ class Mission extends GameMode {
 
     spawnPlanes(side){
         let planes = this.createBotPlanes(side);
+        // TODO: Do the functions referenced here
+        let userEntity = this.findUserEntity();
+        // Respawn the user if they are a dead plane
+        if (userEntity instanceof Plane && userEntity.isDead()){
+            userEntity.setHealth(FILE_DATA["plane_data"][userEntity.getPlaneClass()]["health"]);
+            userEntityType.setDead(false);
+            planes.push(userEntity);
+            this.deleteFreecam();
+        }
         this.setupPlanes(planes);
         for (let plane of planes){
             scene.addPlane(plane);
@@ -130,6 +140,8 @@ class Mission extends GameMode {
             let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
             let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
             let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
+            let facingRight = side == "attackers" ? true : false;
+            plane.setFacingRight(facingRight);
             plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
             plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
         }
@@ -179,7 +191,19 @@ class Mission extends GameMode {
         return buildings;
     }
 
+    updateHUD(){
+        let allyLock = this.attackerSpawnLock;
+        let axisLock = this.defenderSpawnLock;
+        if (this.missionObject["attackers"] != "Allies"){
+            axisLock = this.attackerSpawnLock;
+            allyLock = this.defenderSpawnLock;
+        }
+        HEADS_UP_DISPLAY.updateElement("Next Ally Respawn", ((allyLock.getTicksLeft() * FILE_DATA["constants"]["MS_BETWEEN_TICKS"]) / 1000).toFixed(0));
+        HEADS_UP_DISPLAY.updateElement("Next Axis Respawn", ((axisLock.getTicksLeft() * FILE_DATA["constants"]["MS_BETWEEN_TICKS"]) / 1000).toFixed(0));
+    }
+
     display(){
+        this.updateHUD();
     	if (!this.isRunning()){
             AfterMatchStats.display();
         }

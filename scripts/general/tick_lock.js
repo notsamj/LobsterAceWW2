@@ -58,6 +58,11 @@ class TickLock extends Lock{
         this.ticksLeft += this.numTicks;
     }
 
+    // TODO: Comments
+    getTicksLeft(){
+        return this.ticksLeft;
+    }
+
     /*
         Method Name: getCooldown
         Method Parameters: None

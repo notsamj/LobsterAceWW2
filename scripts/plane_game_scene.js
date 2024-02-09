@@ -311,24 +311,18 @@ class PlaneGameScene extends Scene {
                 focusedEntity.getRadar().display();
             }
         }
-        // TODO: Use Menu make text in the future
-        textSize(20);
-        fill("green");
-        textAlign(LEFT, TOP);
-        text(`x: ${x}`, 10, 20);
-        text(`y: ${y}`, 10, 40);
-        text(`Speed: ${planeSpeed}`, 10, 60);
-        text(`Throttle: ${throttle}`, 10, 80);
-        text(`Health: ${health}`, 10, 100);
-        text(`FPS: ${fps}`, 10, 120);
-        text(`Entities: ${numberOfEntities}`, 10, 140);
-        text(`ID: ${entityID}`, 10, 160);
-        text(`Allied Planes Remaining: ${allyPlanes}`, 10, 180);
-        text(`Axis Planes Remaining: ${axisPlanes}`, 10, 200);
-        if (activeGameMode instanceof RemoteDogfight){
-            text(`numTicks: ${activeGameMode.getTickManager().getNumTicks()}`, 10, 220);
-            text(`version: ${activeGameMode.getVersion()}`, 10, 240);
-        }
+        // TODO: Clean this up
+        HEADS_UP_DISPLAY.updateElement("x", x.toFixed(1));
+        HEADS_UP_DISPLAY.updateElement("y", y.toFixed(1));
+        HEADS_UP_DISPLAY.updateElement("Speed", planeSpeed.toFixed(1));
+        HEADS_UP_DISPLAY.updateElement("Throttle", throttle.toFixed(1));
+        HEADS_UP_DISPLAY.updateElement("Health", health.toFixed(1));
+        HEADS_UP_DISPLAY.updateElement("FPS", fps);
+        HEADS_UP_DISPLAY.updateElement("Entities", numberOfEntities);
+        HEADS_UP_DISPLAY.updateElement("ID", entityID);
+        HEADS_UP_DISPLAY.updateElement("Allied Planes Remaining", allyPlanes);
+        HEADS_UP_DISPLAY.updateElement("Axis Planes Remaining", axisPlanes);
+        HEADS_UP_DISPLAY.display();
     }
     
     /*
