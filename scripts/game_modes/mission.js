@@ -10,6 +10,10 @@ class Mission extends GameMode {
 		scene.setEntities(appendLists(this.planes, this.buildings));
 	}
 
+    getBuildings(){
+        return this.buildings;
+    }
+
 	isRunning(){
 		return this.running;
 	}
@@ -37,9 +41,6 @@ class Mission extends GameMode {
     		}
     	}
 
-    	// Temp
-    	livingBuildings = true;
-
     	// If all buildings are destroyed then the attackers win
     	if (!livingBuildings){
     		this.endGame(true);
@@ -53,9 +54,6 @@ class Mission extends GameMode {
     		}
     	}
 
-        // Temp
-        livingBombers = true;
-
     	// If all bombers are dead then the attacker loses
     	if (!livingBombers){
     		this.endGame(false);
@@ -63,12 +61,13 @@ class Mission extends GameMode {
     }
 
     endGame(attackerWon){
-    	console.log(this.missionObject["attackers"], "won!");
+    	console.log(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
     }
 
     createPlanes(userEntityType){
     	let planes = [];
-    	// TODO:
+    	
+        // Add user plane (or freecam) to the planes list
     	if (userEntityType == "freecam"){
     		planes.push(new SpectatorCamera(scene));
     	}else if (FILE_DATA["plane_data"][userEntityType]["type"] == "Bomber"){
@@ -76,14 +75,58 @@ class Mission extends GameMode {
     	}else{ // User is fighter plane
     		planes.push(new HumanFighterPlane(userEntityType, scene))
     	}
-    	planes[0].setX(0);
-    	planes[0].setY(500);
     	scene.setFocusedEntity(planes[0]);
-    	return planes;
+    	
+        // Populate with bot planes
+
+        // Save plane counts so that there is always 1 less if the user is taking one
+        this.planeCounts = mergeCopyObjects(this.missionObject["attacker_plane_counts"], this.missionObject["attacker_plane_counts"]);
+        // Subtract the user plane from the number of bot planes
+        if (userEntityType != "freecam"){
+            this.planeCounts[userEntityType]--;
+        }
+
+        // Spawn the bot planes
+        let allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
+        let axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
+        for (let planeModel of Object.keys(this.planeCounts)){
+            let count = this.planeCounts[planeModel];
+            for (let i = 0; i < count; i++){
+                let alliance = planeModelToAlliance(plane.getModel());
+                let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
+                let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
+                if (FILE_DATA["plane_data"][planeModel]["type"] == "Bomber"){
+                    planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, scene, difficulty));
+                }else if (side == "attackers"){
+                    planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
+                }else { // Defender Fighter plane
+                    planes.push(BiasedCampaignDefenderBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
+                }
+            }
+        }
+
+        // Planes need to be placed at this point
+        for (let entity of planes){
+            // If not a plane, but a specator camera then spawn in between spawns
+            if (entity instanceof SpectatorCamera){
+                let cam = entity;
+                cam.setX((this.missionObject["start_zone"]["attackers"]["x"] + this.missionObject["start_zone"]["defenders"]["x"])/2);
+                cam.setY((this.missionObject["start_zone"]["attackers"]["y"] + this.missionObject["start_zone"]["defenders"]["y"])/2);
+                continue;
+            }
+            let plane = entity;
+            let alliance = planeModelToAlliance(plane.getModel());
+            let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
+            let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
+            let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
+            plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
+            plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
+        }
+        return planes;
     }
 
     createBuildings(){
-        return [new Building(5000, 100, 500, 50)];
+        return [new Building(30000, 100, 500, 1)];
     }
 
     display(){

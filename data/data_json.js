@@ -193,6 +193,9 @@ const FILE_DATA = {
 
     "ai": {
         "fighter_plane": {
+            "min_enemy_distance_campaign": 5000,
+            "max_x_distance_from_bomber_cruising_campaign": 2000,
+            "max_y_distance_from_bomber_cruising_campaign": 500,
             "update_enemy_cooldown": 1000,
             "max_ticks_on_course": 6000,
             "tick_cd": 500,
@@ -205,6 +208,7 @@ const FILE_DATA = {
         },
 
         "bomber_plane": {
+            "bomb_falling_distance_allowance_multiplier": 1.2,
             "bias_ranges": {
                 "easy":{"friendly_center_x_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":3500,"lower_bound":2625},"lower_range":{"upper_bound":-2625,"lower_bound":-3500}},"shooting_angle_offset":{"upper_range":{"upper_bound":10,"lower_bound":7.5},"lower_range":{"upper_bound":-7.5,"lower_bound":-10}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.75,"lower_bound":1.6},"lower_range":{"upper_bound":1.75,"lower_bound":1.6}}},
                 "medium":{"friendly_center_x_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":2625,"lower_bound":1750},"lower_range":{"upper_bound":-1750,"lower_bound":-2625}},"shooting_angle_offset":{"upper_range":{"upper_bound":7.5,"lower_bound":5},"lower_range":{"upper_bound":-5,"lower_bound":-7.5}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.4,"lower_bound":1.2},"lower_range":{"upper_bound":1.4,"lower_bound":1.2}}},
@@ -264,7 +268,7 @@ const FILE_DATA = {
 
     "missions": [
         {
-            "description": "This is placeholder text.\nThis is placeholder text. This is placeholder text.\nThis is placeholder text. This is placeholder text. This is placeholder text. This is placeholder text.",
+            "description": "Mission 1",
             "user_planes": [
                 "republic_p_47",
                 "p51_mustang",
@@ -279,8 +283,44 @@ const FILE_DATA = {
                 "me_309",
                 "me_bf_109"
             ],
+            "attacker_plane_counts": {
+                "republic_p_47": 0,
+                "p51_mustang": 0,
+                "b24": 1
+            },
+            "defender_plane_counts": {
+                "me_309": 0,
+                "me_bf_109": 0
+            },
             "attackers": "Allies",
-            "defenders": "Axis"
+            "defenders": "Axis",
+            "start_zone": {
+                "attackers": {
+                    "x": 0,
+                    "y": 10000
+                },
+                "defenders": {
+                    "x": 100000,
+                    "y": 200
+                },
+                "offsets": {
+                    "x": 250,
+                    "y": 500
+                }
+            },
+            "buildings": {
+                "start_x": 70000
+                "count": 20,
+                "min_gap": 50,
+                "max_gap": 200,
+                "min_width": 50,
+                "max_width": 150,
+                "max_health": 10
+            },
+            "respawn_times": {
+                "attackers": 50e3,
+                "defenders": 50e3
+            }
         }
     ],
 

@@ -1,8 +1,8 @@
 /*
     Class Name: BiasedBotBomberPlane
-    Description: A subclass of the BotBomberPlane with biases for its actions
+    Description: A subclass of the BomberPlane that is a bot with biases for its actions
 */
-class BiasedBotBomberPlane extends BotBomberPlane {
+class BiasedBotBomberPlane extends BomberPlane {
     /*
         Method Name: constructor
         Method Parameters:

@@ -11,7 +11,7 @@ class Building extends Entity {
 
     damage(amount){
         this.health -= amount;
-        if (this.health < 0){
+        if (this.health <= 0){
             this.die();
         }
     }

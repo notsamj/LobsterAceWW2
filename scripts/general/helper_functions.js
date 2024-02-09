@@ -3,6 +3,43 @@ if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
 
+// TODO: Comments
+function mergeCopyObjects(obj1, obj2){
+    let newObject = {};
+    // Merge in object 1
+    for (let key of Object.keys(obj1)){
+        if (typeof obj1[key] === "object"){
+            newObject[key] = copyObject(obj1[key]);
+        }else{
+            newObject[key] = obj1[key];
+        }
+    }
+    // Merge in object 2
+    for (let key of Object.keys(obj2)){
+        if (typeof obj2[key] === "object"){
+            newObject[key] = copyObject(obj2[key]);
+        }else{
+            newObject[key] = obj2[key];
+        }
+    }
+    return newObject;
+}
+
+// TODO: Comments
+// Note: If you give it and instance of a class it will produce a reference not a copy
+function copyObject(obj){
+    // Deep copy, copy inner objects aswell
+    let newObject = {};
+    for (let key of Object.keys(obj)){
+        if (typeof obj[key] === "object"){
+            newObject[key] = copyObject(obj[key]);
+        }else{
+            newObject[key] = obj[key];
+        }
+    }
+    return newObject;
+}
+
 /*
     Method Name: appendLists
     Method Parameters:

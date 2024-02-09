@@ -1,6 +1,5 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    BotFighterPlane = require("../scripts/bot_fighter_plane.js");
     CooldownLock = require("../scripts/cooldown_lock.js");
     FILE_DATA = require("../data/data_json.js");
     var helperFuncs = require("../scripts/helper_functions.js");
@@ -13,10 +12,10 @@ if (typeof window === "undefined"){
 }
 /*
     Class Name: BiasedBotFighterPlane
-    Description: A subclass of the BotFighterPlane with biases for its actions
+    Description: A subclass of the FighterPlane that is a bot with biases for its actions
     Note: For future efficiency the focused count thing is inefficient
 */
-class BiasedBotFighterPlane extends BotFighterPlane {
+class BiasedBotFighterPlane extends FighterPlane {
     /*
         Method Name: constructor
         Method Parameters:
@@ -68,13 +67,18 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         if (this.hasCurrentEnemy()){
             let enemy = this.currentEnemy;
             this.handleEnemy(enemy);
-        }else{ // No enemy -> make sure not to crash into the ground
-            if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
-                this.turnInDirection(90);
-            }
+        }else{ // No enemy ->
+            this.handleWhenNoEnemy();
         }
-        // TODO: I moved the above lines above super call, seems right to me...
         super.tick(timeDiffMS);
+    }
+
+    // TODO: Comments
+    handleWhenNoEnemy(){
+        // No enemy -> make sure not to crash into the ground
+        if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
+            this.turnInDirection(90);
+        }
     }
 
     /*
@@ -483,7 +487,7 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     static focusedCount(scene, enemyID, myID){
         let count = 0;
         for (let plane of scene.getPlanes()){
-            if (plane instanceof BotFighterPlane && plane.getID() != myID && plane.getCurrentEnemy() != null && plane.getCurrentEnemy().getID() == enemyID){
+            if (plane instanceof BiasedBotFighterPlane && plane.getID() != myID && plane.getCurrentEnemy() != null && plane.getCurrentEnemy().getID() == enemyID){
                 count += 1;
             }
         }

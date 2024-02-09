@@ -285,6 +285,11 @@ class Entity {
     */
     hasRadar(){ return false; }
 
+    // TODO: Comments
+    angleToOtherDEG(otherEntity){
+        return displacementToDegrees(otherEntity.getX() - this.getX(), otherEntity.getY() - this.getY());
+    }
+
     // Abstract Methods
     getWidth(){}
     getHeight(){}

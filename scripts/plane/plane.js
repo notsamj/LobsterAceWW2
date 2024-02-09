@@ -69,6 +69,16 @@ class Plane extends Entity {
     }
 
     /*
+        Method Name: getModel
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: String
+    */
+    getModel(){
+        return this.getPlaneClass();
+    }
+
+    /*
         Method Name: goodToFollow
         Method Parameters: None
         Method Description: Provides the information that this object is "good to follow"

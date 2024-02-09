@@ -16,6 +16,8 @@ var performanceTimer = new PerformanceTimer();
 const CLOUD_MANAGER = new CloudManager();
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
+USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
+USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 84; }, false)
 var tickInterval;
 // Functions
 
