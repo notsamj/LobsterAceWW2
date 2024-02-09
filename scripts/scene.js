@@ -409,6 +409,11 @@ class Scene {
         this.ticksEnabled = false;
     }
 
+    // TODO: Comments
+    hasTicksEnabled(){
+        return this.ticksEnabled;
+    }
+
     /*
         Method Name: enableDisplay
         Method Parameters: None

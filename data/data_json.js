@@ -297,13 +297,13 @@ const FILE_DATA = {
                 "me_bf_109"
             ],
             "attacker_plane_counts": {
-                "republic_p_47": 3,
-                "p51_mustang": 3,
+                "republic_p_47": 5,
+                "p51_mustang": 5,
                 "b24": 1
             },
             "defender_plane_counts": {
-                "me_309": 5,
-                "me_bf_109": 5
+                "me_309": 3,
+                "me_bf_109": 3
             },
             "attackers": "Allies",
             "defenders": "Axis",
@@ -335,7 +335,7 @@ const FILE_DATA = {
             },
             "respawn_times": {
                 "attackers": 70e3,
-                "defenders": 30e3
+                "defenders": 30e3 // 30e3?
             }
         }
     ],

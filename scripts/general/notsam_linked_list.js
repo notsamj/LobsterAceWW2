@@ -22,6 +22,12 @@ class NotSamLinkedList{
         }
     }
 
+    // TODO: Comments
+    clear(){
+        this.head = null;
+        this.end = null;
+    }
+
     /*
         Method Name: convert_from_array
         Method Parameters:

@@ -8,7 +8,7 @@ class Mission extends GameMode {
 		this.buildings = this.createBuildings();
 		this.planes = this.createPlanes(userEntityType);
         this.attackerSpawnLock = new TickLock(this.missionObject["respawn_times"]["attackers"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
-        this.defenderSpawnLock = new TickLock(this.missionObject["respawn_times"]["attackers"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
+        this.defenderSpawnLock = new TickLock(this.missionObject["respawn_times"]["defenders"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
 		scene.setEntities(appendLists(this.planes, this.buildings));
         AfterMatchStats.reset();
 	}
@@ -40,21 +40,21 @@ class Mission extends GameMode {
     }
 
     checkSpawn(){
-        console.log(this.attackerSpawnLock.isReady(), this.attackerSpawnLock.ticksLeft);
         if (this.attackerSpawnLock.isReady()){
             this.createBotPlanes("attackers");
+            this.attackerSpawnLock.lock();
         }
-        this.attackerSpawnLock.lock();
         if (this.defenderSpawnLock.isReady()){
             this.spawnPlanes("defenders");
+            this.defenderSpawnLock.lock();
         }
-        this.defenderSpawnLock.lock();
     }
 
     spawnPlanes(side){
         let planes = this.createBotPlanes(side);
+        this.setupPlanes(planes);
         for (let plane of planes){
-            this.scene.addPlane(plane);
+            scene.addPlane(plane);
         }
     }
 
@@ -92,15 +92,15 @@ class Mission extends GameMode {
         this.running = false;
     }
 
-    createBotPlanes(onlyAlliance=null){
+    createBotPlanes(onlySide=null){
         let allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
         let axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
         let planes = [];
         for (let planeModel of Object.keys(this.planeCounts)){
             let alliance = planeModelToAlliance(planeModel);
-            if (onlyAlliance != null && alliance != onlyAlliance){ continue; }
-            let count = this.planeCounts[planeModel];
             let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
+            if (onlySide != null && side != onlySide){ continue; }
+            let count = this.planeCounts[planeModel];
             let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
             for (let i = 0; i < count; i++){
                 if (FILE_DATA["plane_data"][planeModel]["type"] == "Bomber"){
@@ -113,6 +113,26 @@ class Mission extends GameMode {
             }
         }
         return planes;
+    }
+
+    setupPlanes(planes){
+        // Planes need to be placed at this point
+        for (let entity of planes){
+            // If not a plane, but a specator camera then spawn in between spawns
+            if (entity instanceof SpectatorCamera){
+                let cam = entity;
+                cam.setX((this.missionObject["start_zone"]["attackers"]["x"] + this.missionObject["start_zone"]["defenders"]["x"])/2);
+                cam.setY((this.missionObject["start_zone"]["attackers"]["y"] + this.missionObject["start_zone"]["defenders"]["y"])/2);
+                continue;
+            }
+            let plane = entity;
+            let alliance = planeModelToAlliance(plane.getModel());
+            let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
+            let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
+            let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
+            plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
+            plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
+        }
     }
 
     createPlanes(userEntityType){
@@ -140,24 +160,7 @@ class Mission extends GameMode {
         // Spawn the bot planes
         let botPlanes = this.createBotPlanes();
         planes = appendLists(planes, botPlanes);
-
-        // Planes need to be placed at this point
-        for (let entity of planes){
-            // If not a plane, but a specator camera then spawn in between spawns
-            if (entity instanceof SpectatorCamera){
-                let cam = entity;
-                cam.setX((this.missionObject["start_zone"]["attackers"]["x"] + this.missionObject["start_zone"]["defenders"]["x"])/2);
-                cam.setY((this.missionObject["start_zone"]["attackers"]["y"] + this.missionObject["start_zone"]["defenders"]["y"])/2);
-                continue;
-            }
-            let plane = entity;
-            let alliance = planeModelToAlliance(plane.getModel());
-            let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
-            let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
-            let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
-            plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
-            plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
-        }
+        this.setupPlanes(planes);
         return planes;
     }
 

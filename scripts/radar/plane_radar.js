@@ -13,6 +13,7 @@ class PlaneRadar extends Radar {
     */
     constructor(plane){
         super(plane);
+        this.plane = plane;
     }
     
     /*
@@ -26,17 +27,17 @@ class PlaneRadar extends Radar {
         // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
         for (let plane of scene.getPlanes()){
             if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), "lightred");
+                this.placeOnRadar(plane.getX(), plane.getY(), "#db655c");
             }else if (plane instanceof BomberPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), "red");
+                this.placeOnRadar(plane.getX(), plane.getY(), "#a6140a");
             }else if (plane instanceof BomberPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), "green");
+                this.placeOnRadar(plane.getX(), plane.getY(), "#26940a");
             }
         }
 
         // Add all buildings to radar
         for (let building of scene.getBuildings()){
-            this.placeOnRadar(plane.getCenterX(), plane.getCenterY(), "darkgrey");
+            this.placeOnRadar(building.getCenterX(), building.getCenterY(), "#919191");
         }
     }
 

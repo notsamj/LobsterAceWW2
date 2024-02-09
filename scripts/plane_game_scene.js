@@ -153,6 +153,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     setEntities(entities){
+        this.entities.clear();
         this.teamCombatManager.clear();
         for (let entity of entities){
             if (entity instanceof Plane || entity instanceof Bullet){

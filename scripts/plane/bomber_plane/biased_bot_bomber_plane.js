@@ -168,7 +168,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         let fC = 0;
         // Loop through all friendlies and determine the center of them
         for (let friendly of friendlies){
-            if (friendly instanceof BotBomberPlane){ continue; } // bot bomber's don't count so we don't end up in a loop
+            if (friendly instanceof BomberPlane){ continue; } // bomber's don't count so we don't end up in a loop
             totalX += friendly.getX();
             totalY += friendly.getY();
             fC++;
