@@ -28,6 +28,10 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         this.udLock = new TickLock(40 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.biases = biases;
         this.generateGuns(biases);
+        this.throttle += this.biases["throttle"];
+        this.maxSpeed += this.biases["max_speed"];
+        this.health += this.biases["health"];
+        this.startingHealth = this.health;
     }
 
     /*

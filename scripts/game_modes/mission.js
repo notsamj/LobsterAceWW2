@@ -7,7 +7,10 @@ class Mission extends GameMode {
 		this.tickManager = new SceneTickManager(Date.now(), scene, FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
 		this.buildings = this.createBuildings();
 		this.planes = this.createPlanes(userEntityType);
+        this.attackerSpawnLock = new TickLock(this.missionObject["respawn_times"]["attackers"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
+        this.defenderSpawnLock = new TickLock(this.missionObject["respawn_times"]["attackers"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
 		scene.setEntities(appendLists(this.planes, this.buildings));
+        AfterMatchStats.reset();
 	}
 
     getBuildings(){
@@ -28,8 +31,31 @@ class Mission extends GameMode {
         if (!this.isRunning()){
             return;
         }
-        await this.tickManager.tick();
-        this.checkForEnd();
+        await this.tickManager.tick(() => {
+            this.attackerSpawnLock.tick();
+            this.defenderSpawnLock.tick();
+            this.checkSpawn();
+            this.checkForEnd();
+        });
+    }
+
+    checkSpawn(){
+        console.log(this.attackerSpawnLock.isReady(), this.attackerSpawnLock.ticksLeft);
+        if (this.attackerSpawnLock.isReady()){
+            this.createBotPlanes("attackers");
+        }
+        this.attackerSpawnLock.lock();
+        if (this.defenderSpawnLock.isReady()){
+            this.spawnPlanes("defenders");
+        }
+        this.defenderSpawnLock.lock();
+    }
+
+    spawnPlanes(side){
+        let planes = this.createBotPlanes(side);
+        for (let plane of planes){
+            this.scene.addPlane(plane);
+        }
     }
 
     checkForEnd(){
@@ -61,7 +87,32 @@ class Mission extends GameMode {
     }
 
     endGame(attackerWon){
-    	console.log(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
+    	// console.log(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
+        AfterMatchStats.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
+        this.running = false;
+    }
+
+    createBotPlanes(onlyAlliance=null){
+        let allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
+        let axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
+        let planes = [];
+        for (let planeModel of Object.keys(this.planeCounts)){
+            let alliance = planeModelToAlliance(planeModel);
+            if (onlyAlliance != null && alliance != onlyAlliance){ continue; }
+            let count = this.planeCounts[planeModel];
+            let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
+            let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
+            for (let i = 0; i < count; i++){
+                if (FILE_DATA["plane_data"][planeModel]["type"] == "Bomber"){
+                    planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, scene, difficulty));
+                }else if (side == "attackers"){
+                    planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
+                }else { // Defender Fighter plane
+                    planes.push(BiasedCampaignDefenderBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
+                }
+            }
+        }
+        return planes;
     }
 
     createPlanes(userEntityType){
@@ -80,30 +131,15 @@ class Mission extends GameMode {
         // Populate with bot planes
 
         // Save plane counts so that there is always 1 less if the user is taking one
-        this.planeCounts = mergeCopyObjects(this.missionObject["attacker_plane_counts"], this.missionObject["attacker_plane_counts"]);
+        this.planeCounts = mergeCopyObjects(this.missionObject["attacker_plane_counts"], this.missionObject["defender_plane_counts"]);
         // Subtract the user plane from the number of bot planes
         if (userEntityType != "freecam"){
             this.planeCounts[userEntityType]--;
         }
 
         // Spawn the bot planes
-        let allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
-        let axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
-        for (let planeModel of Object.keys(this.planeCounts)){
-            let count = this.planeCounts[planeModel];
-            for (let i = 0; i < count; i++){
-                let alliance = planeModelToAlliance(planeModel);
-                let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
-                let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
-                if (FILE_DATA["plane_data"][planeModel]["type"] == "Bomber"){
-                    planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, scene, difficulty));
-                }else if (side == "attackers"){
-                    planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
-                }else { // Defender Fighter plane
-                    planes.push(BiasedCampaignDefenderBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
-                }
-            }
-        }
+        let botPlanes = this.createBotPlanes();
+        planes = appendLists(planes, botPlanes);
 
         // Planes need to be placed at this point
         for (let entity of planes){
@@ -141,6 +177,8 @@ class Mission extends GameMode {
     }
 
     display(){
-    	// TODO stats
+    	if (!this.isRunning()){
+            AfterMatchStats.display();
+        }
     }
 }

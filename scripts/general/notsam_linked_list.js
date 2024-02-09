@@ -266,8 +266,12 @@ class NotSamLinkedList{
             return;
         }
         let previous = this.getNode(index-1); 
-        previous.next = previous.next.next;
-        previous.next.next.previous = previous;
+        if (previous.next != null){
+            previous.next = previous.next.next;
+            if (previous.next.next != null){
+                previous.next.next.previous = previous;
+            }
+        }
     }
 
     /*

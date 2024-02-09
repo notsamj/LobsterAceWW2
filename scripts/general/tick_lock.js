@@ -21,6 +21,9 @@ class TickLock extends Lock{
         super(ready);
         this.numTicks = numTicks;
         this.ticksLeft = 0;
+        if (!ready){
+            this.lock();
+        }
     }
     
     /*

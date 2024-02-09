@@ -75,8 +75,9 @@ class Dogfight extends GameMode {
         if (!this.isRunning()){
             return;
         }
-        await this.tickManager.tick();
-        this.checkForEnd();
+        await this.tickManager.tick(() => {
+            this.checkForEnd();
+        });
     }
 
     /*

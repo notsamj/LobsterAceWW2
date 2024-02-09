@@ -17,7 +17,7 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         Method Return: Constructor
     */
     constructor(planeClass, scene, biases, angle=0, facingRight=true){
-        super(planeClass, scene, angle, facingRight);
+        super(planeClass, scene, biases, angle, facingRight);
     }
 
     /*
@@ -49,5 +49,22 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         // If none found then do nothing
         if (bestRecord == null){ return; }
         this.currentEnemy = bestRecord["enemy"];
+    }
+
+    /*
+        Method Name: createBiasedPlane
+        Method Parameters: 
+            planeClass:
+                A string representing the type of the plane
+            scene:
+                A scene objet related to the plane
+            difficulty:
+                The current difficulty setting
+        Method Description: Return a new biased campaign defender plane
+        Method Return: BiasedCampaignDefenderBotFighterPlane
+    */
+    static createBiasedPlane(planeClass, scene, difficulty){
+        let biases = BiasedBotFighterPlane.createBiases(difficulty);
+        return new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, biases);
     }
 }

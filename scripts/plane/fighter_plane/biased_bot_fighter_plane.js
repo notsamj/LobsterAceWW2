@@ -65,8 +65,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         }
         // If there is an enemy then act accordingly
         if (this.hasCurrentEnemy()){
-            let enemy = this.currentEnemy;
-            this.handleEnemy(enemy);
+            this.handleEnemy(this.currentEnemy);
         }else{ // No enemy ->
             this.handleWhenNoEnemy();
         }
@@ -156,14 +155,12 @@ class BiasedBotFighterPlane extends FighterPlane {
             this.turnInDirection(fixDegrees(90 + this.biases["angle_from_ground"]));
             return;
         }
-
         // Point to enemy when very far away
         if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"] + this.biases["enemy_far_away_distance"]){
             this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
         }
-
         // Else at a medium distance to enemy
         this.handleClose(angleDEG, distance, enemy);
     }
@@ -183,7 +180,6 @@ class BiasedBotFighterPlane extends FighterPlane {
     */
     handleClose(angleDEG, distance, enemy){
         let myAngle = this.getNoseAngle();
-
         // If enemy is behind, then do evasive manuevers
         if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"])), rotateCCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"]))) && distance < this.getMaxSpeed() * FILE_DATA["constants"]["EVASIVE_SPEED_DIFF"] + this.biases["enemy_close_distance"]){
             this.evasiveManeuver();
@@ -356,7 +352,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         let entities = this.scene.getPlanes();
         let enemies = [];
         for (let entity of entities){
-            if (entity instanceof Plane && !this.onSameTeam(entity) && enemy.isAlive()){
+            if (entity instanceof Plane && !this.onSameTeam(entity) && entity.isAlive()){
                 enemies.push(entity);
             }
         }
@@ -434,10 +430,16 @@ class BiasedBotFighterPlane extends FighterPlane {
                 A scene objet related to the plane
             difficulty:
                 The current difficulty setting
-        Method Description: Return the max shooting distance of this biased plane
-        Method Return: float
+        Method Description: Return a new biased plane
+        Method Return: BiasedBotFighterPlane
     */
     static createBiasedPlane(planeClass, scene, difficulty){
+        let biases = BiasedBotFighterPlane.createBiases(difficulty);
+        return new BiasedBotFighterPlane(planeClass, scene, biases);
+    }
+
+    // TODO: Comments
+    static createBiases(difficulty){
         let biasRanges = FILE_DATA["ai"]["fighter_plane"]["bias_ranges"][difficulty];
         let biases = {};
         for (let [key, bounds] of Object.entries(biasRanges)){
@@ -453,7 +455,7 @@ class BiasedBotFighterPlane extends FighterPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedBotFighterPlane(planeClass, scene, biases);
+        return biases;
     }
 
     /*

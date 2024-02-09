@@ -17,7 +17,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         Method Return: Constructor
     */
     constructor(planeClass, scene, biases, angle=0, facingRight=true){
-        super(planeClass, scene, angle, facingRight);
+        super(planeClass, scene, biases, angle, facingRight);
         this.startingThrottle = this.throttle;
     }
 
@@ -49,7 +49,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     findMyBomber(){
         let furthestBomber = null;
         for (let plane of this.scene.getPlanes()){
-            if (!(plane instanceof Bomber) || plane.isDead()){ continue; }
+            if (!(plane instanceof BomberPlane) || plane.isDead()){ continue; }
             if (furthestBomber == null || plane.getX() > furthestBomber.getX()){
                 furthestBomber = plane;
             }
@@ -69,8 +69,8 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
                 this.face(!this.isFacingRight());
             }
             let angleToBomberDEG = this.angleToOtherDEG(bomber);
-            let dCW = calculateAngleDiffDEGCW(this.angle, angleDEG);
-            let dCCW = calculateAngleDiffDEGCCW(this.angle, angleDEG);
+            let dCW = calculateAngleDiffDEGCW(this.angle, angleToBomberDEG);
+            let dCCW = calculateAngleDiffDEGCCW(this.angle, angleToBomberDEG);
             if (dCW < dCCW){
                 this.adjustAngle(-1);
             }else if (dCCW < dCW){
@@ -117,7 +117,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            if (distance < FILE_DATA["ai"]["fighter_plane"]["min_enemy_distance_campaign"]){ continue; }
+            if (distance > FILE_DATA["ai"]["fighter_plane"]["max_enemy_distance_campaign"]){ continue; }
             let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
@@ -130,5 +130,22 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         // If none found then do nothing
         if (bestRecord == null){ return; }
         this.currentEnemy = bestRecord["enemy"];
+    }
+
+    /*
+        Method Name: createBiasedPlane
+        Method Parameters: 
+            planeClass:
+                A string representing the type of the plane
+            scene:
+                A scene objet related to the plane
+            difficulty:
+                The current difficulty setting
+        Method Description: Return a new biased campaign attacker plane
+        Method Return: BiasedCampaignAttackerBotFighterPlane
+    */
+    static createBiasedPlane(planeClass, scene, difficulty){
+        let biases = BiasedBotFighterPlane.createBiases(difficulty);
+        return new BiasedCampaignAttackerBotFighterPlane(planeClass, scene, biases);
     }
 }

@@ -113,8 +113,8 @@ class Cloud {
 
     display(lX, bY){
         for (let circleObject of this.circles){
-            let screenX = scene.getDisplayX(circleObject["x"], 0, lX);
-            let screenY = scene.getDisplayY(circleObject["y"], 0, bY);
+            let screenX = scene.getDisplayX(circleObject["x"], 0, lX, false);
+            let screenY = scene.getDisplayY(circleObject["y"], 0, bY, false);
             strokeWeight(0);
             fill(FILE_DATA["cloud_generation"]["CLOUD_COLOUR"]);
             circle(screenX, screenY, circleObject["radius"]*2);
