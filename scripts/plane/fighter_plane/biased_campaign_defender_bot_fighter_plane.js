@@ -38,7 +38,7 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         
         for (let enemy of enemies){
             let progress = enemy.getX();
-            if (bestRecord == null || progress < bestRecord["progress"]){
+            if (bestRecord == null || progress > bestRecord["progress"]){
                 bestRecord = {
                     "enemy": enemy,
                     "progress": progress

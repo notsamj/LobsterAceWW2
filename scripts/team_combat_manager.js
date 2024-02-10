@@ -323,6 +323,19 @@ class TeamCombatManager {
         return planes;
     }
 
+    // TODO: Comments
+    getDeadPlanes(){
+        let planes = [];
+        for (let team of this.teams){
+            for (let [plane, pIndex] of this.planes[team]){
+                if (plane.isDead()){
+                    planes.push(plane);
+                }
+            }
+        }
+        return planes;
+    }
+
     /*
         Method Name: getAllBullets
         Method Parameters: None

@@ -46,6 +46,7 @@ class BomberTurret extends Turret {
         if (FILE_DATA["constants"]["USE_PHYSICS_BULLETS"]){
             this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
         }else{ // Fake bullets
+            //console.log("Shooting @", this.getShootingAngle(), this.shootCD.getTicksLeft());
             this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
         }
     }

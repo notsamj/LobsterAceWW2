@@ -38,6 +38,16 @@ class Plane extends Entity {
         this.throttleConstant = Math.sqrt(this.maxSpeed) / FILE_DATA["constants"]["MAX_THROTTLE"];
     }
 
+    // TODO: Comments
+    getStartingHealth(){
+        return this.startingHealth;
+    }
+
+    // TODO: Comments
+    setStartingHealth(startingHealth){
+        this.startingHealth = startingHealth;
+    }
+
     /*
         Method Name: onSameTeam
         Method Parameters: otherPlane
@@ -247,6 +257,7 @@ class Plane extends Entity {
     */
     adjustAngle(amount){
         let newAngle = this.angle;
+        if (this.throttle == 0){ return; }
 
         // Determine angle
         if (this.facingRight){
@@ -277,6 +288,7 @@ class Plane extends Entity {
         if (facingRight == this.facingRight){
             return;
         }
+        if (this.throttle == 0){ return; }
         let newAngle = fixDegrees(360 - this.angle);
         this.angle = newAngle;
         this.facingRight = facingRight;
@@ -394,6 +406,7 @@ class Plane extends Entity {
     getXVelocity(){
         let effectiveAngle = this.getEffectiveAngle();
         let cosAngle = Math.cos(toRadians(effectiveAngle));
+        if (this.throttle == 0){ return 0; }
         return this.speed * cosAngle * (!this.facingRight ? -1 : 1);
     }
 

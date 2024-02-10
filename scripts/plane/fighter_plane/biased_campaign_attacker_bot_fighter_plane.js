@@ -48,7 +48,8 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
 
     findMyBomber(){
         let furthestBomber = null;
-        for (let plane of this.scene.getPlanes()){
+        let planes = this.scene.getPlanes();
+        for (let plane of planes){
             if (!(plane instanceof BomberPlane) || plane.isDead()){ continue; }
             if (furthestBomber == null || plane.getX() > furthestBomber.getX()){
                 furthestBomber = plane;
@@ -60,6 +61,8 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
 
     cruiseByBomber(){
         let bomber = this.findMyBomber();
+        // Incase bomber just died
+        if (bomber == null){ return; }
         let xDistance = Math.abs(bomber.getX() - this.getX());
         let yDistance = Math.abs(bomber.getY() - this.getY());
         // If too far from bomber in x then go to bomber
@@ -76,6 +79,8 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             }else if (dCCW < dCW){
                 this.adjustAngle(1);
             }
+            // Make sure you're at top speed heading to the bomber!
+            this.adjustThrottle(1);
             return;
         }
         // Else close to the bomber

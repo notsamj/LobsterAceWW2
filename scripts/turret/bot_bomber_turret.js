@@ -84,7 +84,10 @@ class BotBomberTurret extends BomberTurret {
     tryToShootAtEnemy(distanceToEnemy){
         // If ready to shoot and the angle & distance are acceptable then shoot
         if (distanceToEnemy < this.plane.getMaxShootingDistance()){
-            this.shoot();
+            // Either physics bullets OR don't shoot past the limit of instant shot
+            if (FILE_DATA["constants"]["USE_PHYSICS_BULLETS"] || distanceToEnemy < FILE_DATA["constants"]["INSTANT_SHOT_MAX_DISTANCE"]){
+                this.shoot();
+            }
         }
         // Using the locking of the shoot cooldown to determine if a shot was fired
         return this.shootCD.notReady();

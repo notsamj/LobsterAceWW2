@@ -135,6 +135,16 @@ class PlaneGameScene extends Scene {
     }
 
     /*
+        Method Name: getDeadPlanes
+        Method Parameters: None
+        Method Description: Gets all the dead planes and returns them
+        Method Return: Array of planes
+    */
+    getDeadPlanes(){
+        return this.teamCombatManager.getDeadPlanes();
+    }
+
+    /*
         Method Name: getBullets
         Method Parameters: None
         Method Description: Gets all the bullets and returns them
@@ -310,16 +320,16 @@ class PlaneGameScene extends Scene {
             if (focusedEntity.hasRadar()){
                 focusedEntity.getRadar().display();
             }
+            HEADS_UP_DISPLAY.updateElement("x", x.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("y", y.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("Speed", planeSpeed.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("Throttle", throttle.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("Health", health.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("FPS", fps);
+            HEADS_UP_DISPLAY.updateElement("ID", entityID);
         }
         // TODO: Clean this up
-        HEADS_UP_DISPLAY.updateElement("x", x.toFixed(1));
-        HEADS_UP_DISPLAY.updateElement("y", y.toFixed(1));
-        HEADS_UP_DISPLAY.updateElement("Speed", planeSpeed.toFixed(1));
-        HEADS_UP_DISPLAY.updateElement("Throttle", throttle.toFixed(1));
-        HEADS_UP_DISPLAY.updateElement("Health", health.toFixed(1));
-        HEADS_UP_DISPLAY.updateElement("FPS", fps);
         HEADS_UP_DISPLAY.updateElement("Entities", numberOfEntities);
-        HEADS_UP_DISPLAY.updateElement("ID", entityID);
         HEADS_UP_DISPLAY.updateElement("Allied Planes Remaining", allyPlanes);
         HEADS_UP_DISPLAY.updateElement("Axis Planes Remaining", axisPlanes);
         HEADS_UP_DISPLAY.display();

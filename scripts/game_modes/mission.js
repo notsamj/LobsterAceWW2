@@ -6,13 +6,23 @@ class Mission extends GameMode {
 		this.missionObject = missionObject;
 		this.running = true;
 		this.tickManager = new SceneTickManager(Date.now(), scene, FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
+        this.axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
 		this.buildings = this.createBuildings();
 		this.planes = this.createPlanes(userEntityType);
-        this.attackerSpawnLock = new TickLock(this.missionObject["respawn_times"]["attackers"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
-        this.defenderSpawnLock = new TickLock(this.missionObject["respawn_times"]["defenders"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
+        this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
+        this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
 		scene.setEntities(appendLists(this.planes, this.buildings));
         AfterMatchStats.reset();
 	}
+
+    getAttackerDifficulty(){
+        return this.missionObject["attackers"] == "Allies" ? this.allyDifficulty : this.axisDifficulty;
+    }
+
+    getDefenderDifficulty(){
+        return this.missionObject["defenders"] == "Allies" ? this.allyDifficulty : this.axisDifficulty;
+    }
 
     getBuildings(){
         return this.buildings;
@@ -42,7 +52,7 @@ class Mission extends GameMode {
 
     checkSpawn(){
         if (this.attackerSpawnLock.isReady()){
-            this.createBotPlanes("attackers");
+            this.spawnPlanes("attackers");
             this.attackerSpawnLock.lock();
         }
         if (this.defenderSpawnLock.isReady()){
@@ -51,16 +61,31 @@ class Mission extends GameMode {
         }
     }
 
+    findDeadUserFighterPlane(){
+        for (let plane of scene.getDeadPlanes()){
+            if (plane instanceof HumanFighterPlane){
+                return plane;
+            }
+        }
+        return null;
+    }
+
     spawnPlanes(side){
         let planes = this.createBotPlanes(side);
-        // TODO: Do the functions referenced here
-        let userEntity = this.findUserEntity();
-        // Respawn the user if they are a dead plane
-        if (userEntity instanceof Plane && userEntity.isDead()){
-            userEntity.setHealth(FILE_DATA["plane_data"][userEntity.getPlaneClass()]["health"]);
-            userEntityType.setDead(false);
-            planes.push(userEntity);
-            this.deleteFreecam();
+        let userPlane = this.findDeadUserFighterPlane();
+        /*
+           Respawn the user if they are a dead FIGHTER plane on the team that is currently being respawned (bombers can't respawn)
+           Also a null check instead of a dead check because "findDeadUserFighterPlane"
+           There are too many checks here but I like it personally I feel its more clear of what I'm looking for rather than what is strictly needed
+        */
+        if (userPlane != null && this.userEntityType != "freecam" && planeModelToType(this.userEntityType) != "bomber" && planeModelToAlliance(this.userEntityType) == this.missionObject[side] && userPlane.isDead()){
+            userPlane.setHealth(userPlane.getStartingHealth());
+            userPlane.setDead(false);
+            this.setupPlanes([userPlane]);
+            // User must be currently a freecam (and focused)
+            let tempCamera = scene.getFocusedEntity();
+            scene.setFocusedEntity(userPlane);
+            tempCamera.die();
         }
         this.setupPlanes(planes);
         for (let plane of planes){
@@ -69,42 +94,40 @@ class Mission extends GameMode {
     }
 
     checkForEnd(){
-    	let livingBuildings = false;
+    	let livingBuildings = 0;
     	for (let building of this.buildings){
     		if (building.isAlive()){
-    			livingBuildings = true;
-    			break;
+    			livingBuildings++;
     		}
     	}
-
     	// If all buildings are destroyed then the attackers win
-    	if (!livingBuildings){
+    	if (livingBuildings == 0){
     		this.endGame(true);
     	}
 
-    	let livingBombers = false;
+    	let livingBombers = 0;
     	for (let plane of this.planes){
     		if (plane instanceof BomberPlane && plane.isAlive()){
-    			livingBombers = true;
-    			break;
+    			livingBombers++;
     		}
     	}
 
     	// If all bombers are dead then the attacker loses
-    	if (!livingBombers){
+    	if (livingBombers == 0){
     		this.endGame(false);
     	}
+        HEADS_UP_DISPLAY.updateElement("Remaining Buildings", livingBuildings);
+        HEADS_UP_DISPLAY.updateElement("Remaining Bombers", livingBombers);
     }
 
     endGame(attackerWon){
-    	// console.log(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
         AfterMatchStats.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
         this.running = false;
     }
 
     createBotPlanes(onlySide=null){
-        let allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
-        let axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
+        let allyDifficulty = this.allyDifficulty;
+        let axisDifficulty = this.axisDifficulty;
         let planes = [];
         for (let planeModel of Object.keys(this.planeCounts)){
             let alliance = planeModelToAlliance(planeModel);
@@ -141,9 +164,15 @@ class Mission extends GameMode {
             let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
             let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
             let facingRight = side == "attackers" ? true : false;
+            plane.setAngle(0);
             plane.setFacingRight(facingRight);
             plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
             plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
+            // Give bomber extra hp
+            if (plane instanceof BomberPlane){
+                plane.setStartingHealth(plane.getHealth() * this.missionObject[this.getAttackerDifficulty()]["BOMBER_HP_MULTIPLIER"]);
+                plane.setHealth(plane.getStartingHealth());
+            }
         }
     }
 
@@ -163,7 +192,7 @@ class Mission extends GameMode {
         // Populate with bot planes
 
         // Save plane counts so that there is always 1 less if the user is taking one
-        this.planeCounts = mergeCopyObjects(this.missionObject["attacker_plane_counts"], this.missionObject["defender_plane_counts"]);
+        this.planeCounts = mergeCopyObjects(this.missionObject[this.getAttackerDifficulty()]["attacker_plane_counts"], this.missionObject[this.getDefenderDifficulty()]["defender_plane_counts"]);
         // Subtract the user plane from the number of bot planes
         if (userEntityType != "freecam"){
             this.planeCounts[userEntityType]--;
@@ -173,15 +202,24 @@ class Mission extends GameMode {
         let botPlanes = this.createBotPlanes();
         planes = appendLists(planes, botPlanes);
         this.setupPlanes(planes);
+
+        // Remove bombers from plane counts so no respawns!!!
+        for (let plane of planes){
+            if (plane instanceof BomberPlane){
+                this.planeCounts[plane.getModel()]--;
+            }
+        }
+
         return planes;
     }
 
     createBuildings(){
         let buildingRules = this.missionObject["buildings"];
+        let difficultyBuildingRules = this.missionObject[this.getAttackerDifficulty()]["buildings"];
         let nextX = buildingRules["start_x"];
         let buildings = [];
-        for (let i = 0; i < buildingRules["count"]; i++){
-            let hp = randomNumberInclusive(buildingRules["min_health"], buildingRules["max_health"]);
+        for (let i = 0; i < difficultyBuildingRules["count"]; i++){
+            let hp = randomNumberInclusive(difficultyBuildingRules["min_health"], difficultyBuildingRules["max_health"]);
             let width = randomNumberInclusive(buildingRules["min_width"], buildingRules["max_width"]);
             let height = randomNumberInclusive(buildingRules["min_height"], buildingRules["max_height"]);
             let building = new Building(nextX, width, height, hp);

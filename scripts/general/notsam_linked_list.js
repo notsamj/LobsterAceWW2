@@ -271,12 +271,14 @@ class NotSamLinkedList{
             } 
             return;
         }
-        let previous = this.getNode(index-1); 
-        if (previous.next != null){
-            previous.next = previous.next.next;
-            if (previous.next.next != null){
-                previous.next.next.previous = previous;
-            }
+        let node = this.getNode(index);
+        let previous = node.previous; // MUST NOT BE NULL OR ERROR
+        // TODO: Remove
+        if (previous == null){ debugger; }
+        previous.next = node.next;
+        // If this is the last node then it would be null
+        if (node.next != null){
+            node.next.previous = previous;
         }
     }
 
