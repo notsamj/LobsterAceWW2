@@ -194,10 +194,28 @@ class TeamCombatManager {
         Method Return: void
     */
     checkCollisions(timeDiff){
+        // Check ally and axis bullet hits
         for (let team of this.teams){
             for (let otherTeam of this.teams){
                 if (team == otherTeam){ continue; }
                 this.checkBulletCollisionsFromTeamToTeam(team, otherTeam, timeDiff);
+            }
+        }
+
+        // For each bomb check each building for collisions
+        for (let [entity, eI] of scene.getEntities()){
+            if (entity instanceof Building){
+                for (let [entity2, eI2] of scene.getEntities()){
+                    if (entity2 instanceof Bomb){
+                        let building = entity;
+                        let bomb = entity2;
+                        if (bomb.collidesWith(building, timeDiff)){
+                            building.damage(1);
+                            bomb.die();
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
@@ -273,7 +291,7 @@ class TeamCombatManager {
             for (let [plane, pIndex] of this.planes[team]){
                 //if (!plane.isDead() && plane.getID() != excludeID){
                 if (plane.getID() != excludeID){
-                    this.displayEntity(scene, plane, lX, bY);
+                    plane.display(lX, bY);
                 }
             }
         }
@@ -281,7 +299,7 @@ class TeamCombatManager {
         for (let team of this.teams){
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (!bullet.isDead() && bullet.getID() != excludeID){
-                    this.displayEntity(scene, bullet, lX, bY);
+                    bullet.display(lX, bY);
                 }
             }
         }
@@ -291,13 +309,31 @@ class TeamCombatManager {
         Method Name: getAllPlanes
         Method Parameters: None
         Method Description: Gathers a list of all living planes
-        Method Return: List of Planes
+        Method Return: List of Plane
     */
     getAllPlanes(){
         let planes = [];
         for (let team of this.teams){
             for (let [plane, pIndex] of this.planes[team]){
                 if (!plane.isDead()){
+                    planes.push(plane);
+                }
+            }
+        }
+        return planes;
+    }
+
+    /*
+        Method Name: getDeadPlanes
+        Method Parameters: None
+        Method Description: Find all the dead planes
+        Method Return: List of Plane
+    */
+    getDeadPlanes(){
+        let planes = [];
+        for (let team of this.teams){
+            for (let [plane, pIndex] of this.planes[team]){
+                if (plane.isDead()){
                     planes.push(plane);
                 }
             }
@@ -321,24 +357,6 @@ class TeamCombatManager {
             }
         }
         return bullets;
-    }
-
-    /*
-        Method Name: displayAll
-        Method Parameters:
-            scene:
-                Scene on which to display entities
-            entity:
-                Entity to display
-            lX:
-                Lower x bound of the displayed area
-            bY:
-                Lower y bound of the displayed area
-        Method Description: Displays an entity
-        Method Return: void
-    */
-    displayEntity(scene, entity, lX, bY){
-        scene.displayEntity(entity, lX, bY);
     }
 
     /*

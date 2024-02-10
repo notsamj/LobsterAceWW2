@@ -17,6 +17,7 @@ class GameMode {
 
     // Abstract Methods
     isRunning(){}
+    display(){}
 }
 // If using NodeJS then export the class
 if (typeof window === "undefined"){

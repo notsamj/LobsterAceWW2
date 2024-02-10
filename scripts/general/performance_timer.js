@@ -205,4 +205,14 @@ class PerformanceTimerNode {
         this.runTotalTime = 0;
         this.runCount = 0;
     }
+
+    /*
+        Method Name: getLastTime
+        Method Parameters: None
+        Method Description: Finds the last recorded time
+        Method Return: Integer
+    */
+    getLastTime(){
+        return this.runTimes[this.runTimes.length-1];
+    }
 }

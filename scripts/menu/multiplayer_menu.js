@@ -36,7 +36,7 @@ class MultiplayerMenu extends Menu {
         let addRemoveButtonSize = 50;
 
         // Background
-        this.components.push(new StaticImage(images["clouds"], 0, 927));
+        this.components.push(new AnimatedCloudBackground())
         // Welcome Message
         let welcomeMessageX = 0;
         let welcomeMessageY = 500;
@@ -57,8 +57,8 @@ class MultiplayerMenu extends Menu {
         let startButtonXSize = 1920-50*2;
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Ready", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, async (instance) => {
-            activeGameMode = await RemoteDogfight.create(new ServerConnection(), this.userPlanes[this.userPlaneIndex], this.planeCounts);
-            this.goToGame();
+            //activeGameMode = await RemoteDogfight.create(new ServerConnection(), this.userPlanes[this.userPlaneIndex], this.planeCounts);
+            //this.goToGame();
         }));
 
         // User Section

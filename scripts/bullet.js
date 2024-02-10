@@ -55,7 +55,6 @@ class Bullet extends Entity {
 
         // Apply acceleration
         this.yVelocity = this.yVelocity - yAcceleration;
-        
         this.x += this.xVelocity * timeProportion;
         this.y += this.yVelocity * timeProportion;
 
@@ -165,7 +164,8 @@ class Bullet extends Entity {
     */
     expectedToDie(){
         let belowGround = this.y < 0;
-        let movingTooFast = Math.abs(this.yVelocity) > FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] * FILE_DATA["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"];
+        let movingDownTooFast = this.yVelocity < 0 && Math.abs(this.yVelocity) > FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] * FILE_DATA["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"] * FILE_DATA["bullet_data"]["speed"];
+        if (movingDownTooFast || belowGround){ return true; }
         let maxX = null;
         let maxY = null;
         let minX = null;
@@ -188,8 +188,7 @@ class Bullet extends Entity {
         }
         let tooFarToTheLeftOrRight = maxX != null && (this.x + FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"] < minX || this.x - FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"] > maxX);
         let tooFarToUpOrDown = maxY != null && (this.y + FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] < minY || this.y - FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] > maxY);
-        
-        return belowGround || movingTooFast || tooFarToTheLeftOrRight || tooFarToUpOrDown;
+        return tooFarToTheLeftOrRight || tooFarToUpOrDown;
     }
 
     /*
@@ -204,6 +203,29 @@ class Bullet extends Entity {
     */
     collidesWith(otherEntity, timeDiff){
         return hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), otherEntity.getHitbox(), otherEntity.getX(), otherEntity.getY(), otherEntity.getXVelocity(), otherEntity.getYVelocity(), timeDiff/1000);
+    }
+
+    /*
+        Method Name: display
+        Method Parameters:
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+        Method Description: Displays a plane on the screen (if it is within the bounds)
+        Method Return: void
+    */
+    display(lX, bY){
+        let rX = lX + getScreenWidth() - 1;
+        let tY = bY + getScreenHeight() - 1;
+
+        // If not on screen then return
+        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+
+        // Determine the location it will be displayed at
+        let displayX = this.scene.getDisplayX(this.getCenterX(), this.getWidth(), lX);
+        let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
+        drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 }
 // If using Node JS Export the class
@@ -284,7 +306,7 @@ function hitInTime(h1, h1X, h1Y, h1VX, h1VY, h2, h2X, h2Y, h2VX, h2VY, timePropo
             time = (leftObjectRightEnd - rightObjectLeftEnd) / (rightObjectVX - leftObjectVX)
         */
         let leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
-        let rightObjectLeftEnd = rightObject.getCenterX() - leftObject.getRadiusEquivalentX();
+        let rightObjectLeftEnd = rightObject.getCenterX() - rightObject.getRadiusEquivalentX();
         let time = safeDivide(leftObjectRightEnd - rightObjectLeftEnd, rightDetails["x_velocity"] - leftDetails["x_velocity"], 0.0000001, null);
         /* Expected values for time:
             null - Denominator close to zero
@@ -327,7 +349,7 @@ function hitInTime(h1, h1X, h1Y, h1VX, h1VY, h2, h2X, h2Y, h2VX, h2VY, timePropo
             time = (bottomObjectTopEnd - topObjectBottomEnd) / (topObjectVY - bottomObjectVY)
         */
         let bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
-        let topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
+        let topObjectBottomEnd = topObject.getCenterY() - topObject.getRadiusEquivalentY();
         let time = safeDivide(bottomObjectTopEnd - topObjectBottomEnd, topDetails["y_velocity"] - bottomObject["y_velocity"], 0.0000001, null);
         /* Eypected values for time:
             null - Denominator close to zero

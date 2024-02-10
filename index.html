@@ -29,6 +29,9 @@
     <script src="scripts/general/hitboxes.js"></script>
     <script src="scripts/general/lock.js"></script>
     <script src="scripts/general/cooldown_lock.js"></script>
+    <script src="scripts/general/tick_lock.js"></script>
+    <script src="scripts/general/seeded_randomizer.js"></script>
+    <script src="scripts/general/HUD.js"></script>
 
     <!-- Menu Specific -->
     <script src="scripts/menu/component.js"></script>
@@ -40,8 +43,12 @@
     <script src="scripts/menu/main_menu.js"></script>
     <script src="scripts/menu/multiplayer_menu.js"></script>
     <script src="scripts/menu/sound_menu.js"></script>
+    <script src="scripts/menu/extra_settings_menu.js"></script>
     <script src="scripts/menu/dogfight_menu.js"></script>
     <script src="scripts/menu/pause_menu.js"></script>
+    <script src="scripts/menu/mission_start_menu.js"></script>
+    <script src="scripts/menu/campaign_menu.js"></script>
+    <script src="scripts/menu/animated_cloud_background.js"></script>
 
     <!-- Game Specific -->
     <script src="scripts/after_match_stats.js"></script>
@@ -52,7 +59,10 @@
     <script src="scripts/plane_game_scene.js"></script>
     <script src="scripts/spectator_camera.js"></script>
     <script src="scripts/bullet.js"></script>
+    <script src="scripts/building.js"></script>
+    <script src="scripts/bomb.js"></script>
     <script src="scripts/team_combat_manager.js"></script>
+    <script src="scripts/cloud_manager.js"></script>
 
     <script src="scripts/radar/radar.js"></script>
     <script src="scripts/radar/plane_radar.js"></script>
@@ -67,18 +77,20 @@
     <script src="scripts/plane/plane.js"></script>
 
     <script src="scripts/plane/fighter_plane/fighter_plane.js"></script>
-    <script src="scripts/plane/fighter_plane/bot_fighter_plane.js"></script>
     <script src="scripts/plane/fighter_plane/biased_bot_fighter_plane.js"></script>
+    <script src="scripts/plane/fighter_plane/biased_campaign_attacker_bot_fighter_plane.js"></script>
+    <script src="scripts/plane/fighter_plane/biased_campaign_defender_bot_fighter_plane.js"></script>
     <script src="scripts/plane/fighter_plane/human_fighter_plane.js"></script>
     <script src="scripts/plane/fighter_plane/remote/multiplayer_human_fighter_plane.js"></script>
     <script src="scripts/plane/fighter_plane/remote/multiplayer_remote_fighter_plane.js"></script>
 
     <script src="scripts/plane/bomber_plane/bomber_plane.js"></script>
-    <script src="scripts/plane/bomber_plane/bot_bomber_plane.js"></script>
+    <script src="scripts/plane/bomber_plane/biased_campaign_bot_bomber_plane.js"></script>
     <script src="scripts/plane/bomber_plane/biased_bot_bomber_plane.js"></script>
     <script src="scripts/plane/bomber_plane/human_bomber_plane.js"></script>
 
     <script src="scripts/game_modes/game_mode.js"></script>
+    <script src="scripts/game_modes/mission.js"></script>
     <script src="scripts/game_modes/dogfight.js"></script>
     <script src="scripts/game_modes/remote_dogfight.js"></script>
     <script src="scripts/game_modes/local_dogfight.js"></script>
@@ -95,39 +107,70 @@
         Repo:<a>https://github.com/notsamj/WW2PlaneGame</a><br>
         Using JavaScript & P5 Version 1.5<br>
         <br>
-        Step 1. Click on Dogfight<br>
+        How to play<br>
+        <br>
+        Step 1. Click on Dogfight Or Campaign<br>
+        <br>
+        If you clicked on Dogfight<br>
         Step 2. Select your chosen plane (or Camera) by clicking on the image under the heading "User"<br>
         Step 3 (Optional). Select an allied plane by clicking on the image under the heading "Allies"<br>
-            Step 3.1. Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight.<br>
+        Step 3.1. Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight.<br>
         Step 4 (Optional). Select an axis plane by clicking on the image under the heading "Axis"<br>
-            Step 4.1. Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight.<br>
+        Step 4.1. Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight.<br>
         Step 5 (Optional). Review the bots that will be participating in the dogfight under the "Bot Details" header and remove as you see fit. You are recommended to use 40 or less planes for a dogfight, however, it varies with PC performance.<br>
-        Step 6. Click on the start button to start the dogfight<br>
-        Step 7. See below instructions depending on the role you have selected<br>
+        Step 6. Select Ally and Axis bot difficulties by clicking on the buttons that specific difficulty (e.g. "easy")<br>
+        Step 7. Click on the start button to start the dogfight<br>
+        Step 8. See below instructions depending on the role you have selected<br>
         <br>
-        <h2>How to play as an allied plane</h2><br>
+        How to play as an allied plane<br>
+        If you start off as a plane facing right, then know you are an allied plane. Your task is to destroy all axis planes. These are the red dots on the radar in the top right.<br>
+        See plane controls below.<br>
+        How to play as an allied plane in a Dogfight<br>
         If you start off as a plane facing right, then know you are an allied plane. Your task is to destroy all axis planes. These are the red dots on the radar in the top right.<br>
         See plane controls below.<br>
         <br>
-        <h2>How to play as an axis plane</h2><br>
-        <br>
+        How to play as an axis plane in a Dogfight<br>
         If you start off as a plane facing left, then know you are an axis plane. Your task is to destroy all allied planes. These are the red dots on the radar in the top right.<br>
         See plane controls below.<br>
         <br>
-        <h2>How to play as a spectator camera</h2><br>
+        If you clicked on Campaign<br>
+        Step 2. Browse missions by clicking the previous/next buttons<br>
+        Step 3. Select a mission by clicking "Select Mission"<br>
+        Step 4. Select your chosen plane (or Camera) by clicking on the image under the heading "User"<br>
+        Step 5. Select Ally and Axis bot difficulties by clicking on the buttons that specific difficulty (e.g. "easy")<br>
+        Step 6. Click on the start button to start the mission<br>
+        Step 7. See below instructions depending on the role you have selected<br>
         <br>
-        If you start off after selecting the camera, then know you are a spectator. Your task is to spectate however you wish. The green dots on the radar are allied planes, the red are axis planes.<br>
+        How to play as an attacker fighter plane in a Mission<br>
+        If you start off facing right in a small plane in a Mission, your job is to defend your bomber plane while it bombs. If you die you will respawn after some time<br>
+        <br>
+        How to play as an attacker bomber plane in a Mission<br>
+        If you start off facing right in a big plane in a Mission, your job is bomb the buildings (grey dots on mini map)<br>
+        <br>
+        How to play as a defender fighter plane in a Mission<br>
+        If you start off facing left in a Mission, your job is to destroy the enemy bomber plane. If you die, you will respawn after some time<br>
+        <br>
+        How to play as a spectator<br>
+        <br>
+        If you start off after selecting the camera, then know you are a spectator. Your task is to spectate however you wish. The yellow dots on the radar are allied planes, the purple are axis planes.<br>
         See spectator camera controls below.<br>
         <br>
-        Controls:<br>
-        Escape (Press): Open pause menu<br>
+        How to play as a fighter plane<br>
         <br>
+        Fighter planes can shoot in the direction that their nose is pointed. For controls, see Plane and Fighter Plane below.<br>
+        <br>
+        How to play as a bomber plane<br>
+        <br>
+        Bomber planes can drop bombs (currently useless) and shoot with their turrets. The turrets will point at the cursor location and will shoot when instructed. For controls, see Plane and Bomber Plane below.<br>
+        Controls<br>
+        Escape (Press): Open pause menu<br>
         Spectator Camera (General)<br>
         f (Press): Toggle between freely moving and focusing on a plane<br>
         <br>
         Spectator Camera (While focused)<br>
         Left Arrow (Press): Switch which plane is focused (directional)<br>
         Right Arrow (Press): Switch which plane is focused (directional)<br>
+        t (Press): Immediately switch to spectating a plane on the other team than the one you are currently spectating<br>
         <br>
         Spectator Camera (While freely moving)<br>
         Up Arrow (Hold): Move up<br>
@@ -136,13 +179,19 @@
         Right Arrow (Hold): Move right<br>
         <br>
         Plane<br>
-        Space (Hold): Shoot<br>
         r (Hold): Increase throttle<br>
         f (Hold): Decrease throttle<br>
         w (Hold): Rotate clockwise<br>
         s (Hold): Rotate counter clockwise<br>
         a (Press): Sharp turn left<br>
         d (Press): Sharp turn right<br>
+        <br>
+        Fighter Plane<br>
+        Space (Hold): Shoot<br>
+        <br>
+        Bomber Plane<br>
+        Space (Hold): Drop bombs<br>
+        Left click (Hold): Shoot
     </p>
 </body>
 </html>

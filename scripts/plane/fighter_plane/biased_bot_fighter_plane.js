@@ -1,6 +1,5 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    BotFighterPlane = require("../scripts/bot_fighter_plane.js");
     CooldownLock = require("../scripts/cooldown_lock.js");
     FILE_DATA = require("../data/data_json.js");
     var helperFuncs = require("../scripts/helper_functions.js");
@@ -13,9 +12,10 @@ if (typeof window === "undefined"){
 }
 /*
     Class Name: BiasedBotFighterPlane
-    Description: A subclass of the BotFighterPlane with biases for its actions
+    Description: A subclass of the FighterPlane that is a bot with biases for its actions
+    Note: For future efficiency the focused count thing is inefficient
 */
-class BiasedBotFighterPlane extends BotFighterPlane {
+class BiasedBotFighterPlane extends FighterPlane {
     /*
         Method Name: constructor
         Method Parameters:
@@ -34,13 +34,56 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     constructor(planeClass, scene, biases, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
+        this.currentEnemy = null;
+        this.turningDirection = null;
+        this.ticksOnCourse = 0;
+        this.tickCD = 0;
         this.biases = biases;
+        this.updateEnemyLock = new TickLock(FILE_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.throttle += this.biases["throttle"];
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
-        this.rotationCD = new CooldownLock(this.biases["rotation_time"]);
+        this.startingHealth = this.health;
+        this.rotationCD = new TickLock(this.biases["rotation_time"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeDiffMS:
+                The time between ticks
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    tick(timeDiffMS){
+        this.rotationCD.tick();
+        this.updateEnemyLock.tick();
+        if (this.updateEnemyLock.isReady()){
+            this.updateEnemyLock.lock();
+            // Check if the selected enemy should be changed
+            this.updateEnemy();
+        }
+        // If there is an enemy then act accordingly
+        if (this.hasCurrentEnemy()){
+            this.handleEnemy(this.currentEnemy);
+        }else{ // No enemy ->
+            this.handleWhenNoEnemy();
+        }
+        super.tick(timeDiffMS);
+    }
+
+    /*
+        Method Name: handleWhenNoEnemy
+        Method Parameters: None
+        Method Description: Make decisions when there is no enemy to fight
+        Method Return: void
+    */
+    handleWhenNoEnemy(){
+        // No enemy -> make sure not to crash into the ground
+        if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
+            this.turnInDirection(90);
+        }
+    }
 
     /*
         Method Name: handleEnemy
@@ -117,14 +160,12 @@ class BiasedBotFighterPlane extends BotFighterPlane {
             this.turnInDirection(fixDegrees(90 + this.biases["angle_from_ground"]));
             return;
         }
-
         // Point to enemy when very far away
         if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"] + this.biases["enemy_far_away_distance"]){
             this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
         }
-
         // Else at a medium distance to enemy
         this.handleClose(angleDEG, distance, enemy);
     }
@@ -144,7 +185,6 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     handleClose(angleDEG, distance, enemy){
         let myAngle = this.getNoseAngle();
-
         // If enemy is behind, then do evasive manuevers
         if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"])), rotateCCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"]))) && distance < this.getMaxSpeed() * FILE_DATA["constants"]["EVASIVE_SPEED_DIFF"] + this.biases["enemy_close_distance"]){
             this.evasiveManeuver();
@@ -158,13 +198,26 @@ class BiasedBotFighterPlane extends BotFighterPlane {
         // Not doing evausive maneuevers
 
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= FILE_DATA["ai"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
-            this.tickCD = FILE_DATA["ai"]["tick_cd"] + this.biases["ticks_cooldown"];
+        if (this.ticksOnCourse >= FILE_DATA["ai"]["fighter_plane"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
+            this.tickCD = FILE_DATA["ai"]["fighter_plane"]["tick_cd"] + this.biases["ticks_cooldown"];
             this.ticksOnCourse = 0;
         }
         this.turningDirection = null;
         this.ticksOnCourse += 1;
         this.turnInDirection(angleDEG);
+    }
+
+    /*
+        Method Name: evasiveManeuver
+        Method Parameters: None
+        Method Description: Turn to a direction as part of an evasive maneuver
+        Method Return: void
+    */
+    evasiveManeuver(){
+        if (this.turningDirection == null){
+            this.turningDirection = this.comeUpWithEvasiveTurningDirection();
+        }
+        this.adjustAngle(this.turningDirection);
     }
 
     /*
@@ -295,6 +348,23 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     }
 
     /*
+        Method Name: getEnemyList
+        Method Parameters: None
+        Method Description: Find all the enemies and return them
+        Method Return: List
+    */
+    getEnemyList(){
+        let entities = this.scene.getPlanes();
+        let enemies = [];
+        for (let entity of entities){
+            if (entity instanceof Plane && !this.onSameTeam(entity) && entity.isAlive()){
+                enemies.push(entity);
+            }
+        }
+        return enemies;
+    }
+
+    /*
         Method Name: updateEnemy
         Method Parameters: None
         Method Description: Determine the id of the current enemy
@@ -302,30 +372,28 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemyID != null && this.scene.hasEntity(this.currentEnemyID) && this.distance(this.scene.getEntity(this.currentEnemyID)) <= (FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
+        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= (FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
         let bestRecord = null;
+
         // Loop through all enemies and determine a score for being good to attack
+        
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let focusedCountMultiplier = (BotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) + 1) * this.biases["enemy_taken_distance_multiplier"];
-            let score = distance;
-            // Do not modify score if its less than 1 because the bias is meant for having many enemies
-            if (focusedCountMultiplier > 1){
-                score *= focusedCountMultiplier; 
-            }
+            let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
-                    "id": enemy.getID(),
+                    "enemy": enemy,
                     "score": score
                 }
             }
         }
+        
         // If none found then do nothing
         if (bestRecord == null){ return; }
-        this.currentEnemyID = bestRecord["id"];
+        this.currentEnemy = bestRecord["enemy"];
     }
 
     /*
@@ -339,26 +407,112 @@ class BiasedBotFighterPlane extends BotFighterPlane {
     }
 
     /*
+        Method Name: hasCurrentEnemy
+        Method Parameters: None
+        Method Description: Determine if there is currently a current enemy
+        Method Return: True if has an enemy (and they exist), otherwise false
+    */
+    hasCurrentEnemy(){
+        return this.currentEnemy != null && this.currentEnemy.isAlive();
+    }
+
+    /*
+        Method Name: getCurrentEnemy
+        Method Parameters: None
+        Method Description: Get the current enemy
+        Method Return: Plane
+    */
+    getCurrentEnemy(){
+        return this.currentEnemy;
+    }
+
+    /*
         Method Name: createBiasedPlane
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
             scene:
                 A scene objet related to the plane
-        Method Description: Return the max shooting distance of this biased plane
-        Method Return: float
+            difficulty:
+                The current difficulty setting
+        Method Description: Return a new biased plane
+        Method Return: BiasedBotFighterPlane
     */
-    static createBiasedPlane(planeClass, scene){
+    static createBiasedPlane(planeClass, scene, difficulty){
+        let biases = BiasedBotFighterPlane.createBiases(difficulty);
+        return new BiasedBotFighterPlane(planeClass, scene, biases);
+    }
+
+    /*
+        Method Name: createBiases
+        Method Parameters:
+            difficulty:
+                The difficulty setting related to the plane
+        Method Description: Creates a set of biases for a new plane
+        Method Return: JSON Object
+    */
+    static createBiases(difficulty){
+        let biasRanges = FILE_DATA["ai"]["fighter_plane"]["bias_ranges"][difficulty];
         let biases = {};
-        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bias_ranges"])){
-            let upperBound = bounds["upper_bound"];
-            let lowerBound = bounds["lower_bound"];
+        for (let [key, bounds] of Object.entries(biasRanges)){
+            let upperBound = bounds["upper_range"]["upper_bound"];
+            let lowerBound = bounds["upper_range"]["lower_bound"];
+            let upperRangeSize = bounds["upper_range"]["upper_bound"] - bounds["upper_range"]["lower_bound"];
+            let lowerRangeSize = bounds["lower_range"]["upper_bound"] - bounds["lower_range"]["lower_bound"];
+            // Chance of using the lower range instead of the upper range
+            if (randomFloatBetween(0, upperRangeSize + lowerRangeSize) < lowerRangeSize){
+                upperBound = bounds["lower_range"]["upper_bound"];
+                lowerBound = bounds["lower_range"]["lower_bound"];
+            }
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedBotFighterPlane(planeClass, scene, biases);
+        return biases;
+    }
+
+    /*
+        Method Name: isFocused
+        Method Parameters:
+            scene:
+                A Scene object related to the fighter plane
+            enemyID:
+                A string ID of the enemy plane
+            myID:
+                A string ID of the plane making the inquiry
+        Method Description: Determines if another plane is focused on an enemy that "I" am thinking about focusing on
+        Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
+    */
+    static isFocused(scene, enemyID, myID){
+        return focusedCount(scene, enemyID, myID) == 0;
+    }
+
+    /*
+        Method Name: focusedCount
+        Method Parameters:
+            scene:
+                A Scene object related to the fighter plane
+            enemyID:
+                A string ID of the enemy plane
+            myID:
+                A string ID of the plane making the inquiry
+        Method Description: Determines how many other planes are focused on an enemy that "I" am thinking about focusing on
+        Method Return: int
+    */
+    static focusedCount(scene, enemyID, myID){
+        let count = 0;
+        for (let plane of scene.getPlanes()){
+            if (plane instanceof BiasedBotFighterPlane && plane.getID() != myID && plane.getCurrentEnemy() != null && plane.getCurrentEnemy().getID() == enemyID){
+                count += 1;
+            }
+        }
+        return count;
     }
 }
+
+function calculateEnemyScore(distance, focusedCount){
+    return distance + focusedCount * FILE_DATA["constants"]["FOCUSED_COUNT_DISTANCE_EQUIVALENT"];
+}
+
 // If using Node JS Export the class
 if (typeof window === "undefined"){
     module.exports = BiasedBotFighterPlane;

@@ -38,6 +38,44 @@ class RectangleButton extends Component {
     }
 
     /*
+        Method Name: getText
+        Method Parameters: None
+        Method Description: Determines the text value of this component. Depends on whether it is set as a function or a value.
+        Method Return: String
+    */
+    getText(){
+        if (typeof this.textStr === "function"){
+            return this.textStr();
+        }else{
+            return this.textStr;
+        }
+    }
+
+    /*
+        Method Name: getText
+        Method Parameters: None
+        Method Description: Determines the text value of this component. Depends on whether it is set as a function or a value.
+        Method Return: String
+    */
+    getText(){
+        if (typeof this.textStr === "function"){
+            return this.textStr();
+        }else{
+            return this.textStr;
+        }
+    }
+
+    /*
+        Method Name: setText
+        Method Parameters: None
+        Method Description: Setter
+        Method Return: void
+    */
+    setText(textStr){
+        this.textStr = textStr;
+    }
+
+    /*
         Method Name: getX
         Method Parameters: None
         Method Description: Determines the x value of this component. Depends on whether it is set as a function of the screen dimensions or static.
@@ -100,7 +138,7 @@ class RectangleButton extends Component {
         Method Return: void
     */
     display(){
-        Menu.makeRectangleWithText(this.textStr, this.colour, this.textColour, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+        Menu.makeRectangleWithText(this.getText(), this.colour, this.textColour, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
     /*

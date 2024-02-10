@@ -13,6 +13,7 @@ class PlaneRadar extends Radar {
     */
     constructor(plane){
         super(plane);
+        this.plane = plane;
     }
     
     /*
@@ -23,37 +24,48 @@ class PlaneRadar extends Radar {
     */
     update(){
         this.radarData = this.resetRadar();
-        for (let entity of scene.getPlanes()){
-            if (entity instanceof Plane && !onSameTeam(this.entity.getPlaneClass(), entity.getPlaneClass())){
-                this.placeOnRadar(entity.getX(), entity.getY());
+        // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
+        for (let plane of scene.getPlanes()){
+            if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
+                this.placeOnRadar(plane.getX(), plane.getY(), "#db655c");
+            }else if (plane instanceof BomberPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
+                this.placeOnRadar(plane.getX(), plane.getY(), "#a6140a");
+            }else if (plane instanceof BomberPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
+                this.placeOnRadar(plane.getX(), plane.getY(), "#26940a");
             }
+        }
+
+        // Add all buildings to radar
+        for (let building of scene.getBuildings()){
+            this.placeOnRadar(building.getCenterX(), building.getCenterY(), "#919191");
         }
     }
 
     /*
         Method Name: placeOnRadar
         Method Parameters:
-            enemyX:
-                The x location of an enemy
-            enemeyY:
-                The y location of an enemy
-
-        Method Description: Places an enemy on the radar
+            objectX:
+                The x location of an object
+            objectY:
+                The y location of an object
+            colour:
+                Colour of object placed on radar
+        Method Description: Places an object on the radar
         Method Return: void
     */
-    placeOnRadar(enemyX, enemyY){
+    placeOnRadar(objectX, objectY, colour){
         let myX = this.entity.getX();
         let myY = this.entity.getY();
-        let xOffsetAmount = Math.min(Math.floor(Math.abs(myX-enemyX)/this.blipDistance), (this.size - 2)/2);
-        let yOffsetAmount = Math.min(Math.floor(Math.abs(myY-enemyY)/this.blipDistance), (this.size - 2)/2);
-        if (enemyX < myX && enemyY > myY){
-            this.radarData[this.size/2-1-xOffsetAmount][this.size/2-1-yOffsetAmount] = "red";
-        }else if (enemyX < myX && enemyY < myY){
-            this.radarData[this.size/2-1-xOffsetAmount][this.size/2+yOffsetAmount] = "red";
-        }else if (enemyX > myX && enemyY < myY){
-            this.radarData[this.size/2+xOffsetAmount][this.size/2+yOffsetAmount] = "red";
-        }else{ // if (enemyX > myX && enemyY > myY)
-            this.radarData[this.size/2+xOffsetAmount][this.size/2-1-yOffsetAmount] = "red";
+        let xOffsetAmount = Math.min(Math.floor(Math.abs(myX-objectX)/this.blipDistance), (this.size - 2)/2);
+        let yOffsetAmount = Math.min(Math.floor(Math.abs(myY-objectY)/this.blipDistance), (this.size - 2)/2);
+        if (objectX < myX && objectY > myY){
+            this.radarData[this.size/2-1-xOffsetAmount][this.size/2-1-yOffsetAmount] = colour;
+        }else if (objectX < myX && objectY < myY){
+            this.radarData[this.size/2-1-xOffsetAmount][this.size/2+yOffsetAmount] = colour;
+        }else if (objectX > myX && objectY < myY){
+            this.radarData[this.size/2+xOffsetAmount][this.size/2+yOffsetAmount] = colour;
+        }else{ // if (objectX > myX && objectY > myY)
+            this.radarData[this.size/2+xOffsetAmount][this.size/2-1-yOffsetAmount] = colour;
         }
     }
 }

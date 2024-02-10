@@ -15,15 +15,28 @@ class MenuManager {
         this.pauseMenu = new PauseMenu();
         this.dogfightMenu = new DogfightMenu();
         this.soundMenu = new SoundMenu();
+        this.missionStartMenu = new MissionStartMenu();
+        this.campaignMenu = new CampaignMenu();
+        this.extraSettingsMenu = new ExtraSettingsMenu();
         this.activeMenu = this.mainMenu;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getWidth
+        Method Parameters: None
+        Method Description: Determine the width of the screen
+        Method Return: void
+    */
     getWidth(){
         return getScreenWidth();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getHeight
+        Method Parameters: None
+        Method Description: Determine the height of the screen
+        Method Return: void
+    */
     getHeight(){
         return getScreenHeight();
     }
@@ -153,9 +166,45 @@ class MenuManager {
             this.activeMenu = this.multiplayerMenu;
         }else if (newMenu == "sound"){
             this.activeMenu = this.soundMenu;
+        }else if (newMenu == "campaign"){
+            this.activeMenu = this.campaignMenu;
+        }else if (newMenu == "missionStart"){
+            this.activeMenu = this.missionStartMenu;
+        }else if (newMenu == "extraSettings"){
+            this.activeMenu = this.extraSettingsMenu;
         }else{
             this.activeMenu = null;
         }
+    }
+
+    /*
+        Method Name: getMenuByName
+        Method Parameters: 
+            menuName:
+                String, name of menu
+        Method Description: Gets a menu instance by its name
+        Method Return: Menu
+    */
+    getMenuByName(menuName){
+        if (menuName == "main"){
+            return this.mainMenu;
+        }else if (menuName == "dogfight"){
+            return this.dogfightMenu;
+        }else if (menuName == "pauseMenu"){
+            return this.pauseMenu;
+        }else if (menuName == "multiplayer"){
+            return this.multiplayerMenu;
+        }else if (menuName == "sound"){
+            return this.soundMenu;
+        }else if (menuName == "campaign"){
+            return this.campaignMenu;
+        }else if (menuName == "missionStart"){
+            return this.missionStartMenu;
+        }else if (menuName == "extraSettings"){
+            return this.extraSettingsMenu;
+        }
+        // Else
+        return null;
     }
 
 

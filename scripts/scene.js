@@ -63,12 +63,22 @@ class Scene {
         this.displayEnabled = false;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getWidth
+        Method Parameters: None
+        Method Description: Determine width of the screen
+        Method Return: Integer
+    */
     getWidth(){
         return getScreenWidth();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getHeight
+        Method Parameters: None
+        Method Description: Determine Height of the screen
+        Method Return: Integer
+    */
     getHeight(){
         return getScreenHeight();
     }
@@ -267,10 +277,12 @@ class Scene {
                 The width of the entity
             lX:
                 The bottom left x displayed on the canvas relative to the focused entity
+            round:
+                If rounded down to nearest pixel
         Method Description: Determines the top left corner where an image should be displayed
         Method Return: int
     */
-    getDisplayX(centerX, width, lX){
+    getDisplayX(centerX, width, lX, round=false){
         // Change coordinate system
         let displayX = this.changeToScreenX(centerX);
 
@@ -281,7 +293,9 @@ class Scene {
         displayX = displayX - width / 2;
 
         // Round down to nearest pixel
-        displayX = Math.floor(displayX);
+        if (round){
+            displayX = Math.floor(displayX);
+        }
         return displayX;
     }
 
@@ -290,14 +304,16 @@ class Scene {
         Method Parameters:
             centerY:
                 The y coordinate at the center of the screen
-            width:
-                The width of the entity
+            height:
+                The height of the entity
             bY:
                 The bottom left y displayed on the canvas relative to the focused entity
+            round:
+                If rounded down to nearest pixel
         Method Description: Determines the top left corner where an image should be displayed
         Method Return: int
     */
-    getDisplayY(centerY, height, bY){
+    getDisplayY(centerY, height, bY, round=false){
         // Change coordinate system
         let displayY = this.changeToScreenY(centerY);
 
@@ -308,7 +324,9 @@ class Scene {
         displayY = displayY - height / 2;
 
         // Round down to nearest pixel
-        displayY = Math.floor(displayY);
+        if (round){
+            displayY = Math.floor(displayY);
+        }
         return displayY;
     }
 
@@ -399,6 +417,16 @@ class Scene {
     */
     disableTicks(){
         this.ticksEnabled = false;
+    }
+
+    /*
+        Method Name: hasTicksEnabled
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Boolean
+    */
+    hasTicksEnabled(){
+        return this.ticksEnabled;
     }
 
     /*

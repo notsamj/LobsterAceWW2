@@ -14,3 +14,6 @@ ww2planegame_mac.html
 sounds/not-active/*
 *.ogg
 *.ignore
+backups/*
+test_difficulties.html
+test_random.html

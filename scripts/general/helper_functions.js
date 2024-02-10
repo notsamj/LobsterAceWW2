@@ -4,6 +4,80 @@ if (typeof window === "undefined"){
 }
 
 /*
+    Method Name: mergeCopyObjects
+    Method Parameters:
+        obj1:
+            Object 1
+        obj2:
+            Object 2
+    Method Description: Creates a JSON object with the contents of two JSON objects. Copying rather than referencing (with limitations)
+    Method Return: JSON Object
+*/
+function mergeCopyObjects(obj1, obj2){
+    let newObject = {};
+    // Merge in object 1
+    for (let key of Object.keys(obj1)){
+        if (typeof obj1[key] === "object"){
+            newObject[key] = copyObject(obj1[key]);
+        }else{
+            newObject[key] = obj1[key];
+        }
+    }
+    // Merge in object 2
+    for (let key of Object.keys(obj2)){
+        if (typeof obj2[key] === "object"){
+            newObject[key] = copyObject(obj2[key]);
+        }else{
+            newObject[key] = obj2[key];
+        }
+    }
+    return newObject;
+}
+
+/*
+    Method Name: copyObject
+    Method Parameters:
+        obj:
+            Object to copy
+    Method Description: Creates a copy of an object (to some extent)
+    Method Return: JSON Object
+    Note: If you give it and instance of a class it will produce a reference not a copy
+*/
+function copyObject(obj){
+    // Deep copy, copy inner objects aswell
+    let newObject = {};
+    for (let key of Object.keys(obj)){
+        if (typeof obj[key] === "object"){
+            newObject[key] = copyObject(obj[key]);
+        }else{
+            newObject[key] = obj[key];
+        }
+    }
+    return newObject;
+}
+
+/*
+    Method Name: appendLists
+    Method Parameters:
+        list1:
+            A list
+        list2:
+            Another list
+    Method Description: Attaches two lists, list1=[l1i0, l1i1, ...], list2=[l2i0, l2i1, ...] result: [l1i0, l1i1, ..., l2i0, l2i1, ...]
+    Method Return: list
+*/
+function appendLists(list1, list2){
+    let appendedList = [];
+    for (let item of list1){
+        appendedList.push(item);
+    }
+    for (let item of list2){
+        appendedList.push(item);
+    }
+    return appendedList;
+}
+
+/*
     Method Name: safeDivide
     Method Parameters:
         numerator:
@@ -455,7 +529,7 @@ function rotateCCWDEG(angle, amount){
             An angle on one edge of a range
         eAngle2:
             An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction (inclusive)
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
@@ -487,7 +561,7 @@ function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
             An angle on one edge of a range
         eAngle2:
             An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction (inclusive)
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCWDEG(angle, eAngle1, eAngle2){

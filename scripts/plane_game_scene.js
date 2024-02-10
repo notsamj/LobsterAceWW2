@@ -50,6 +50,16 @@ class PlaneGameScene extends Scene {
     }
 
     /*
+        Method Name: getTeamCombatManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: TeamCombatManager
+    */
+    getTeamCombatManager(){
+        return this.teamCombatManager;
+    }
+
+    /*
         Method Name: forceUpdatePlanes
         Method Parameters:
             listOfPlaneObjects:
@@ -104,6 +114,22 @@ class PlaneGameScene extends Scene {
     }
 
     /*
+        Method Name: getBuildings
+        Method Parameters: None
+        Method Description: Find all the buildings and return them in a list.
+        Method Return: List of Building
+    */
+    getBuildings(){
+        let buildings = [];
+        for (let [entity, entityIndex] of this.entities){
+            if (entity instanceof Building){
+                buildings.push(entity);
+            }
+        }
+        return buildings;
+    }
+
+    /*
         Method Name: getPlanes
         Method Parameters: None
         Method Description: Gets all the planes and returns them
@@ -111,6 +137,16 @@ class PlaneGameScene extends Scene {
     */
     getPlanes(){
         return this.teamCombatManager.getAllPlanes();
+    }
+
+    /*
+        Method Name: getDeadPlanes
+        Method Parameters: None
+        Method Description: Gets all the dead planes and returns them
+        Method Return: Array of planes
+    */
+    getDeadPlanes(){
+        return this.teamCombatManager.getDeadPlanes();
     }
 
     /*
@@ -132,6 +168,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     setEntities(entities){
+        this.entities.clear();
         this.teamCombatManager.clear();
         for (let entity of entities){
             if (entity instanceof Plane || entity instanceof Bullet){
@@ -219,6 +256,18 @@ class PlaneGameScene extends Scene {
     }
 
     /*
+        Method Name: addBomb
+        Method Parameters:
+            bomb:
+                A bomb dropped from a plane
+        Method Description: Adds a bomb to the scene
+        Method Return: void
+    */
+    addBomb(bomb){
+        this.addEntity(bomb);
+    }
+
+    /*
         Method Name: tick
         Method Parameters:
             timeDiff:
@@ -228,10 +277,13 @@ class PlaneGameScene extends Scene {
     */
     async tick(timeDiff){
         if (!this.ticksEnabled){ return; }
+        // Tick all entities
         for (let [entity, entityIndex] of this.entities){
             await entity.tick(timeDiff);
         }
         await this.teamCombatManager.tick(timeDiff);
+        // Delete all dead buildings and bombs and other entities?
+        this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
     }
 
     /*
@@ -242,7 +294,7 @@ class PlaneGameScene extends Scene {
         Note: May not count freecam and in the future may need modification
     */
     getNumberOfEntities(){
-        return this.teamCombatManager.getNumberOfEntities();
+        return this.teamCombatManager.getNumberOfEntities() + this.entities.getLength();
     }
 
     /*
@@ -273,24 +325,19 @@ class PlaneGameScene extends Scene {
             if (focusedEntity.hasRadar()){
                 focusedEntity.getRadar().display();
             }
+            HEADS_UP_DISPLAY.updateElement("x", x.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("y", y.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("Speed", planeSpeed.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("Throttle", throttle.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("Health", health.toFixed(1));
+            HEADS_UP_DISPLAY.updateElement("FPS", fps);
+            HEADS_UP_DISPLAY.updateElement("ID", entityID);
         }
-        textSize(20);
-        fill("green");
-        textAlign(LEFT);
-        text(`x: ${x}`, 10, 20);
-        text(`y: ${y}`, 10, 40);
-        text(`Speed: ${planeSpeed}`, 10, 60);
-        text(`Throttle: ${throttle}`, 10, 80);
-        text(`Health: ${health}`, 10, 100);
-        text(`FPS: ${fps}`, 10, 120);
-        text(`Entities: ${numberOfEntities}`, 10, 140);
-        text(`ID: ${entityID}`, 10, 160);
-        text(`Allied Planes Remaining: ${allyPlanes}`, 10, 180);
-        text(`Axis Planes Remaining: ${axisPlanes}`, 10, 200);
-        if (activeGameMode instanceof RemoteDogfight){
-            text(`numTicks: ${activeGameMode.getTickManager().getNumTicks()}`, 10, 220);
-            text(`version: ${activeGameMode.getVersion()}`, 10, 240);
-        }
+        // TODO: Clean this up
+        HEADS_UP_DISPLAY.updateElement("Entities", numberOfEntities);
+        HEADS_UP_DISPLAY.updateElement("Allied Planes Remaining", allyPlanes);
+        HEADS_UP_DISPLAY.updateElement("Axis Planes Remaining", axisPlanes);
+        HEADS_UP_DISPLAY.display();
     }
     
     /*
@@ -304,6 +351,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     displayBackground(lX, bY){
+        CLOUD_MANAGER.display(lX, bY);
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
         let groundImage = images[FILE_DATA["background"]["ground"]["picture"]];
@@ -357,38 +405,6 @@ class PlaneGameScene extends Scene {
             }
         }
 
-        // Display sky
-        if (bYP + this.getHeight() > aboveGroundHeight){
-            let skyImage = images[FILE_DATA["background"]["sky"]["picture"]];
-            let skyHeight = skyImage.height;
-            let skyWidth = skyImage.width;
-            let skyImageOffsetY = (bYP-aboveGroundHeight) % skyHeight;
-            let skyImageOffsetX = Math.abs(lXP) % skyWidth;
-
-            let bottomDisplaySkyX = lXP - skyImageOffsetX * (lXP < 0 ? -1 : 1);
-            // Find bottom corner of image to display in window
-            while (bottomDisplaySkyX + skyWidth > lXP){
-                bottomDisplaySkyX -= skyWidth;
-            }
-            // Add once more to get back to top left corner
-            bottomDisplaySkyX += skyWidth;
-
-            let bottomDisplaySkyY = bYP - skyImageOffsetY;
-            // Find bottom corner of image to display in window
-            while (bottomDisplaySkyY < bYP + skyHeight - skyImageOffsetY){
-                bottomDisplaySkyY += skyHeight;
-            }
-            // Add once more to get back to top left corner
-            // Display ground images
-            for (let y = bottomDisplaySkyY; y < bottomDisplaySkyY + this.getHeight() + skyHeight; y += skyHeight){
-                for (let x = bottomDisplaySkyX; x < bottomDisplaySkyX + this.getWidth() + skyWidth; x += skyWidth){
-                    let displayX = x-lXP;
-                    let displayY = this.getDisplayY(y, 0, bYP);
-                    drawingContext.drawImage(skyImage, displayX, displayY);
-                }
-            }
-        }
-
     }
 
     /*
@@ -419,72 +435,21 @@ class PlaneGameScene extends Scene {
         
         // Display all planes associated with the team combat manager
         this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1);
+
+        // Display all extra entities
+        for (let [entity, eI] of this.entities){
+            entity.display(lX, bY);
+        }
         
         // Display the currently focused entity
         if (this.hasEntityFocused()){
-            this.displayEntity(focusedEntity, lX, bY);
+            this.focusedEntity.display(lX, bY);
         }
 
         // Display the HUD
         this.displayHUD();
     }
     
-    /*
-        Method Name: displayEntity
-        Method Parameters:
-            entity:
-                The entity to display
-            lX:
-                The bottom left x displayed on the canvas relative to the focused entity
-            bY:
-                The bottom left y displayed on the canvas relative to the focused entity
-        Method Description: Displays an entity on the screen (if it is within the bounds)
-        Method Return: void
-    */
-    displayEntity(entity, lX, bY){
-        let rX = lX + this.getWidth() - 1;
-        let tY = bY + this.getHeight() - 1;
-        // Is on screen
-        if (!entity.touchesRegion(lX, rX, bY, tY)){ return; }
-        let displayX = this.getDisplayX(entity.getCenterX(), entity.getWidth(), lX);
-        let displayY = this.getDisplayY(entity.getCenterY(), entity.getHeight(), bY);
-        if (entity.isDead()){
-            drawingContext.drawImage(images["explosion"], displayX, displayY); 
-            return; 
-        }
-
-        if (entity instanceof Plane){
-            let rotateX = displayX + entity.getWidth() / 2;
-            let rotateY = displayY + entity.getHeight() / 2;
-            translate(rotateX, rotateY);
-            rotate(-1 * toRadians(entity.getAngle()));
-            if (!entity.isFacingRight()){
-                scale(-1, 1);
-            }
-            drawingContext.drawImage(entity.getImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
-            if (!entity.isFacingRight()){
-                scale(-1, 1);
-            }
-            rotate(toRadians(entity.getAngle()));
-            translate(-1 * rotateX, -1 * rotateY);
-
-            if (entity.isSmoking()){
-                translate(rotateX, rotateY);
-                rotate(-1 * toRadians(entity.getAngle()));
-                if (!entity.isFacingRight()){
-                    scale(-1, 1);
-                }
-                drawingContext.drawImage(entity.getSmokeImage(), 0 - entity.getWidth() / 2, 0 - entity.getHeight() / 2); 
-                if (!entity.isFacingRight()){
-                    scale(-1, 1);
-                }
-                rotate(toRadians(entity.getAngle()));
-                translate(-1 * rotateX, -1 * rotateY);
-            }
-        }else{
-            drawingContext.drawImage(entity.getImage(), displayX, displayY); 
-        }
-    }
     /*
         Method Name: enable
         Method Parameters: None

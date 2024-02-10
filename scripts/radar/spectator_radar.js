@@ -23,8 +23,17 @@ class SpectatorRadar extends Radar {
     */
     update(){
         this.radarData = this.resetRadar();
-        for (let entity of scene.getPlanes()){
-            this.placeOnRadar(entity.getX(), entity.getY(), FILE_DATA["team_to_colour"][planeModelToAlliance(entity.getPlaneClass())]);
+        for (let plane of scene.getPlanes()){
+            if (plane instanceof FighterPlane){
+                this.placeOnRadar(plane.getX(), plane.getY(), FILE_DATA["team_to_colour"]["fighter_plane"][planeModelToAlliance(plane.getPlaneClass())]);
+            }else if (plane instanceof BomberPlane){
+                this.placeOnRadar(plane.getX(), plane.getY(), FILE_DATA["team_to_colour"]["bomber_plane"][planeModelToAlliance(plane.getPlaneClass())]);
+            }
+        }
+
+        // Add all buildings to radar
+        for (let building of scene.getBuildings()){
+            this.placeOnRadar(building.getCenterX(), building.getCenterY(), "darkgrey");
         }
     }
 
@@ -32,9 +41,9 @@ class SpectatorRadar extends Radar {
         Method Name: placeOnRadar
         Method Parameters:
             enemyX:
-                The x location of an enemy
+                The x location of a plane
             enemeyY:
-                The y location of an enemy
+                The y location of a plane
             colour:
                 Colour of radar blip
 

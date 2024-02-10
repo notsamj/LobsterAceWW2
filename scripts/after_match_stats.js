@@ -81,6 +81,16 @@ class AfterMatchStats {
     }
 
     /*
+        Method Name: getWinner
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: String
+    */
+    getWinner(){
+        return this.winner;
+    }
+
+    /*
         Method Name: makeTeamText
         Method Parameters:
             team:
@@ -127,9 +137,9 @@ class AfterMatchStats {
         let allyText = this.makeTeamText("Allies");
         
         // Make winner text
-        Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(getScreenHeight()), Math.floor(getScreenWidth()), Math.floor(getScreenHeight()/3));
-        Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3));
-        Menu.makeText(axisText, AfterMatchStats.getTeamColour("Axis"), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3));
+        Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(getScreenHeight()), Math.floor(getScreenWidth()*0.75), Math.floor(getScreenHeight()/3));
+        Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), CENTER, CENTER);
+        Menu.makeText(axisText, AfterMatchStats.getTeamColour("Axis"), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), CENTER, CENTER);
     }
 
     /*
@@ -158,17 +168,25 @@ class AfterMatchStats {
     static addPlayerKill(alliance){
         AfterMatchStats.instance.addPlayerKill(alliance);
     }
+    
     // Interface for non-static function
     static getWinnerColour(){
         return AfterMatchStats.instance.getWinnerColour();
     }
+
     // Interface for non-static function
     static setWinner(winner){
         AfterMatchStats.instance.setWinner(winner);
     }
+
     // Interface for non-static function
     static display(){
         AfterMatchStats.instance.display();
+    }
+
+    // Interface for non-static function
+    static getWinner(){
+        return AfterMatchStats.instance.getWinner();
     }
 
     // Creates the instance of AfterMatchStats to be used in the singleton pattern

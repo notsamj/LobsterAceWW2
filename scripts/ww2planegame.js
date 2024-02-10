@@ -12,8 +12,13 @@ var mainTickLock = new Lock();
 var runningTicksBehind = 0;
 const USER_INPUT_MANAGER = new UserInputManager();
 const SOUND_MANAGER = new SoundManager();
+var performanceTimer = new PerformanceTimer();
+const CLOUD_MANAGER = new CloudManager();
+const HEADS_UP_DISPLAY = new HUD();
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
+USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
+USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 84; }, false)
 var tickInterval;
 // Functions
 

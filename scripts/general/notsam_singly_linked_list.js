@@ -1,11 +1,13 @@
 /*
-    Class Name: NotSamLinkedList
-    Description: An implementation of the Doubly LinkedList pattern.
+    Class Name: NotSamSinglyLinkedList
+    Description: An implementation of the Singly LinkedList pattern.
     Note:
-    Copy of NotSamSinglyLinkedList but made doubly.
-    Also I haven't made a doubly linked list in many many years so this may have many errors because I haven't tested it :)
+    This implementation was initially created in 2020 / 2021 by Samuel
+    using the moniker NotSam for reasons that I chose not to disclose.
+    It has been reappropriated for this program in 2023 and keeps the 'NotSam' to differentiate it 
+    from a non-custom ArrayList.
 */
-class NotSamLinkedList{
+class NotSamSinglyLinkedList{
         /*
         Method Name: constructor
         Method Parameters:
@@ -16,21 +18,9 @@ class NotSamLinkedList{
     */
     constructor(array=null){
         this.head = null;
-        this.end = null;
         if (array != null){
             this.convertFromArray(array);
         }
-    }
-
-    /*
-        Method Name: clear
-        Method Parameters: None
-        Method Description: Empties the list
-        Method Return: void
-    */
-    clear(){
-        this.head = null;
-        this.end = null;
     }
 
     /*
@@ -57,12 +47,7 @@ class NotSamLinkedList{
      *   Method Return: None
      */
     append(value){
-        if (this.isEmpty()){
-            this.insert(value);
-        }else{
-            this.end.next = new DLLNode(this.end, value);
-            this.end = this.end.next;
-        }
+        this.insert(value);
     }
 
     /*
@@ -81,12 +66,11 @@ class NotSamLinkedList{
             console.log(`Invalid insertion index! (${index})`);
             return; 
         }
-        let newNode = new DLLNode(null, value);
+        let newNode = new SLLNode(value);
 
         // If empty list
         if (this.getSize() == 0){
             this.head = newNode;
-            this.end = newNode;
             return;
         }
 
@@ -106,7 +90,6 @@ class NotSamLinkedList{
         if (index == this.getSize()){
             previous.next = newNode;
             newNode.next = null;
-            newNode.previous = previous;
         }else{
             // If the list is 1 long
             if (previous != null){
@@ -127,7 +110,7 @@ class NotSamLinkedList{
      *   This method inserts a value into the end of the list.
      *   Method Return: None
      */
-    push(element){ this.append(element); }
+    push(element){ this.insert(element); }
     
     /*
      *   Method Name: getSize
@@ -202,7 +185,7 @@ class NotSamLinkedList{
      *      Index of desired node
      *   Method Description:
      *   This method returns a value from the list.
-     *   Method Return: DLLNode
+     *   Method Return: SLLNode
      */
     getNode(index){
         // If the index is out of bounds
@@ -271,18 +254,10 @@ class NotSamLinkedList{
 
         if (index == 0){
             this.head = this.head.next;
-            if (this.head != null){
-                this.head.previous = null;
-            } 
             return;
         }
-        let node = this.getNode(index);
-        let previous = node.previous; // MUST NOT BE NULL OR ERROR
-        previous.next = node.next;
-        // If this is the last node then it would be null
-        if (node.next != null){
-            node.next.previous = previous;
-        }
+        let previous = this.getNode(index-1); 
+        previous.next = previous.next.next;
     }
 
     /*
@@ -346,50 +321,30 @@ class NotSamLinkedList{
     /*
         Method Name: getLastNode
         Method Parameters: None
-        Method Description: Returns the last node
-        Method Return: DLLNode
-    */
-    getLastNode(){
-        return this.end;
-    }
-
-    /*
-        Method Name: deleteWithCondition
-        Method Parameters:
-            conditionFunction:
-                A function that takes a single parameter and returns a boolean, true -> delete element, false -> don't delete
-        Method Description: Deletes all elements for which the conditionFunction return true
+        Method Description: Get the last node from the list
         Method Return: void
     */
-    deleteWithCondition(conditionFunction){
+    getLastNode(){
         if (this.isEmpty()){ return; }
-        let current = this.getLastNode();
-        while (current.previous != null){
-            // If value matches condition then remove it
-            if (conditionFunction(current.value)){
-                if (current.next != null){
-                    current.next.previous = current.previous;
-                }
-                current.previous.next = current.next;
-            }
-            // Move to next
-            current = current.previous;
+        let current = this.head;
+        while (current.next != null){
+            current = current.next;
         }
+        return current;
     }
 }
 
 /*
-    Class Name: DLLNode
-    Description: A doubly linked node.
+    Class Name: SLLNode
+    Description: A singly linked node.
 */
-class DLLNode{
-    constructor(previous, value){
+class SLLNode{
+    constructor(value){
         this.value = value;
-        this.previous = previous;
         this.next = null;
     }
 }
 // If using NodeJS then export the class
 if (typeof window === "undefined"){
-    module.exports = NotSamLinkedList;
+    module.exports = NotSamSinglyLinkedList;
 }

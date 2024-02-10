@@ -19,11 +19,8 @@ class HumanFighterPlane extends FighterPlane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
-        this.lrCDLock = new CooldownLock(10);
         this.lrLock = new Lock();
-        this.tLock = new CooldownLock(10);
-        this.sLock = new CooldownLock(10);
-        this.radarLock = new CooldownLock(1000);
+        this.radarLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.radar = new PlaneRadar(this);
     }
 
@@ -69,12 +66,13 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     tick(timeDiffMS){
-        super.tick(timeDiffMS);
+        this.radarLock.tick();
         this.checkMoveLeftRight();
         this.checkUpDown();
         this.checkShoot();
         this.checkThrottle();
         this.updateRadar();
+        super.tick(timeDiffMS);
     }
 
     /*
@@ -105,8 +103,6 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkMoveLeftRight(){
-        if (!this.lrCDLock.isReady()){ return; }
-        this.lrCDLock.lock();
         let aKey = keyIsDown(65);
         let dKey = keyIsDown(68);
         let numKeysDown = 0;
@@ -164,8 +160,6 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkThrottle(){
-        if (!this.tLock.isReady()){ return; }
-        this.tLock.lock();
         let rKey = keyIsDown(82);
         let fKey = keyIsDown(70);
         let numKeysDown = 0;
@@ -192,8 +186,6 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkShoot(){
-        if (!this.sLock.isReady()){ return; }
-        this.sLock.lock();
         let spaceKey = keyIsDown(32);
         if (!this.shootLock.isReady() || !spaceKey){
             return;

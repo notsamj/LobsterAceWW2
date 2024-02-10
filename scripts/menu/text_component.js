@@ -21,18 +21,24 @@ class TextComponent extends Component {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(textStr, textColour, x, y, width, height){
+    constructor(textStr, textColour, x, y, width, height, alignLR=LEFT, alignTB=TOP){
         super();
         this.textStr = textStr;
         this.textColour = textColour;
         this.x = x;
         this.y = y;
-
+        this.alignLR = alignLR;
+        this.alignTB = alignTB;
         this.width = width;
         this.height = height;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getX
+        Method Parameters: None
+        Method Description: Either return x or if its a function, return its evaluation with the current screen width
+        Method Return: Number
+    */
     getX(){
         if (typeof this.x === "function"){
             return this.x(getScreenWidth());
@@ -41,7 +47,12 @@ class TextComponent extends Component {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getY
+        Method Parameters: None
+        Method Description: Either return y or if its a function, return its evaluation with the current screen height
+        Method Return: Number
+    */
     getY(){
         if (typeof this.y === "function"){
             return this.y(getScreenHeight());
@@ -58,7 +69,7 @@ class TextComponent extends Component {
     */
     display(){
         if (!this.enabled){ return; }
-        Menu.makeText(this.textStr, this.textColour, this.getX(), this.getY(), this.width, this.height);
+        Menu.makeText(this.textStr, this.textColour, this.getX(), this.getY(), this.width, this.height, this.alignLR, this.alignTB);
     }
 
     /*

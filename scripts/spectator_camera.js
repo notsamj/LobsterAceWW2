@@ -21,13 +21,14 @@ class SpectatorCamera extends Entity {
         this.y = y;
         this.followingEntity = null;
         this.followToggleLock = new Lock();
-        this.leftRightLock = new CooldownLock(250);
+        this.leftRightLock = new TickLock(250 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
         this.xVelocity = 0;
         this.yVelocity = 0;
-        this.xLock = new CooldownLock(0);
-        this.yLock = new CooldownLock(0);
+        this.xLock = new TickLock(0);
+        this.yLock = new TickLock(0);
         this.radar = new SpectatorRadar(this);
-        this.radarLock = new CooldownLock(250);
+        this.radarLock = new TickLock(250 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.switchTeamLock = new Lock();
     }
 
 
@@ -69,8 +70,9 @@ class SpectatorCamera extends Entity {
     */
     isFollowing(){
         // Check if the entity is still around
-        if (this.followingEntity != null && !scene.hasEntity(this.followingEntity.getID())){
+        if (this.followingEntity != null && this.followingEntity.isDead()){
             this.followingEntity = null;
+            this.spectateFirstEntity();
         }
         return this.followingEntity != null;
     }
@@ -194,8 +196,49 @@ class SpectatorCamera extends Entity {
     */
     spectateFirstEntity(){
         let followableEntities = this.scene.getGoodToFollowEntities();
-        
-        if (followableEntities.length > 0){ this.followingEntity = followableEntities[0]; }
+        if (followableEntities.length > 0){
+            let bestEntity = null;
+            let bestDistance = null;
+            for (let entity of followableEntities){
+                let distance = this.distance(entity);
+                if (bestDistance == null || distance < bestDistance){
+                    bestEntity = entity;
+                    bestDistance = distance;
+                }
+            }
+            this.followingEntity = bestEntity;
+        }
+    }
+
+    /*
+        Method Name: switchTeams
+        Method Parameters: None
+        Method Description: Switch to spectating a plane from the other team
+        Method Return: void
+    */
+    switchTeams(){
+        // If not following ANY entity then just start with one
+        if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
+
+        // Otherwise determine the next one and follow it
+        let followableEntities = this.scene.getGoodToFollowEntities();
+        let alliance = planeModelToAlliance(this.followingEntity.getModel());
+        let found = false;
+        let i = 0;
+        while (i < followableEntities.length){
+            let entity = followableEntities[i];
+            if (!(entity instanceof Plane)){ continue; }
+            // If we found the current entity, ignore it of course. !found is so that if its 1 single element you don't get stuck looping
+            if (entity.getID() == this.followingEntity.getID() && !found){
+                found = true;
+                i = 0;
+                continue;
+            }else if (found && planeModelToAlliance(entity.getModel()) != alliance){
+                this.followingEntity = entity;
+                break;
+            }
+            i++;
+        }
     }
 
     /*
@@ -240,6 +283,20 @@ class SpectatorCamera extends Entity {
             this.spectateNextEntity();
         }
 
+    }
+
+    /*
+        Method Name: checkSwitchTeams
+        Method Parameters: None
+        Method Description: Check if the user wishes to switch which team to spectate
+        Method Return: void
+    */
+    checkSwitchTeams(){
+        let switchKey = USER_INPUT_MANAGER.isActivated("t");
+        if (!switchKey && this.switchTeamLock.notReady()){ this.switchTeamLock.unlock(); }
+        if (this.switchTeamLock.notReady() || !switchKey){ return; }
+        this.switchTeamLock.lock();
+        this.switchTeams();
     }
 
     /*
@@ -309,9 +366,15 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     tick(){
+        // Update tick locks
+        this.xLock.tick();
+        this.yLock.tick();
+        this.leftRightLock.tick();
+        this.radarLock.tick();
         this.updateRadar();
         this.checkFollowToggle();
         if (this.isFollowing()){
+            this.checkSwitchTeams();
             this.checkLeftRight();
             this.x = this.followingEntity.getX();
             this.y = this.followingEntity.getY();

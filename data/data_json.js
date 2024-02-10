@@ -1,7 +1,6 @@
 const FILE_DATA = {
     "plane_data": {
         "spitfire": {
-//            "radius": 48,
             "radius": 64,
             "max_speed": 594,
             "health": 12*5,
@@ -11,7 +10,6 @@ const FILE_DATA = {
             "GUN_OFFSET_Y": 64-61
         },
         "a6m_zero": {
-//            "radius": 47,
             "radius": 64,
             "max_speed": 565,
             "health": 13*5,
@@ -21,7 +19,6 @@ const FILE_DATA = {
             "GUN_OFFSET_Y": 64-78
         },
         "republic_p_47": {
-//            "radius": 46,
             "radius": 64,
             "max_speed": 686,
             "health": 12*5,
@@ -31,7 +28,6 @@ const FILE_DATA = {
             "GUN_OFFSET_Y": 64-75
         },
         "me_bf_109": {
-//            "radius": 37,
             "radius": 64,
             "max_speed": 634,
             "health": 10*5,
@@ -82,6 +78,8 @@ const FILE_DATA = {
             "health": 50*5,
             "country": "USA",
             "type": "Bomber",
+            "BOMB_OFFSET_X": 123-128,
+            "BOMB_OFFSET_Y": 128-136,
             "guns": [
                 { // Front gun
                     "x_offset": 224-128,
@@ -116,9 +114,16 @@ const FILE_DATA = {
     },
     "teams": ["Allies", "Axis"],
     "bullet_data": {
-        "speed": 800,
+        "speed": 1600,
         "picture": "bullet",
-        "radius": 2
+        "radius": 1
+    },
+
+    "bomb_data": {
+        "picture": "bomb",
+        "radius": 8,
+        "initial_y_velocity": -300,
+        "bomb_explosion_radius": 100
     },
 
     "radar": {
@@ -155,11 +160,11 @@ const FILE_DATA = {
         "SLOW_DOWN_AMOUNT": 0.1,
         "EXPECTED_CANVAS_WIDTH": 1920,
         "EXPECTED_CANVAS_HEIGHT": 927,
-        "FRAME_RATE": 60,
+        "FRAME_RATE": 60, // 60
         "TICK_RATE": 100, // 100
         "MS_BETWEEN_TICKS": 10, // 10
         "GRAVITY": 9.81,
-        "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2,
+        "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2/800,
         "server_ip": "localhost",
         "server_port": "8080",
         "PLANE_SHOOT_GAP_MS": 100,
@@ -167,103 +172,54 @@ const FILE_DATA = {
         "SAVED_TICKS": 500,
         "KEEP_ALIVE_INTERVAL": 5000,
         "TIME_TO_READY_UP": 5000, // 5000
-        "MULTIPLAYER_DISABLED": false,
+        "MULTIPLAYER_DISABLED": true,
         "BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT": 2000,
-        "BULLET_REDUCTION_COEFFICIENT": 2
+        "BULLET_REDUCTION_COEFFICIENT": 1.5,
+        "FOCUSED_COUNT_DISTANCE_EQUIVALENT": 1500,
+        "TEXT_BOX_PADDING_PERCENT": 0.1,
+        "USE_PHYSICS_BULLETS": false,
+        "INSTANT_SHOT_MAX_DISTANCE": 1200,
+        "MAX_EXPECTED_SCREEN_WIDTH": 3840,
+        "MAX_EXPECTED_SCREEN_HEIGHT": 2160,
+        "max_cloud_animation_speed_y": 0.2,
+        "max_cloud_animation_speed_x": 0.2
     },
 
+    "extra_settings": [
+        {
+            "name": "USE_PHYSICS_BULLETS",
+            "path": ["constants"]
+        }
+    ],
+
     "ai": {
-        "max_ticks_on_course": 6000,
-        "tick_cd": 500,
-        "bias_ranges": {
-            "distance_to_enemy": {
-                "upper_bound": 50,
-                "lower_bound": -50
-            },
-            "angle_to_enemy": {
-                "upper_bound": 2,
-                "lower_bound": -2
-            },
-            "angle_from_ground": {
-                "upper_bound": 4,
-                "lower_bound": -4
-            },
-            "enemy_far_away_distance": {
-                "upper_bound": 25,
-                "lower_bound": -25
-            },
-            "enemy_behind_angle": {
-                "upper_bound": 5,
-                "lower_bound": -5
-            },
-            "enemy_close_distance": {
-                "upper_bound": 50,
-                "lower_bound": -50
-            },
-            "max_ticks_on_course": {
-                "upper_bound": 200,
-                "lower_bound": -100
-            },
-            "ticks_cooldown": {
-                "upper_bound": 300,
-                "lower_bound": -100
-            },
-            "turn_direction": {
-                "upper_bound": 5,
-                "lower_bound": -5
-            },
-            "close_to_ground": {
-                "upper_bound": 200,
-                "lower_bound": -200
-            },
-            "flip_direction_lb": {
-                "upper_bound": 2,
-                "lower_bound": -3
-            },
-            "flip_direction_ub": {
-                "upper_bound": 3,
-                "lower_bound": -2
-            },
-            "min_angle_to_adjust": {
-                "upper_bound": 5,
-                "lower_bound": 0
-            },
-            "angle_allowance_at_range": {
-                "upper_bound": 3,
-                "lower_bound": -4
-            },
-            "enemy_disregard_distance_time_constant": {
-                "upper_bound": 0.05,
-                "lower_bound": -0.15
-            },
-            "enemy_taken_distance_multiplier": {
-                "upper_bound": 5,
-                "lower_bound": 0.95
-            },
-            "max_shooting_distance": {
-                "upper_bound": 200,
-                "lower_bound": -200
-            },
-            "throttle": {
-                "upper_bound": 0,
-                "lower_bound": -5
-            },
-            "max_speed": {
-                "upper_bound": 20,
-                "lower_bound": -30
-            },
-            "health": {
-                "upper_bound": 3,
-                "lower_bound": -3
-            },
-            "rotation_time": {
-                "upper_bound": 18,
-                "lower_bound": 12
+        "fighter_plane": {
+            "max_enemy_distance_campaign": 5000,
+            "max_x_distance_from_bomber_cruising_campaign": 2000,
+            "max_y_distance_from_bomber_cruising_campaign": 500,
+            "update_enemy_cooldown": 1000,
+            "max_ticks_on_course": 6000,
+            "tick_cd": 500,
+            "bias_ranges": {
+                "easy":{"distance_to_enemy":{"upper_range":{"upper_bound":200,"lower_bound":150},"lower_range":{"upper_bound":-150,"lower_bound":-200}},"angle_to_enemy":{"upper_range":{"upper_bound":10,"lower_bound":7.5},"lower_range":{"upper_bound":-7.5,"lower_bound":-10}},"angle_from_ground":{"upper_range":{"upper_bound":15,"lower_bound":11.25},"lower_range":{"upper_bound":-11.25,"lower_bound":-15}},"enemy_far_away_distance":{"upper_range":{"upper_bound":100,"lower_bound":75},"lower_range":{"upper_bound":-75,"lower_bound":-100}},"enemy_behind_angle":{"upper_range":{"upper_bound":20,"lower_bound":15},"lower_range":{"upper_bound":-15,"lower_bound":-20}},"enemy_close_distance":{"upper_range":{"upper_bound":100,"lower_bound":75},"lower_range":{"upper_bound":-75,"lower_bound":-100}},"max_ticks_on_course":{"upper_range":{"upper_bound":500,"lower_bound":375},"lower_range":{"upper_bound":-187.5,"lower_bound":-250}},"ticks_cooldown":{"upper_range":{"upper_bound":500,"lower_bound":375},"lower_range":{"upper_bound":-187.5,"lower_bound":-250}},"turn_direction":{"upper_range":{"upper_bound":40,"lower_bound":30},"lower_range":{"upper_bound":-30,"lower_bound":-40}},"close_to_ground":{"upper_range":{"upper_bound":2000,"lower_bound":1500},"lower_range":{"upper_bound":-1500,"lower_bound":-2000}},"flip_direction_lb":{"upper_range":{"upper_bound":15,"lower_bound":11.25},"lower_range":{"upper_bound":-7.5,"lower_bound":-10}},"flip_direction_ub":{"upper_range":{"upper_bound":10,"lower_bound":7.5},"lower_range":{"upper_bound":-11.25,"lower_bound":-15}},"min_angle_to_adjust":{"upper_range":{"upper_bound":15,"lower_bound":11.25},"lower_range":{"upper_bound":15,"lower_bound":11.25}},"angle_allowance_at_range":{"upper_range":{"upper_bound":5,"lower_bound":3.75},"lower_range":{"upper_bound":5,"lower_bound":3.75}},"enemy_disregard_distance_time_constant":{"upper_range":{"upper_bound":0.2,"lower_bound":0.15000000000000002},"lower_range":{"upper_bound":-0.26249999999999996,"lower_bound":-0.35}},"enemy_taken_distance_multiplier":{"upper_range":{"upper_bound":10,"lower_bound":7.5},"lower_range":{"upper_bound":10,"lower_bound":7.5}},"max_shooting_distance":{"upper_range":{"upper_bound":400,"lower_bound":300},"lower_range":{"upper_bound":-300,"lower_bound":-400}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-18.75,"lower_bound":-25}},"max_speed":{"upper_range":{"upper_bound":25,"lower_bound":18.75},"lower_range":{"upper_bound":-75,"lower_bound":-100}},"health":{"upper_range":{"upper_bound":20,"lower_bound":15},"lower_range":{"upper_bound":-22.5,"lower_bound":-30}},"rotation_time":{"upper_range":{"upper_bound":35,"lower_bound":26.25},"lower_range":{"upper_bound":35,"lower_bound":26.25}}},
+                "medium":{"distance_to_enemy":{"upper_range":{"upper_bound":150,"lower_bound":100},"lower_range":{"upper_bound":-100,"lower_bound":-150}},"angle_to_enemy":{"upper_range":{"upper_bound":7.5,"lower_bound":5},"lower_range":{"upper_bound":-5,"lower_bound":-7.5}},"angle_from_ground":{"upper_range":{"upper_bound":11.25,"lower_bound":7.5},"lower_range":{"upper_bound":-7.5,"lower_bound":-11.25}},"enemy_far_away_distance":{"upper_range":{"upper_bound":75,"lower_bound":50},"lower_range":{"upper_bound":-50,"lower_bound":-75}},"enemy_behind_angle":{"upper_range":{"upper_bound":15,"lower_bound":10},"lower_range":{"upper_bound":-10,"lower_bound":-15}},"enemy_close_distance":{"upper_range":{"upper_bound":75,"lower_bound":50},"lower_range":{"upper_bound":-50,"lower_bound":-75}},"max_ticks_on_course":{"upper_range":{"upper_bound":375,"lower_bound":250},"lower_range":{"upper_bound":-125,"lower_bound":-187.5}},"ticks_cooldown":{"upper_range":{"upper_bound":375,"lower_bound":250},"lower_range":{"upper_bound":-125,"lower_bound":-187.5}},"turn_direction":{"upper_range":{"upper_bound":30,"lower_bound":20},"lower_range":{"upper_bound":-20,"lower_bound":-30}},"close_to_ground":{"upper_range":{"upper_bound":1500,"lower_bound":1000},"lower_range":{"upper_bound":-1000,"lower_bound":-1500}},"flip_direction_lb":{"upper_range":{"upper_bound":11.25,"lower_bound":7.5},"lower_range":{"upper_bound":-5,"lower_bound":-7.5}},"flip_direction_ub":{"upper_range":{"upper_bound":7.5,"lower_bound":5},"lower_range":{"upper_bound":-7.5,"lower_bound":-11.25}},"min_angle_to_adjust":{"upper_range":{"upper_bound":11.25,"lower_bound":7.5},"lower_range":{"upper_bound":11.25,"lower_bound":7.5}},"angle_allowance_at_range":{"upper_range":{"upper_bound":3.75,"lower_bound":2.5},"lower_range":{"upper_bound":3.75,"lower_bound":2.5}},"enemy_disregard_distance_time_constant":{"upper_range":{"upper_bound":0.15000000000000002,"lower_bound":0.1},"lower_range":{"upper_bound":-0.175,"lower_bound":-0.26249999999999996}},"enemy_taken_distance_multiplier":{"upper_range":{"upper_bound":7.5,"lower_bound":5},"lower_range":{"upper_bound":7.5,"lower_bound":5}},"max_shooting_distance":{"upper_range":{"upper_bound":300,"lower_bound":200},"lower_range":{"upper_bound":-200,"lower_bound":-300}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-12.5,"lower_bound":-18.75}},"max_speed":{"upper_range":{"upper_bound":18.75,"lower_bound":12.5},"lower_range":{"upper_bound":-50,"lower_bound":-75}},"health":{"upper_range":{"upper_bound":15,"lower_bound":10},"lower_range":{"upper_bound":-15,"lower_bound":-22.5}},"rotation_time":{"upper_range":{"upper_bound":26.25,"lower_bound":17.5},"lower_range":{"upper_bound":26.25,"lower_bound":17.5}}},
+                "hard":{"distance_to_enemy":{"upper_range":{"upper_bound":100,"lower_bound":50},"lower_range":{"upper_bound":-50,"lower_bound":-100}},"angle_to_enemy":{"upper_range":{"upper_bound":5,"lower_bound":2.5},"lower_range":{"upper_bound":-2.5,"lower_bound":-5}},"angle_from_ground":{"upper_range":{"upper_bound":7.5,"lower_bound":3.75},"lower_range":{"upper_bound":-3.75,"lower_bound":-7.5}},"enemy_far_away_distance":{"upper_range":{"upper_bound":50,"lower_bound":25},"lower_range":{"upper_bound":-25,"lower_bound":-50}},"enemy_behind_angle":{"upper_range":{"upper_bound":10,"lower_bound":5},"lower_range":{"upper_bound":-5,"lower_bound":-10}},"enemy_close_distance":{"upper_range":{"upper_bound":50,"lower_bound":25},"lower_range":{"upper_bound":-25,"lower_bound":-50}},"max_ticks_on_course":{"upper_range":{"upper_bound":250,"lower_bound":125},"lower_range":{"upper_bound":-62.5,"lower_bound":-125}},"ticks_cooldown":{"upper_range":{"upper_bound":250,"lower_bound":125},"lower_range":{"upper_bound":-62.5,"lower_bound":-125}},"turn_direction":{"upper_range":{"upper_bound":20,"lower_bound":10},"lower_range":{"upper_bound":-10,"lower_bound":-20}},"close_to_ground":{"upper_range":{"upper_bound":1000,"lower_bound":500},"lower_range":{"upper_bound":-500,"lower_bound":-1000}},"flip_direction_lb":{"upper_range":{"upper_bound":7.5,"lower_bound":3.75},"lower_range":{"upper_bound":-2.5,"lower_bound":-5}},"flip_direction_ub":{"upper_range":{"upper_bound":5,"lower_bound":2.5},"lower_range":{"upper_bound":-3.75,"lower_bound":-7.5}},"min_angle_to_adjust":{"upper_range":{"upper_bound":7.5,"lower_bound":3.75},"lower_range":{"upper_bound":7.5,"lower_bound":3.75}},"angle_allowance_at_range":{"upper_range":{"upper_bound":2.5,"lower_bound":1.25},"lower_range":{"upper_bound":2.5,"lower_bound":1.25}},"enemy_disregard_distance_time_constant":{"upper_range":{"upper_bound":0.1,"lower_bound":0.05},"lower_range":{"upper_bound":-0.0875,"lower_bound":-0.175}},"enemy_taken_distance_multiplier":{"upper_range":{"upper_bound":5,"lower_bound":2.5},"lower_range":{"upper_bound":5,"lower_bound":2.5}},"max_shooting_distance":{"upper_range":{"upper_bound":200,"lower_bound":100},"lower_range":{"upper_bound":-100,"lower_bound":-200}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-6.25,"lower_bound":-12.5}},"max_speed":{"upper_range":{"upper_bound":12.5,"lower_bound":6.25},"lower_range":{"upper_bound":-25,"lower_bound":-50}},"health":{"upper_range":{"upper_bound":10,"lower_bound":5},"lower_range":{"upper_bound":-7.5,"lower_bound":-15}},"rotation_time":{"upper_range":{"upper_bound":17.5,"lower_bound":8.75},"lower_range":{"upper_bound":17.5,"lower_bound":8.75}}},
+                "hardest":{"distance_to_enemy":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"angle_to_enemy":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"angle_from_ground":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"enemy_far_away_distance":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"enemy_behind_angle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"enemy_close_distance":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"max_ticks_on_course":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"ticks_cooldown":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"turn_direction":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"close_to_ground":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"flip_direction_lb":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"flip_direction_ub":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"min_angle_to_adjust":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"angle_allowance_at_range":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"enemy_disregard_distance_time_constant":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"enemy_taken_distance_multiplier":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"max_shooting_distance":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"max_speed":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"health":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"rotation_time":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}}}
+            }
+        },
+
+        "bomber_plane": {
+            "bomb_falling_distance_allowance_multiplier": 1.05,
+            "bias_ranges": {
+                "easy":{"friendly_center_x_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":3500,"lower_bound":2625},"lower_range":{"upper_bound":-2625,"lower_bound":-3500}},"shooting_angle_offset":{"upper_range":{"upper_bound":10,"lower_bound":7.5},"lower_range":{"upper_bound":-7.5,"lower_bound":-10}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.5,"lower_bound":1.125},"lower_range":{"upper_bound":1.5,"lower_bound":1.125}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-18.75,"lower_bound":-25}},"max_speed":{"upper_range":{"upper_bound":25,"lower_bound":18.75},"lower_range":{"upper_bound":-75,"lower_bound":-100}},"health":{"upper_range":{"upper_bound":50,"lower_bound":37.5},"lower_range":{"upper_bound":-52.5,"lower_bound":-70}}},
+                "medium":{"friendly_center_x_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":2625,"lower_bound":1750},"lower_range":{"upper_bound":-1750,"lower_bound":-2625}},"shooting_angle_offset":{"upper_range":{"upper_bound":7.5,"lower_bound":5},"lower_range":{"upper_bound":-5,"lower_bound":-7.5}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.125,"lower_bound":0.9},"lower_range":{"upper_bound":1.125,"lower_bound":0.9}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-12.5,"lower_bound":-18.75}},"max_speed":{"upper_range":{"upper_bound":18.75,"lower_bound":12.5},"lower_range":{"upper_bound":-50,"lower_bound":-75}},"health":{"upper_range":{"upper_bound":37.5,"lower_bound":25},"lower_range":{"upper_bound":-35,"lower_bound":-52.5}}},
+                "hard":{"friendly_center_x_offset":{"upper_range":{"upper_bound":2000,"lower_bound":1000},"lower_range":{"upper_bound":-1000,"lower_bound":-2000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":2000,"lower_bound":1000},"lower_range":{"upper_bound":-1000,"lower_bound":-2000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":1750,"lower_bound":875},"lower_range":{"upper_bound":-875,"lower_bound":-1750}},"shooting_angle_offset":{"upper_range":{"upper_bound":5,"lower_bound":2.5},"lower_range":{"upper_bound":-2.5,"lower_bound":-5}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":0.9,"lower_bound":0.75},"lower_range":{"upper_bound":0.9,"lower_bound":0.75}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-6.25,"lower_bound":-12.5}},"max_speed":{"upper_range":{"upper_bound":12.5,"lower_bound":6.25},"lower_range":{"upper_bound":-25,"lower_bound":-50}},"health":{"upper_range":{"upper_bound":25,"lower_bound":12.5},"lower_range":{"upper_bound":-17.5,"lower_bound":-35}}},
+                "hardest":{"friendly_center_x_offset":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"friendly_center_y_offset":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"shooting_angle_offset":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":0.75,"lower_bound":0.75},"lower_range":{"upper_bound":0.75,"lower_bound":0.75}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"max_speed":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}},"health":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":0,"lower_bound":0}}}
             }
         }
     },
 
-    "dogfight_settings":{
+    "dogfight_settings": {
         "ally_spawn_x": 50000,
         "ally_spawn_y": 50000,
         "axis_spawn_x": 70000,
@@ -279,11 +235,13 @@ const FILE_DATA = {
     "extra_images_to_load": [
         "radar_outline",
         "bullet",
+        "bomb",
         "dirt",
         "above_ground",
         "clouds",
         "freecam",
-        "explosion"
+        "explosion",
+        "flash"
     ],
 
     "smoke_images": [
@@ -293,8 +251,18 @@ const FILE_DATA = {
     ],
 
     "team_to_colour": {
+        // General
         "Axis": "#8427db",
-        "Allies": "#f5d442"
+        "Allies": "#f5d442",
+        // Plane Type Specific
+        "fighter_plane": {
+            "Axis": "#8427db",
+            "Allies": "#f5d442"
+        },
+        "bomber_plane": {
+            "Axis": "#591994",
+            "Allies": "#c2a213"
+        }
     },
 
     "sound_data": {
@@ -307,6 +275,284 @@ const FILE_DATA = {
         ],
         "url": "./sounds",
         "file_type": ".mp3"
+    },
+
+    "missions": [
+        {
+            "description": "Mission 1\nAn American assault onGerman\npositions in Western Germany.",
+            "user_planes": [
+                "republic_p_47",
+                "p51_mustang",
+                "b24",
+                "me_309",
+                "me_bf_109"
+            ],
+            "attacker_planes": [
+                "republic_p_47",
+                "p51_mustang",
+                "b24"
+            ],
+            "defender_planes": [
+                "me_309",
+                "me_bf_109"
+            ],
+            "attackers": "Allies",
+            "defenders": "Axis",
+            "easy": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 3, // 5?
+                    "p51_mustang": 3, // 5?
+                    "b24": 1
+                },
+                "defender_plane_counts": {
+                    "me_309": 3,
+                    "me_bf_109": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+            },
+            "medium": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 3, // 5?
+                    "p51_mustang": 3, // 5?
+                    "b24": 1
+                },
+                "defender_plane_counts": {
+                    "me_309": 3,
+                    "me_bf_109": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+            },
+            "hard": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 5,
+                    "p51_mustang": 5,
+                    "b24": 2
+                },
+                "defender_plane_counts": {
+                    "me_309": 6,
+                    "me_bf_109": 6
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 30, // 20?
+                    "min_health": 2,
+                    "max_health": 4 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+            },
+            "hardest": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 8,
+                    "p51_mustang": 8,
+                    "b24": 4
+                },
+                "defender_plane_counts": {
+                    "me_309": 12,
+                    "me_bf_109": 12
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 40, // 20?
+                    "min_health": 3,
+                    "max_health": 6 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 30e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 4 // Based on attacker difficulty
+            },
+            "start_zone": {
+                "attackers": {
+                    "x": 0,
+                    "y": 10e3
+                },
+                "defenders": {
+                    "x": 65e3, // 60e3?
+                    "y": 200
+                },
+                "offsets": {
+                    "x": 2500,
+                    "y": 9000
+                }
+            },
+            "buildings": {
+                "start_x": 50e3, // 70e3
+                "min_gap": 50,
+                "max_gap": 200,
+                "min_height": 60,
+                "max_height": 300,
+                "min_width": 50,
+                "max_width": 150,
+            }
+        },
+        {
+            "description": "Mission 2\nAn American assault on Japanese positions on\n a small island\nsomewhere between Japan and Hawaii.",
+            "user_planes": [
+                "republic_p_47",
+                "p51_mustang",
+                "b24",
+                "a6m_zero",
+                "kawasaki_ki_45"
+            ],
+            "attacker_planes": [
+                "republic_p_47",
+                "p51_mustang",
+                "b24"
+            ],
+            "defender_planes": [
+                "a6m_zero",
+                "kawasaki_ki_45"
+            ],
+            "attackers": "Allies",
+            "defenders": "Axis",
+            "easy": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 3, // 5?
+                    "p51_mustang": 3, // 5?
+                    "b24": 1
+                },
+                "defender_plane_counts": {
+                    "a6m_zero": 3,
+                    "kawasaki_ki_45": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+            },
+            "medium": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 3, // 5?
+                    "p51_mustang": 3, // 5?
+                    "b24": 1
+                },
+                "defender_plane_counts": {
+                    "a6m_zero": 3,
+                    "kawasaki_ki_45": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+            },
+            "hard": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 5,
+                    "p51_mustang": 5,
+                    "b24": 2
+                },
+                "defender_plane_counts": {
+                    "a6m_zero": 6,
+                    "kawasaki_ki_45": 6
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 30, // 20?
+                    "min_health": 2,
+                    "max_health": 4 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+            },
+            "hardest": {
+                "attacker_plane_counts": {
+                    "republic_p_47": 8,
+                    "p51_mustang": 8,
+                    "b24": 4
+                },
+                "defender_plane_counts": {
+                    "a6m_zero": 12,
+                    "kawasaki_ki_45": 12
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 40, // 20?
+                    "min_health": 3,
+                    "max_health": 6 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 30e3 // 30e3?
+                },
+                "BOMBER_HP_MULTIPLIER": 4 // Based on attacker difficulty
+            },
+            "start_zone": {
+                "attackers": {
+                    "x": 0,
+                    "y": 10e3
+                },
+                "defenders": {
+                    "x": 65e3, // 60e3?
+                    "y": 200
+                },
+                "offsets": {
+                    "x": 2500,
+                    "y": 9000
+                }
+            },
+            "buildings": {
+                "start_x": 50e3, // 70e3
+                "min_gap": 50,
+                "max_gap": 200,
+                "min_height": 60,
+                "max_height": 300,
+                "min_width": 50,
+                "max_width": 150,
+            }
+        }
+    ],
+
+    "cloud_generation": {
+        "SKY_COLOUR": "#5bb8ff",
+        "CLOUD_COLOUR": "#e8ecff",
+        "CLOUD_CLUSTER_WIDTH": 3840,
+        "CLOUD_CLUSTER_HEIGHT": 2160,
+        "MIN_RADIUS": 30,
+        "MAX_RADIUS": 80,
+        "MIN_CIRCLES_PER_CLOUD": 3,
+        "MAX_CIRCLES_PER_CLOUD": 7,
+        "MIN_CLOUDS_PER_CLUSTER": 50,
+        "MAX_CLOUDS_PER_CLUSTER": 70,
+    },
+
+    "hud": {
+        "text_size": 20,
+        "key_colour": "#ff6700",
+        "value_colour": "#0066ff"
     }
 }
 if (typeof window === "undefined"){

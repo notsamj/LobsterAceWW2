@@ -79,18 +79,20 @@ class SceneTickManager {
         Method Parameters:
             callOnTick:
                 A function to call every tick
-        Method Description: Runs ticks until the expected number have occured
+        Method Description: Runs ticks until the expected number have occured.
+        Test Mode is available to forcefully run 1 tick.
         Method Return: void
     */
-    async tick(callOnTick=null){
+    async tick(callOnTick=null, testMode=false){
         if (this.tickLock.notReady()){
             return;
         }
         this.tickLock.lock();
         let expectedTicks = this.getExpectedTicks();
-        while (this.numTicks < expectedTicks){
+        while (this.numTicks < expectedTicks || testMode){
+            testMode = false;
             await this.scene.tick(this.tickLength);
-            if (callOnTick != null){
+            if (callOnTick != null && this.scene.hasTicksEnabled()){
                 await callOnTick();
             }
             this.numTicks += 1;

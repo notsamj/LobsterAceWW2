@@ -30,6 +30,17 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         super(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane);
         this.biases = biases;
         this.shootingAngle = 0;
+        this.shootCD = new TickLock(this.shootCD.getCooldown() * this.biases["rate_of_fire_multiplier"]);
+    }
+
+    /*
+        Method Name: getShootingAngle
+        Method Parameters: None
+        Method Description: Determines the shooting angle of the turret.
+        Method Return: int
+    */
+    getShootingAngle(){
+        return fixDegrees(this.shootingAngle + this.biases["shooting_angle_offset"]);
     }
 
     /*
