@@ -3,14 +3,14 @@
 Step 1. Click on Dogfight Or Campaign
 
 ### If you clicked on Dogfight
-Step 2. Select your chosen plane (or Camera) by clicking on the image under the heading "User"
-Step 3 (Optional). Select an allied plane by clicking on the image under the heading "Allies"
-Step 3.1. Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight.
-Step 4 (Optional). Select an axis plane by clicking on the image under the heading "Axis"
-Step 4.1. Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight.
-Step 5 (Optional). Review the bots that will be participating in the dogfight under the "Bot Details" header and remove as you see fit. You are recommended to use 40 or less planes for a dogfight, however, it varies with PC performance.
-Step 6. Select Ally and Axis bot difficulties by clicking on the buttons that specific difficulty (e.g. "easy")
-Step 7. Click on the start button to start the dogfight
+Step 2. Select your chosen plane (or Camera) by clicking on the image under the heading "User" \
+Step 3 (Optional). Select an allied plane by clicking on the image under the heading "Allies" \
+Step 3.1. Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight. \
+Step 4 (Optional). Select an axis plane by clicking on the image under the heading "Axis" \
+Step 4.1. Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight. \
+Step 5 (Optional). Review the bots that will be participating in the dogfight under the "Bot Details" header and remove as you see fit. You are recommended to use 40 or less planes for a dogfight, however, it varies with PC performance. \
+Step 6. Select Ally and Axis bot difficulties by clicking on the buttons that specific difficulty (e.g. "easy") \
+Step 7. Click on the start button to start the dogfight \
 Step 8. See below instructions depending on the role you have selected
 
 ### How to play as an allied plane
@@ -26,11 +26,11 @@ If you start off as a plane facing left, then know you are an axis plane. Your t
 See plane controls below.
 
 ### If you clicked on Campaign
-Step 2. Browse missions by clicking the previous/next buttons
-Step 3. Select a mission by clicking "Select Mission"
-Step 4. Select your chosen plane (or Camera) by clicking on the image under the heading "User"
-Step 5. Select Ally and Axis bot difficulties by clicking on the buttons that specific difficulty (e.g. "easy")
-Step 6. Click on the start button to start the mission
+Step 2. Browse missions by clicking the previous/next buttons \
+Step 3. Select a mission by clicking "Select Mission" \
+Step 4. Select your chosen plane (or Camera) by clicking on the image under the heading "User" \
+Step 5. Select Ally and Axis bot difficulties by clicking on the buttons that specific difficulty (e.g. "easy") \
+Step 6. Click on the start button to start the mission \
 Step 7. See below instructions depending on the role you have selected
 
 ### How to play as an attacker fighter plane in a Mission
@@ -57,32 +57,32 @@ Bomber planes can drop bombs (currently useless) and shoot with their turrets. T
 
 ## Controls
 
-Escape (Press): Open pause menu
-Spectator Camera (General)
+Escape (Press): Open pause menu \
+Spectator Camera (General) \
 f (Press): Toggle between freely moving and focusing on a plane
 
 ### Spectator Camera (While focused)
-Left Arrow (Press): Switch which plane is focused (directional)
-Right Arrow (Press): Switch which plane is focused (directional)
+Left Arrow (Press): Switch which plane is focused (directional) \
+Right Arrow (Press): Switch which plane is focused (directional) \
 t (Press): Immediately switch to spectating a plane on the other team than the one you are currently spectating
 
 ### Spectator Camera (While freely moving)
-Up Arrow (Hold): Move up
-Down Arrow (Hold): Move down
-Left Arrow (Hold): Move left
+Up Arrow (Hold): Move up \
+Down Arrow (Hold): Move down \
+Left Arrow (Hold): Move left \
 Right Arrow (Hold): Move right
 
 ### Plane
-r (Hold): Increase throttle
-f (Hold): Decrease throttle
-w (Hold): Rotate clockwise
-s (Hold): Rotate counter clockwise
-a (Press): Sharp turn left
+r (Hold): Increase throttle \
+f (Hold): Decrease throttle \
+w (Hold): Rotate clockwise \
+s (Hold): Rotate counter clockwise \
+a (Press): Sharp turn left \
 d (Press): Sharp turn right
 
 ### Fighter Plane
 Space (Hold): Shoot
 
 ### Bomber Plane
-Space (Hold): Drop bombs
+Space (Hold): Drop bombs \
 Left click (Hold): Shoot 
