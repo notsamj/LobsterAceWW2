@@ -309,7 +309,7 @@ class TeamCombatManager {
         Method Name: getAllPlanes
         Method Parameters: None
         Method Description: Gathers a list of all living planes
-        Method Return: List of Planes
+        Method Return: List of Plane
     */
     getAllPlanes(){
         let planes = [];
@@ -323,7 +323,12 @@ class TeamCombatManager {
         return planes;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getDeadPlanes
+        Method Parameters: None
+        Method Description: Find all the dead planes
+        Method Return: List of Plane
+    */
     getDeadPlanes(){
         let planes = [];
         for (let team of this.teams){

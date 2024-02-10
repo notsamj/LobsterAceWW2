@@ -279,7 +279,7 @@ const FILE_DATA = {
 
     "missions": [
         {
-            "description": "Mission 1",
+            "description": "Mission 1\nAn American assault onGerman\npositions in Western Germany.",
             "user_planes": [
                 "republic_p_47",
                 "p51_mustang",
@@ -407,7 +407,7 @@ const FILE_DATA = {
             }
         },
         {
-            "description": "Mission 2",
+            "description": "Mission 2\nAn American assault on Japanese positions on\n a small island\nsomewhere between Japan and Hawaii.",
             "user_planes": [
                 "republic_p_47",
                 "p51_mustang",

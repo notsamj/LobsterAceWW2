@@ -1,4 +1,7 @@
-// TODO: Comments
+/*
+    Class Name: BiasedCampaignAttackerBotFighterPlane
+    Description: A bot fighter plane who is flying with a bomber to attack targets
+*/
 class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
 /*
         Method Name: constructor
@@ -21,6 +24,14 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         this.startingThrottle = this.throttle;
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeMS:
+                Time passed during tick
+        Method Description: Makes decisions during a tick
+        Method Return: void
+    */
     tick(timeMS){
         super.tick(timeMS);
         // Always make sure throttle is at max if fighting 
@@ -41,11 +52,22 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         this.throttle = Math.min(Math.max(1, this.throttle + amt), this.startingThrottle);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: handleWhenNoEnemy
+        Method Parameters: None
+        Method Description: Determine what to do when there is no enemy
+        Method Return: void
+    */
     handleWhenNoEnemy(){
         this.cruiseByBomber();
     }
 
+    /*
+        Method Name: findMyBomber
+        Method Parameters: None
+        Method Description: Finds the furthest (highest x value) living bomber
+        Method Return: Bomber
+    */
     findMyBomber(){
         let furthestBomber = null;
         let planes = this.scene.getPlanes();
@@ -59,6 +81,12 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         return furthestBomber;
     }
 
+    /*
+        Method Name: cruiseByBomber
+        Method Parameters: None
+        Method Description: Makes decisions to cruise near a bomber
+        Method Return: void
+    */
     cruiseByBomber(){
         let bomber = this.findMyBomber();
         // Incase bomber just died

@@ -354,7 +354,6 @@ class DogfightMenu extends Menu {
         Method Parameters: None
         Method Description: Create fight plane objects and return
         Method Return: Array of FighterPlane objects (maybe a freecam as well)
-        TODO: Move to dogfight class?
     */
     getFighterPlanes(){
         let planes = [];
@@ -406,7 +405,6 @@ class DogfightMenu extends Menu {
                 The difficulty setting
         Method Description: Create the fighter plane bot object and return it
         Method Return: BiasedBotFighterPlane object
-        TODO: Move to dogfight class?
     */
     static createBiasedBot(model, x, y, facingRight, difficulty){
         let botPlane;

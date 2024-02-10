@@ -65,7 +65,7 @@ class BotBomberTurret extends BomberTurret {
             enemyY = enemy.getY();
             enemyXDisplacement = enemyX - myX;
             enemyYDisplacement = enemyY - myY;
-            // TODO: Maybe make an ANGLE TO ENTITY function?
+            // TODO: Maybe use the ANGLE TO ENTITY function?
             angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
             this.shootingAngle = angleDEG;
             distanceToEnemy = enemy.distanceToPoint(myX, myY);

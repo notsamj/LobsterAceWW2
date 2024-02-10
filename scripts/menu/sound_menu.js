@@ -50,7 +50,16 @@ class SoundMenu extends Menu {
         
     }
 
-    // TODO COmments
+    /*
+        Method Name: createSoundSettings
+        Method Parameters:
+            soundName:
+                The name of the sound
+            offSetIndex:
+                The index of the sound relative to other sounds
+        Method Description: Creates the settings menu elements for a given sound
+        Method Return: void
+    */
     createSoundSettings(soundName, offSetIndex){
         let sectionYSize = 150;
         let addRemoveButtonSize = 50;

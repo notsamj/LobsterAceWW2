@@ -203,7 +203,6 @@ class BiasedBotBomberPlane extends BomberPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            // TODO: Update when this becomes BiasedBotDogfightFighterPlane
             let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * FILE_DATA["constants"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"]);
             if (focusedCountMultiplier < 1 ){ focusedCountMultiplier = 1; }
             let score = distance / focusedCountMultiplier; // Most focusing the better (from POV of bomber)

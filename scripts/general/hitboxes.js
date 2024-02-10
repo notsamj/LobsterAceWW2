@@ -121,20 +121,42 @@ class CircleHitbox {
         return this.getRadius();
     }
 
-    // TODO: These methods need comments
-
+    /*
+        Method Name: getRightX
+        Method Parameters: None
+        Method Description: Determines the right most coordinate on the hitbox
+        Method Return: Number
+    */
     getRightX(){
         return this.x + this.radius;
     }
 
+    /*
+        Method Name: getLeftX
+        Method Parameters: None
+        Method Description: Determines the left most coordinate on the hitbox
+        Method Return: Number
+    */
     getLeftX(){
         return this.x - this.radius;
     }
 
+    /*
+        Method Name: getTopY
+        Method Parameters: None
+        Method Description: Determines the top coordinate on the hitbox
+        Method Return: Number
+    */
     getTopY(){
         return this.y + this.radius;
     }
 
+    /*
+        Method Name: getBottomY
+        Method Parameters: None
+        Method Description: Determines the bottom coordinate on the hitbox
+        Method Return: Number
+    */
     getBottomY(){
         return this.y - this.radius;
     }
@@ -327,20 +349,42 @@ class RectangleHitbox {
         return this.height / 2;
     }
     
-    // TODO: These methods need comments
-
+    /*
+        Method Name: getRightX
+        Method Parameters: None
+        Method Description: Determines the right most coordinate on the hitbox
+        Method Return: Number
+    */
     getRightX(){
         return Math.max(this.getX1(), this.getX2());
     }
 
+    /*
+        Method Name: getLeftX
+        Method Parameters: None
+        Method Description: Determines the left most coordinate on the hitbox
+        Method Return: Number
+    */
     getLeftX(){
         return Math.min(this.getX1(), this.getX2());
     }
 
+    /*
+        Method Name: getRightX
+        Method Parameters: None
+        Method Description: Determines the top coordinate on the hitbox
+        Method Return: Number
+    */
     getTopY(){
         return Math.max(this.getY1(), this.getY2());
     }
 
+    /*
+        Method Name: getBottomY
+        Method Parameters: None
+        Method Description: Determines the bottom coordinate on the hitbox
+        Method Return: Number
+    */
     getBottomY(){
         return Math.min(this.getY1(), this.getY2());
     }

@@ -94,7 +94,6 @@ class HumanBomberPlane extends BomberPlane {
         this.checkShoot();
         this.checkBomb();
         this.updateRadar();
-        // TODO: I moved the above lines above super call (they were below), seems right to me...
         super.tick(timeDiffMS);
     }
 

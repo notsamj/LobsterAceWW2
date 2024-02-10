@@ -1,5 +1,18 @@
-// TODO: This class needs comments
+/*
+    Class Name: Mission
+    Description: A game mode with attackers and defenders. Attackers must destroy all buildings, defenders destroy the attacker bomber plane.
+*/
 class Mission extends GameMode {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            missionObject:
+                A JSON object with information about the mission
+            userEntityType:
+                The type of entity that the user is using
+        Method Description: Constructor
+        Method Return: Constructor
+    */
 	constructor(missionObject, userEntityType){
 		super();
         this.userEntityType = userEntityType;
@@ -16,18 +29,42 @@ class Mission extends GameMode {
         AfterMatchStats.reset();
 	}
 
+    /*
+        Method Name: getAttackerDifficulty
+        Method Parameters: None
+        Method Description: Determine the difficulty of the attacking team
+        Method Return: String
+    */
     getAttackerDifficulty(){
         return this.missionObject["attackers"] == "Allies" ? this.allyDifficulty : this.axisDifficulty;
     }
 
+    /*
+        Method Name: getDefenderDifficulty
+        Method Parameters: None
+        Method Description: Determine the difficulty of the defending team
+        Method Return: String
+    */
     getDefenderDifficulty(){
         return this.missionObject["defenders"] == "Allies" ? this.allyDifficulty : this.axisDifficulty;
     }
 
+    /*
+        Method Name: getBuildings
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: List of Building
+    */
     getBuildings(){
         return this.buildings;
     }
 
+    /*
+        Method Name: isRunning
+        Method Parameters: None
+        Method Description: Checks if the game mode is running
+        Method Return: boolean, true -> mission is running, false -> mission is not running
+    */
 	isRunning(){
 		return this.running;
 	}
@@ -50,6 +87,12 @@ class Mission extends GameMode {
         });
     }
 
+    /*
+        Method Name: checkSpawn
+        Method Parameters: None
+        Method Description: Checks if the each side is ready to spawn, if so, spawn their planes
+        Method Return: void
+    */
     checkSpawn(){
         if (this.attackerSpawnLock.isReady()){
             this.spawnPlanes("attackers");
@@ -61,6 +104,12 @@ class Mission extends GameMode {
         }
     }
 
+    /*
+        Method Name: findDeadUserFighterPlane
+        Method Parameters: None
+        Method Description: Finds the user's fighter plane if it exists and its dead
+        Method Return: FighterPlane
+    */
     findDeadUserFighterPlane(){
         for (let plane of scene.getDeadPlanes()){
             if (plane instanceof HumanFighterPlane){
@@ -70,8 +119,16 @@ class Mission extends GameMode {
         return null;
     }
 
+    /*
+        Method Name: spawnPlanes
+        Method Parameters:
+            side:
+                Attacker or defender side (String)
+        Method Description: Spawns a set selection of planes for a team
+        Method Return: void
+    */
     spawnPlanes(side){
-        let planes = this.createBotPlanes(side);
+        let planes = this.createBotPlanes(side); // TODO: Instead of new planes recycle as many planes as you can from the list of dead ones
         let userPlane = this.findDeadUserFighterPlane();
         /*
            Respawn the user if they are a dead FIGHTER plane on the team that is currently being respawned (bombers can't respawn)
@@ -93,6 +150,12 @@ class Mission extends GameMode {
         }
     }
 
+    /*
+        Method Name: checkForEnd
+        Method Parameters: None
+        Method Description: Checks if the conditions to end the game are met
+        Method Return: void
+    */
     checkForEnd(){
     	let livingBuildings = 0;
     	for (let building of this.buildings){
@@ -120,11 +183,27 @@ class Mission extends GameMode {
         HEADS_UP_DISPLAY.updateElement("Remaining Bombers", livingBombers);
     }
 
+    /*
+        Method Name: endGame
+        Method Parameters:
+            attackerWon:
+                Boolean, indicates if attackers or defenders won the game
+        Method Description: Sets the winner and ends the game
+        Method Return: void
+    */
     endGame(attackerWon){
         AfterMatchStats.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
         this.running = false;
     }
 
+    /*
+        Method Name: createBotPlanes
+        Method Parameters:
+            onlySide:
+                Attackers or defenders (String) if only creating planes for this team. If null then both sides get planes.
+        Method Description: Creates a set of bot planes.
+        Method Return: List of Plane
+    */
     createBotPlanes(onlySide=null){
         let allyDifficulty = this.allyDifficulty;
         let axisDifficulty = this.axisDifficulty;
@@ -148,6 +227,14 @@ class Mission extends GameMode {
         return planes;
     }
 
+    /*
+        Method Name: setupPlanes
+        Method Parameters:
+            planes:
+                List of planes to "set up"
+        Method Description: Sets up attributes for a list of planes
+        Method Return: void
+    */
     setupPlanes(planes){
         // Planes need to be placed at this point
         for (let entity of planes){
@@ -176,6 +263,14 @@ class Mission extends GameMode {
         }
     }
 
+    /*
+        Method Name: createPlanes
+        Method Parameters:
+            userEntityType:
+                Type of entity that the user is. (String). E.g. "freecam" or "spitfire"
+        Method Description: Creates all the planes at the start of the game
+        Method Return: TODO
+    */
     createPlanes(userEntityType){
     	let planes = [];
     	
@@ -213,6 +308,12 @@ class Mission extends GameMode {
         return planes;
     }
 
+    /*
+        Method Name: createBuildings
+        Method Parameters: None
+        Method Description: Creates buildings based on specifications in the file
+        Method Return: List of Building
+    */
     createBuildings(){
         let buildingRules = this.missionObject["buildings"];
         let difficultyBuildingRules = this.missionObject[this.getAttackerDifficulty()]["buildings"];
@@ -229,6 +330,12 @@ class Mission extends GameMode {
         return buildings;
     }
 
+    /*
+        Method Name: updateHUD
+        Method Parameters: None
+        Method Description: Updates the HUD with information from the game
+        Method Return: void
+    */
     updateHUD(){
         let allyLock = this.attackerSpawnLock;
         let axisLock = this.defenderSpawnLock;
@@ -240,6 +347,12 @@ class Mission extends GameMode {
         HEADS_UP_DISPLAY.updateElement("Next Axis Respawn", ((axisLock.getTicksLeft() * FILE_DATA["constants"]["MS_BETWEEN_TICKS"]) / 1000).toFixed(0));
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays information about the game on the screen.
+        Method Return: void
+    */
     display(){
         this.updateHUD();
     	if (!this.isRunning()){

@@ -38,12 +38,24 @@ class Plane extends Entity {
         this.throttleConstant = Math.sqrt(this.maxSpeed) / FILE_DATA["constants"]["MAX_THROTTLE"];
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getStartingHealth
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Integer
+    */
     getStartingHealth(){
         return this.startingHealth;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setStartingHealth
+        Method Parameters:
+            startingHealth:
+                The starting health of the plane
+        Method Description: Setter
+        Method Return: void
+    */
     setStartingHealth(startingHealth){
         this.startingHealth = startingHealth;
     }
@@ -588,7 +600,18 @@ class Plane extends Entity {
         }
     }
 
-    // TODO: Needs comments
+    /*
+        Method Name: instantShot
+        Method Parameters:
+            gunX:
+                The x location of the gun
+            gunY:
+                The y location of the gun
+            angleDEG:
+                The orientation of the gun
+        Method Description: Shots the gun at a target in the direction its facing. The shot moves with infinite speed.
+        Method Return: void
+    */
     instantShot(gunX, gunY, angleDEG){
         // Determine if the plane is facing -x or +x (not proper if plane is perpenticular to the x axis)
         let xDir = (angleBetweenCCWDEG(angleDEG, 91, 269)) ? -1 : 1;

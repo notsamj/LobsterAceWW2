@@ -318,7 +318,12 @@ class NotSamSinglyLinkedList{
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getLastNode
+        Method Parameters: None
+        Method Description: Get the last node from the list
+        Method Return: void
+    */
     getLastNode(){
         if (this.isEmpty()){ return; }
         let current = this.head;
@@ -326,12 +331,6 @@ class NotSamSinglyLinkedList{
             current = current.next;
         }
         return current;
-    }
-
-    // TODO: Comments
-    deleteWithCondition(conditionFunction){
-        if (this.isEmpty()){ return; }
-        let endNode = this.getLastNode();
     }
 }
 

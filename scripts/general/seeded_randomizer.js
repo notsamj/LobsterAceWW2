@@ -1,9 +1,21 @@
-// TODO: Comments for this class
+/*
+    Class Name: SeededRandomizer
+    Description: A random number generator that generates based on a seed.
+*/
 class SeededRandomizer {
     static MAXIMUM_FOR_A_BIG_NUMBER = 1e13;
     static SPICE_1 = 20499874;
     static SPICE_2 = 198245;
     static SPICE_3 = 2017561;
+
+    /*
+        Method Name: constructor
+        Method Parameters:
+            seed:
+                The seed to base generation on
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(seed){
         this.seed = seed;
         this.lastNumber = seed;
@@ -26,10 +38,30 @@ class SeededRandomizer {
         return Math.floor(this.lastNumber / SeededRandomizer.SPICE_3 * SeededRandomizer.MAXIMUM_FOR_A_BIG_NUMBER);
     }
 
+    /*
+        Method Name: getIntInRangeInclusive
+        Method Parameters:
+            start:
+                The first number in the range
+            end:
+                The last number in the range
+        Method Description: Generates a random integer in a range (inclusive)
+        Method Return: Integer
+    */
     getIntInRangeInclusive(start, end){
         return (this.getBigNumber() % (end - start + 1)) + start;
     }
 
+    /*
+        Method Name: getIntInRangeExclusive
+        Method Parameters:
+            start:
+                The first number in the range
+            end:
+                The last number in the range
+        Method Description: Generates a random integer in a range (last number is excluded)
+        Method Return: Integer
+    */
     getIntInRangeExclusive(start, end){
         return this.getIntInRangeInclusive(start, end-1);
     }

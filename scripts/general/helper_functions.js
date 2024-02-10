@@ -3,7 +3,16 @@ if (typeof window === "undefined"){
     FILE_DATA = require("../data/data_json.js");
 }
 
-// TODO: Comments
+/*
+    Method Name: mergeCopyObjects
+    Method Parameters:
+        obj1:
+            Object 1
+        obj2:
+            Object 2
+    Method Description: Creates a JSON object with the contents of two JSON objects. Copying rather than referencing (with limitations)
+    Method Return: JSON Object
+*/
 function mergeCopyObjects(obj1, obj2){
     let newObject = {};
     // Merge in object 1
@@ -25,8 +34,15 @@ function mergeCopyObjects(obj1, obj2){
     return newObject;
 }
 
-// TODO: Comments
-// Note: If you give it and instance of a class it will produce a reference not a copy
+/*
+    Method Name: copyObject
+    Method Parameters:
+        obj:
+            Object to copy
+    Method Description: Creates a copy of an object (to some extent)
+    Method Return: JSON Object
+    Note: If you give it and instance of a class it will produce a reference not a copy
+*/
 function copyObject(obj){
     // Deep copy, copy inner objects aswell
     let newObject = {};

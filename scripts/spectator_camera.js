@@ -210,7 +210,12 @@ class SpectatorCamera extends Entity {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: switchTeams
+        Method Parameters: None
+        Method Description: Switch to spectating a plane from the other team
+        Method Return: void
+    */
     switchTeams(){
         // If not following ANY entity then just start with one
         if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
@@ -280,7 +285,12 @@ class SpectatorCamera extends Entity {
 
     }
 
-    // TODO: Comments
+    /*
+        Method Name: checkSwitchTeams
+        Method Parameters: None
+        Method Description: Check if the user wishes to switch which team to spectate
+        Method Return: void
+    */
     checkSwitchTeams(){
         let switchKey = USER_INPUT_MANAGER.isActivated("t");
         if (!switchKey && this.switchTeamLock.notReady()){ this.switchTeamLock.unlock(); }

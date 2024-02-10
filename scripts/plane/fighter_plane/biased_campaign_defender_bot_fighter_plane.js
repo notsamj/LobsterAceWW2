@@ -1,4 +1,7 @@
-// TODO: Comments
+/*
+    Class Name: BiasedCampaignDefenderBotFighterPlane
+    Description: A fighter plane that is tasked with attacking a bomber plane and its protectors
+*/
 class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
 /*
         Method Name: constructor

@@ -72,7 +72,12 @@ class BiasedBotFighterPlane extends FighterPlane {
         super.tick(timeDiffMS);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: handleWhenNoEnemy
+        Method Parameters: None
+        Method Description: Make decisions when there is no enemy to fight
+        Method Return: void
+    */
     handleWhenNoEnemy(){
         // No enemy -> make sure not to crash into the ground
         if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
@@ -438,7 +443,14 @@ class BiasedBotFighterPlane extends FighterPlane {
         return new BiasedBotFighterPlane(planeClass, scene, biases);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: createBiases
+        Method Parameters:
+            difficulty:
+                The difficulty setting related to the plane
+        Method Description: Creates a set of biases for a new plane
+        Method Return: JSON Object
+    */
     static createBiases(difficulty){
         let biasRanges = FILE_DATA["ai"]["fighter_plane"]["bias_ranges"][difficulty];
         let biases = {};

@@ -21,12 +21,22 @@ class MenuManager {
         this.activeMenu = this.mainMenu;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getWidth
+        Method Parameters: None
+        Method Description: Determine the width of the screen
+        Method Return: void
+    */
     getWidth(){
         return getScreenWidth();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getHeight
+        Method Parameters: None
+        Method Description: Determine the height of the screen
+        Method Return: void
+    */
     getHeight(){
         return getScreenHeight();
     }

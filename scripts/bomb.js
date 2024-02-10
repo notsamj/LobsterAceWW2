@@ -54,8 +54,14 @@ class Bomb extends Entity {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: explode
+        Method Parameters: None
+        Method Description: Blocks up on the ground damaging all buildings within the radius
+        Method Return: void
+    */
     explode(){
+        // Loop through and damage all nearby buildings
         for (let building of this.scene.getBuildings()){
             if (building.distance(this) < FILE_DATA["bomb_data"]["bomb_explosion_radius"]){
                 building.damage(1);
@@ -64,7 +70,12 @@ class Bomb extends Entity {
         this.die();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: die
+        Method Parameters: None
+        Method Description: Handles the death of a bomb
+        Method Return: void
+    */
     die(){
         SOUND_MANAGER.play("explode", this.x, this.y);
         super.die();

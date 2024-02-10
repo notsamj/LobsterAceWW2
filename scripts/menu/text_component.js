@@ -33,7 +33,12 @@ class TextComponent extends Component {
         this.height = height;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getX
+        Method Parameters: None
+        Method Description: Either return x or if its a function, return its evaluation with the current screen width
+        Method Return: Number
+    */
     getX(){
         if (typeof this.x === "function"){
             return this.x(getScreenWidth());
@@ -42,7 +47,12 @@ class TextComponent extends Component {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getY
+        Method Parameters: None
+        Method Description: Either return y or if its a function, return its evaluation with the current screen height
+        Method Return: Number
+    */
     getY(){
         if (typeof this.y === "function"){
             return this.y(getScreenHeight());

@@ -22,7 +22,12 @@ class NotSamLinkedList{
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: clear
+        Method Parameters: None
+        Method Description: Empties the list
+        Method Return: void
+    */
     clear(){
         this.head = null;
         this.end = null;
@@ -273,8 +278,6 @@ class NotSamLinkedList{
         }
         let node = this.getNode(index);
         let previous = node.previous; // MUST NOT BE NULL OR ERROR
-        // TODO: Remove
-        if (previous == null){ debugger; }
         previous.next = node.next;
         // If this is the last node then it would be null
         if (node.next != null){
@@ -340,12 +343,24 @@ class NotSamLinkedList{
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getLastNode
+        Method Parameters: None
+        Method Description: Returns the last node
+        Method Return: DLLNode
+    */
     getLastNode(){
         return this.end;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: deleteWithCondition
+        Method Parameters:
+            conditionFunction:
+                A function that takes a single parameter and returns a boolean, true -> delete element, false -> don't delete
+        Method Description: Deletes all elements for which the conditionFunction return true
+        Method Return: void
+    */
     deleteWithCondition(conditionFunction){
         if (this.isEmpty()){ return; }
         let current = this.getLastNode();
@@ -365,7 +380,7 @@ class NotSamLinkedList{
 
 /*
     Class Name: DLLNode
-    Description: A  linked node.
+    Description: A doubly linked node.
 */
 class DLLNode{
     constructor(previous, value){

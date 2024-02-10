@@ -58,7 +58,12 @@ class TickLock extends Lock{
         this.ticksLeft += this.numTicks;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getTicksLeft
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
     getTicksLeft(){
         return this.ticksLeft;
     }

@@ -113,7 +113,12 @@ class PlaneGameScene extends Scene {
         return followableEntities;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getBuildings
+        Method Parameters: None
+        Method Description: Find all the buildings and return them in a list.
+        Method Return: List of Building
+    */
     getBuildings(){
         let buildings = [];
         for (let [entity, entityIndex] of this.entities){

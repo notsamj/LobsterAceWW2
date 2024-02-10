@@ -2,7 +2,6 @@
     Class Name: BiasedCampaignBotBomberPlane
     Description: A subclass of the BomberPlane with biases for its actions and the task at bombing all buildings.
     Note: Lots of this code should be copied from BiasedBotBomberPlane. It's unfortunate but this can't be a subclass so its mostly a copy.
-    TODO: Class needs comments
 */
 class BiasedCampaignBotBomberPlane extends BomberPlane {
     /*
@@ -129,6 +128,12 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance_offset"];
     }
 
+    /*
+        Method Name: decideOnDirection
+        Method Parameters: None
+        Method Description: Make a decision on which direction to face. Either stay the same or turn.
+        Method Return: void
+    */
     decideOnDirection(){
         if (this.facingLock.notReady()){ return; }
         let buildingInfo = this.getBuildingInfo();
@@ -175,6 +180,12 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         return new BiasedCampaignBotBomberPlane(planeClass, scene, true, 0, biases); // Temporary values some will be changed
     }
 
+    /*
+        Method Name: getBuildingInfo
+        Method Parameters: None
+        Method Description: Determines the x location of the start of the first (lowest x) building and the end of the last (highest x) building
+        Method Return: JSON Object
+    */
     getBuildingInfo(){
         let frontEnd = null;
         let backEnd = null;
@@ -189,6 +200,12 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         return {"first_building": frontEnd, "last_building": backEnd};
     }
 
+    /*
+        Method Name: bombXAirTravel
+        Method Parameters: None
+        Method Description: Calculate how far the bomb will travel (in x) while falling
+        Method Return: float
+    */
     bombXAirTravel(){
         // If the plane is at/below ground don't bother with computation
         if (this.y <= 0){ return 0; }
@@ -199,19 +216,31 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
             0 = 0.5g * t^2 + vI * t - d
             t = [-1 * vI + sqrt(vI + 2 * g * d)] / g
         */
-        let vI = this.bombInitialYVelocityMagnitude();
+        let vI = this.bombInitialYVelocity();
         let g = FILE_DATA["constants"]["GRAVITY"];
         let d = this.y;
-        let time = (-1 * vI + Math.sqrt(Math.pow(vI, 2) + 2 * d * g)) / g;
+        // Note: There may be some error here because I wasn't thinking too clearly when I was setting up the equation and considering the direction of the initial velocity
+        let time = (vI + Math.sqrt(Math.pow(vI, 2) + 2 * d * g)) / g;
         // Calculate x distance covered in that time
         return Math.abs(this.getXVelocity() * time);
     }
 
-    bombInitialYVelocityMagnitude(){
-        return Math.abs(this.getYVelocity()) + Math.abs(FILE_DATA["bomb_data"]["initial_y_velocity"]); 
+    /*
+        Method Name: bombInitialYVelocity
+        Method Parameters: None
+        Method Description: Calculate the the initial y velocity of the bomb
+        Method Return: float
+    */
+    bombInitialYVelocity(){
+        return this.getYVelocity() + FILE_DATA["bomb_data"]["initial_y_velocity"]; 
     }
 
-    // Check if its worth bombing and drop bombs
+    /*
+        Method Name: checkIfBombing
+        Method Parameters: None
+        Method Description: Check if it makes sense to start bombing. If so -> start bombing.
+        Method Return: void
+    */
     checkIfBombing(){
         if (this.bombLock.notReady()){ return; }
         let distanceTravelledByBomb = this.bombXAirTravel();

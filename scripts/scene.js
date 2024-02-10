@@ -63,12 +63,22 @@ class Scene {
         this.displayEnabled = false;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getWidth
+        Method Parameters: None
+        Method Description: Determine width of the screen
+        Method Return: Integer
+    */
     getWidth(){
         return getScreenWidth();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getHeight
+        Method Parameters: None
+        Method Description: Determine Height of the screen
+        Method Return: Integer
+    */
     getHeight(){
         return getScreenHeight();
     }
@@ -409,7 +419,12 @@ class Scene {
         this.ticksEnabled = false;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: hasTicksEnabled
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Boolean
+    */
     hasTicksEnabled(){
         return this.ticksEnabled;
     }

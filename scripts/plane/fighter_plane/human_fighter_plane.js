@@ -72,7 +72,6 @@ class HumanFighterPlane extends FighterPlane {
         this.checkShoot();
         this.checkThrottle();
         this.updateRadar();
-        // TODO: I moved the above 5 calls above super call, seems right to me...
         super.tick(timeDiffMS);
     }
 

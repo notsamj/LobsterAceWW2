@@ -119,7 +119,12 @@ class Turret {
         this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
     }
 
-    // TODO COmments
+    /*
+        Method Name: readyToShoot
+        Method Parameters: None
+        Method Description: Determines if the turret is ready to shoot
+        Method Return: true -> ready, false -> not ready
+    */
     readyToShoot(){
         return this.shootCD.isReady();
     }

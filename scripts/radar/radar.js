@@ -20,16 +20,39 @@ class Radar {
         this.radarData = this.resetRadar();
     }
 
-    // TODO: Comments on these functions
+    /*
+        Method Name: getScreenX
+        Method Parameters: None
+        Method Description: Determine the x location of the radar with respect to the screen
+        Method Return: Integer
+    */
     getScreenX(){
-        return getScreenWidth() - this.radarOutline.width-1;
+        return getScreenWidth() - this.radarOutline.width - 1;
     }
 
+    /*
+        Method Name: getScreenY
+        Method Parameters: None
+        Method Description: Determine the y location of the radar with respect to the screen
+        Method Return: Integer
+    */
     getScreenY(){
         return 1;
     }
 
-    drawRectangle(colour, screenX, screenY){
+    /*
+        Method Name: drawBlip
+        Method Parameters:
+            colour:
+                The colour of the blip
+            screenX:
+                x location to draw the blip
+            screenY:
+                y location to draw the blip
+        Method Description: Draw a blip on the screen
+        Method Return: void
+    */
+    drawBlip(colour, screenX, screenY){
         fill(colour);
         rect(screenX, screenY, this.blipSize, this.blipSize);
     }
@@ -46,7 +69,7 @@ class Radar {
         for (let x = 0; x < this.size; x++){
             for (let y = 0; y < this.size; y++){
                 if (this.radarData[x][y] == null){ continue; }
-                this.drawRectangle(this.radarData[x][y], this.getScreenX() + borderWidth + this.blipSize * x, this.getScreenY() + borderWidth + this.blipSize * y);
+                this.drawBlip(this.radarData[x][y], this.getScreenX() + borderWidth + this.blipSize * x, this.getScreenY() + borderWidth + this.blipSize * y);
             }
         }
     }

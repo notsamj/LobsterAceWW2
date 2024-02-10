@@ -42,7 +42,18 @@ class ExtraSettingsMenu extends Menu {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: createSetting
+        Method Parameters:
+            settingName:
+                Name of the setting
+            settingPath:
+                Series of keys to lead from FILE_DATA to the value
+            offSetIndex:
+                The index of the setting used to offset its y position
+        Method Description: Creates a setting in the menu
+        Method Return: void
+    */
     createSetting(settingName, settingPath, offSetIndex){
         let sectionYSize = 100;
         let onOffButtonSize = 50;
@@ -70,7 +81,16 @@ class ExtraSettingsMenu extends Menu {
         }));
     }
 
-    // TODO: Comments on these 2 methods
+    /*
+        Method Name: getSettingValue
+        Method Parameters:
+            settingName:
+                Name of the setting
+            path:
+                Sequence of keys to navigate to the setting in FILE_DATA
+        Method Description: Find the value for a setting
+        Method Return: Variable
+    */
     getSettingValue(settingName, path){
         let currentJSONObject = FILE_DATA;
         for (let key of path){
@@ -79,6 +99,18 @@ class ExtraSettingsMenu extends Menu {
         return currentJSONObject[settingName];
     }
 
+    /*
+        Method Name: setSettingValue
+        Method Parameters:
+            settingName:
+                Name of the setting
+            settingPath:
+                Series of keys to lead from FILE_DATA to the value
+            value:
+                Value of the setting
+        Method Description: Sets the value of a setting
+        Method Return: void
+    */
     setSettingValue(settingName, path, value){
         let currentJSONObject = FILE_DATA;
         for (let key of path){
