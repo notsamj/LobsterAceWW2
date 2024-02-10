@@ -269,11 +269,8 @@ class BiasedBotBomberPlane extends BomberPlane {
             return;
         }
 
-        // Point to enemy when very far away
-        if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"]){
-            this.turnInDirection(angleDEG);
-            return;
-        }
+        // Point to enemy I guess. It's a silly situation, no good answer
+        this.turnInDirection(angleDEG);
     }
 
     /*

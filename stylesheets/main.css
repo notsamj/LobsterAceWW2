@@ -4,6 +4,8 @@ html, body {
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    font-family: "arial";
+    font-size: 25px;
 }
 body::-webkit-scrollbar {
     display: none;
