@@ -279,7 +279,7 @@ const FILE_DATA = {
 
     "missions": [
         {
-            "description": "Mission 1\nAn American assault onGerman\npositions in Western Germany.",
+            "description": "Mission 1\nAn American assault on German\npositions in Western Germany.",
             "user_planes": [
                 "republic_p_47",
                 "p51_mustang",
