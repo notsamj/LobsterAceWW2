@@ -407,7 +407,7 @@ const FILE_DATA = {
             }
         },
         {
-            "description": "Mission 2\nAn American assault on Japanese positions on\n a small island\nsomewhere between Japan and Hawaii.",
+            "description": "Mission 2\nAn American assault on Japanese positions on\na small island\nsomewhere between Japan and Hawaii.",
             "user_planes": [
                 "republic_p_47",
                 "p51_mustang",
