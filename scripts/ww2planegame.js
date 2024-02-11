@@ -3,8 +3,8 @@ const MAX_RUNNING_LATE = 500;
 var scene;
 var menuManager;
 var setupDone = false;
-var frameCounter = new FrameRateCounter(FILE_DATA["constants"]["FRAME_RATE"]);
-var frameLock = new CooldownLock(Math.floor(1/FILE_DATA["constants"]["FRAME_RATE"]));
+var frameCounter = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);
+var frameLock = new CooldownLock(Math.floor(1/PROGRAM_DATA["settings"]["frame_rate"]));
 var activeGameMode = null;
 var loadedPercent = 0;
 var debug = false;
@@ -62,12 +62,12 @@ async function tick(){
 */
 async function loadExtraImages(){
     // Load generic extra images
-    for (let imageName of FILE_DATA["extra_images_to_load"]){
+    for (let imageName of PROGRAM_DATA["extra_images_to_load"]){
         await loadToImages(imageName);
     }
 
     // Load all the smoke images
-    for (let imageName of FILE_DATA["smoke_images"]){
+    for (let imageName of PROGRAM_DATA["smoke_images"]){
         await loadToImages(imageName);
     }
 }
@@ -95,7 +95,7 @@ async function setup() {
 
     // Prepare to start running
     startTime = Date.now();
-    tickInterval = setInterval(tick, Math.floor(1000 / (FILE_DATA["constants"]["TICK_RATE"])));
+    tickInterval = setInterval(tick, Math.floor(1000 / (PROGRAM_DATA["settings"]["tick_rate"])));
 
     await loadPlanes();
     await loadExtraImages();

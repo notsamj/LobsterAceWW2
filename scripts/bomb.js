@@ -24,9 +24,9 @@ class Bomb extends Entity {
         super(scene);
         this.x = x;
         this.y = y;
-        this.yVelocity = yVelocity + FILE_DATA["bomb_data"]["initial_y_velocity"];
+        this.yVelocity = yVelocity + PROGRAM_DATA["bomb_data"]["initial_y_velocity"];
         this.xVelocity = xVelocity;
-        this.hitBox = new CircleHitbox(FILE_DATA["bomb_data"]["radius"]);
+        this.hitBox = new CircleHitbox(PROGRAM_DATA["bomb_data"]["radius"]);
     }
 
     /*
@@ -39,7 +39,7 @@ class Bomb extends Entity {
     */
     tick(timePassed){
         let timeProportion = timePassed / 1000; // Proportion of a second
-        let yAcceleration = FILE_DATA["constants"]["GRAVITY"] * timeProportion;
+        let yAcceleration = PROGRAM_DATA["constants"]["gravity"] * timeProportion;
 
         // Apply acceleration
         this.yVelocity = this.yVelocity - yAcceleration;
@@ -63,7 +63,7 @@ class Bomb extends Entity {
     explode(){
         // Loop through and damage all nearby buildings
         for (let building of this.scene.getBuildings()){
-            if (building.distance(this) < FILE_DATA["bomb_data"]["bomb_explosion_radius"]){
+            if (building.distance(this) < PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]){
                 building.damage(1);
             }
         }

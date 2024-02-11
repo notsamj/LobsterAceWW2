@@ -18,13 +18,13 @@ class Mission extends GameMode {
         this.userEntityType = userEntityType;
 		this.missionObject = missionObject;
 		this.running = true;
-		this.tickManager = new SceneTickManager(Date.now(), scene, FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+		this.tickManager = new SceneTickManager(Date.now(), scene, PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
         this.axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
 		this.buildings = this.createBuildings();
 		this.planes = this.createPlanes(userEntityType);
-        this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
-        this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"], false);
+        this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
+        this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
 		scene.setEntities(appendLists(this.planes, this.buildings));
         AfterMatchStats.reset();
 	}
@@ -215,7 +215,7 @@ class Mission extends GameMode {
             let count = this.planeCounts[planeModel];
             let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
             for (let i = 0; i < count; i++){
-                if (FILE_DATA["plane_data"][planeModel]["type"] == "Bomber"){
+                if (PROGRAM_DATA["plane_data"][planeModel]["type"] == "Bomber"){
                     planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, scene, difficulty));
                 }else if (side == "attackers"){
                     planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
@@ -257,7 +257,7 @@ class Mission extends GameMode {
             plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
             // Give bomber extra hp
             if (plane instanceof BomberPlane){
-                plane.setStartingHealth(plane.getHealth() * this.missionObject[this.getAttackerDifficulty()]["BOMBER_HP_MULTIPLIER"]);
+                plane.setStartingHealth(plane.getHealth() * this.missionObject[this.getAttackerDifficulty()]["bomber_hp_multiplier"]);
                 plane.setHealth(plane.getStartingHealth());
             }
         }
@@ -277,7 +277,7 @@ class Mission extends GameMode {
         // Add user plane (or freecam) to the planes list
     	if (userEntityType == "freecam"){
     		planes.push(new SpectatorCamera(scene));
-    	}else if (FILE_DATA["plane_data"][userEntityType]["type"] == "Bomber"){
+    	}else if (PROGRAM_DATA["plane_data"][userEntityType]["type"] == "Bomber"){
     		planes.push(new HumanBomberPlane(userEntityType, scene))
     	}else{ // User is fighter plane
     		planes.push(new HumanFighterPlane(userEntityType, scene))
@@ -343,8 +343,8 @@ class Mission extends GameMode {
             axisLock = this.attackerSpawnLock;
             allyLock = this.defenderSpawnLock;
         }
-        HEADS_UP_DISPLAY.updateElement("Next Ally Respawn", ((allyLock.getTicksLeft() * FILE_DATA["constants"]["MS_BETWEEN_TICKS"]) / 1000).toFixed(0));
-        HEADS_UP_DISPLAY.updateElement("Next Axis Respawn", ((axisLock.getTicksLeft() * FILE_DATA["constants"]["MS_BETWEEN_TICKS"]) / 1000).toFixed(0));
+        HEADS_UP_DISPLAY.updateElement("Next Ally Respawn", ((allyLock.getTicksLeft() * PROGRAM_DATA["settings"]["ms_between_ticks"]) / 1000).toFixed(0));
+        HEADS_UP_DISPLAY.updateElement("Next Axis Respawn", ((axisLock.getTicksLeft() * PROGRAM_DATA["settings"]["ms_between_ticks"]) / 1000).toFixed(0));
     }
 
     /*

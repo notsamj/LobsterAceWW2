@@ -24,9 +24,9 @@ async function loadRotatedImages(name){
     Note: This is a relic from when planes has 720 images and took a long time to load. It should be redone.
 */
 async function loadPlanes(){
-    let numPlanes = Object.entries(FILE_DATA["plane_data"]).length;
+    let numPlanes = Object.entries(PROGRAM_DATA["plane_data"]).length;
     let i = 0;
-    for (const [planeName, planeDetails] of Object.entries(FILE_DATA["plane_data"])) {
+    for (const [planeName, planeDetails] of Object.entries(PROGRAM_DATA["plane_data"])) {
         loadedPercent = Math.round(i / numPlanes * 100);
         await loadRotatedImages(planeName);
         i += 1;
@@ -46,7 +46,7 @@ class PlaneGameScene extends Scene {
     constructor(){
         super();
         this.collisionsEnabled = true;
-        this.teamCombatManager = new TeamCombatManager(FILE_DATA["teams"]);
+        this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"]);
     }
 
     /*
@@ -354,7 +354,7 @@ class PlaneGameScene extends Scene {
         CLOUD_MANAGER.display(lX, bY);
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
-        let groundImage = images[FILE_DATA["background"]["ground"]["picture"]];
+        let groundImage = images[PROGRAM_DATA["background"]["ground"]["picture"]];
         let groundImageHeight = groundImage.height;
         let groundImageWidth = groundImage.width;
         // If displaying ground
@@ -385,7 +385,7 @@ class PlaneGameScene extends Scene {
             }
         }
         // Display above ground
-        let aboveGroundImage = images[FILE_DATA["background"]["above_ground"]["picture"]];
+        let aboveGroundImage = images[PROGRAM_DATA["background"]["above_ground"]["picture"]];
         let aboveGroundHeight = aboveGroundImage.height;
         let aboveGroundWidth = aboveGroundImage.width;
         // If screen contains the above ground range

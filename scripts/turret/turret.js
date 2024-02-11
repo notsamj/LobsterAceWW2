@@ -25,7 +25,7 @@ class Turret {
     constructor(x, y, fov1, fov2, rateOfFire, scene){
         this.x = x;
         this.y = y;
-        this.shootCD = new TickLock(rateOfFire * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.shootCD = new TickLock(rateOfFire * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.fov1 = fov1;
         this.fov2 = fov2;
         this.scene = scene;

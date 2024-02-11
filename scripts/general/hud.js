@@ -48,7 +48,7 @@ class HUD {
         Method Return: void
     */
     display(){
-        let sizeOfText = FILE_DATA["hud"]["text_size"];
+        let sizeOfText = PROGRAM_DATA["hud"]["text_size"];
         textSize(sizeOfText);
         textAlign(LEFT, TOP);
         let i = 1;
@@ -123,11 +123,11 @@ class HUDElement {
         Method Return: void
     */
     display(x, y){
-        fill(FILE_DATA["hud"]["key_colour"]);
+        fill(PROGRAM_DATA["hud"]["key_colour"]);
         let key = this.name + ": ";
         text(key, x, y);
         let xOffset = textWidth(key);
-        fill(FILE_DATA["hud"]["value_colour"]);
+        fill(PROGRAM_DATA["hud"]["value_colour"]);
         text(`${this.value}`, x + xOffset, y);
         this.readyToDisplay = false;
     }

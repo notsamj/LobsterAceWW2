@@ -1,6 +1,6 @@
 // If using NodeJS then do required imports
 if (typeof window === "undefined"){
-    FILE_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../data/data_json.js");
 }
 
 /*
@@ -189,7 +189,7 @@ function getDegreesFromDisplacement(dX, dY){
     Method Return: String
 */
 function planeModelToType(model){
-    return FILE_DATA["plane_data"][model]["type"];
+    return PROGRAM_DATA["plane_data"][model]["type"];
 }
 
 /*
@@ -421,7 +421,7 @@ function randomNumber(maxExclusive){
     Method Return: boolean, True -> On same team, False -> Not on the same team
 */
 function onSameTeam(class1, class2){
-    return countryToAlliance(FILE_DATA["plane_data"][class1]["country"]) == countryToAlliance(FILE_DATA["plane_data"][class2]["country"]);
+    return countryToAlliance(PROGRAM_DATA["plane_data"][class1]["country"]) == countryToAlliance(PROGRAM_DATA["plane_data"][class2]["country"]);
 }
 
 /*
@@ -663,7 +663,7 @@ function randomFloatBetween(lowerBound, upperBound){
     Method Return: String
 */
 function countryToAlliance(country){
-    return FILE_DATA["country_to_alliance"][country];
+    return PROGRAM_DATA["country_to_alliance"][country];
 }
 
 /*
@@ -675,7 +675,7 @@ function countryToAlliance(country){
     Method Return: String
 */
 function planeModelToCountry(planeModel){
-    return FILE_DATA["plane_data"][planeModel]["country"];
+    return PROGRAM_DATA["plane_data"][planeModel]["country"];
 }
 
 /*

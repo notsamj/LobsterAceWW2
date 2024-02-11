@@ -232,7 +232,7 @@ class MultiplayerMenu extends Menu {
     */
     createUserPlaneSelection(){
         let userPlanes = ["freecam"];
-        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
             userPlanes.push(planeName);
         }
         return userPlanes;
@@ -246,7 +246,7 @@ class MultiplayerMenu extends Menu {
     */
     createAlliedPlaneSelection(){
         let alliedPlanes = [];
-        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
             if (planeModelToAlliance(planeName) == "Allies"){
                 alliedPlanes.push(planeName);
                 this.planeCounts[planeName] = 0;
@@ -263,7 +263,7 @@ class MultiplayerMenu extends Menu {
     */
     createAxisPlaneSelection(){
         let axisPlanes = [];
-        for (let [planeName, planeData] of Object.entries(FILE_DATA["plane_data"])){
+        for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
             if (planeModelToAlliance(planeName) == "Axis"){
                 axisPlanes.push(planeName);
                 this.planeCounts[planeName] = 0;

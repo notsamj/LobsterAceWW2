@@ -21,13 +21,13 @@ class SpectatorCamera extends Entity {
         this.y = y;
         this.followingEntity = null;
         this.followToggleLock = new Lock();
-        this.leftRightLock = new TickLock(250 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.leftRightLock = new TickLock(250 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.xVelocity = 0;
         this.yVelocity = 0;
         this.xLock = new TickLock(0);
         this.yLock = new TickLock(0);
         this.radar = new SpectatorRadar(this);
-        this.radarLock = new TickLock(250 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.radarLock = new TickLock(250 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.switchTeamLock = new Lock();
     }
 

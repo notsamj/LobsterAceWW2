@@ -10,8 +10,8 @@ class ServerConnection {
         Method Return: Constructor
     */
     constructor(){
-        this.ip = FILE_DATA["constants"]["server_ip"];
-        this.port = FILE_DATA["constants"]["server_port"];
+        this.ip = PROGRAM_DATA["settings"]["server_ip"];
+        this.port = PROGRAM_DATA["settings"]["server_port"];
         this.commsLock = new Lock();
         this.socket = new WebSocket("ws://" + this.ip + ":" + this.port);
         this.openedLock = new Lock();

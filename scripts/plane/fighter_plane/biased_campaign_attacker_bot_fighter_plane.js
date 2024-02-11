@@ -94,7 +94,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         let xDistance = Math.abs(bomber.getX() - this.getX());
         let yDistance = Math.abs(bomber.getY() - this.getY());
         // If too far from bomber in x then go to bomber
-        if (xDistance > FILE_DATA["ai"]["fighter_plane"]["max_x_distance_from_bomber_cruising_campaign"] || yDistance > FILE_DATA["ai"]["fighter_plane"]["max_y_distance_from_bomber_cruising_campaign"]){
+        if (xDistance > PROGRAM_DATA["ai"]["fighter_plane"]["max_x_distance_from_bomber_cruising_campaign"] || yDistance > PROGRAM_DATA["ai"]["fighter_plane"]["max_y_distance_from_bomber_cruising_campaign"]){
             // Make sure that you are facing the right way
             if (bomber.isFacingRight() != this.isFacingRight()){
                 this.face(!this.isFacingRight());
@@ -140,7 +140,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= (FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
+        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= (PROGRAM_DATA["settings"]["enemy_disregard_distance_time_constant"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -150,7 +150,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            if (distance > FILE_DATA["ai"]["fighter_plane"]["max_enemy_distance_campaign"]){ continue; }
+            if (distance > PROGRAM_DATA["ai"]["fighter_plane"]["max_enemy_distance_campaign"]){ continue; }
             let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {

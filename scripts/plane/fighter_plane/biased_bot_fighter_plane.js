@@ -1,7 +1,7 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     CooldownLock = require("../scripts/cooldown_lock.js");
-    FILE_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../data/data_json.js");
     var helperFuncs = require("../scripts/helper_functions.js");
     rotateCWDEG = helperFuncs.rotateCWDEG;
     rotateCCWDEG = helperFuncs.rotateCCWDEG;
@@ -39,12 +39,12 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.ticksOnCourse = 0;
         this.tickCD = 0;
         this.biases = biases;
-        this.updateEnemyLock = new TickLock(FILE_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.throttle += this.biases["throttle"];
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
         this.startingHealth = this.health;
-        this.rotationCD = new TickLock(this.biases["rotation_time"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.rotationCD = new TickLock(this.biases["rotation_time"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
     /*
@@ -161,7 +161,7 @@ class BiasedBotFighterPlane extends FighterPlane {
             return;
         }
         // Point to enemy when very far away
-        if (distance > this.speed * FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * FILE_DATA["constants"]["TURN_TO_ENEMY_CONSTANT"] + this.biases["enemy_far_away_distance"]){
+        if (distance > this.speed * PROGRAM_DATA["settings"]["enemy_disregard_distance_time_constant"] * PROGRAM_DATA["settings"]["turn_to_enemy_constant"] + this.biases["enemy_far_away_distance"]){
             this.turnInDirection(angleDEG);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
             return;
@@ -186,7 +186,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     handleClose(angleDEG, distance, enemy){
         let myAngle = this.getNoseAngle();
         // If enemy is behind, then do evasive manuevers
-        if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"])), rotateCCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"]))) && distance < this.getMaxSpeed() * FILE_DATA["constants"]["EVASIVE_SPEED_DIFF"] + this.biases["enemy_close_distance"]){
+        if (angleBetweenCWDEG(angleDEG, rotateCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"])), rotateCCWDEG(myAngle, fixDegrees(135 + this.biases["enemy_behind_angle"]))) && distance < this.getMaxSpeed() * PROGRAM_DATA["settings"]["evasive_speed_diff"] + this.biases["enemy_close_distance"]){
             this.evasiveManeuver();
             return;
         }
@@ -198,8 +198,8 @@ class BiasedBotFighterPlane extends FighterPlane {
         // Not doing evausive maneuevers
 
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= FILE_DATA["ai"]["fighter_plane"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
-            this.tickCD = FILE_DATA["ai"]["fighter_plane"]["tick_cd"] + this.biases["ticks_cooldown"];
+        if (this.ticksOnCourse >= PROGRAM_DATA["ai"]["fighter_plane"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
+            this.tickCD = PROGRAM_DATA["ai"]["fighter_plane"]["tick_cd"] + this.biases["ticks_cooldown"];
             this.ticksOnCourse = 0;
         }
         this.turningDirection = null;
@@ -267,7 +267,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Return: True if close to the ground, false if not close
     */
     closeToGround(){
-        return this.y < FILE_DATA["constants"]["CLOSE_TO_GROUND_CONSTANT"] * this.speed + this.biases["close_to_ground"];
+        return this.y < PROGRAM_DATA["settings"]["close_to_ground_constant"] * this.speed + this.biases["close_to_ground"];
     }
 
     /*
@@ -297,7 +297,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
         // If the angle of the plane currently is very close to the desired angle, not worth moving
-        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] + this.biases["min_angle_to_adjust"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] + this.biases["min_angle_to_adjust"]){
+        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < PROGRAM_DATA["settings"]["min_angle_to_adjust"] + this.biases["min_angle_to_adjust"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < PROGRAM_DATA["settings"]["min_angle_to_adjust"] + this.biases["min_angle_to_adjust"]){
             return;
         }
 
@@ -372,7 +372,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= (FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
+        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= (PROGRAM_DATA["settings"]["enemy_disregard_distance_time_constant"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -403,7 +403,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Return: float
     */
     getMaxShootingDistance(){
-        return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance"];
+        return PROGRAM_DATA["settings"]["shoot_distance_constant"] * PROGRAM_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance"];
     }
 
     /*
@@ -452,7 +452,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Return: JSON Object
     */
     static createBiases(difficulty){
-        let biasRanges = FILE_DATA["ai"]["fighter_plane"]["bias_ranges"][difficulty];
+        let biasRanges = PROGRAM_DATA["ai"]["fighter_plane"]["bias_ranges"][difficulty];
         let biases = {};
         for (let [key, bounds] of Object.entries(biasRanges)){
             let upperBound = bounds["upper_range"]["upper_bound"];
@@ -510,7 +510,7 @@ class BiasedBotFighterPlane extends FighterPlane {
 }
 
 function calculateEnemyScore(distance, focusedCount){
-    return distance + focusedCount * FILE_DATA["constants"]["FOCUSED_COUNT_DISTANCE_EQUIVALENT"];
+    return distance + focusedCount * PROGRAM_DATA["settings"]["focused_count_distance_equivalent"];
 }
 
 // If using Node JS Export the class

@@ -25,9 +25,9 @@ class SpectatorRadar extends Radar {
         this.radarData = this.resetRadar();
         for (let plane of scene.getPlanes()){
             if (plane instanceof FighterPlane){
-                this.placeOnRadar(plane.getX(), plane.getY(), FILE_DATA["team_to_colour"]["fighter_plane"][planeModelToAlliance(plane.getPlaneClass())]);
+                this.placeOnRadar(plane.getX(), plane.getY(), PROGRAM_DATA["team_to_colour"]["fighter_plane"][planeModelToAlliance(plane.getPlaneClass())]);
             }else if (plane instanceof BomberPlane){
-                this.placeOnRadar(plane.getX(), plane.getY(), FILE_DATA["team_to_colour"]["bomber_plane"][planeModelToAlliance(plane.getPlaneClass())]);
+                this.placeOnRadar(plane.getX(), plane.getY(), PROGRAM_DATA["team_to_colour"]["bomber_plane"][planeModelToAlliance(plane.getPlaneClass())]);
             }
         }
 

@@ -12,11 +12,11 @@ class Radar {
         Method Return: Constructor
     */
     constructor(entity){
-        this.size = FILE_DATA["radar"]["size"]; // MUST BE EVEN
+        this.size = PROGRAM_DATA["radar"]["size"]; // MUST BE EVEN
         this.entity = entity;
-        this.blipSize = FILE_DATA["radar"]["blip_size"];
+        this.blipSize = PROGRAM_DATA["radar"]["blip_size"];
         this.radarOutline = images["radar_outline"];
-        this.blipDistance = FILE_DATA["radar"]["blip_distance"];
+        this.blipDistance = PROGRAM_DATA["radar"]["blip_distance"];
         this.radarData = this.resetRadar();
     }
 
@@ -65,7 +65,7 @@ class Radar {
     */
     display(){
         drawingContext.drawImage(this.radarOutline, this.getScreenX(), this.getScreenY());
-        let borderWidth = FILE_DATA["radar"]["border_width"];
+        let borderWidth = PROGRAM_DATA["radar"]["border_width"];
         for (let x = 0; x < this.size; x++){
             for (let y = 0; y < this.size; y++){
                 if (this.radarData[x][y] == null){ continue; }

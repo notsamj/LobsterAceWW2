@@ -63,7 +63,7 @@ class TeamCombatManager {
     clear(){
         for (let team of this.teams){
             this.planes[team] = new NotSamLinkedList();
-            this.bullets[team] = new NotSamArrayList(null, FILE_DATA["constants"]["MAX_BULLETS"]);
+            this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets"]);
         }
     }
 

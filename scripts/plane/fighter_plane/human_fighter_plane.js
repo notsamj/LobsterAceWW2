@@ -20,7 +20,7 @@ class HumanFighterPlane extends FighterPlane {
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
         this.lrLock = new Lock();
-        this.radarLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
     }
 

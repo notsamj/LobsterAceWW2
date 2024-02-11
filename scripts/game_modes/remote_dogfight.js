@@ -41,7 +41,7 @@ class RemoteDogfight extends Dogfight {
         this.version = null;
         this.serverConnection = serverConnection;
         this.serverDataLock = new Lock();
-        this.inputHistory = new ValueHistoryManager(FILE_DATA["constants"]["SAVED_TICKS"]);
+        this.inputHistory = new ValueHistoryManager(PROGRAM_DATA["settings"]["saved_ticks"]);
         this.testVar = 0;
         this.testVar2 = 0;
     }

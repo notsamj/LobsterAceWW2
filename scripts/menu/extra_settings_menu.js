@@ -37,7 +37,7 @@ class ExtraSettingsMenu extends Menu {
 
         // Interface for changing settings
         let i = 0;
-        for (let setting of FILE_DATA["extra_settings"]){
+        for (let setting of PROGRAM_DATA["extra_settings"]){
             this.createSetting(setting["name"], setting["path"], i++);
         }
     }
@@ -48,7 +48,7 @@ class ExtraSettingsMenu extends Menu {
             settingName:
                 Name of the setting
             settingPath:
-                Series of keys to lead from FILE_DATA to the value
+                Series of keys to lead from PROGRAM_DATA to the value
             offSetIndex:
                 The index of the setting used to offset its y position
         Method Description: Creates a setting in the menu
@@ -87,12 +87,12 @@ class ExtraSettingsMenu extends Menu {
             settingName:
                 Name of the setting
             path:
-                Sequence of keys to navigate to the setting in FILE_DATA
+                Sequence of keys to navigate to the setting in PROGRAM_DATA
         Method Description: Find the value for a setting
         Method Return: Variable
     */
     getSettingValue(settingName, path){
-        let currentJSONObject = FILE_DATA;
+        let currentJSONObject = PROGRAM_DATA;
         for (let key of path){
             currentJSONObject = currentJSONObject[key];
         }
@@ -105,14 +105,14 @@ class ExtraSettingsMenu extends Menu {
             settingName:
                 Name of the setting
             settingPath:
-                Series of keys to lead from FILE_DATA to the value
+                Series of keys to lead from PROGRAM_DATA to the value
             value:
                 Value of the setting
         Method Description: Sets the value of a setting
         Method Return: void
     */
     setSettingValue(settingName, path, value){
-        let currentJSONObject = FILE_DATA;
+        let currentJSONObject = PROGRAM_DATA;
         for (let key of path){
             currentJSONObject = currentJSONObject[key];
         }

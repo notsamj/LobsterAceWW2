@@ -151,7 +151,7 @@ class AfterMatchStats {
         Method Return: String
     */
     static getTeamColour(team){
-        return FILE_DATA["team_to_colour"][team];
+        return PROGRAM_DATA["team_to_colour"][team];
     }
 
     // Interface for non-static function

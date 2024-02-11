@@ -1,13 +1,13 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    FILE_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../data/data_json.js");
     Lock = require("../scripts/lock.js");
 }
 
 /*
     Class Name: SceneTickManager
     Description: An object to manage the ticks for a scene.
-    Note: I think FILE_DATA["constants"]["MS_BETWEEN_TICKS"] should = this.tickLength so pointless to use both in the code.
+    Note: I think PROGRAM_DATA["settings"]["ms_between_ticks"] should = this.tickLength so pointless to use both in the code.
 */
 class SceneTickManager {
     /*
@@ -124,7 +124,7 @@ class SceneTickManager {
         Method Return: long
     */
     getExpectedTicks(){
-        return Math.floor(((Date.now() - this.startTime) / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]));
+        return Math.floor(((Date.now() - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"]));
     }
 
     /*

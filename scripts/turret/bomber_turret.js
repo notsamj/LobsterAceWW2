@@ -43,7 +43,7 @@ class BomberTurret extends Turret {
         if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
         this.shootCD.lock();
         SOUND_MANAGER.play("shoot", this.getX(), this.getY());
-        if (FILE_DATA["constants"]["USE_PHYSICS_BULLETS"]){
+        if (PROGRAM_DATA["settings"]["use_physics_bullets"]){
             this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
         }else{ // Fake bullets
             //console.log("Shooting @", this.getShootingAngle(), this.shootCD.getTicksLeft());

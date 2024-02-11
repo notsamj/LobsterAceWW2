@@ -94,7 +94,7 @@ class Menu {
         }
 
         // Loop until the text is too big
-        while (textWidth(longestLine) + FILE_DATA["constants"]["TEXT_BOX_PADDING_PERCENT"] * boxWidth < boxWidth){
+        while (textWidth(longestLine) + PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxWidth < boxWidth){
             textSize(++currentTextSize);
         }
         return currentTextSize - 1; // -1 because we've established that this is 1 size too big for the width
@@ -125,7 +125,7 @@ class Menu {
         let screenX = x;
         let screenY = menuManager.changeToScreenY(y);
         let maxTextSizeW = Menu.determineMaxTextSizeByWidth(splitByLine, boxWidth);
-        let maxTextSizeH = Math.floor((boxHeight - FILE_DATA["constants"]["TEXT_BOX_PADDING_PERCENT"] * boxHeight) / numLines);
+        let maxTextSizeH = Math.floor((boxHeight - PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxHeight) / numLines);
         let calculatedTextSize = Math.min(maxTextSizeW, maxTextSizeH);
         calculatedTextSize = Math.max(calculatedTextSize, 1);
         textSize(calculatedTextSize);

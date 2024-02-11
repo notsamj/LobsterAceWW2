@@ -19,11 +19,11 @@ class HumanBomberPlane extends BomberPlane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene, angle, facingRight);
-        this.udLock = new TickLock(40 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.lrLock = new Lock();
-        this.radarLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
-        this.bombLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.bombLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.generateGuns();
     }
 
@@ -45,7 +45,7 @@ class HumanBomberPlane extends BomberPlane {
     */
     generateGuns(){
         this.guns = [];
-        for (let gunObj of FILE_DATA["plane_data"][this.planeClass]["guns"]){
+        for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
             this.guns.push(HumanBomberTurret.create(gunObj, this.scene, this));
         }
     }

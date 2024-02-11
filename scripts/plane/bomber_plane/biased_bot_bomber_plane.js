@@ -22,8 +22,8 @@ class BiasedBotBomberPlane extends BomberPlane {
     constructor(planeClass, scene, angle, facingRight, biases){
         super(planeClass, scene, angle, facingRight);
         this.currentEnemy = null;
-        this.udLock = new TickLock(40 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
-        this.updateEnemyLock = new TickLock(FILE_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.biases = biases;
         this.generateGuns(biases);
         this.throttle += this.biases["throttle"];
@@ -82,7 +82,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         if (!centerOfFriendyMass["empty"]){
             let distance = this.distanceToPoint(centerOfFriendyMass["centerX"], centerOfFriendyMass["centerY"]);
             // If we are far from friendlies then move to their center
-            if (distance > FILE_DATA["constants"]["BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT"]){
+            if (distance > PROGRAM_DATA["settings"]["bomber_distance_from_friendlies_dogfight"]){
                 let angleDEG = displacementToDegrees(centerOfFriendyMass["centerX"] - this.x, centerOfFriendyMass["centerY"] - this.y);
                 this.turnInDirection(angleDEG);
             }
@@ -117,7 +117,7 @@ class BiasedBotBomberPlane extends BomberPlane {
     */
     generateGuns(biases){
         this.guns = [];
-        for (let gunObj of FILE_DATA["plane_data"][this.planeClass]["guns"]){
+        for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
             this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases));
         }
     }
@@ -136,7 +136,7 @@ class BiasedBotBomberPlane extends BomberPlane {
     */
     static createBiasedPlane(planeClass, scene, difficulty){
         let biases = {};
-        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
+        for (let [key, bounds] of Object.entries(PROGRAM_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
             let upperBound = bounds["upper_range"]["upper_bound"];
             let lowerBound = bounds["upper_range"]["lower_bound"];
             let upperRangeSize = bounds["upper_range"]["upper_bound"] - bounds["upper_range"]["lower_bound"];
@@ -184,7 +184,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Return: float
     */
     getMaxShootingDistance(){
-        return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance_offset"];
+        return PROGRAM_DATA["settings"]["shoot_distance_constant"] * PROGRAM_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance_offset"];
     }
 
     /*
@@ -195,7 +195,7 @@ class BiasedBotBomberPlane extends BomberPlane {
     */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] * this.speed){
+        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= PROGRAM_DATA["settings"]["enemy_disregard_distance_time_constant"] * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -203,7 +203,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * FILE_DATA["constants"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"]);
+            let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * PROGRAM_DATA["settings"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"]);
             if (focusedCountMultiplier < 1 ){ focusedCountMultiplier = 1; }
             let score = distance / focusedCountMultiplier; // Most focusing the better (from POV of bomber)
 
@@ -280,7 +280,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Return: True if close to the ground, false if not close
     */
     closeToGround(){
-        return this.y < FILE_DATA["constants"]["CLOSE_TO_GROUND_CONSTANT"] * this.speed;
+        return this.y < PROGRAM_DATA["settings"]["close_to_ground_constant"] * this.speed;
     }
 
     /*
@@ -313,7 +313,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
 
         // If the angle of the plane currently is very close to the desired angle, not worth moving
-        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < FILE_DATA["constants"]["MIN_ANGLE_TO_ADJUST"]){
+        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < PROGRAM_DATA["settings"]["min_angle_to_adjust"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < PROGRAM_DATA["settings"]["min_angle_to_adjust"]){
             return;
         }
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 

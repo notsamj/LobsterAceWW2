@@ -23,7 +23,7 @@ class FighterPlane extends Plane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene);
-        this.shootLock = new TickLock(FILE_DATA["constants"]["PLANE_SHOOT_GAP_MS"] * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.shootLock = new TickLock(PROGRAM_DATA["settings"]["plane_shoot_gap_ms"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
     /*
@@ -48,7 +48,7 @@ class FighterPlane extends Plane {
     shoot(){
         SOUND_MANAGER.play("shoot", this.x, this.y);
         // If using physical bullets then do it this way
-        if (FILE_DATA["constants"]["USE_PHYSICS_BULLETS"]){
+        if (PROGRAM_DATA["settings"]["use_physics_bullets"]){
             this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
         }else{ // Fake bullets
             this.instantShot(this.getGunX(), this.getGunY(), this.getNoseAngle());
@@ -66,7 +66,7 @@ class FighterPlane extends Plane {
         if (!this.isFacingRight()){
             planeAngleRAD -= toRadians(180);
         }
-        let rotatedX = Math.cos(planeAngleRAD) * (FILE_DATA["plane_data"][this.getPlaneClass()]["GUN_OFFSET_X"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * FILE_DATA["plane_data"][this.getPlaneClass()]["GUN_OFFSET_Y"] + this.getX();
+        let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getX();
         return rotatedX;
     }
 
@@ -81,7 +81,7 @@ class FighterPlane extends Plane {
         if (!this.isFacingRight()){
             planeAngleRAD -= toRadians(180);
         }
-        let rotatedY = Math.sin(planeAngleRAD) * (FILE_DATA["plane_data"][this.getPlaneClass()]["GUN_OFFSET_X"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * FILE_DATA["plane_data"][this.getPlaneClass()]["GUN_OFFSET_Y"] + this.getY();
+        let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getY();
         return rotatedY;
     }
 

@@ -1,4 +1,4 @@
-const FILE_DATA = {
+const PROGRAM_DATA = {
     "plane_data": {
         "spitfire": {
             "radius": 64,
@@ -6,8 +6,8 @@ const FILE_DATA = {
             "health": 12*5,
             "country": "Britain",
             "type": "Fighter",
-            "GUN_OFFSET_X": 126-64,
-            "GUN_OFFSET_Y": 64-61
+            "gun_offset_x": 126-64,
+            "gun_offset_y": 64-61
         },
         "a6m_zero": {
             "radius": 64,
@@ -15,8 +15,8 @@ const FILE_DATA = {
             "health": 13*5,
             "country": "Japan",
             "type": "Fighter",
-            "GUN_OFFSET_X": 89-64,
-            "GUN_OFFSET_Y": 64-78
+            "gun_offset_x": 89-64,
+            "gun_offset_y": 64-78
         },
         "republic_p_47": {
             "radius": 64,
@@ -24,8 +24,8 @@ const FILE_DATA = {
             "health": 12*5,
             "country": "USA",
             "type": "Fighter",
-            "GUN_OFFSET_X": 84-64,
-            "GUN_OFFSET_Y": 64-75
+            "gun_offset_x": 84-64,
+            "gun_offset_y": 64-75
         },
         "me_bf_109": {
             "radius": 64,
@@ -33,8 +33,8 @@ const FILE_DATA = {
             "health": 10*5,
             "country": "Germany",
             "type": "Fighter",
-            "GUN_OFFSET_X": 60-64,
-            "GUN_OFFSET_Y": 64-86
+            "gun_offset_x": 60-64,
+            "gun_offset_y": 64-86
         },
         "kawasaki_ki_45": {
             "radius": 64,
@@ -42,8 +42,8 @@ const FILE_DATA = {
             "health": 17*5,
             "country": "Japan",
             "type": "Fighter",
-            "GUN_OFFSET_X": 86-64,
-            "GUN_OFFSET_Y": 64-78
+            "gun_offset_x": 86-64,
+            "gun_offset_y": 64-78
         },
         "p51_mustang": {
             "radius": 64,
@@ -51,8 +51,8 @@ const FILE_DATA = {
             "health": 10*5,
             "country": "USA",
             "type": "Fighter",
-            "GUN_OFFSET_X": 81-64,
-            "GUN_OFFSET_Y": 64-74
+            "gun_offset_x": 81-64,
+            "gun_offset_y": 64-74
         },
         "hawker_sea_fury": {
             "radius": 64,
@@ -60,8 +60,8 @@ const FILE_DATA = {
             "health": 9*5,
             "country": "Britain",
             "type": "Fighter",
-            "GUN_OFFSET_X": 87-64,
-            "GUN_OFFSET_Y": 64-85
+            "gun_offset_x": 87-64,
+            "gun_offset_y": 64-85
         },
         "me_309": {
             "radius": 64,
@@ -69,8 +69,8 @@ const FILE_DATA = {
             "health": 9*5,
             "country": "Germany",
             "type": "Fighter",
-            "GUN_OFFSET_X": 88-64,
-            "GUN_OFFSET_Y": 64-65
+            "gun_offset_x": 88-64,
+            "gun_offset_y": 64-65
         },
         "b24": {
             "radius": 128,
@@ -144,51 +144,53 @@ const FILE_DATA = {
             "picture": "clouds",
         }
     },
-    "constants": {
-        "SHOOT_DISTANCE_CONSTANT": 5,
-        "CLOSE_TO_GROUND_CONSTANT": 3,
-        "CLOSE_CONSTANT": 3,
-        "ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT": 20,
-        "TURN_TO_ENEMY_CONSTANT": 0.75, // Maybe 0.75 is good?
-        "ENEMY_TAKEN_DISTANCE_MULTIPLIER": 5,
-        "EVASIVE_TIME_TO_CATCH": 20,
-        "EVASIVE_SPEED_DIFF": 4,
-        "MIN_ANGLE_TO_ADJUST": 3,
-        "MIN_VELOCITY_ASSUMPTION": 0.01,
-        "MAX_THROTTLE": 100,
-        "FALL_SPEED": 200,
-        "SLOW_DOWN_AMOUNT": 0.1,
-        "EXPECTED_CANVAS_WIDTH": 1920,
-        "EXPECTED_CANVAS_HEIGHT": 927,
-        "FRAME_RATE": 60, // 60
-        "TICK_RATE": 100, // 100
-        "MS_BETWEEN_TICKS": 10, // 10
-        "GRAVITY": 9.81,
-        "MAX_BULLET_Y_VELOCITY_MULTIPLIER": 2/800,
+    "settings": {
+        "shoot_distance_constant": 5,
+        "close_to_ground_constant": 3,
+        "close_constant": 3,
+        "enemy_disregard_distance_time_constant": 20,
+        "turn_to_enemy_constant": 0.75, // Maybe 0.75 is good?
+        "enemy_taken_distance_multiplier": 5,
+        "evasive_time_to_catch": 20,
+        "evasive_speed_diff": 4,
+        "min_angle_to_adjust": 3,
+        "min_velocity_assumption": 0.01,
+        "max_throttle": 100,
+        "fall_speed": 200,
+        "slow_down_amount": 0.1,
+        "expected_canvas_width": 1920,
+        "expected_canvas_height": 927,
+        "frame_rate": 60, // 60
+        "tick_rate": 100, // 100
+        "ms_between_ticks": 10, // 10
+        "max_bullet_y_velocity_multiplier": 2/800,
         "server_ip": "localhost",
         "server_port": "8080",
-        "PLANE_SHOOT_GAP_MS": 100,
-        "MAX_BULLETS": 2000,
-        "SAVED_TICKS": 500,
-        "KEEP_ALIVE_INTERVAL": 5000,
-        "TIME_TO_READY_UP": 5000, // 5000
-        "MULTIPLAYER_DISABLED": true,
-        "BOMBER_DISTANCE_FROM_FRIENDLIES_DOGFIGHT": 2000,
-        "BULLET_REDUCTION_COEFFICIENT": 1.5,
-        "FOCUSED_COUNT_DISTANCE_EQUIVALENT": 1500,
-        "TEXT_BOX_PADDING_PERCENT": 0.1,
-        "USE_PHYSICS_BULLETS": false,
-        "INSTANT_SHOT_MAX_DISTANCE": 1200,
-        "MAX_EXPECTED_SCREEN_WIDTH": 3840,
-        "MAX_EXPECTED_SCREEN_HEIGHT": 2160,
-        "max_cloud_animation_speed_y": 0.2,
-        "max_cloud_animation_speed_x": 0.2
+        "plane_shoot_gap_ms": 100,
+        "max_bullets": 2000,
+        "saved_ticks": 500,
+        "keep_alive_interval": 5000,
+        "time_to_ready_up": 5000, // 5000
+        "multiplayer_disabled": true,
+        "bomber_distance_from_friendlies_dogfight": 2000,
+        "bullet_reduction_coefficient": 1.5,
+        "focused_count_distance_equivalent": 1500,
+        "text_box_padding_percent": 0.1,
+        "use_physics_bullets": false,
+        "instant_shot_max_distance": 1200,
+        "max_expected_screen_width": 3840,
+        "max_expected_screen_height": 2160,
+        "max_cloud_animation_speed_y": 0.5,
+        "max_cloud_animation_speed_x": 0.5
+    },
+    "constants": {
+        "gravity": 9.81
     },
 
     "extra_settings": [
         {
-            "name": "USE_PHYSICS_BULLETS",
-            "path": ["constants"]
+            "name": "use_physics_bullets",
+            "path": ["settings"]
         }
     ],
 
@@ -279,7 +281,7 @@ const FILE_DATA = {
 
     "missions": [
         {
-            "description": "Mission 1\nAn American assault onGerman\npositions in Western Germany.",
+            "description": "Mission 1\nAn American assault on German\npositions in Western Germany.",
             "user_planes": [
                 "republic_p_47",
                 "p51_mustang",
@@ -317,7 +319,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 25e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "medium": {
                 "attacker_plane_counts": {
@@ -338,7 +340,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 25e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hard": {
                 "attacker_plane_counts": {
@@ -359,7 +361,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 25e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "attacker_plane_counts": {
@@ -380,7 +382,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 30e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 4 // Based on attacker difficulty
+                "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
             "start_zone": {
                 "attackers": {
@@ -445,7 +447,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 25e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "medium": {
                 "attacker_plane_counts": {
@@ -466,7 +468,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 25e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hard": {
                 "attacker_plane_counts": {
@@ -487,7 +489,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 25e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "attacker_plane_counts": {
@@ -508,7 +510,7 @@ const FILE_DATA = {
                     "attackers": 70e3, // 70e3?
                     "defenders": 30e3 // 30e3?
                 },
-                "BOMBER_HP_MULTIPLIER": 4 // Based on attacker difficulty
+                "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
             "start_zone": {
                 "attackers": {
@@ -537,16 +539,16 @@ const FILE_DATA = {
     ],
 
     "cloud_generation": {
-        "SKY_COLOUR": "#5bb8ff",
-        "CLOUD_COLOUR": "#e8ecff",
-        "CLOUD_CLUSTER_WIDTH": 3840,
-        "CLOUD_CLUSTER_HEIGHT": 2160,
-        "MIN_RADIUS": 30,
-        "MAX_RADIUS": 80,
-        "MIN_CIRCLES_PER_CLOUD": 3,
-        "MAX_CIRCLES_PER_CLOUD": 7,
-        "MIN_CLOUDS_PER_CLUSTER": 50,
-        "MAX_CLOUDS_PER_CLUSTER": 70,
+        "sky_colour": "#5bb8ff",
+        "cloud_colour": "#e8ecff",
+        "cloud_cluster_width": 3840,
+        "cloud_cluster_height": 2160,
+        "min_radius": 30,
+        "max_radius": 80,
+        "min_circles_per_cloud": 3,
+        "max_circles_per_cloud": 7,
+        "min_clouds_per_cluster": 50,
+        "max_clouds_per_cluster": 70,
     },
 
     "hud": {
@@ -556,5 +558,5 @@ const FILE_DATA = {
     }
 }
 if (typeof window === "undefined"){
-    module.exports = FILE_DATA;
+    module.exports = PROGRAM_DATA;
 }

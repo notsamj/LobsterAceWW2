@@ -25,15 +25,15 @@ class CloudManager {
     */
     display(lX, bY){
         // Fill the entire screen with the sky background
-        fill(FILE_DATA["cloud_generation"]["SKY_COLOUR"]);
+        fill(PROGRAM_DATA["cloud_generation"]["sky_colour"]);
         rect(0, 0, getScreenWidth(), getScreenHeight());
 
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
-        let leftQuadrantX = Math.floor(lX / FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"]);
-        let rightQuadrantX = Math.floor(rX / FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"]);
-        let bottomQuadrantY = Math.floor(bY / FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"]);
-        let topQuadrantY = Math.floor(tY / FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"]);
+        let leftQuadrantX = Math.floor(lX / PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"]);
+        let rightQuadrantX = Math.floor(rX / PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"]);
+        let bottomQuadrantY = Math.floor(bY / PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"]);
+        let topQuadrantY = Math.floor(tY / PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"]);
 
         // Display bottom left quadrant
         this.getCloudCluster(leftQuadrantX, bottomQuadrantY).display(lX, bY);
@@ -98,9 +98,9 @@ class CloudManager {
         let cY = bY + 0.5 * getScreenHeight();
         for (let i = this.cloudClusters.getLength() - 1; i >= 0; i--){
             let cluster = this.cloudClusters.get(i);
-            let distance = Math.sqrt(Math.pow(cluster.getQuadrantX() * FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"] - cX, 2) + Math.pow(cluster.getQuadrantY() * FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"] - cY, 2));
+            let distance = Math.sqrt(Math.pow(cluster.getQuadrantX() * PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"] - cX, 2) + Math.pow(cluster.getQuadrantY() * PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"] - cY, 2));
             // Delete clusters more than 2 times max(width, height) away from the center of the screen
-            if (distance > 2 * Math.max(FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"], FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"])){
+            if (distance > 2 * Math.max(PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"], PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"])){
                 this.cloudClusters.remove(i);
             }
         }
@@ -158,16 +158,16 @@ class CloudCluster {
         Method Return: void
     */
     createClouds(){
-        let leftX = this.quadrantX * FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"];
-        let bottomY = this.quadrantY * FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"];
+        let leftX = this.quadrantX * PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"];
+        let bottomY = this.quadrantY * PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"];
         let seed = this.quadrantX + 2 * this.quadrantY; // TODO: Come up with something better?
         let random = new SeededRandomizer(seed);
-        let numClouds = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_CLOUDS_PER_CLUSTER"], FILE_DATA["cloud_generation"]["MAX_CLOUDS_PER_CLUSTER"]);
+        let numClouds = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_clouds_per_cluster"], PROGRAM_DATA["cloud_generation"]["max_clouds_per_cluster"]);
         
         // Create as many clouds as chosen
         for (let i = 0; i < numClouds; i++){
-            let newCloudX = random.getIntInRangeExclusive(leftX + FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2, leftX + FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_WIDTH"] - FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2);
-            let newCloudY = random.getIntInRangeExclusive(bottomY + FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2, bottomY + FILE_DATA["cloud_generation"]["CLOUD_CLUSTER_HEIGHT"] - FILE_DATA["cloud_generation"]["MAX_RADIUS"] * 2);
+            let newCloudX = random.getIntInRangeExclusive(leftX + PROGRAM_DATA["cloud_generation"]["max_radius"] * 2, leftX + PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"] - PROGRAM_DATA["cloud_generation"]["max_radius"] * 2);
+            let newCloudY = random.getIntInRangeExclusive(bottomY + PROGRAM_DATA["cloud_generation"]["max_radius"] * 2, bottomY + PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"] - PROGRAM_DATA["cloud_generation"]["max_radius"] * 2);
             this.clouds.push(Cloud.create(newCloudX, newCloudY, random))
         }
     }
@@ -219,7 +219,7 @@ class Cloud {
             let screenX = scene.getDisplayX(circleObject["x"], 0, lX, false);
             let screenY = scene.getDisplayY(circleObject["y"], 0, bY, false);
             strokeWeight(0);
-            fill(FILE_DATA["cloud_generation"]["CLOUD_COLOUR"]);
+            fill(PROGRAM_DATA["cloud_generation"]["cloud_colour"]);
             circle(screenX, screenY, circleObject["radius"]*2);
             strokeWeight(1);
         }
@@ -239,13 +239,13 @@ class Cloud {
     */
     static create(x, y, random){
         let circles = [];
-        let numCircles = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_CIRCLES_PER_CLOUD"], FILE_DATA["cloud_generation"]["MAX_CIRCLES_PER_CLOUD"]);
-        let mainRadius = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_RADIUS"], FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
+        let numCircles = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_circles_per_cloud"], PROGRAM_DATA["cloud_generation"]["max_circles_per_cloud"]);
+        let mainRadius = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_radius"], PROGRAM_DATA["cloud_generation"]["max_radius"]);
         circles.push({"x": x, "y": y, "radius": mainRadius});
         for (let i = 0; i < numCircles - 1; i++){
             let circleX = x + random.getIntInRangeInclusive(-1 * mainRadius, mainRadius);
             let circleY = y + random.getIntInRangeInclusive(-1 * mainRadius, mainRadius);
-            let circleRadius = random.getIntInRangeInclusive(FILE_DATA["cloud_generation"]["MIN_RADIUS"], FILE_DATA["cloud_generation"]["MAX_RADIUS"]);
+            let circleRadius = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_radius"], PROGRAM_DATA["cloud_generation"]["max_radius"]);
             circles.push({"x": circleX, "y": circleY, "radius": circleRadius});
         }
         return new Cloud(circles);

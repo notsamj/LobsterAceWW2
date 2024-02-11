@@ -34,9 +34,9 @@ class Bullet extends Entity {
         this.x = x;
         this.y = y;
         angle = toRadians(angle); // Convert the angle to radians so it can be used in calculations
-        this.yVelocity = yVelocity + Math.sin(angle) * FILE_DATA["bullet_data"]["speed"];
-        this.xVelocity = xVelocity + Math.cos(angle) * FILE_DATA["bullet_data"]["speed"];
-        this.hitBox = new CircleHitbox(FILE_DATA["bullet_data"]["radius"]);
+        this.yVelocity = yVelocity + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
+        this.xVelocity = xVelocity + Math.cos(angle) * PROGRAM_DATA["bullet_data"]["speed"];
+        this.hitBox = new CircleHitbox(PROGRAM_DATA["bullet_data"]["radius"]);
         this.shooterClass = shooterClass;
         this.shooterID = shooterID;
     }
@@ -51,7 +51,7 @@ class Bullet extends Entity {
     */
     tick(timePassed){
         let timeProportion = timePassed / 1000; // Proportion of a second
-        let yAcceleration = FILE_DATA["constants"]["GRAVITY"] * timeProportion;
+        let yAcceleration = PROGRAM_DATA["constants"]["gravity"] * timeProportion;
 
         // Apply acceleration
         this.yVelocity = this.yVelocity - yAcceleration;
@@ -164,7 +164,7 @@ class Bullet extends Entity {
     */
     expectedToDie(){
         let belowGround = this.y < 0;
-        let movingDownTooFast = this.yVelocity < 0 && Math.abs(this.yVelocity) > FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] * FILE_DATA["constants"]["MAX_BULLET_Y_VELOCITY_MULTIPLIER"] * FILE_DATA["bullet_data"]["speed"];
+        let movingDownTooFast = this.yVelocity < 0 && Math.abs(this.yVelocity) > PROGRAM_DATA["settings"]["expected_canvas_height"] * PROGRAM_DATA["settings"]["max_bullet_y_velocity_multiplier"] * PROGRAM_DATA["bullet_data"]["speed"];
         if (movingDownTooFast || belowGround){ return true; }
         let maxX = null;
         let maxY = null;
@@ -186,8 +186,8 @@ class Bullet extends Entity {
             maxY = Math.max(maxY, y);
             minY = Math.min(minY, y);
         }
-        let tooFarToTheLeftOrRight = maxX != null && (this.x + FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"] < minX || this.x - FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"] > maxX);
-        let tooFarToUpOrDown = maxY != null && (this.y + FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] < minY || this.y - FILE_DATA["constants"]["EXPECTED_CANVAS_HEIGHT"] > maxY);
+        let tooFarToTheLeftOrRight = maxX != null && (this.x + PROGRAM_DATA["settings"]["expected_canvas_width"] < minX || this.x - PROGRAM_DATA["settings"]["expected_canvas_width"] > maxX);
+        let tooFarToUpOrDown = maxY != null && (this.y + PROGRAM_DATA["settings"]["expected_canvas_height"] < minY || this.y - PROGRAM_DATA["settings"]["expected_canvas_height"] > maxY);
         return tooFarToTheLeftOrRight || tooFarToUpOrDown;
     }
 

@@ -4,7 +4,7 @@ if (typeof window === "undefined"){
     FighterPlane = require("../scripts/fighter_plane.js");
     SceneTickManager = require("../scripts/scene_tick_manager.js");
     var planeModelToAlliance = require("../scripts/helper_functions.js").planeModelToAlliance;
-    FILE_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../data/data_json.js");
 }
 /*
     Class Name: Dogfight
@@ -26,7 +26,7 @@ class Dogfight extends GameMode {
         this.running = false;
         this.winner = null;
         this.isATestSession = false;
-        this.tickManager = new SceneTickManager(Date.now(), this.scene, FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.tickManager = new SceneTickManager(Date.now(), this.scene, PROGRAM_DATA["settings"]["ms_between_ticks"]);
         AfterMatchStats.reset();
     }
 

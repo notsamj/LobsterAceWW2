@@ -23,7 +23,7 @@ class SoundManager {
         Method Return: void
     */
     loadSounds(){
-        for (let soundName of FILE_DATA["sound_data"]["sounds"]){
+        for (let soundName of PROGRAM_DATA["sound_data"]["sounds"]){
             this.sounds.push(new Sound(soundName, this.mainVolume));
         }
     }
@@ -209,7 +209,7 @@ class Sound {
     */
     constructor(soundName, mainVolume){
         this.name = soundName;
-        this.audio = new Audio(FILE_DATA["sound_data"]["url"] + "/" + this.name + FILE_DATA["sound_data"]["file_type"]);
+        this.audio = new Audio(PROGRAM_DATA["sound_data"]["url"] + "/" + this.name + PROGRAM_DATA["sound_data"]["file_type"]);
         this.volume = getLocalStorage(soundName, 0);
         this.adjustByMainVolume(mainVolume);
     }

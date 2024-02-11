@@ -37,7 +37,7 @@ class MainMenu extends Menu {
 
         // Information
         let infoY = 250;
-        let infoXSize = FILE_DATA["constants"]["EXPECTED_CANVAS_WIDTH"];
+        let infoXSize = PROGRAM_DATA["settings"]["expected_canvas_width"];
         let infoYSize = 200;
         this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.\nScroll down for controls.", "black", 0, infoY, infoXSize, infoYSize));
 
@@ -48,7 +48,8 @@ class MainMenu extends Menu {
         }));
 
         // Set up Multiplayer button if enabled
-        if (!FILE_DATA["constants"]["MULTIPLAYER_DISABLED"]){
+        console.log(PROGRAM_DATA["settings"], PROGRAM_DATA)
+        if (!PROGRAM_DATA["settings"]["multiplayer_disabled"]){
             // Multiplayer
             let multiplayerButtonY = (innerHeight) => { return 200; };
             this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {

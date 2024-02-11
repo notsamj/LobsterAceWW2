@@ -40,12 +40,12 @@ class CampaignMenu extends Menu {
         let nextPreviousButtonY = (innerHeight) => { return innerHeight / 2 + nextPreviousButtonSize/2; }
             
         // Previous Button
-        this.components.push(new RectangleButton("Previous", (FILE_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", 0, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
+        this.components.push(new RectangleButton("Previous", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", 0, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
             menuInstance.previous();
         }));
 
         // Next Button
-        this.components.push(new RectangleButton("Next", (FILE_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", (innerWidth) => { return innerWidth - nextPreviousButtonSize; }, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
+        this.components.push(new RectangleButton("Next", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", (innerWidth) => { return innerWidth - nextPreviousButtonSize; }, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
             menuInstance.next();
         }));
 
@@ -78,7 +78,7 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     next(){
-        this.missionIndex = (this.missionIndex + 1) % FILE_DATA["missions"].length;
+        this.missionIndex = (this.missionIndex + 1) % PROGRAM_DATA["missions"].length;
         this.loadCurrentMission();
     }
 
@@ -89,7 +89,7 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     previous(){
-        this.missionIndex = this.missionIndex == 0 ? FILE_DATA["missions"].length - 1 : (this.missionIndex - 1);
+        this.missionIndex = this.missionIndex == 0 ? PROGRAM_DATA["missions"].length - 1 : (this.missionIndex - 1);
         this.loadCurrentMission();
     }
 
@@ -100,7 +100,7 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     loadCurrentMission(){
-        this.missionDetailsTextComponent.setText(FILE_DATA["missions"][this.missionIndex]["description"]);
+        this.missionDetailsTextComponent.setText(PROGRAM_DATA["missions"][this.missionIndex]["description"]);
     }
 
 }

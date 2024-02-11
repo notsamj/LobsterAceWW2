@@ -22,9 +22,9 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     */
     constructor(planeClass, scene, angle, facingRight, biases){
         super(planeClass, scene, angle, facingRight);
-        this.bombLock = new TickLock(750 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
-        this.facingLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
-        this.udLock = new TickLock(40 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.facingLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.biases = biases;
         this.generateGuns(biases);
         this.throttle += this.biases["throttle"];
@@ -72,7 +72,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     */
     generateGuns(biases){
         this.guns = [];
-        for (let gunObj of FILE_DATA["plane_data"][this.planeClass]["guns"]){
+        for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
             this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases));
         }
     }
@@ -125,7 +125,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Return: float
     */
     getMaxShootingDistance(){
-        return FILE_DATA["constants"]["SHOOT_DISTANCE_CONSTANT"] * FILE_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance_offset"];
+        return PROGRAM_DATA["settings"]["shoot_distance_constant"] * PROGRAM_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance_offset"];
     }
 
     /*
@@ -138,11 +138,11 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         if (this.facingLock.notReady()){ return; }
         let buildingInfo = this.getBuildingInfo();
         // If far past the last building then turn around
-        if (this.x > buildingInfo["last_building"] + this.bombXAirTravel() * FILE_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && this.isFacingRight()){
+        if (this.x > buildingInfo["last_building"] + this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && this.isFacingRight()){
             this.face(false);
         }
         // If far ahead of the first building and facing the wrong way then turn around
-        else if (this.x < buildingInfo["first_building"] - this.bombXAirTravel() * FILE_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && !this.isFacingRight()){
+        else if (this.x < buildingInfo["first_building"] - this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && !this.isFacingRight()){
             this.face(true);
         }else{
             return;
@@ -164,7 +164,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     */
     static createBiasedPlane(planeClass, scene, difficulty){
         let biases = {};
-        for (let [key, bounds] of Object.entries(FILE_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
+        for (let [key, bounds] of Object.entries(PROGRAM_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
             let upperBound = bounds["upper_range"]["upper_bound"];
             let lowerBound = bounds["upper_range"]["lower_bound"];
             let upperRangeSize = bounds["upper_range"]["upper_bound"] - bounds["upper_range"]["lower_bound"];
@@ -217,7 +217,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
             t = [-1 * vI + sqrt(vI + 2 * g * d)] / g
         */
         let vI = this.bombInitialYVelocity();
-        let g = FILE_DATA["constants"]["GRAVITY"];
+        let g = PROGRAM_DATA["constants"]["gravity"];
         let d = this.y;
         // Note: There may be some error here because I wasn't thinking too clearly when I was setting up the equation and considering the direction of the initial velocity
         let time = (vI + Math.sqrt(Math.pow(vI, 2) + 2 * d * g)) / g;
@@ -232,7 +232,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Return: float
     */
     bombInitialYVelocity(){
-        return this.getYVelocity() + FILE_DATA["bomb_data"]["initial_y_velocity"]; 
+        return this.getYVelocity() + PROGRAM_DATA["bomb_data"]["initial_y_velocity"]; 
     }
 
     /*

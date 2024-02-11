@@ -1,7 +1,7 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     Entity = require("../scripts/entity.js");
-    FILE_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../data/data_json.js");
     CircleHitbox = require("../scripts/hitboxes.js").CircleHitbox;
     toRadians = require("../scripts/helper_functions.js").toRadians;
 }
@@ -29,13 +29,13 @@ class Plane extends Entity {
         this.planeClass = planeClass;
         this.facingRight = facingRight;
         this.angle = angle;
-        this.throttle = FILE_DATA["constants"]["MAX_THROTTLE"];
-        this.maxSpeed = FILE_DATA["plane_data"][planeClass]["max_speed"];
+        this.throttle = PROGRAM_DATA["settings"]["max_throttle"];
+        this.maxSpeed = PROGRAM_DATA["plane_data"][planeClass]["max_speed"];
         this.speed = this.maxSpeed;
-        this.hitBox = new CircleHitbox(FILE_DATA["plane_data"][planeClass]["radius"]);
-        this.health = FILE_DATA["plane_data"][planeClass]["health"];
+        this.hitBox = new CircleHitbox(PROGRAM_DATA["plane_data"][planeClass]["radius"]);
+        this.health = PROGRAM_DATA["plane_data"][planeClass]["health"];
         this.startingHealth = this.health;
-        this.throttleConstant = Math.sqrt(this.maxSpeed) / FILE_DATA["constants"]["MAX_THROTTLE"];
+        this.throttleConstant = Math.sqrt(this.maxSpeed) / PROGRAM_DATA["settings"]["max_throttle"];
     }
 
     /*
@@ -116,7 +116,7 @@ class Plane extends Entity {
     */
     getSmokeNumber(){
         let hpMissingProportion = (this.startingHealth - this.health) / this.startingHealth;
-        let phaseTotal = FILE_DATA["smoke_images"].length + 1;
+        let phaseTotal = PROGRAM_DATA["smoke_images"].length + 1;
         let phaseIntervalSize = 1 / phaseTotal;
         let smokeNumber = Math.floor(hpMissingProportion / phaseIntervalSize);
         return smokeNumber;
@@ -231,7 +231,7 @@ class Plane extends Entity {
     */
     damage(amount){
         SOUND_MANAGER.play("damage", this.x, this.y);
-        this.health -= amount * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"];
+        this.health -= amount * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"];
         if (this.health <= 0){
             SOUND_MANAGER.play("explode", this.x, this.y);
             this.die();
@@ -304,7 +304,7 @@ class Plane extends Entity {
         let newAngle = fixDegrees(360 - this.angle);
         this.angle = newAngle;
         this.facingRight = facingRight;
-        this.speed *= (1 - FILE_DATA["constants"]["SLOW_DOWN_AMOUNT"]);
+        this.speed *= (1 - PROGRAM_DATA["settings"]["slow_down_amount"]);
     }
 
     /*
@@ -398,7 +398,7 @@ class Plane extends Entity {
         if (this.throttle > 0){
             this.y += this.getYVelocity() * timeProportion;
         }else{
-            this.y -= FILE_DATA["constants"]["FALL_SPEED"] * timeProportion;
+            this.y -= PROGRAM_DATA["settings"]["fall_speed"] * timeProportion;
         }
         
         // If hit the ground
@@ -490,7 +490,7 @@ class Plane extends Entity {
         Method Return: void
     */
     adjustThrottle(amt){
-        this.throttle = Math.min(Math.max(0, this.throttle + amt), FILE_DATA["constants"]["MAX_THROTTLE"]);
+        this.throttle = Math.min(Math.max(0, this.throttle + amt), PROGRAM_DATA["settings"]["max_throttle"]);
     }
 
     /*
@@ -660,7 +660,7 @@ class Plane extends Entity {
             let distance = plane.distanceToPoint(gunX, gunY);
             
             // If best distance plane is closer then this one is useless to look at further
-            if (bestDistance != null && bestDistance < distance || distance > FILE_DATA["constants"]["INSTANT_SHOT_MAX_DISTANCE"]){
+            if (bestDistance != null && bestDistance < distance || distance > PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
                 continue;
             }
 
