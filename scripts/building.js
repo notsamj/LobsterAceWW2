@@ -117,4 +117,22 @@ class Building extends Entity {
         fill("#c2c2c4");
         rect(displayX, displayY, this.width, this.height);
     }
+
+    // TODO: Comments
+    toJSON(){
+        return {
+            "x": this.x,
+            "width": this.width,
+            "height": this.height,
+            "health": this.health,
+            "dead": this.isDead()
+        }
+    }
+
+    // TODO: Comments
+    static fromJSON(scene, rep){
+        let building = new Building(rep["x"], rep["width"], rep["height"], rep["health"]);
+        building.setDead(rep["dead"]);
+        return building;
+    }
 }

@@ -36,7 +36,16 @@ class Plane extends Entity {
         this.health = PROGRAM_DATA["plane_data"][planeClass]["health"];
         this.startingHealth = this.health;
         this.throttleConstant = Math.sqrt(this.maxSpeed) / PROGRAM_DATA["settings"]["max_throttle"];
+        this.decisions = {
+            "face": 0, // 1 -> right, -1 -> left, 0 -> no change
+            "angle": 0, // 1 -> ccw by 1 deg, -1 -> cw by 1 deg, 0 -> no change
+            "throttle": 0, // 1 -> up by 1 deg, -1 -> down by 1 deg, 0 -> no change
+            "shoot": false, // true -> shoot, false -> don't shoot
+        }
     }
+
+    // Abstract
+    toJSON(){}
 
     /*
         Method Name: getStartingHealth
@@ -230,10 +239,10 @@ class Plane extends Entity {
         Method Return: void
     */
     damage(amount){
-        SOUND_MANAGER.play("damage", this.x, this.y);
+        this.scene.getSoundManager().play("damage", this.x, this.y);
         this.health -= amount * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"];
         if (this.health <= 0){
-            SOUND_MANAGER.play("explode", this.x, this.y);
+            this.scene.getSoundManager().play("explode", this.x, this.y);
             this.die();
         }
     }
@@ -278,6 +287,7 @@ class Plane extends Entity {
             newAngle -= amount;
         }
 
+        // Ensure the angle is between 0 and 360
         while(newAngle >= 360){
             newAngle -= 360;
         }
@@ -378,6 +388,8 @@ class Plane extends Entity {
         Method Return: void
     */
     tick(timeDiffMS){
+        this.makeDecisions();
+        this.executeDecisions();
         let timeProportion = (timeDiffMS / 1000);
 
         // Throttle - Drag
@@ -406,8 +418,14 @@ class Plane extends Entity {
             this.die();
         }
         this.x += this.getXVelocity() * timeProportion;
-        SOUND_MANAGER.play("engine", this.x, this.y);
+        this.scene.getSoundManager().play("engine", this.x, this.y);
     }
+
+    // Abstract
+    makeDecisions(){}
+
+    // Abstract
+    executeDecisions(){}
 
     /*
         Method Name: getXVelocity

@@ -39,14 +39,30 @@ async function loadPlanes(){
 class PlaneGameScene extends Scene {
     /*
         Method Name: constructor
-        Method Parameters: None
+        Method Parameters:
+            soundManager:
+                A sound manager
+            local:
+                Whether the scene is being run in a browser and being displayed
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(){
+    constructor(soundManager, local=false){
         super();
+        this.local = local;
         this.collisionsEnabled = true;
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"]);
+        this.soundManager = new SoundManager();
+    }
+
+    // TODO: Comments
+    isLocal(){
+        return this.local;
+    }
+
+    // TODO: Comments
+    getSoundManager(){
+        return this.soundManager;
     }
 
     /*
@@ -107,7 +123,7 @@ class PlaneGameScene extends Scene {
                 followableEntities.push(entity);
             }
         }
-        for (let plane of this.teamCombatManager.getAllPlanes()){
+        for (let plane of this.teamCombatManager.getLivingPlanes()){
             followableEntities.push(plane);
         }
         return followableEntities;
@@ -136,7 +152,52 @@ class PlaneGameScene extends Scene {
         Method Return: Array of planes
     */
     getPlanes(){
+        return this.teamCombatManager.getLivingPlanes();
+    }
+
+    // TODO: Comments
+    getAllPlanes(){
         return this.teamCombatManager.getAllPlanes();
+    }
+
+    // TODO: Comments
+    getPlane(id){
+        return this.teamCombatManager.getPlane(id); 
+    }
+
+    // TODO: Comments
+    getPlaneJSON(){
+        return this.teamCombatManager.getPlaneJSON();
+    }
+    
+    // TODO: Comments
+    getBulletJSON(){
+        return this.teamCombatManager.getBulletJSON();
+    }
+
+    // TODO: Comments
+    setStatsManager(statsManager){
+        this.teamCombatManager.setStatsManager(statsManager);
+    }
+
+    // TODO: Comments
+    getBuildingJSON(){
+        let buildingJSON = [];
+        for (let building of this.getBuildings()){
+            buildingJSON.push(building.toJSON());
+        }
+        return buildingJSON;
+    }
+
+    // TODO: Comments
+    getBombJSON(){
+        let bombJSON = [];
+        for (let entity of this.entities){
+            if (!(entity instanceof Bomb)){ continue; }
+            let bomb = entity;
+            bombJSON.push(bomb.toJSON());
+        }
+        return bombJSON;
     }
 
     /*
@@ -177,6 +238,11 @@ class PlaneGameScene extends Scene {
                 this.entities.push(entity);
             }
         }
+    }
+
+    // TODO: Comments
+    clearBullets(){
+        this.teamCombatManager.clearBullets();
     }
 
     /*
@@ -428,7 +494,7 @@ class PlaneGameScene extends Scene {
         }
 
         // Play all sounds that are queued for this frame
-        SOUND_MANAGER.playAll(lX, lX + getScreenWidth(), bY, bY + getScreenHeight());
+        this.getSoundManager().playAll(lX, lX + getScreenWidth(), bY, bY + getScreenHeight());
 
         // Display the background
         this.displayBackground(lX, bY);

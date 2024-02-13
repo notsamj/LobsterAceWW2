@@ -52,7 +52,8 @@ class DogfightMenu extends Menu {
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            activeGameMode = new LocalDogfight(this.getFighterPlanes());
+            let translator = new DogfightLocalTranslator(this.createJSONRep());
+            activeGameMode = new DogfightClient(translator);
             this.goToGame();
         }));
 
@@ -191,6 +192,26 @@ class DogfightMenu extends Menu {
         this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
         this.components.push(this.botDetailsComponent);
         
+    }
+
+    // TODO: Comments
+    createJSONRep(){
+        let jsonRep = {};
+        jsonRep["users"] = [];
+        // If not a freecam, then add to users list
+        let userEntityType = this.userPlanes[this.userPlaneIndex];
+        // If not a freecam, then add to users list
+        if (userEntityType != "freecam"){
+            jsonRep["users"].push({
+                "model": userEntityType,
+                "id": USER_DATA["name"]
+            });
+        }
+
+        jsonRep["planeCounts"] = this.planeCounts;
+        jsonRep["allyDifficulty"] = this.allyDifficulty;
+        jsonRep["axisDifficulty"] = this.axisDifficulty;
+        return jsonRep;
     }
 
     /*
@@ -347,76 +368,6 @@ class DogfightMenu extends Menu {
             botDetailsText += planeName + ": " + planeCount.toString() + "\n";
         }
         this.botDetailsComponent.setText(botDetailsText);
-    }
-
-    /*
-        Method Name: getFighterPlanes
-        Method Parameters: None
-        Method Description: Create fight plane objects and return
-        Method Return: Array of FighterPlane objects (maybe a freecam as well)
-    */
-    getFighterPlanes(){
-        let planes = [];
-        let allyX = PROGRAM_DATA["dogfight_settings"]["ally_spawn_x"];
-        let allyY = PROGRAM_DATA["dogfight_settings"]["ally_spawn_y"];
-        let axisX = PROGRAM_DATA["dogfight_settings"]["axis_spawn_x"];
-        let axisY = PROGRAM_DATA["dogfight_settings"]["axis_spawn_y"];
-        let allyFacingRight = allyX < axisX;
-
-        // Add user
-        let userEntityModel = this.userPlanes[this.userPlaneIndex];
-        let userEntity = userEntityModel == "freecam" ? new SpectatorCamera(scene) : (planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, scene) : new HumanBomberPlane(userEntityModel, scene));
-        let middleX = (allyX + axisX)/2;
-        let middleY = (allyY + axisY)/2;
-        userEntity.setCenterX(userEntityModel == "freecam" ? middleX : (planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX));
-        userEntity.setCenterY(userEntityModel == "freecam" ? middleY : (planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY));
-        if (userEntityModel != "freecam"){
-            userEntity.setFacingRight((planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);
-        }
-        planes.push(userEntity);
-
-        // Add bots
-        for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
-            let allied = (planeModelToAlliance(planeName) == "Allies");
-            let x = allied ? allyX : axisX; 
-            let y = allied ? allyY : axisY;
-            let facingRight = (planeModelToAlliance(planeName) == "Allies") ? allyFacingRight : !allyFacingRight;
-            for (let i = 0; i < planeCount; i++){
-                let aX = x + randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
-                let aY = y + randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
-                planes.push(DogfightMenu.createBiasedBot(planeName, aX, aY, facingRight, (allied ? this.allyDifficulty : this.axisDifficulty)));
-            }
-        }
-        return planes;
-    }
-
-    /*
-        Method Name: createBiasedBot
-        Method Parameters: 
-            model:
-                Class/type of plane
-            x:
-                Starting x of new plane
-            y:
-                Starting y of new plane
-            facingRight:
-                Orientation of new plane
-            difficulty:
-                The difficulty setting
-        Method Description: Create the fighter plane bot object and return it
-        Method Return: BiasedBotFighterPlane object
-    */
-    static createBiasedBot(model, x, y, facingRight, difficulty){
-        let botPlane;
-        if (planeModelToType(model) == "Fighter"){
-            botPlane = BiasedBotFighterPlane.createBiasedPlane(model, scene, difficulty);
-        }else{
-            botPlane = BiasedBotBomberPlane.createBiasedPlane(model, scene, difficulty);
-        }
-        botPlane.setCenterX(x);
-        botPlane.setCenterY(y);
-        botPlane.setFacingRight(facingRight);
-        return botPlane;
     }
 
     /*

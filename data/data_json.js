@@ -176,7 +176,7 @@ const PROGRAM_DATA = {
         "bullet_reduction_coefficient": 1.5,
         "focused_count_distance_equivalent": 1500,
         "text_box_padding_percent": 0.1,
-        "use_physics_bullets": false,
+        "use_physics_bullets": true,
         "instant_shot_max_distance": 1200,
         "max_expected_screen_width": 3840,
         "max_expected_screen_height": 2160,

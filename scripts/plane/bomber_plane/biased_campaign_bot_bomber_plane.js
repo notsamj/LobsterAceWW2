@@ -17,20 +17,21 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
                 The starting orientation of the fighter plane (boolean)
             biases:
                 An object containing keys and bias values
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
     constructor(planeClass, scene, angle, facingRight, biases){
         super(planeClass, scene, angle, facingRight);
         this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.facingLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.biases = biases;
         this.generateGuns(biases);
         this.throttle += this.biases["throttle"];
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
         this.startingHealth = this.health;
+        this.autonomous = autonomous;
     }
 
     /*
@@ -42,14 +43,86 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Return: void
     */
     tick(timeDiffMS){
-        this.udLock.tick();
-        this.facingLock.tick();
         this.bombLock.tick();
         for (let gun of this.guns){
             gun.tick();
         }
 
-        // Make decisions
+        // Bomber Plane Tick Call
+        super.tick(timeDiffMS);
+    }
+
+    // TODO: Comments
+    toJSON(){
+        let rep = {};
+        rep["decisions"] = this.decisions;
+        rep["locks"] = {
+            "bomb_lock": this.bombLock.getTicksLeft(),
+            "ud_lock": this.udLock.getTicksLeft()
+        }
+        rep["biases"] = this.biases;
+        rep["basic"] = {
+            "id": this.id,
+            "x": this.x,
+            "y": this.y,
+            "human": this.isHuman(),
+            "plane_class": this.planeClass,
+            "facing_right": this.facingRight,
+            "angle": this.angle,
+            "throttle": this.throttle,
+            "speed": this.speed,
+            "health": this.health,
+            "starting_health": this.startingHealth,
+            "dead": this.isDead()
+        }
+
+        // Create a json rep of all guns
+        rep["guns"] = [];
+        for (let gun of this.guns){
+            rep["guns"].push(gun.toJSON());
+        }
+
+        return rep;
+    }
+
+    // TODO: Comments
+    fromJSON(rep){
+        // If running locally only take some attributes
+        if (this.autonomous){
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
+            for (let i = 0; i < this.guns.length; i++){
+                this.gun.fromJSON(rep["guns"][i]);
+            }
+        }else{ // Otherwise take everything
+            this.x = rep["basic"]["x"];
+            this.y = rep["basic"]["y"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
+            this.throttle = rep["basic"]["throttle"];
+            this.speed = rep["basic"]["speed"];
+            this.health = rep["basic"]["health"];
+            this.startingHealth = rep["basic"]["starting_health"];
+            this.dead = rep["basic"]["dead"];
+            this.decisions = rep["basic"]["decisions"];
+            this.udLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        }
+    }
+
+    // TODO: Comments
+    static fromJSON(rep, scene, autonomous){
+        let planeClass = rep["basic"]["plane_class"];
+        let bp = new BiasedCampaignBotBomberPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
+        bp.fromJSON(rep)
+        return bp;
+    }
+
+    // TODO: Comments
+    makeDecisions(){
+        // If not allowed to make decisions -> not make any
+        if (!this.autonomous){ return; }
+        this.resetDecisions();
 
         // Decide if the plane must switch directions
         this.decideOnDirection();
@@ -57,11 +130,38 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         // Decide of whether or not to bomb
         this.checkIfBombing();
 
-        // Check to shoot guns
-        this.checkGuns();
+        // Let gun make decisions
+        let enemyList = this.getEnemyList();
+        for (let gun of this.guns){
+            gun.makeDecisions(enemyList);
+        }
+    }
 
-        // Bomber Plane Tick Call
-        super.tick(timeDiffMS);
+    // TODO: Comments
+    resetDecisions(){
+        this.decisions["face"] = 0;
+        this.decisions["angle"] = 0;
+        this.decisions["bombing"] = false;
+    }
+
+    // TODO: Comments
+    executeDecisions(){
+        // Change facing direction
+        if (this.decisions["face"] != 0){
+            this.face(this.decisions["face"] == 1 ? true : false);
+        }
+
+        // Drop bombs
+        if (this.decisions["bombing"]){
+            if (this.bombLock.isReady()){
+                this.dropBomb();
+            }
+        }
+
+        // Let guns shoot
+        for (let gun of this.guns){
+            gun.executeDecisions();
+        }
     }
 
     /*
@@ -73,20 +173,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     generateGuns(biases){
         this.guns = [];
         for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases));
-        }
-    }
-
-    /*
-        Method Name: checkGuns
-        Method Parameters: None
-        Method Description: Checks if each gun on the bomber plane can shoot
-        Method Return: void
-    */
-    checkGuns(){
-        let enemyList = this.getEnemyList();
-        for (let gun of this.guns){
-            gun.checkShoot(enemyList);
+            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases, this.autonomous));
         }
     }
 
@@ -135,19 +222,15 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Return: void
     */
     decideOnDirection(){
-        if (this.facingLock.notReady()){ return; }
         let buildingInfo = this.getBuildingInfo();
         // If far past the last building then turn around
         if (this.x > buildingInfo["last_building"] + this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && this.isFacingRight()){
-            this.face(false);
+            this.decisions["face"] = -1;
         }
         // If far ahead of the first building and facing the wrong way then turn around
         else if (this.x < buildingInfo["first_building"] - this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && !this.isFacingRight()){
-            this.face(true);
-        }else{
-            return;
+            this.decisions["face"] = 1;
         }
-        this.facingLock.lock();
     }
 
     /*
@@ -248,7 +331,6 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         let buildingInfo = this.getBuildingInfo();
         // If the bomb hit location isn't near the buildings then don't drop a bomb
         if (!(bombHitX >= buildingInfo["first_building"] && bombHitX <= buildingInfo["last_building"])){ return; }
-        this.bombLock.lock();
-        this.dropBomb();
+        this.decisions["bombing"] = true;
     }
 }

@@ -19,6 +19,7 @@ class BomberPlane extends Plane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene);
+        this.decisions["bombing"] = false;
     }
 
     /*
@@ -58,7 +59,7 @@ class BomberPlane extends Plane {
         Method Return: void
     */
     dropBomb(){
-        SOUND_MANAGER.play("bomb", this.x, this.y);
+        this.scene.getSoundManager().play("bomb", this.x, this.y);
         this.scene.addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.scene, this.getXVelocity(), this.getYVelocity()));
     }
 

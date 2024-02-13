@@ -16,11 +16,13 @@ class BiasedBotBomberPlane extends BomberPlane {
                 The starting orientation of the fighter plane (boolean)
             biases:
                 An object containing keys and bias values
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle, facingRight, biases){
-        super(planeClass, scene, angle, facingRight);
+    constructor(planeClass, scene, angle, facingRight, biases, autonomous=true){
+        super(planeClass, scene, angle, facingRight, autonomous);
         this.currentEnemy = null;
         this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
@@ -30,6 +32,71 @@ class BiasedBotBomberPlane extends BomberPlane {
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
         this.startingHealth = this.health;
+        this.autonomous = autonomous;
+    }
+
+    // TODO: Comments
+    toJSON(){
+        let rep = {};
+        rep["decisions"] = this.decisions;
+        rep["locks"] = {
+            "ud_lock": this.udLock.getTicksLeft()
+        }
+        rep["biases"] = this.biases;
+        rep["basic"] = {
+            "id": this.id,
+            "x": this.x,
+            "y": this.y,
+            "human": this.isHuman(),
+            "plane_class": this.planeClass,
+            "facing_right": this.facingRight,
+            "angle": this.angle,
+            "throttle": this.throttle,
+            "speed": this.speed,
+            "health": this.health,
+            "starting_health": this.startingHealth,
+            "dead": this.isDead()
+        }
+
+        // Create a json rep of all guns
+        rep["guns"] = [];
+        for (let gun of this.guns){
+            rep["guns"].push(gun.toJSON());
+        }
+
+        return rep;
+    }
+
+    // TODO: Comments
+    fromJSON(rep){
+        // If running locally only take some attributes
+        if (this.autonomous){
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            for (let i = 0; i < this.guns.length; i++){
+                this.gun.fromJSON(rep["guns"][i]);
+            }
+        }else{ // Otherwise take everything
+            this.x = rep["basic"]["x"];
+            this.y = rep["basic"]["y"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
+            this.throttle = rep["basic"]["throttle"];
+            this.speed = rep["basic"]["speed"];
+            this.health = rep["basic"]["health"];
+            this.startingHealth = rep["basic"]["starting_health"];
+            this.dead = rep["basic"]["dead"];
+            this.decisions = rep["basic"]["decisions"];
+            this.udLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        }
+    }
+
+    // TODO: Comments
+    static fromJSON(rep, scene, autonomous){
+        let planeClass = rep["basic"]["plane_class"];
+        let bp = new BiasedCampaignBotBomberPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
+        bp.fromJSON(rep)
+        return bp;
     }
 
     /*
@@ -49,19 +116,6 @@ class BiasedBotBomberPlane extends BomberPlane {
         return enemies;
     }
 
-    /*
-        Method Name: checkGuns
-        Method Parameters: None
-        Method Description: Checks if each gun on the bomber plane can shoot
-        Method Return: void
-    */
-    checkGuns(){
-        let enemyList = this.getEnemyList();
-        for (let gun of this.guns){
-            gun.checkShoot(enemyList);
-        }
-    }
-
 
     /*
         Method Name: tick
@@ -77,6 +131,14 @@ class BiasedBotBomberPlane extends BomberPlane {
         for (let gun of this.guns){
             gun.tick();
         }
+        super.tick(timeDiffMS);
+    }
+
+    // TODO: Comments
+    makeDecisions(){
+        // If not allowed to make decisions -> not make any
+        this.resetDecisions();
+        if (!this.autonomous){ return; }
         let centerOfFriendyMass = this.findFriendlyCenter();
         // If there are friendlies then the top priority is to be near them
         if (!centerOfFriendyMass["empty"]){
@@ -86,7 +148,6 @@ class BiasedBotBomberPlane extends BomberPlane {
                 let angleDEG = displacementToDegrees(centerOfFriendyMass["centerX"] - this.x, centerOfFriendyMass["centerY"] - this.y);
                 this.turnInDirection(angleDEG);
             }
-            this.checkGuns();
         }
         // Otherwise we are just looking for enemies
 
@@ -99,14 +160,43 @@ class BiasedBotBomberPlane extends BomberPlane {
         if (this.hasCurrentEnemy()){
             let enemy = this.currentEnemy;
             this.handleEnemy(enemy);
-            this.checkGuns();
         }else{ // No enemy -> make sure not to crash into the ground
             if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
                 this.turnInDirection(90);
-                this.checkGuns();
             }
         }
-        super.tick(timeDiffMS);
+
+        // Let guns make decisions
+        for (let gun of this.guns){
+            gun.makeDecisions(enemyList);
+        }
+    }
+
+    // TODO: Comments
+    resetDecisions(){
+        this.decisions["face"] = 0;
+        this.decisions["angle"] = 0;
+    }
+
+    // TODO: Comments
+    executeDecisions(){
+        // Change facing direction
+        if (this.decisions["face"] != 0){
+            this.face(this.decisions["face"] == 1 ? true : false);
+        }
+
+        // Adjust angle
+        if (this.decisions["angle"] != 0){
+            if (this.udLock.isReady()){
+                this.udLock.lock();
+                this.adjustAngle(this.decisions["angle"]);
+            }
+        }
+
+        // Let guns shoot
+        for (let gun of this.guns){
+            gun.executeDecisions();
+        }
     }
 
     /*
@@ -118,7 +208,7 @@ class BiasedBotBomberPlane extends BomberPlane {
     generateGuns(biases){
         this.guns = [];
         for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases));
+            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases, this.autonomous));
         }
     }
 
@@ -131,10 +221,12 @@ class BiasedBotBomberPlane extends BomberPlane {
                 A scene objet related to the plane
             difficulty:
                 The current difficulty setting
+            autonomous:
+                Whether or not the plane can make its own decisions
         Method Description: Return the max shooting distance of this biased plane
         Method Return: float
     */
-    static createBiasedPlane(planeClass, scene, difficulty){
+    static createBiasedPlane(planeClass, scene, difficulty, autonomous){
         let biases = {};
         for (let [key, bounds] of Object.entries(PROGRAM_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
             let upperBound = bounds["upper_range"]["upper_bound"];
@@ -149,7 +241,7 @@ class BiasedBotBomberPlane extends BomberPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedBotBomberPlane(planeClass, scene, true, 0, biases); // Temporary values some will be changed
+        return new BiasedBotBomberPlane(planeClass, scene, true, 0, biases, autonomous); // Temporary values some will be changed
     }
 
     /*
@@ -296,12 +388,12 @@ class BiasedBotBomberPlane extends BomberPlane {
         let myAngle = this.getNoseAngle();
         // If facing right and the angle to turn to is very far but close if the plane turned left
         if (this.facingRight && angleBetweenCCWDEG(angleDEG, 135, 225) && angleBetweenCCWDEG(myAngle, 315, 45)){
-            this.face(false);
+            this.decisions["face"] = 0;
             return;
         }
         // If facing left and the angle to turn to is very far but close if the plane turned right
         else if (!this.facingRight && angleBetweenCCWDEG(angleDEG, 295, 45) && angleBetweenCCWDEG(angleDEG, 135, 225)){
-            this.face(true);
+            this.decisions["face"] = 1;
             return;
         }
 
@@ -318,23 +410,23 @@ class BiasedBotBomberPlane extends BomberPlane {
         }
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
-            this.adjustAngle(-1);
+            this.decisions["angle"] = -1;
         }
         // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
         else if (dCW < dCCW && !this.facingRight){
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
         // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
         else if (dCCW < dCW && this.facingRight){
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
         // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
         else if (dCCW < dCW && !this.facingRight){
-            this.adjustAngle(-1);
+            this.decisions["angle"] = -1;
         }
         // Otherwise just turn clockwise (Shouldn't actually be possible?)
         else{
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
     }
 

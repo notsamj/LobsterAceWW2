@@ -31,6 +31,18 @@ class BomberTurret extends Turret {
         this.model = plane.getPlaneClass();
     }
 
+    // TODO: Comments
+    fromJSON(rep){
+        this.shootCD.setTicksLeft(rep["shoot_cd"]);
+    }
+
+    // TODO: Comments
+    toJSON(){
+        let rep = {};
+        rep["shoot_cd"] = this.shootCD.getTicksLeft();
+        return rep;
+    }
+
     /*
         Method Name: shoot
         Method Parameters: None
@@ -42,11 +54,10 @@ class BomberTurret extends Turret {
         let shootingAngle = this.getShootingAngle();
         if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
         this.shootCD.lock();
-        SOUND_MANAGER.play("shoot", this.getX(), this.getY());
+        this.scene.getSoundManager().play("shoot", this.getX(), this.getY());
         if (PROGRAM_DATA["settings"]["use_physics_bullets"]){
             this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
         }else{ // Fake bullets
-            //console.log("Shooting @", this.getShootingAngle(), this.shootCD.getTicksLeft());
             this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
         }
     }

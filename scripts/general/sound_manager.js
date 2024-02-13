@@ -152,6 +152,27 @@ class SoundManager {
         let sound = this.findSound(soundName);
         return sound.getVolume();
     }
+
+    // TODO: Comments
+    getSoundRequestList(){
+        let soundRequestList = [];
+        for (let [soundRequest, sRI] of this.soundQueue){
+            soundRequestList.push()
+        }
+        return soundRequestList;
+    }
+
+    // TODO: Comments
+    clearRequests(){
+        this.soundQueue.clear();
+    }
+
+    // TODO: Comments
+    fromSoundRequestList(soundRequestList){
+        for (let requestObject of soundRequestList){
+            this.soundQueue.push(SoundRequest.fromJSON(this, requestObject));
+        }
+    }
 }
 
 /*
@@ -161,7 +182,13 @@ class SoundManager {
 class SoundRequest {
      /*
         Method Name: constructor
-        Method Parameters: None
+        Method Parameters:
+            sound:
+                A sound object
+            x:
+                The x location where the sound is played
+            y:
+                The y location where the sound is played
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -189,6 +216,16 @@ class SoundRequest {
         if (this.x >= lX && this.x <= rX && this.y >= bY && this.y <= tY){
             this.sound.play();
         }
+    }
+
+    // TODO: Comments
+    toJSON(){
+        return {"x": this.x, "y": this.y, "sound": this.sound.getName()}
+    }
+
+    // TODO: Comments
+    static fromJSON(soundManager, jsonObject){
+        return new SoundRequest(soundManager.findSound(jsonObject["sound"]), jsonObject["x"], jsonObject["y"]);
     }
 }
 

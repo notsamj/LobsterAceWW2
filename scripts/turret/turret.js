@@ -30,18 +30,37 @@ class Turret {
         this.fov2 = fov2;
         this.scene = scene;
         this.model = "turret";
+        this.decisions = {
+            "shooting": false, // true -> shooting, false -> not shooting
+            "angle": null // angle in degrees [0,359]
+        }
     }
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         this.shootCD.tick();
+        this.makeDecisions();
+        this.executeDecisions();
+    }
+
+    // Abstract
+    makeDecisions(){}
+
+    // TODO: Comments
+    executeDecisions(){
+        // If decided to shoot
+        if (this.decisions["shooting"]){
+            if (this.shootCD.isReady()){
+                this.decisions["shooting"] = false;
+                this.shoot(this.decisions["angle"]);
+                this.shootCD.lock();
+            }
+        }
     }
 
     /*
@@ -106,16 +125,15 @@ class Turret {
 
     /*
         Method Name: shoot
-        Method Parameters: None
-        Method Description: Shoots the turret, if it is ready and the angle is in an allowed range.
+        Method Parameters:
+            shootingAngle:
+                Angle of the shot
+        Method Description: Shoots the turret, if the angle is in the allowed range.
         Method Return: void
     */
-    shoot(){
-        if (!this.readyToShoot()){ return; }
-        let shootingAngle = this.getShootingAngle();
+    shoot(shootingAngle){
         if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
-        this.shootCD.lock();
-        SOUND_MANAGER.play("shoot", this.getX(), this.getY());
+        this.scene.getSoundManager().play("shoot", this.getX(), this.getY());
         this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
     }
 

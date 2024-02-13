@@ -22,12 +22,12 @@ USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 8
 var tickInterval;
 // Functions
 
-    /*
-        Method Name: tick
-        Method Parameters: None
-        Method Description: Makes things happen within a tick
-        Method Return: void
-    */
+/*
+    Method Name: tick
+    Method Parameters: None
+    Method Description: Makes things happen within a tick
+    Method Return: void
+*/
 async function tick(){
     if (mainTickLock.notReady()){
         runningTicksBehind++;
@@ -41,9 +41,6 @@ async function tick(){
     if (setupDone){
         if (document.hidden){
             menuManager.lostFocus();
-        }
-        if (activeGameMode != null){
-            await activeGameMode.tick();
         }
     }
     if (frameLock.isReady()){
@@ -95,14 +92,16 @@ async function setup() {
 
     // Prepare to start running
     startTime = Date.now();
-    tickInterval = setInterval(tick, Math.floor(1000 / (PROGRAM_DATA["settings"]["tick_rate"])));
+    //tickInterval = setInterval(tick, PROGRAM_DATA["settings"]["ms_between_ticks"]);
+    tickInterval = setInterval(tick, 1);
 
     await loadPlanes();
     await loadExtraImages();
 
 
     // Set up scene & menus
-    scene = new PlaneGameScene(getScreenWidth(), getScreenHeight());
+    scene = new PlaneGameScene(SOUND_MANAGER, true);
+    scene.enableDisplay()
     menuManager = new MenuManager(getScreenWidth(), getScreenHeight());
     MenuManager.setupClickListener();
 

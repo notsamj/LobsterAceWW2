@@ -157,10 +157,11 @@ class MenuManager {
         }else if (newMenu == "dogfight"){
             this.activeMenu = this.dogfightMenu;
         }else if (newMenu == "pauseMenu"){
-            scene.disableTicks();
+            activeGameMode.pause();
             this.activeMenu = this.pauseMenu;
         }else if (newMenu == "game"){
-            scene.enable();
+            activeGameMode.unpause();
+            scene.enableDisplay();
             this.activeMenu = null;
         }else if (newMenu == "multiplayer"){
             this.activeMenu = this.multiplayerMenu;

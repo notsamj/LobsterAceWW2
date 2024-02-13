@@ -1,6 +1,6 @@
 /*
     Class Name: BotBomberTurret
-    Description: Class representing a Turret attached to a Bomber plane that is operated by the computer
+    Description: Abstract Class representing a Turret attached to a Bomber plane that is operated by the computer
 */
 class BotBomberTurret extends BomberTurret {
     /*
@@ -20,12 +20,15 @@ class BotBomberTurret extends BomberTurret {
                 A Scene object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
+            autonomous:
+                Whether or not the turret may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, scene, plane){
+    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, scene, plane, autonomous=true){
         super(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane);
         this.shootingAngle = 0;
+        this.autonomous = autonomous;
     }
 
     /*
@@ -39,17 +42,34 @@ class BotBomberTurret extends BomberTurret {
     }
 
     /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    tick(){
+        this.shootCD.tick();
+    }
+
+    // TODO: Comments
+    makeDecisions(enemyList){
+        // If it can't make its own decisions then skip this
+        if (!this.autonomous){ return; }
+        this.checkShoot(enemyList);
+    }
+
+    /*
         Method Name: checkShoot
         Method Parameters:
             enemyList:
                 A list of enemy planes
-        Method Description: Checks if the turret should shoot. If so, it tries to shoot at the enemy.
+        Method Description: Checks if the turret should shoot. If so, it makes the decision to shoot at the enemy.
         Method Return: void
     */
     checkShoot(enemyList){
         if (this.shootCD.notReady()){ return; }
         // Shoot if the enemy is in front
-        let hasFiredShot = false;
+        let hasDecidedToFireShot = false;
         let myX = this.getX();
         let myY = this.getY();
         let enemyX = null;
@@ -60,37 +80,40 @@ class BotBomberTurret extends BomberTurret {
         let distanceToEnemy = null;
         // Look for other enemies that aren't the primary focus and if they are infront of the plane then shoot
         for (let enemy of enemyList){
-            if (hasFiredShot){ break; }
+            if (hasDecidedToFireShot){ break; }
             enemyX = enemy.getX();
             enemyY = enemy.getY();
             enemyXDisplacement = enemyX - myX;
             enemyYDisplacement = enemyY - myY;
             // TODO: Maybe use the ANGLE TO ENTITY function?
             angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
-            this.shootingAngle = angleDEG;
             distanceToEnemy = enemy.distanceToPoint(myX, myY);
-            hasFiredShot = this.tryToShootAtEnemy(distanceToEnemy);
+            hasDecidedToFireShot = this.isEnemyClose(distanceToEnemy);
+        }
+        // If the decision has been made to shoot then record it
+        if (hasDecidedToFireShot){
+            this.decisions["angle"] = angleDEG;
+            this.decisions["shooting"] = true;
         }
     }
 
     /*
-        Method Name: tryToShootAtEnemy
+        Method Name: isEnemyClose
         Method Parameters:
             distanceToEnemy:
                 The distance to the enemy
         Method Description: Turn the plane in a given direction.
         Method Return: boolean, true if shot, false if not.
     */
-    tryToShootAtEnemy(distanceToEnemy){
-        // If ready to shoot and the angle & distance are acceptable then shoot
+    isEnemyClose(distanceToEnemy){
+        // If the distance is acceptable then the shot is good
         if (distanceToEnemy < this.plane.getMaxShootingDistance()){
             // Either physics bullets OR don't shoot past the limit of instant shot
             if (PROGRAM_DATA["settings"]["use_physics_bullets"] || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
-                this.shoot();
+                return true;
             }
         }
-        // Using the locking of the shoot cooldown to determine if a shot was fired
-        return this.shootCD.notReady();
+        return false;
     }
 
     /*

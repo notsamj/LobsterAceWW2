@@ -14,14 +14,74 @@ class HumanFighterPlane extends FighterPlane {
                 The starting angle of the fighter plane (integer)
             facingRight:
                 The starting orientation of the fighter plane (boolean)
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true){
+    constructor(planeClass, scene, angle=0, facingRight=true, autonomous=true){
         super(planeClass, scene, angle, facingRight);
         this.lrLock = new Lock();
         this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
+        this.autonomous = autonomous;
+    }
+
+    // TODO: Comments
+    toJSON(){
+        let rep = {};
+        rep["decisions"] = this.decisions;
+        rep["locks"] = {
+            "shoot_lock": this.shootLock.getTicksLeft()
+        } 
+        rep["basic"] = {
+            "id": this.id,
+            "x": this.x,
+            "y": this.y,
+            "human": this.isHuman(),
+            "plane_class": this.planeClass,
+            "facing_right": this.facingRight,
+            "angle": this.angle,
+            "throttle": this.throttle,
+            "speed": this.speed,
+            "health": this.health,
+            "starting_health": this.startingHealth,
+            "dead": this.isDead()
+        }
+        return rep;
+    }
+
+    // TODO: Comments
+    fromJSON(rep){
+        // If running locally only take a few attributes
+        if (this.autonomous){
+            this.id = rep["basic"]["id"];
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        }else{ // Otherwise take everything else
+            this.x = rep["basic"]["x"];
+            this.y = rep["basic"]["y"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
+            this.throttle = rep["basic"]["throttle"];
+            this.speed = rep["basic"]["speed"];
+            this.health = rep["basic"]["health"];
+            this.startingHealth = rep["basic"]["starting_health"];
+            this.decisions = rep["decisions"];
+        }
+    }
+
+    // TODO: Comments
+    static fromJSON(rep, scene, autonomous){
+        let planeClass = rep["basic"]["plane_class"];
+        let hFP = new HumanFighterPlane(planeClass, scene, rep["angle"], rep["facing_right"], autonomous);
+        // For the first time even if autonomous need to set x
+        // TODO: DO this for other things maybe just human bomber
+        hFP.setX(rep["basic"]["x"]);
+        hFP.setY(rep["basic"]["y"])
+        hFP.fromJSON(rep)
+        return hFP;
     }
 
     /*
@@ -32,19 +92,6 @@ class HumanFighterPlane extends FighterPlane {
     */
     isHuman(){
         return true;
-    }
-    
-    /*
-        Method Name: die
-        Method Parameters: None
-        Method Description: Kill off a plane and replace it with a spectator plane
-        Method Return: void
-    */
-    die(){
-        super.die();
-        let cam = new SpectatorCamera(this.scene, this.x, this.y);
-        this.scene.addEntity(cam);
-        this.scene.setFocusedEntity(cam);
     }
 
     /*
@@ -67,12 +114,29 @@ class HumanFighterPlane extends FighterPlane {
     */
     tick(timeDiffMS){
         this.radarLock.tick();
+        this.updateRadar();
+        super.tick(timeDiffMS);
+    }
+
+    // TODO: Comments
+    resetDecisions(){
+        this.decisions["face"] = 0;
+        this.decisions["angle"] = 0;
+        this.decisions["shoot"] = false;
+        this.decisions["throttle"] = 0;
+    }
+
+    // TODO: Comments
+    makeDecisions(){
+        // Sometimes the human will be controlled by the external input so don't make decisions
+        if (!this.autonomous){
+            return;
+        }
+        this.resetDecisions();
         this.checkMoveLeftRight();
         this.checkUpDown();
         this.checkShoot();
         this.checkThrottle();
-        this.updateRadar();
-        super.tick(timeDiffMS);
     }
 
     /*
@@ -121,9 +185,9 @@ class HumanFighterPlane extends FighterPlane {
         if (!this.lrLock.isReady()){ return; }
         this.lrLock.lock();
         if (aKey){
-            this.face(false);
+            this.decisions["face"] = -1;
         }else if (dKey){
-            this.face(true);
+            this.decisions["face"] = 1;
         }
     }
 
@@ -147,9 +211,9 @@ class HumanFighterPlane extends FighterPlane {
             return;
         }
         if (wKey){
-            this.adjustAngle(-1);
+            this.decisions["angle"] = -1;
         }else if (sKey){
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
     }
 
@@ -173,9 +237,9 @@ class HumanFighterPlane extends FighterPlane {
             return;
         }
         if (rKey){
-            this.adjustThrottle(1);
+            this.decisions["throttle"] = 1;
         }else if (fKey){
-            this.adjustThrottle(-1);
+            this.decisions["throttle"] = -1;
         }
     }
 
@@ -190,7 +254,6 @@ class HumanFighterPlane extends FighterPlane {
         if (!this.shootLock.isReady() || !spaceKey){
             return;
         }
-        this.shootLock.lock();
-        this.shoot();
+        this.decisions["shoot"] = true;
     }
 }

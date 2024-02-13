@@ -69,6 +69,18 @@ class TickLock extends Lock{
     }
 
     /*
+        Method Name: setTicksLeft
+        Method Parameters:
+            tickLeft:
+                Number of ticks left
+        Method Description: Setter
+        Method Return: void
+    */
+    setTicksLeft(ticksLeft){
+        this.ticksLeft = ticksLeft;
+    }
+
+    /*
         Method Name: getCooldown
         Method Parameters: None
         Method Description: Getter

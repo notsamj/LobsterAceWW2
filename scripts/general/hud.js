@@ -60,6 +60,13 @@ class HUD {
             i++;
         }
     }
+
+    // TODO: Comments
+    clearAll(){
+        for (let element of this.hudElements){
+            element.clear();
+        }
+    }
 }
 
 /*
@@ -77,6 +84,7 @@ class HUDElement {
         this.name = name;
         this.readyToDisplay = true;
         this.value = null;
+        this.extraTimeLock = new CooldownLock(1000); // TODO: Test if this works so no flashing
     }
 
     /*
@@ -130,15 +138,21 @@ class HUDElement {
         fill(PROGRAM_DATA["hud"]["value_colour"]);
         text(`${this.value}`, x + xOffset, y);
         this.readyToDisplay = false;
+        this.extraTimeLock.lock();
     }
 
     /*
-        Method Name: getName
+        Method Name: isReadyToDisplay
         Method Parameters: None
-        Method Description: Getter
+        Method Description: Determines if the element should be displayed. Either it has been updated OR the extra time lock hasn't run out
         Method Return: boolean, true -> ready to display, false -> not ready to display
     */
     isReadyToDisplay(){
-        return this.readyToDisplay;
+        return this.readyToDisplay || this.extraTimeLock.notReady();
+    }
+
+    // TODO: Comments
+    clear(){
+        this.extraTimeLock.unlock();
     }
 }

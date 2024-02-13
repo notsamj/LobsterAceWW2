@@ -128,6 +128,17 @@ class NotSamLinkedList{
      *   Method Return: None
      */
     push(element){ this.append(element); }
+
+    /*
+     *   Method Name: add
+     *   Method Parameters:
+     *   Double value:
+     *      Value to add to the list
+     *   Method Description:
+     *   This method inserts a value into the end of the list.
+     *   Method Return: None
+     */
+    add(element){ this.append(element); }
     
     /*
      *   Method Name: getSize

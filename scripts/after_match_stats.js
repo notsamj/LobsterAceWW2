@@ -1,11 +1,8 @@
-// Singleton Class
-// Note: Only supports 1 player "user"
 /*
     Class Name: AfterMatchStats
     Description: Records the events taking place in a Dogfight for later review
 */
 class AfterMatchStats {
-    static instance; // Instance of the class to be used (Singleton pattern)
     /*
         Method Name: constructor
         Method Parameters: None
@@ -25,7 +22,7 @@ class AfterMatchStats {
     reset(){
         this.winner = "None";
         this.botKillCounts = {};
-        this.playerKillCount = {"alliance": "None", "kills": 0};
+        this.playerKillCounts = {"Allies": {}, "Axis": {}};
     }
 
     /*
@@ -48,14 +45,19 @@ class AfterMatchStats {
     /*
         Method Name: addPlayerKill
         Method Parameters:
+            userName:
+                Name of the user who killed the other plane
             alliance:
                 A string representing the alliance of the player who killed an opponent
         Method Description: Updates the number of kills of the player
         Method Return: void
     */
-    addPlayerKill(alliance){
-        this.playerKillCount["alliance"] = alliance;
-        this.playerKillCount["kills"] += 1;
+    addPlayerKill(userName, alliance){
+        if (!objectHasKey(this.playerKillCounts["kills"][alliance], userName)){
+            this.playerKillCounts["kills"][alliance][userName] = 1;
+        }else{
+            this.playerKillCounts["kills"][alliance][userName] += 1;
+        }
     }
 
     /*
@@ -103,8 +105,8 @@ class AfterMatchStats {
         let ranking = [];
 
         // Add player's stats if on this team
-        if (this.playerKillCount["alliance"] == team){
-            ranking.push({"name": "user", "kills": this.playerKillCount["kills"]})
+        for (let playerName of Object.keys(this.playerKillCounts[team])){
+            ranking.push({"name": playerName, "kills": this.playerKillCounts[team][playerName]["kills"]})
         }
 
         // Find bot kills on This team
@@ -154,46 +156,17 @@ class AfterMatchStats {
         return PROGRAM_DATA["team_to_colour"][team];
     }
 
-    // Interface for non-static function
-    static reset(){
-        AfterMatchStats.instance.reset();
+    toJSON(){
+        return {
+            "winner": this.winner,
+            "player_kills": this.playerKillCounts,
+            "bot_kills": this.botKillCounts
+        }
     }
 
-    // Interface for non-static function
-    static addBotKill(planeClass){
-        AfterMatchStats.instance.addBotKill(planeClass);
-    }
-
-    // Interface for non-static function
-    static addPlayerKill(alliance){
-        AfterMatchStats.instance.addPlayerKill(alliance);
-    }
-    
-    // Interface for non-static function
-    static getWinnerColour(){
-        return AfterMatchStats.instance.getWinnerColour();
-    }
-
-    // Interface for non-static function
-    static setWinner(winner){
-        AfterMatchStats.instance.setWinner(winner);
-    }
-
-    // Interface for non-static function
-    static display(){
-        AfterMatchStats.instance.display();
-    }
-
-    // Interface for non-static function
-    static getWinner(){
-        return AfterMatchStats.instance.getWinner();
-    }
-
-    // Creates the instance of AfterMatchStats to be used in the singleton pattern
-    static init(){
-        AfterMatchStats.instance = new AfterMatchStats();
+    fromJSON(statsObject){
+        this.winner = statsObject["winner"];
+        this.playerKillCounts = statsObject["player_kills"];
+        this.botKillCounts = statsObject["bot_kills"];
     }
 }
-
-// Create instance
-AfterMatchStats.init();

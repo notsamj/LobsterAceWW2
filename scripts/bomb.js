@@ -29,6 +29,16 @@ class Bomb extends Entity {
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bomb_data"]["radius"]);
     }
 
+    // TODO: Comments
+    setXVelocity(xVelocity){
+        this.xVelocity = xVelocity;
+    }
+
+    // TODO: Comments
+    setXVelocity(yVelocity){
+        this.yVelocity = yVelocity;
+    }
+
     /*
         Method Name: tick
         Method Parameters:
@@ -77,7 +87,7 @@ class Bomb extends Entity {
         Method Return: void
     */
     die(){
-        SOUND_MANAGER.play("explode", this.x, this.y);
+        this.scene.getSoundManager().play("explode", this.x, this.y);
         super.die();
     }
 
@@ -190,5 +200,25 @@ class Bomb extends Entity {
         let displayX = this.scene.getDisplayX(this.getCenterX(), this.getWidth(), lX);
         let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
+    }
+
+    // TODO: Comments
+    toJSON(){
+        return {
+            "x": this.x,
+            "y": this.y,
+            "x_velocity": this.xVelocity,
+            "y_velocity": this.yVelocity,
+            "dead": this.isDead()
+        }
+    }
+
+    // TODO: Comments
+    static fromJSON(scene, rep){
+        let bomb = new Bomb(rep["x"], rep["y"], scene, 0, 0);
+        bomb.setXVelocity(rep["x_velocity"]);
+        bomb.setYVelocity(rep["y_velocity"]);
+        bomb.setDead(rep["dead"]);
+        return bomb;
     }
 }

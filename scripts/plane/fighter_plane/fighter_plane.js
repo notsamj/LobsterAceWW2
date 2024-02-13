@@ -39,6 +39,32 @@ class FighterPlane extends Plane {
         super.tick(timeDiffMS);
     }
 
+    // TODO: Comments
+    executeDecisions(){
+        // Check shooting
+        if (this.decisions["shoot"]){
+            if (this.shootLock.isReady() && !this.scene.isLocal()){
+                this.shootLock.lock();
+                this.shoot();
+            }
+        }
+
+        // Change facing direction
+        if (this.decisions["face"] != 0){
+            this.face(this.decisions["face"] == 1 ? true : false);
+        }
+
+        // Adjust angle
+        if (this.decisions["angle"] != 0){
+            this.adjustAngle(this.decisions["angle"]);
+        }
+
+        // Adjust throttle
+        if (this.decisions["throttle"] != 0){
+            this.adjustThrottle(this.decisions["throttle"]);
+        }
+    }
+
     /*
         Method Name: shoot
         Method Parameters: None
@@ -46,7 +72,7 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     shoot(){
-        SOUND_MANAGER.play("shoot", this.x, this.y);
+        this.scene.getSoundManager().play("shoot", this.x, this.y);
         // If using physical bullets then do it this way
         if (PROGRAM_DATA["settings"]["use_physics_bullets"]){
             this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));

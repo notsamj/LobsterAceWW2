@@ -21,7 +21,13 @@ class TeamCombatManager {
         this.planes = {};
         this.bullets = {};
         this.teams = teams;
+        this.stats = new AfterMatchStats();
         this.clear();
+    }
+
+    // TODO: Comments
+    setStatsManager(statsManager){
+        this.stats = statsManager;
     }
 
     /*
@@ -31,8 +37,9 @@ class TeamCombatManager {
                 A list of plane objects
         Method Description: Updates planes based on information about them in the JSON object
         Method Return: void
+        TODO: Keep or throw away?
     */
-    forceUpdatePlanes(listOfPlaneObjects){
+    /*forceUpdatePlanes(listOfPlaneObjects){
         for (let team of this.teams){
             for (let [plane, planeIndex] of this.planes[team]){
                 let foundOBJ = null;
@@ -52,7 +59,7 @@ class TeamCombatManager {
                 plane.update(foundOBJ);
             }
         }
-    }
+    }*/
 
     /*
         Method Name: clear
@@ -61,8 +68,30 @@ class TeamCombatManager {
         Method Return: void
     */
     clear(){
+        this.clearPlanes();
+        this.clearBullets();
+    }
+
+    /*
+        Method Name: clearPlanes
+        Method Parameters: None
+        Method Description: Removes all planes
+        Method Return: void
+    */
+    clearPlanes(){
         for (let team of this.teams){
             this.planes[team] = new NotSamLinkedList();
+        }
+    }
+
+    /*
+        Method Name: clearBullets
+        Method Parameters: None
+        Method Description: Removes all bullets
+        Method Return: void
+    */
+    clearBullets(){
+        for (let team of this.teams){
             this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets"]);
         }
     }
@@ -306,18 +335,34 @@ class TeamCombatManager {
     }
 
     /*
-        Method Name: getAllPlanes
+        Method Name: getLivingPlanes
         Method Parameters: None
         Method Description: Gathers a list of all living planes
         Method Return: List of Plane
     */
-    getAllPlanes(){
+    getLivingPlanes(){
         let planes = [];
         for (let team of this.teams){
             for (let [plane, pIndex] of this.planes[team]){
                 if (!plane.isDead()){
                     planes.push(plane);
                 }
+            }
+        }
+        return planes;
+    }
+
+    /*
+        Method Name: getAllPlanes
+        Method Parameters: None
+        Method Description: Gathers a list of all planes
+        Method Return: List of Plane
+    */
+    getAllPlanes(){
+        let planes = [];
+        for (let team of this.teams){
+            for (let [plane, pIndex] of this.planes[team]){
+                planes.push(plane);
             }
         }
         return planes;
@@ -391,10 +436,38 @@ class TeamCombatManager {
         let shooter = this.getEntity(bullet.getShooterID());
         // If human 
         if (shooter.isHuman()){
-            AfterMatchStats.addPlayerKill(planeModelToAlliance(shooter.getPlaneClass()));
+            this.stats.addPlayerKill(planeModelToAlliance(shooter.getPlaneClass()));
         }else{
-            AfterMatchStats.addBotKill(shooter.getPlaneClass());
+            this.stats.addBotKill(shooter.getPlaneClass());
         }
+    }
+
+    // TODO: Comments
+    getPlane(id){
+        for (let plane of this.getAllPlanes()){
+            if (plane.getID() == id){
+                return plane;
+            }
+        }
+        return null;
+    }
+
+    // TODO: Comments
+    getPlaneJSON(){
+        let planeJSON = [];
+        for (let plane of this.getAllPlanes()){
+            planeJSON.push(plane.toJSON());
+        }
+        return planeJSON;
+    }
+
+    // TODO: Comments
+    getBulletJSON(){
+        let bulletJSON = [];
+        for (let bullet of this.getAllBullets()){
+            bulletJSON.push(bullet.toJSON());
+        }
+        return bulletJSON;
     }
 }
 // If using NodeJS -> export the class

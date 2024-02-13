@@ -227,6 +227,40 @@ class Bullet extends Entity {
         let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
+
+    // TODO: Comments
+    toJSON(){
+        return {
+            "x": this.x,
+            "y": this.y,
+            "dead": this.isDead(),
+            "x_velocity": this.xVelocity,
+            "y_velocity": this.yVelocity,
+            "shooter_class": this.shooterClass,
+            "shooter_id": this.shooterID
+        }
+    }
+
+    // TODO: Comments
+    setXVelocity(xVelocity){
+        this.xVelocity = xVelocity;
+    }
+
+    // TODO: Comments
+    setYVelocity(yVelocity){
+        this.yVelocity = yVelocity;
+    }
+
+    // TODO: Comments
+    static fromJSON(bulletJSONObject, scene){
+        let x = bulletJSONObject["x"];
+        let y = bulletJSONObject["y"];
+        let bullet = new Bullet(x, y, scene, 0, 0, 0, bulletJSONObject["shooter_id"], bulletJSONObject["shooter_class"]);
+        bullet.setDead(bulletJSONObject["dead"]);
+        bullet.setXVelocity(bulletJSONObject["x_velocity"]);
+        bullet.setYVelocity(bulletJSONObject["y_velocity"]);
+        return bullet;
+    }
 }
 // If using Node JS Export the class
 if (typeof window === "undefined"){

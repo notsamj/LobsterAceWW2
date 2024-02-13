@@ -20,14 +20,23 @@ class HumanBomberTurret extends BomberTurret {
                 A Scene object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
+            autonomous:
+                Whether or not the turret may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
 
-    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, scene, plane){
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane, autonomous=true){
         super(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane);
+        this.autonomous = autonomous;
     }
 
+    // TODO: Comments
+    makeDecisions(){
+        if (!this.autonomous){ return; }
+        this.checkShoot();
+    }
+    
     /*
         Method Name: getShootingAngle
         Method Parameters: None
@@ -50,7 +59,8 @@ class HumanBomberTurret extends BomberTurret {
     */
     checkShoot(){
         if (USER_INPUT_MANAGER.isActivated("bomber_shoot_input")){
-            this.shoot();
+            this.decisions["shooting"] = true;
+            this.decisions["angle"] = this.getShootingAngle();
         }
     }
 
@@ -63,10 +73,12 @@ class HumanBomberTurret extends BomberTurret {
                 A Scene object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
+            autonomous:
+                Whether the turret is autonomous or not
         Method Description: Create a bot bomber turret
         Method Return: HumanBomberTurret
     */
-    static create(gunObject, scene, plane){
-        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane);
+    static create(gunObject, scene, plane, autonomous){
+        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane, autonomous);
     }
 }

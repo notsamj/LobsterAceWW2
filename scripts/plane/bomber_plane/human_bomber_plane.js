@@ -14,10 +14,12 @@ class HumanBomberPlane extends BomberPlane {
                 The starting angle of the bomber plane (integer)
             facingRight:
                 The starting orientation of the bomber plane (boolean)
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true){
+    constructor(planeClass, scene, angle=0, facingRight=true, autonomous=true){
         super(planeClass, scene, angle, facingRight);
         this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.lrLock = new Lock();
@@ -25,6 +27,72 @@ class HumanBomberPlane extends BomberPlane {
         this.radar = new PlaneRadar(this);
         this.bombLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.generateGuns();
+        this.autonomous = autonomous;
+    }
+
+    // TODO: Comments
+    toJSON(){
+        let rep = {};
+        rep["decisions"] = this.decisions;
+        rep["locks"] = {
+            "bomb_lock": this.bombLock.getTicksLeft(),
+            "ud_lock": this.udLock.getTicksLeft()
+        } 
+        rep["basic"] = {
+            "id": this.id,
+            "x": this.x,
+            "y": this.y,
+            "human": this.isHuman(),
+            "plane_class": this.planeClass,
+            "facing_right": this.facingRight,
+            "angle": this.angle,
+            "throttle": this.throttle,
+            "speed": this.speed,
+            "health": this.health,
+            "starting_health": this.startingHealth,
+            "dead": this.isDead()
+        }
+
+        // Create a json rep of all guns
+        rep["guns"] = [];
+        for (let gun of this.guns){
+            rep["guns"].push(gun.toJSON());
+        }
+
+        return rep;
+    }
+
+    // TODO: Comments
+    fromJSON(rep){
+        // If running locally only take some attributes
+        if (this.autonomous){
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
+            for (let i = 0; i < this.guns.length; i++){
+                this.gun.fromJSON(rep["guns"][i]);
+            }
+        }else{ // Otherwise take everything
+            this.x = rep["basic"]["x"];
+            this.y = rep["basic"]["y"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
+            this.throttle = rep["basic"]["throttle"];
+            this.speed = rep["basic"]["speed"];
+            this.health = rep["basic"]["health"];
+            this.startingHealth = rep["basic"]["starting_health"];
+            this.dead = rep["basic"]["dead"];
+            this.decisions = rep["basic"]["decisions"];
+            this.udLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        }
+    }
+
+    // TODO: Comments
+    static fromJSON(rep, scene, autonomous){
+        let planeClass = rep["basic"]["plane_class"];
+        let hBP = new HumanBomberPlane(planeClass, scene, rep["angle"], rep["facing_right"], autonomous);
+        hBP.fromJSON(rep)
+        return hBP;
     }
 
     /*
@@ -46,7 +114,7 @@ class HumanBomberPlane extends BomberPlane {
     generateGuns(){
         this.guns = [];
         for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(HumanBomberTurret.create(gunObj, this.scene, this));
+            this.guns.push(HumanBomberTurret.create(gunObj, this.scene, this, this.autonomous));
         }
     }
 
@@ -88,13 +156,64 @@ class HumanBomberPlane extends BomberPlane {
         for (let gun of this.guns){
             gun.tick();
         }
+        this.updateRadar();
+        super.tick(timeDiffMS);
+    }
+
+    // TODO: Comments
+    makeDecisions(){
+        // Do not make decisions if not autonomous
+        if (!this.autonomous){ return; }
+        this.resetDecisions();
         this.checkMoveLeftRight();
         this.checkUpDown();
         this.checkThrottle();
         this.checkShoot();
         this.checkBomb();
-        this.updateRadar();
-        super.tick(timeDiffMS);
+
+        for (let gun of this.guns){
+            gun.makeDecisions();
+        }
+    }
+
+    // TODO: Comments
+    resetDecisions(){
+        this.decisions["face"] = 0;
+        this.decisions["angle"] = 0;
+        this.decisions["bombing"] = false;
+        this.decisions["throttle"] = 0;
+    }
+
+    executeDecisions(){
+        // Change facing direction
+        if (this.decisions["face"] != 0){
+            this.face(this.decisions["face"] == 1 ? true : false);
+        }
+
+        // Adjust angle
+        if (this.decisions["angle"] != 0){
+            if (this.udLock.isReady()){
+                this.udLock.lock();
+                this.adjustAngle(this.decisions["angle"]);
+            }
+        }
+
+        // Increase / decrease throttle
+        if (this.decisions["throttle"] != 0){
+            this.adjustThrottle(this.decisions["throttle"]);
+        }
+
+        // Drop bombs
+        if (this.decisions["bombing"]){
+            if (this.bombLock.isReady()){
+                this.dropBomb();
+            }
+        }
+
+        // Let the guns make decisions
+        for (let gun of this.guns){
+            gun.executeDecisions();
+        }
     }
 
     /*
@@ -143,9 +262,9 @@ class HumanBomberPlane extends BomberPlane {
         if (!this.lrLock.isReady()){ return; }
         this.lrLock.lock();
         if (aKey){
-            this.face(false);
+            this.decisions["face"] = -1;
         }else if (dKey){
-            this.face(true);
+            this.decisions["face"] = 1;
         }
     }
 
@@ -172,9 +291,9 @@ class HumanBomberPlane extends BomberPlane {
         }
         this.udLock.lock();
         if (wKey){
-            this.adjustAngle(-1);
+            this.decisions["angle"] = -1;
         }else if (sKey){
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
     }
 
@@ -189,8 +308,7 @@ class HumanBomberPlane extends BomberPlane {
         if (!this.bombLock.isReady() || !spaceKey){
             return;
         }
-        this.bombLock.lock();
-        this.dropBomb();
+        this.decisions["bombing"] = true;
     }
 
     /*
@@ -213,21 +331,9 @@ class HumanBomberPlane extends BomberPlane {
             return;
         }
         if (rKey){
-            this.adjustThrottle(1);
+            this.decisions["throttle"] = 1;
         }else if (fKey){
-            this.adjustThrottle(-1);
-        }
-    }
-
-    /*
-        Method Name: checkShoot
-        Method Parameters: None
-        Method Description: Checks if each gun is able to shoot (and shoots if able)
-        Method Return: void
-    */
-    checkShoot(){
-        for (let gun of this.guns){
-            gun.checkShoot();
+            this.decisions["throttle"] = -1;
         }
     }
 }

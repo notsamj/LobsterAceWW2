@@ -23,11 +23,13 @@ class BiasedBotBomberTurret extends BotBomberTurret {
                 The bomber plane which the turret is attached to
             biases:
                 An object containing keys and bias values
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane, biases){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane, biases, autonomous){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane, autonomous);
         this.biases = biases;
         this.shootingAngle = 0;
         this.shootCD = new TickLock(this.shootCD.getCooldown() * this.biases["rate_of_fire_multiplier"]);
@@ -54,10 +56,12 @@ class BiasedBotBomberTurret extends BotBomberTurret {
                 The bomber plane which the turret is attached to
             biases:
                 An object containing keys and bias values
+            autonomous:
+                Whether or not the turret is autonomous
         Method Description: Creates an instance of a biased bot bomber turret and returns it
         Method Return: BiasedBotBomberTurret
     */
     static create(gunObject, scene, plane, biases){
-        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane, biases);
+        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane, biases, autonomous);
     }
 }

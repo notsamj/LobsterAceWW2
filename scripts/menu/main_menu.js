@@ -48,7 +48,6 @@ class MainMenu extends Menu {
         }));
 
         // Set up Multiplayer button if enabled
-        console.log(PROGRAM_DATA["settings"], PROGRAM_DATA)
         if (!PROGRAM_DATA["settings"]["multiplayer_disabled"]){
             // Multiplayer
             let multiplayerButtonY = (innerHeight) => { return 200; };

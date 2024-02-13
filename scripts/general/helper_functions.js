@@ -3,6 +3,14 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../data/data_json.js");
 }
 
+// TODO: Comments
+function objectHasKey(obj, key){
+    for (let foundKey of Object.keys(obj)){
+        if (foundKey == key){ return true; }
+    }
+    return false;
+}
+
 /*
     Method Name: mergeCopyObjects
     Method Parameters:

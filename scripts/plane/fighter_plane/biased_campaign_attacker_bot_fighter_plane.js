@@ -16,27 +16,32 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
                 The starting angle of the fighter plane (integer)
             facingRight:
                 The starting orientation of the fighter plane (boolean)
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, biases, angle=0, facingRight=true){
-        super(planeClass, scene, biases, angle, facingRight);
+    constructor(planeClass, scene, biases, angle=0, facingRight=true, autonomous=true){
+        super(planeClass, scene, biases, angle, facingRight, autonomous);
         this.startingThrottle = this.throttle;
     }
 
-    /*
-        Method Name: tick
-        Method Parameters:
-            timeMS:
-                Time passed during tick
-        Method Description: Makes decisions during a tick
-        Method Return: void
-    */
-    tick(timeMS){
-        super.tick(timeMS);
+    // TODO: Comments
+    static fromJSON(rep, scene){
+        let planeClass = rep["basic"]["plane_class"];
+        let fp = new BiasedCampaignAttackerBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
+        fp.fromJSON(rep)
+        return fp;
+    }
+
+    // TODO: Comments
+    makeDecisions(){
+        // Only make decisions if autonomous
+        if (!this.autonomous){ return; }
+        super.makeDecisions();
         // Always make sure throttle is at max if fighting 
         if (this.currentEnemy != null){
-            this.adjustThrottle(1);
+            this.decisions["throttle"] = 1;
         }
     }
 
@@ -103,32 +108,35 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             let dCW = calculateAngleDiffDEGCW(this.angle, angleToBomberDEG);
             let dCCW = calculateAngleDiffDEGCCW(this.angle, angleToBomberDEG);
             if (dCW < dCCW){
-                this.adjustAngle(-1);
+                this.decisions["angle"] = -1;
             }else if (dCCW < dCW){
-                this.adjustAngle(1);
+                this.decisions["angle"] = 1;
             }
             // Make sure you're at top speed heading to the bomber!
-            this.adjustThrottle(1);
+            this.decisions["throttle"] = 1;
             return;
         }
         // Else close to the bomber
+
         // Face in the proper direction
         if (bomber.isFacingRight() != this.isFacingRight()){
-            this.face(!this.isFacingRight());
+            this.decisions["face"] = this.isFacingRight() ? -1 : 1;
+            return;
         }
+
         // Adjust angle to match bomber's angle
         let dCW = calculateAngleDiffDEGCW(this.angle, bomber.getAngle());
         let dCCW = calculateAngleDiffDEGCCW(this.angle, bomber.getAngle());
         if (dCW < dCCW){
-            this.adjustAngle(-1);
+            this.decisions["angle"] = -1;
         }else if (dCCW < dCW){
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
         // Speed up or slow down depending on bomber's speed
         if (this.getSpeed() > bomber.getSpeed()){
-            this.adjustThrottle(-1);
+            this.decisions["throttle"] = -1;
         }else{
-            this.adjustThrottle(1);
+            this.decisions["throttle"] = 1;
         }
     }
 

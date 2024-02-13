@@ -16,11 +16,21 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
                 The starting angle of the fighter plane (integer)
             facingRight:
                 The starting orientation of the fighter plane (boolean)
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, biases, angle=0, facingRight=true){
-        super(planeClass, scene, biases, angle, facingRight);
+    constructor(planeClass, scene, biases, angle=0, facingRight=true, autonomous=true){
+        super(planeClass, scene, biases, angle, facingRight, autonomous);
+    }
+
+    // TODO: Comments
+    static fromJSON(rep, scene){
+        let planeClass = rep["basic"]["plane_class"];
+        let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
+        fp.fromJSON(rep)
+        return fp;
     }
 
     /*
