@@ -48,7 +48,12 @@ class DogfightClient {
         this.updateCamera();
 
         // Tick until the expected number of ticks have passed
-        await this.gameTick(timeGapMS);
+        let expectedTicks = this.tickScheduler.getExpectedTicks();
+
+        while (this.isRunning() && this.numTicks < expectedTicks){
+            await this.gameTick(timeGapMS);
+            this.numTicks++;
+        }
 
         // Send the current position (don't await)
         this.sendPlanePosition();
@@ -132,7 +137,7 @@ class DogfightClient {
                 this.addNewPlane(planeObject);
                 continue;
             }
-            plane.fromJSON(planeObject);
+            plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks);
         }
 
         // Update bullets

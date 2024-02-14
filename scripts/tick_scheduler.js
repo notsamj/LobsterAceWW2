@@ -10,7 +10,7 @@ class TickScheduler {
             // If time for new tick
             let realGap = currentTime - this.getLastTime();
             this.setLastTime(currentTime);
-            await this.callBack(realGap);
+            this.callBack(PROGRAM_DATA["settings"]["ms_between_ticks"]);
         }, this.gapMS);
     }
 

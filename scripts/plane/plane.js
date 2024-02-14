@@ -432,6 +432,27 @@ class Plane extends Entity {
         return {"x": x, "y": y, "speed": speed}
     }
 
+    // TODO: Comments
+    rollForward(amount){
+        for (let i = 0; i < amount; i++){
+            let values = this.getNewPositionValues(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+            this.x = values["x"];
+            this.y = values["y"];
+            this.speed = values["speed"];
+        }
+    }
+
+    // TODO: Comments
+    rollBackward(amount){
+        amount = Math.abs(amount);
+        for (let i = 0; i < amount; i++){
+            let values = this.getNewPositionValues(-1 * PROGRAM_DATA["settings"]["ms_between_ticks"]);
+            this.x = values["x"];
+            this.y = values["y"];
+            this.speed = values["speed"];
+        }
+    }
+
     // Abstract
     makeDecisions(){}
 
@@ -577,6 +598,9 @@ class Plane extends Entity {
         let newPositionValues = this.getNewPositionValues(t);
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
+        // TODO: Temp
+        //this.interpolatedX = this.x;
+        //this.interpolatedY = this.y;
     }
 
 

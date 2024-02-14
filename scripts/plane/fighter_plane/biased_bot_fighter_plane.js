@@ -151,7 +151,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     }
 
     // TODO: Comments
-    fromJSON(rep){
+    fromJSON(rep, tickDifference){
         this.health = rep["basic"]["health"];
         this.dead = rep["basic"]["dead"];
         this.x = rep["basic"]["x"];
@@ -166,6 +166,12 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.decisions = rep["decisions"];
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
         this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
+        // Approximate plane positions in current tick based on position in server tick
+        if (tickDifference > 0){
+            this.rollForward(tickDifference);
+        }else if (tickDifference < 0){
+            this.rollBackward(tickDifference);
+        }
     }
 
     // TODO: Comments
