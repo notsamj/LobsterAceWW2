@@ -151,7 +151,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     }
 
     // TODO: Comments
-    fromJSON(rep, tickDifference){
+    fromJSON(rep, tickDifference=0){
         this.health = rep["basic"]["health"];
         this.dead = rep["basic"]["dead"];
         this.x = rep["basic"]["x"];

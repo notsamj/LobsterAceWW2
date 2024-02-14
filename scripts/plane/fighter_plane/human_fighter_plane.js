@@ -52,14 +52,13 @@ class HumanFighterPlane extends FighterPlane {
     }
 
     // TODO: Comments
-    fromJSON(rep){
+    fromJSON(rep, tickDifference=0){
         // If running locally only take a few attributes
         if (this.autonomous){
             this.id = rep["basic"]["id"];
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
             this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
-        }else{ // Otherwise take everything else
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
             this.facingRight = rep["basic"]["facing_right"];
@@ -68,6 +67,7 @@ class HumanFighterPlane extends FighterPlane {
             this.speed = rep["basic"]["speed"];
             this.health = rep["basic"]["health"];
             this.startingHealth = rep["basic"]["starting_health"];
+        }else{ // Otherwise take everything else
             this.decisions = rep["decisions"];
         }
     }
