@@ -111,6 +111,26 @@ class FighterPlane extends Plane {
         return rotatedY;
     }
 
+    // TODO: Comments
+    getInterpolatedGunX(){
+        let planeAngleRAD = toRadians(this.getNoseAngle());
+        if (!this.isFacingRight()){
+            planeAngleRAD -= toRadians(180);
+        }
+        let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getInterpolatedX();
+        return rotatedX;
+    }
+
+    // TODO: Comments
+    getInterpolatedGunY(){
+        let planeAngleRAD = toRadians(this.getNoseAngle());
+        if (!this.isFacingRight()){
+            planeAngleRAD -= toRadians(180);
+        }
+        let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getInterpolatedY();
+        return rotatedY;
+    }
+
     /*
         Method Name: display
         Method Parameters:
@@ -118,10 +138,12 @@ class FighterPlane extends Plane {
                 The bottom left x displayed on the canvas relative to the focused entity
             bY:
                 The bottom left y displayed on the canvas relative to the focused entity
+            displayTime:
+                The time used to interpolate the positions of the planes
         Method Description: Displays a plane on the screen (if it is within the bounds)
         Method Return: void
     */
-    display(lX, bY){
+    display(lX, bY, displayTime){
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 
@@ -129,7 +151,7 @@ class FighterPlane extends Plane {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Super call to remove (some) code repetition
-        super.display(lX, bY);
+        super.display(lX, bY, displayTime);
 
         // If dead don't display gun flash
         if (this.isDead()){
@@ -139,8 +161,8 @@ class FighterPlane extends Plane {
         // If you've previously shot then display a flash to indicate
         if (this.shootLock.notReady()){
             // Display flash
-            let rotateX = this.scene.getDisplayX(this.getGunX(), 0, lX);
-            let rotateY = this.scene.getDisplayY(this.getGunY(), 0, bY);
+            let rotateX = this.scene.getDisplayX(this.getInterpolatedGunX(), 0, lX);
+            let rotateY = this.scene.getDisplayY(this.getInterpolatedGunY(), 0, bY);
             let flashImageWidth = images["flash"].width;
             let flashImageHeight = images["flash"].height;
 

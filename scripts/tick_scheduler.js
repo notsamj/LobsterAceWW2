@@ -5,14 +5,12 @@ class TickScheduler {
         this.gapMS = gapMS;
         this.callBack = callBack;
         this.lastTime = startTime;
-        this.interval = setInterval(() => {
+        this.interval = setInterval(async () => {
             let currentTime = Date.now();
-            console.log("Called", currentTime)
             // If time for new tick
-            if (currentTime - this.getLastTime() >= this.gapMS){
-                this.setLastTime(currentTime);
-                this.callBack();
-            }
+            let realGap = currentTime - this.getLastTime();
+            this.setLastTime(currentTime);
+            await this.callBack(realGap);
         }, this.gapMS);
     }
 

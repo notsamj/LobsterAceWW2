@@ -36,6 +36,8 @@ class Plane extends Entity {
         this.health = PROGRAM_DATA["plane_data"][planeClass]["health"];
         this.startingHealth = this.health;
         this.throttleConstant = Math.sqrt(this.maxSpeed) / PROGRAM_DATA["settings"]["max_throttle"];
+        this.interpolatedX = 0;
+        this.interpolatedY = 0;
         this.decisions = {
             "face": 0, // 1 -> right, -1 -> left, 0 -> no change
             "angle": 0, // 1 -> ccw by 1 deg, -1 -> cw by 1 deg, 0 -> no change
@@ -282,9 +284,9 @@ class Plane extends Entity {
 
         // Determine angle
         if (this.facingRight){
-            newAngle += amount;
+            newAngle += amount * getTickMultiplier();
         }else{
-            newAngle -= amount;
+            newAngle -= amount * getTickMultiplier();
         }
 
         // Ensure the angle is between 0 and 360
@@ -388,8 +390,21 @@ class Plane extends Entity {
         Method Return: void
     */
     tick(timeDiffMS){
+        // If hit the ground
+        if (this.y - this.hitBox.getRadiusEquivalentY() <= 0){
+            this.die();
+        }
         this.makeDecisions();
         this.executeDecisions();
+        let newPositionValues = this.getNewPositionValues(timeDiffMS);
+        this.x = newPositionValues["x"];
+        this.y = newPositionValues["y"];
+        this.speed = newPositionValues["speed"];
+        this.scene.getSoundManager().play("engine", this.x, this.y);
+    }
+
+    // TODO: Comments
+    getNewPositionValues(timeDiffMS){
         let timeProportion = (timeDiffMS / 1000);
 
         // Throttle - Drag
@@ -401,24 +416,20 @@ class Plane extends Entity {
         let acceleration = throttleAcc - dragAcc;
 
         // Speed
-        this.speed += acceleration * timeProportion;
-        this.speed = Math.max(this.speed, 0);
+        let speed = this.speed += acceleration * timeProportion;
+        speed = Math.max(this.speed, 0);
 
         // Finally the position
-        
+
         // Handle zero throttle
+        let y;
         if (this.throttle > 0){
-            this.y += this.getYVelocity() * timeProportion;
+            y = this.y + this.getYVelocity(speed) * timeProportion;
         }else{
-            this.y -= PROGRAM_DATA["settings"]["fall_speed"] * timeProportion;
+            y = this.y - PROGRAM_DATA["settings"]["fall_speed"] * timeProportion;
         }
-        
-        // If hit the ground
-        if (this.y - this.hitBox.getRadiusEquivalentY() <= 0){
-            this.die();
-        }
-        this.x += this.getXVelocity() * timeProportion;
-        this.scene.getSoundManager().play("engine", this.x, this.y);
+        let x = this.x + this.getXVelocity(speed) * timeProportion;
+        return {"x": x, "y": y, "speed": speed}
     }
 
     // Abstract
@@ -429,15 +440,17 @@ class Plane extends Entity {
 
     /*
         Method Name: getXVelocity
-        Method Parameters: None
+        Method Parameters:
+            speed:
+                The speed that we are travelling
         Method Description: Determine the x velocity of the plane at the moment
         Method Return: float
     */
-    getXVelocity(){
+    getXVelocity(speed){
         let effectiveAngle = this.getEffectiveAngle();
         let cosAngle = Math.cos(toRadians(effectiveAngle));
         if (this.throttle == 0){ return 0; }
-        return this.speed * cosAngle * (!this.facingRight ? -1 : 1);
+        return speed * cosAngle * (!this.facingRight ? -1 : 1);
     }
 
     /*
@@ -469,14 +482,15 @@ class Plane extends Entity {
 
     /*
         Method Name: getYVelocity
-        Method Parameters: None
+            speed:
+                The speed that we are travelling
         Method Description: Determine the y velocity of the plane at the moment
         Method Return: float
     */
-    getYVelocity(){
+    getYVelocity(speed){
         let effectiveAngle = this.getEffectiveAngle();
         let sinAngle = Math.sin(toRadians(effectiveAngle))
-        return this.speed * sinAngle;
+        return speed * sinAngle;
     }
 
     /*
@@ -543,6 +557,29 @@ class Plane extends Entity {
         return false;
     }
 
+    // TODO: Comments
+    getInterpolatedX(){
+        return this.interpolatedX;
+    }
+
+    // TODO: Comments
+    getInterpolatedY(){
+        return this.interpolatedY;
+    }
+
+    // TODO: Comments
+    calculateInterpolatedCoordinates(currentTime){
+        // TODO: Clean this up
+        if (activeGameMode.paused){
+            return;
+        }
+        let t = currentTime - activeGameMode.tickScheduler.getLastTime();
+        let newPositionValues = this.getNewPositionValues(t);
+        this.interpolatedX = newPositionValues["x"];
+        this.interpolatedY = newPositionValues["y"];
+    }
+
+
     /*
         Method Name: display
         Method Parameters:
@@ -550,10 +587,12 @@ class Plane extends Entity {
                 The bottom left x displayed on the canvas relative to the focused entity
             bY:
                 The bottom left y displayed on the canvas relative to the focused entity
+            displayTime:
+                The time used to interpolate the positions of the planes
         Method Description: Displays a plane on the screen (if it is within the bounds)
         Method Return: void
     */
-    display(lX, bY){
+    display(lX, bY, displayTime){
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 
@@ -561,8 +600,9 @@ class Plane extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.scene.getDisplayX(this.getCenterX(), this.getWidth(), lX);
-        let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
+        this.calculateInterpolatedCoordinates(displayTime);
+        let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
 
         // If dead then draw the explosion instead
         if (this.isDead()){

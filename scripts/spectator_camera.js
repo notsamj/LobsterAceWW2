@@ -318,7 +318,7 @@ class SpectatorCamera extends Entity {
         this.xLock.lock();
 
         // Else 1 key down and ready to move
-        this.xVelocity = 10;
+        this.xVelocity = 10 * getTickMultiplier();
         this.xVelocity *= leftKey ? -1 : 1; 
         this.x += this.xVelocity;
     }
@@ -342,7 +342,7 @@ class SpectatorCamera extends Entity {
         this.yLock.lock();
 
         // Else 1 key down and ready to move
-        this.yVelocity = 10;
+        this.yVelocity = 10 * getTickMultiplier();
         this.yVelocity *= downKey ? -1 : 1; 
         this.y += this.yVelocity;
     }
@@ -357,6 +357,42 @@ class SpectatorCamera extends Entity {
         if (!this.radarLock.isReady()){ return; }
         this.radarLock.lock();
         this.radar.update();
+    }
+
+    // TODO: Comments
+    getInterpolatedX(){
+        return this.interpolatedX;
+    }
+
+    // TODO: Comments
+    getInterpolatedY(){
+        return this.interpolatedY;
+    }
+
+    // TODO: Comments
+    calculateInterpolatedCoordinates(currentTime){
+        // TODO: Clean this up
+        if (activeGameMode.paused){
+            return;
+        }
+        let t = currentTime - activeGameMode.tickScheduler.getLastTime();
+        let newPositionValues;
+        if (!this.isFollowing()){
+            newPositionValues = this.getNewPositionValues(t);
+        }else{
+            newPositionValues = this.followingEntity.getNewPositionValues(t);
+        }
+        this.interpolatedX = newPositionValues["x"];
+        this.interpolatedY = newPositionValues["y"];
+    }
+
+    // TODO: Comments
+    getNewPositionValues(timeDiffMS){
+        let timeProportion = (timeDiffMS / 1000);
+
+        let y = this.y + this.yVelocity * timeProportion;
+        let x = this.x + this.xVelocity * timeProportion;
+        return {"x": x, "y": y}
     }
 
     /*

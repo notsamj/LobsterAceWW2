@@ -312,15 +312,17 @@ class TeamCombatManager {
                 Lower y bound of the displayed area
             excludeID:
                 Entity to exclude from display
+            displayTime:
+                The time used to interpolate the positions of the planes
         Method Description: Displays all entities that aren't excluded
         Method Return: void
     */
-    displayAll(scene, lX, bY, excludeID){
+    displayAll(scene, lX, bY, excludeID, displayTime){
         for (let team of this.teams){
             for (let [plane, pIndex] of this.planes[team]){
                 //if (!plane.isDead() && plane.getID() != excludeID){
                 if (plane.getID() != excludeID){
-                    plane.display(lX, bY);
+                    plane.display(lX, bY, displayTime);
                 }
             }
         }
@@ -328,7 +330,7 @@ class TeamCombatManager {
         for (let team of this.teams){
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (!bullet.isDead() && bullet.getID() != excludeID){
-                    bullet.display(lX, bY);
+                    bullet.display(lX, bY, displayTime);
                 }
             }
         }

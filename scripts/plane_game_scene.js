@@ -480,6 +480,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     display(){
+        let displayTime = Date.now();
         if (!this.displayEnabled){ return; }
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
@@ -489,8 +490,10 @@ class PlaneGameScene extends Scene {
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
             //debugger
-            lX = focusedEntity.getCenterX() - (this.getWidth()) / 2;
-            bY = focusedEntity.getCenterY() - (this.getHeight()) / 2;
+            // TODO: Switch to display x for all entities
+            focusedEntity.calculateInterpolatedCoordinates(displayTime);
+            lX = focusedEntity.getInterpolatedX() - (this.getWidth()) / 2;
+            bY = focusedEntity.getInterpolatedY() - (this.getHeight()) / 2;
         }
 
         // Play all sounds that are queued for this frame
@@ -500,16 +503,16 @@ class PlaneGameScene extends Scene {
         this.displayBackground(lX, bY);
         
         // Display all planes associated with the team combat manager
-        this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1);
+        this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1, displayTime);
 
         // Display all extra entities
         for (let [entity, eI] of this.entities){
-            entity.display(lX, bY);
+            entity.display(lX, bY, displayTime);
         }
         
         // Display the currently focused entity
         if (this.hasEntityFocused()){
-            this.focusedEntity.display(lX, bY);
+            this.focusedEntity.display(lX, bY, displayTime);
         }
 
         // Display the HUD

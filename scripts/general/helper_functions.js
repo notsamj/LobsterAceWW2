@@ -4,6 +4,12 @@ if (typeof window === "undefined"){
 }
 
 // TODO: Comments
+function getTickMultiplier(){
+    return 1;
+    // return PROGRAM_DATA["settings"]["assumed_tick_rate"] / PROGRAM_DATA["settings"]["tick_rate"];
+}
+
+// TODO: Comments
 function objectHasKey(obj, key){
     for (let foundKey of Object.keys(obj)){
         if (foundKey == key){ return true; }

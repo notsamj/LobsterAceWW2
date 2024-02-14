@@ -20,6 +20,11 @@ class Entity {
         this.dead = false;
     }
 
+    // Abstract
+    calculateInterpolatedCoordinates(){}
+    getInterpolatedX(){}
+    getInterpolatedY(){}
+
     /*
         Method Name: canRotate
         Method Parameters: None

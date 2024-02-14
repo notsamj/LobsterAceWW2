@@ -161,8 +161,9 @@ const PROGRAM_DATA = {
         "expected_canvas_width": 1920,
         "expected_canvas_height": 927,
         "frame_rate": 60, // 60
-        "tick_rate": 100, // 100
-        "ms_between_ticks": 10, // 10
+        "tick_rate": 50, // 100
+        "assumed_tick_rate": 100,
+        "ms_between_ticks": 20, // 10
         "max_bullet_y_velocity_multiplier": 2/800,
         "server_ip": "localhost",
         "server_port": "8080",

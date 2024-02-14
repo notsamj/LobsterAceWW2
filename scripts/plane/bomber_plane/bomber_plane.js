@@ -70,10 +70,12 @@ class BomberPlane extends Plane {
                 The bottom left x displayed on the canvas relative to the focused entity
             bY:
                 The bottom left y displayed on the canvas relative to the focused entity
+            displayTime:
+                The time used to interpolate the positions of the planes
         Method Description: Displays a bomber plane on the screen (if it is within the bounds)
         Method Return: void
     */
-    display(lX, bY){
+    display(lX, bY, displayTime){
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 
@@ -81,7 +83,7 @@ class BomberPlane extends Plane {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Super call to remove (some) code repetition
-        super.display(lX, bY);
+        super.display(lX, bY, displayTime);
         
         // If dead don't display gun flashes
         if (this.isDead()){
@@ -92,8 +94,8 @@ class BomberPlane extends Plane {
         for (let gun of this.guns){
             if (!gun.readyToShoot()){
                 // Display flash
-                let rotateX = this.scene.getDisplayX(gun.getX(), 0, lX);
-                let rotateY = this.scene.getDisplayY(gun.getY(), 0, bY);
+                let rotateX = this.scene.getDisplayX(gun.getInterpolatedX(), 0, lX);
+                let rotateY = this.scene.getDisplayY(gun.getInterpolatedY(), 0, bY);
                 let flashImageWidth = images["flash"].width;
                 let flashImageHeight = images["flash"].height;
 

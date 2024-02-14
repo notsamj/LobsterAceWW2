@@ -92,6 +92,26 @@ class BomberTurret extends Turret {
         return rotatedY;
     }
 
+    // TODO: Comments
+    getInterpolatedX(){
+        let planeAngleRAD = toRadians(this.plane.getNoseAngle());
+        if (!this.isFacingRight()){
+            planeAngleRAD -= toRadians(180);
+        }
+        let rotatedX = Math.cos(planeAngleRAD) * this.getXOffset() - Math.sin(planeAngleRAD) * this.getYOffset() + this.plane.getInterpolatedX();
+        return rotatedX;
+    }
+
+    // TODO: Comments
+    getInterpolatedY(){
+        let planeAngleRAD = toRadians(this.plane.getNoseAngle());
+        if (!this.isFacingRight()){
+            planeAngleRAD -= toRadians(180);
+        }
+        let rotatedY = Math.sin(planeAngleRAD) * this.getXOffset() + Math.cos(planeAngleRAD) * this.getYOffset() + this.plane.getInterpolatedY();
+        return rotatedY;
+    }
+
     /*
         Method Name: getXOffset
         Method Parameters: None
