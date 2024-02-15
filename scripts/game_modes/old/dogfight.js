@@ -1,11 +1,3 @@
-// When this is opened in NodeJS, import the required files
-if (typeof window === "undefined"){
-    GameMode = require("../scripts/game_mode.js");
-    FighterPlane = require("../scripts/fighter_plane.js");
-    SceneTickManager = require("../scripts/scene_tick_manager.js");
-    var planeModelToAlliance = require("../scripts/helper_functions.js").planeModelToAlliance;
-    PROGRAM_DATA = require("../data/data_json.js");
-}
 /*
     Class Name: Dogfight
     Description: The state of a dogfight
@@ -129,8 +121,4 @@ class Dogfight extends GameMode {
         }
         return allyCount == 0 || axisCount == 0;
     }
-}
-// If using Node JS Export the class
-if (typeof window === "undefined"){
-    module.exports = Dogfight;
 }

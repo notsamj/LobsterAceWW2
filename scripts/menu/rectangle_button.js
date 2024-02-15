@@ -164,6 +164,12 @@ class RectangleButton extends Component {
         Method Return: void
     */
     clicked(instance){
+        if (this.isDisabled() || !this.isDisplayEnabled()){ return; }
         this.callBack(instance);
+    }
+
+    // TODO: Comments
+    setColour(colour){
+        this.colour = colour; 
     }
 }

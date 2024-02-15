@@ -1,7 +1,7 @@
 /*
     Class Name: MultiplayerMenu
     Description: A subclass of Menu that is an interface for multiplayer.
-    Note: Much of this is copy and pasted from dogfight_menu. I neglected to extend the class because I am undecided of my vision for this menu.
+    Note: TODO: Comment this class
 */
 class MultiplayerMenu extends Menu {
     /*
@@ -12,18 +12,7 @@ class MultiplayerMenu extends Menu {
     */
     constructor(){
         super();
-        this.planeCounts = {};
-        this.userPlanes = this.createUserPlaneSelection();
-        this.userPlaneIndex = 0;
-        this.alliedPlanes = this.createAlliedPlaneSelection();
-        this.alliedPlaneIndex = 0;
-        this.axisPlanes = this.createAxisPlaneSelection();
-        this.axisPlaneIndex = 0;
-        this.currentAlliedPlaneCountComponent = null;
-        this.currentAxisPlaneCountComponent = null;
-        this.botDetailsComponent = null;
-        this.setup();
-        this.updateBotDetails();
+        this.setup()
     }
 
     /*
@@ -33,323 +22,113 @@ class MultiplayerMenu extends Menu {
         Method Return: void
     */
     setup(){
-        let addRemoveButtonSize = 50;
-
         // Background
         this.components.push(new AnimatedCloudBackground())
-        // Welcome Message
-        let welcomeMessageX = 0;
-        let welcomeMessageY = 500;
-        let welcomeMessageXSize = 1400;
-        let welcomeMessageYSize = 100;
-        this.components.push(new TextComponent("Welcome: " + USER_DATA["name"], "#4b42f5", welcomeMessageX, welcomeMessageY, welcomeMessageXSize, welcomeMessageYSize));
 
-        let backButtonX = 50;
-        let backButtonY = 900;
+        // Refresh Button
+        let refreshButtonXSize = (innerWidth) => { return innerWidth; }
+        let refreshButtonYSize = 100;
+        let refreshButtonX = 0;
+        let refreshButtonY = 100;
+        let refreshButton = new RectangleButton("Refresh", "#3bc44b", "#e6f5f4", refreshButtonX, refreshButtonY, refreshButtonXSize, refreshButtonYSize, async (menuInstance) => {
+            menuInstance.refresh();
+        });
+        this.refreshButton = refreshButton;
+        this.components.push(refreshButton);
+
+        // Host Button
+        let hostButtonXSize = (innerWidth) => { return innerWidth; }
+        let hostButtonYSize = 100;
+        let hostButtonX = 0;
+        let hostButtonY = refreshButtonY + refreshButtonYSize;
+        let hostButton = new RectangleButton("Host", "#cccccc", "#e6f5f4", hostButtonX, hostButtonY, hostButtonXSize, hostButtonYSize, async (menuInstance) => {
+            menuManager.switchTo("host");
+        });
+        hostButton.disable();
+        this.hostButton = hostButton;
+        this.components.push(hostButton);
+
+        // Back Button
+        let backButtonX = () => { return 50; }
+        let backButtonY = (innerHeight) => { return innerHeight-27; }
         let backButtonXSize = 200;
         let backButtonYSize = 76;
         this.components.push(new RectangleButton("Main Menu", "#3bc44b", "#e6f5f4", backButtonX, backButtonY, backButtonXSize, backButtonYSize, (instance) => {
-            instance.goToMainMenu();
+            menuManager.switchTo("main");
         }));
 
-        let startButtonX = 50;
-        let startButtonY = 200;
-        let startButtonXSize = 1920-50*2;
-        let startButtonYSize = 200;
-        this.components.push(new RectangleButton("Ready", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, async (instance) => {
-            //activeGameMode = await RemoteDogfight.create(new ServerConnection(), this.userPlanes[this.userPlaneIndex], this.planeCounts);
-            //this.goToGame();
-        }));
+        // Create join window
+        this.joinWindow = new JoinWindow(this);
+    }
 
-        // User Section
+    async refresh(){
+        // Disable the button so it can't be clicked until refresh is complete. And show it as grey
+        this.refreshButton.disable();
+        this.refreshButton.setColour("#cccccc");
 
-        let userHeaderX = 300;
-        let userHeaderY = 900;
-        let userHeaderXSize = 200;
-        let userHeaderYSize = 100;
-        this.components.push(new TextComponent("User", "#4b42f5", userHeaderX, userHeaderY, userHeaderXSize, userHeaderYSize));
+        // Disable the host button, will be reenabled based on refresh
+        this.hostButton.disable();
+        this.hostButton.setColour("#cccccc");
 
-        let userPlaneX = 350;
-        let userPlaneScreenY = 800;
-        let userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
-        userPlane.setOnClick(() => {
-            userPlane.setImage(this.switchPlanes()); 
-        });
-        this.components.push(userPlane);
+        let response = await SERVER_CONNECTION.request("refresh");
+        // If a response has been received
+        if (response){
+            this.updateScreen(response);
+        }
 
-        // Allied Section
-        let alliesHeaderX = 600;
-        let alliesHeaderY = 900;
-        let alliesHeaderXSize = 270;
-        let alliesHeaderYSize = 100;
-        this.components.push(new TextComponent("Allies", "#f5d442", alliesHeaderX, alliesHeaderY, alliesHeaderXSize, alliesHeaderYSize));
+        // Enable the button so it can be clicked now that the refresh is complete. And show it as green again.
+        this.refreshButton.setColour("#3bc44b");
+        this.refreshButton.enable();
+    }
 
-        let alliedPlaneX = 650;
-        let alliedPlaneScreenY = 800;
-        let alliedPlane = new StaticImage(images[this.alliedPlanes[0]], alliedPlaneX, alliedPlaneScreenY);
-        alliedPlane.setOnClick(() => {
-            alliedPlane.setImage(this.switchAlliedPlanes()); 
-        });
-        this.components.push(alliedPlane);
+    updateScreen(response){
+        this.joinWindow.hide();
+        let availableToHost = response["server_free"];
+        // If available to host, enable the host button
+        if (availableToHost){
+            this.hostButton.enable();
+            this.hostButton.setColour("#3bc44b");
+            return;
+        }
+        // Else not able to host, server did response, so join window must be able to display
+        this.joinWindow.show(response);
+    }
+}
 
-        let alliedMinus5ButtonX = alliesHeaderX;
-        let alliedMinute5ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
-        this.components.push(new RectangleButton("-5", "#f5d442", "#e6f5f4", alliedMinus5ButtonX, alliedMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Allies", -5);
-        }));
+// TODO: Comment class
+class JoinWindow {
+    constructor(menuInstance){
+        this.setup(menuInstance);
+    }
 
-        let alliedMinus1ButtonX = alliedMinus5ButtonX + addRemoveButtonSize;
-        let alliedMinus1ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
-        this.components.push(new RectangleButton("-1", "#f5d442", "#e6f5f4", alliedMinus1ButtonX, alliedMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Allies", -1);
-        }));
-
-        let alliedCurrentCountTextX = alliedMinus1ButtonX + addRemoveButtonSize;
-        let alliedCurrentCountTextY = alliedPlaneScreenY - alliedPlane.getHeight();
-        let alliedCurrentCountTextXSize = 50;
-        let alliedCurrentCountTextYSize = 50;
-        this.currentAlliedPlaneCountComponent = new TextComponent("0", "#f5d442", alliedCurrentCountTextX, alliedCurrentCountTextY, alliedCurrentCountTextXSize, alliedCurrentCountTextYSize);
-        this.components.push(this.currentAlliedPlaneCountComponent);
-
-        let alliedPlus1ButtonX = alliedCurrentCountTextX + alliedCurrentCountTextXSize;
-        let alliedPlus1ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
-        this.components.push(new RectangleButton("+1", "#f5d442", "#e6f5f4", alliedPlus1ButtonX, alliedPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Allies", 1);
-        }));
-
-        let alliedPlus5ButtonX = alliedPlus1ButtonX + addRemoveButtonSize;
-        let alliedPlus5ButtonY = alliedPlaneScreenY - alliedPlane.getHeight();
-        this.components.push(new RectangleButton("+5", "#f5d442", "#e6f5f4", alliedPlus5ButtonX, alliedPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Allies", 5);
-        }));
-
-        // Axis Section
-        let axisHeaderX = 900;
-        let axisHeaderY = 900;
-        let axisHeaderXSize = 200;
-        let axisHeaderYSize = 100;
-        this.components.push(new TextComponent("Axis", "#8427db", axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize));
-
-
-        let axisPlaneX = 950;
-        let axisPlaneScreenY = 800;
-        let axisPlane = new StaticImage(images[this.axisPlanes[0]], axisPlaneX, axisPlaneScreenY);
-        axisPlane.setOnClick(() => {
-            axisPlane.setImage(this.switchAxisPlanes()); 
-        });
-        this.components.push(axisPlane);
-
-        let axisMinus5ButtonX = axisHeaderX;
-        let axisMinute5ButtonY = axisPlaneScreenY - axisPlane.getHeight();
-        this.components.push(new RectangleButton("-5", "#8427db", "#e6f5f4", axisMinus5ButtonX, axisMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Axis", -5);
-        }));
-
-        let axisMinus1ButtonX = axisMinus5ButtonX + addRemoveButtonSize;
-        let axisMinus1ButtonY = axisPlaneScreenY - axisPlane.getHeight();
-        this.components.push(new RectangleButton("-1", "#8427db", "#e6f5f4", axisMinus1ButtonX, axisMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Axis", -1);
-        }));
-
-        let axisCurrentCountTextX = axisMinus1ButtonX + addRemoveButtonSize;
-        let axisCurrentCountTextY = axisPlaneScreenY - axisPlane.getHeight();
-        let axisCurrentCountTextXSize = 50;
-        let axisCurrentCountTextYSize = 50;
-        this.currentAxisPlaneCountComponent = new TextComponent("0", "#8427db", axisCurrentCountTextX, axisCurrentCountTextY, axisCurrentCountTextXSize, axisCurrentCountTextYSize);
-        this.components.push(this.currentAxisPlaneCountComponent);
-
-        let axisPlus1ButtonX = axisCurrentCountTextX + axisCurrentCountTextXSize;
-        let axisPlus1ButtonY = axisPlaneScreenY - axisPlane.getHeight();
-        this.components.push(new RectangleButton("+1", "#8427db", "#e6f5f4", axisPlus1ButtonX, axisPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Axis", 1);
-        }));
-
-        let axisPlus5ButtonX = axisPlus1ButtonX + addRemoveButtonSize;
-        let axisPlus5ButtonY = axisPlaneScreenY - axisPlane.getHeight();
-        this.components.push(new RectangleButton("+5", "#8427db", "#e6f5f4", axisPlus5ButtonX, axisPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
-            this.modifyDisplayedBotPlaneCount("Axis", 5);
-        }));
-
-        // Bot Details Section
-        let botHeaderX = 1500;
-        let botHeaderY = 900;
-        let botHeaderXSize = 200;
-        let botHeaderYSize = 100;
-        this.components.push(new TextComponent("Bot Details", "#000000", botHeaderX, axisHeaderY, botHeaderXSize, botHeaderYSize));
-
-        let botBodyX = botHeaderX;
-        let botBodyY = botHeaderY - botHeaderYSize;
-        let botBodyXSize = 400;
-        let botBodyYSize = 800;
-        this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
-        this.components.push(this.botDetailsComponent);
+    setup(menuInstance){
+        let windowSizeX = 600;
+        let windowX = (innerWidth) => { return (innerWidth - windowSizeX) / 2; }
+        let windowY = (innerHeight => { return innerHeight; })
         
+        // Button with details (e.g. "Dogfight" or Mission 1)
+        let serverDetailsYSize = 300;
+        let serverDetailsButton = new TextComponent("", "#000000", windowX, windowY, windowSizeX, serverDetailsYSize);
+        this.serverDetailsButton = serverDetailsButton;
+        menuInstance.addComponent(serverDetailsButton);
+        
+        // Join button
+        let joinButtonYSize = 100;
+        let joinButton = new RectangleButton("Join", "#3bc44b", "#e6f5f4", windowX, windowY, windowSizeX, joinButtonYSize, async (menuInstance) => {
+            menuInstance.join();
+        });
+        this.joinButton = joinButton;
+        menuInstance.addComponent(joinButton);
     }
 
-    /*
-        Method Name: switchPlanes
-        Method Parameters: None
-        Method Description: Switches between the actively shown planes
-        Method Return: void
-    */
-    switchPlanes(){
-        this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
-        let planeName = this.userPlanes[this.userPlaneIndex];
-        return images[planeName];
+    hide(){
+        this.joinButton.disableDisplay();
+        this.serverDetailsButton.disableDisplay();
     }
 
-    /*
-        Method Name: switchAxisPlanes
-        Method Parameters: None
-        Method Description: Switches between the actively shown axis planes
-        Method Return: void
-    */
-    switchAxisPlanes(){
-        this.axisPlaneIndex = (this.axisPlaneIndex + 1) % this.axisPlanes.length;
-        let planeName = this.axisPlanes[this.axisPlaneIndex];
-        this.currentAxisPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        return images[planeName];
-    }
-
-    /*
-        Method Name: switchAlliedPlanes
-        Method Parameters: None
-        Method Description: Switches between the actively shown ally planes
-        Method Return: void
-    */
-    switchAlliedPlanes(){
-        this.alliedPlaneIndex = (this.alliedPlaneIndex + 1) % this.alliedPlanes.length;
-        let planeName = this.alliedPlanes[this.alliedPlaneIndex];
-        this.currentAlliedPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        return images[planeName];
-    }
-
-    /*
-        Method Name: createUserPlaneSelection
-        Method Parameters: None
-        Method Description: Creates a list of planes for the user to choose between
-        Method Return: void
-    */
-    createUserPlaneSelection(){
-        let userPlanes = ["freecam"];
-        for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
-            userPlanes.push(planeName);
-        }
-        return userPlanes;
-    }
-
-    /*
-        Method Name: createAlliedPlaneSelection
-        Method Parameters: None
-        Method Description: Creates a list of ally planes for the user to choose between
-        Method Return: void
-    */
-    createAlliedPlaneSelection(){
-        let alliedPlanes = [];
-        for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
-            if (planeModelToAlliance(planeName) == "Allies"){
-                alliedPlanes.push(planeName);
-                this.planeCounts[planeName] = 0;
-            }
-        }
-        return alliedPlanes;
-    }
-
-    /*
-        Method Name: createAxisPlaneSelection
-        Method Parameters: None
-        Method Description: Creates a list of axis planes for the user to choose between
-        Method Return: void
-    */
-    createAxisPlaneSelection(){
-        let axisPlanes = [];
-        for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
-            if (planeModelToAlliance(planeName) == "Axis"){
-                axisPlanes.push(planeName);
-                this.planeCounts[planeName] = 0;
-            }
-        }
-        return axisPlanes;
-    }
-
-    /*
-        Method Name: modifyDisplayedBotPlaneCount
-        Method Parameters:
-            alliance:
-                Which alliance is gaining/losing plane count
-            amount:
-                How many (or negative) planes are added/removed from the count
-        Method Description: Modifies the counts of planes
-        Method Return: void
-    */
-    modifyDisplayedBotPlaneCount(alliance, amount){
-        let planeName = this.alliedPlanes[this.alliedPlaneIndex];
-        if (alliance == "Axis"){
-            planeName = this.axisPlanes[this.axisPlaneIndex];
-        }
-        this.planeCounts[planeName] = Math.max(0, this.planeCounts[planeName] + amount);
-        if (alliance == "Axis"){
-            this.currentAxisPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        }else{
-            this.currentAlliedPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        }
-        this.updateBotDetails();
-    }
-
-    /*
-        Method Name: updateBotDetails
-        Method Parameters: None
-        Method Description: Modifies the displayed details about the number of bots
-        Method Return: void
-    */
-    updateBotDetails(){
-        let botDetailsText = "";
-        let alliedDetails = [];
-        let axisDetails = [];
-        let alliedCount = 0;
-        let axisCount = 0;
-
-        for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
-            let alliance = planeModelToAlliance(planeName);
-            if (alliance == "Allies"){
-                alliedDetails.push([planeName, planeCount]);
-                alliedCount += planeCount;
-            }else{
-                axisDetails.push([planeName, planeCount]);
-                axisCount += planeCount;
-            }
-        }
-
-        botDetailsText += "Allies" + ": " + alliedCount.toString() + "\n";
-        for (let [planeName, planeCount] of alliedDetails){
-            botDetailsText += planeName + ": " + planeCount.toString() + "\n";
-        }
-
-        botDetailsText += "Axis" + ": " + axisCount.toString() + "\n";
-        for (let [planeName, planeCount] of axisDetails){
-            botDetailsText += planeName + ": " + planeCount.toString() + "\n";
-        }
-        //console.log(botDetailsText)
-        this.botDetailsComponent.setText(botDetailsText);
-    }
-
-    /*
-        Method Name: goToGame
-        Method Parameters: None
-        Method Description: Switches from this menu to the game
-        Method Return: void
-    */
-    goToGame(){
-        menuManager.switchTo("game");
-    }
-
-    /*
-        Method Name: goToMainMenu
-        Method Parameters: None
-        Method Description: Switches from this menu to the main menu
-        Method Return: void
-    */
-    goToMainMenu(){
-        menuManager.switchTo("main");
+    show(serverResponse){
+        this.joinButton.enableDisplay();
+        this.serverDetailsButton.disableDisplay();
+        this.serverDetailsButton.setText(serverResponse["server_details"]);
     }
 }

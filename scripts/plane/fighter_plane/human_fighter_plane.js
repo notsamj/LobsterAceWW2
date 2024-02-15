@@ -53,7 +53,7 @@ class HumanFighterPlane extends FighterPlane {
 
     // TODO: Comments
     fromJSON(rep, tickDifference=0){
-        // If running locally only take a few attributes
+        // If this is local then don't take decisions from server
         if (this.autonomous){
             this.id = rep["basic"]["id"];
             this.health = rep["basic"]["health"];
@@ -67,8 +67,15 @@ class HumanFighterPlane extends FighterPlane {
             this.speed = rep["basic"]["speed"];
             this.health = rep["basic"]["health"];
             this.startingHealth = rep["basic"]["starting_health"];
-        }else{ // Otherwise take everything else
+        }else{ // If server then take decisions from local
             this.decisions = rep["decisions"];
+        }
+
+        // Approximate plane positions in current tick based on position in server tick
+        if (tickDifference > 0){
+            this.rollForward(tickDifference);
+        }else if (tickDifference < 0){
+            this.rollBackward(tickDifference);
         }
     }
 

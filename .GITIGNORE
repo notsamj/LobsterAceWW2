@@ -1,6 +1,6 @@
 .ipynb_checkpoints
 ./images/me_309_old
-server
+server/old
 server/node_modules
 Python
 ./scripts/server_connection.js

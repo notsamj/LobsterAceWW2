@@ -420,8 +420,6 @@ class BiasedBotFighterPlane extends FighterPlane {
         let angleAllowanceAtRangeDEG = toDegrees(Math.abs(Math.atan(enemyRadius / distanceToEnemy)));
         // If ready to shoot and the angle & distance are acceptable then shoot
         if (this.shootLock.isReady() && angleDifference < angleAllowanceAtRangeDEG + this.biases["angle_allowance_at_range"] && distanceToEnemy < this.getMaxShootingDistance()){
-            this.shootLock.lock();
-            this.shoot();
             this.decisions["shoot"] = true;
             return true;
         }

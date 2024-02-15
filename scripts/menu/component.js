@@ -11,6 +11,7 @@ class Component {
     */
     constructor(){
         this.enabled = true;
+        this.displayEnabled = true;
     }
 
     /*
@@ -31,6 +32,31 @@ class Component {
     */
     disable(){
         this.enabled = false;
+    }
+
+    // TODO: Comments
+    isDisabled(){
+        return !this.enabled;
+    }
+
+    // TODO: Comments
+    isEnabled(){
+        return this.enabled;
+    }
+
+    // TODO: Comments
+    isDisplayEnabled(){
+        return this.displayEnabled;
+    }
+
+    // TODO: Comments
+    enableDisplay(){
+        this.displayEnabled = true;
+    }
+
+    // TODO: Comments
+    disableDisplay(){
+        this.displayEnabled = false;
     }
 
     // Either meant to be blank or meant to be overridden

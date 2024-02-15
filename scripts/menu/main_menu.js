@@ -37,7 +37,7 @@ class MainMenu extends Menu {
 
         // Information
         let infoY = 250;
-        let infoXSize = PROGRAM_DATA["settings"]["expected_canvas_width"];
+        let infoXSize = (PROGRAM_DATA["settings"]["expected_canvas_width"] - buttonSizeX)/2;
         let infoYSize = 200;
         this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.\nScroll down for controls.", "black", 0, infoY, infoXSize, infoYSize));
 
@@ -47,17 +47,20 @@ class MainMenu extends Menu {
             menuManager.switchTo("campaign");
         }));
 
-        // Set up Multiplayer button if enabled
-        if (!PROGRAM_DATA["settings"]["multiplayer_disabled"]){
-            // Multiplayer
-            let multiplayerButtonY = (innerHeight) => { return 200; };
-            this.components.push(new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
-                menuManager.switchTo("multiplayer");
-            }));
+        // Multiplayer
+        let multiplayerButtonY = campaignButtonY - buttonSizeY - gapSize;
+        let multiplayerButton = new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
+            menuManager.switchTo("multiplayer");
+        });
+        this.components.push(multiplayerButton);
+        // If multiplayer is disabled
+        if (PROGRAM_DATA["settings"]["multiplayer_disabled"]){
+            multiplayerButton.disable();
+            multiplayerButton.setColour("#cccccc");
         }
 
         // Sound
-        let soundButtonY = campaignButtonY - buttonSizeY - gapSize;
+        let soundButtonY = multiplayerButtonY - buttonSizeY - gapSize;
         this.components.push(new RectangleButton("Sound", "#3bc44b", "#e6f5f4", buttonX, soundButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
             menuManager.switchTo("sound");
         }));

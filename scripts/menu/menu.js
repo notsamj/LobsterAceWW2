@@ -143,6 +143,7 @@ class Menu {
     */
     display(){
         for (let component of this.components){
+            if (!component.isDisplayEnabled()){ continue; }
             component.display();
         }
     }
@@ -166,5 +167,10 @@ class Menu {
                 break;
             }
         }
+    }
+
+    // TODO: Comments
+    addComponent(component){
+        this.components.push(component);
     }
 }

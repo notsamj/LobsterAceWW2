@@ -15,6 +15,7 @@ const SOUND_MANAGER = new SoundManager();
 var performanceTimer = new PerformanceTimer();
 const CLOUD_MANAGER = new CloudManager();
 const HEADS_UP_DISPLAY = new HUD();
+const SERVER_CONNECTION = new ServerConnection();
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
@@ -44,9 +45,16 @@ async function tick(){
         }
     }
     if (frameLock.isReady()){
+        if (activeGameMode != null){
+            // TODO: Clean up with getter
+            await activeGameMode.tickInProgressLock.awaitUnlock(true);
+        }
         frameLock.lock();
         draw();
         frameCounter.countFrame();
+        if (activeGameMode != null){
+            activeGameMode.tickInProgressLock.unlock();
+        }
     }
     mainTickLock.unlock();
 }

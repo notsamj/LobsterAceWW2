@@ -173,6 +173,7 @@ class Plane extends Entity {
         Method Return: void
     */
     setHealth(health){
+        console.log("aaaa")
         this.health = health;
     }
 
@@ -467,7 +468,7 @@ class Plane extends Entity {
         Method Description: Determine the x velocity of the plane at the moment
         Method Return: float
     */
-    getXVelocity(speed){
+    getXVelocity(speed=this.speed){
         let effectiveAngle = this.getEffectiveAngle();
         let cosAngle = Math.cos(toRadians(effectiveAngle));
         if (this.throttle == 0){ return 0; }
@@ -508,7 +509,7 @@ class Plane extends Entity {
         Method Description: Determine the y velocity of the plane at the moment
         Method Return: float
     */
-    getYVelocity(speed){
+    getYVelocity(speed=this.speed){
         let effectiveAngle = this.getEffectiveAngle();
         let sinAngle = Math.sin(toRadians(effectiveAngle))
         return speed * sinAngle;
@@ -557,18 +558,6 @@ class Plane extends Entity {
     }
 
     /*
-        Method Name: setHealth
-        Method Parameters:
-            amount:
-                New health amount
-        Method Description: Setter
-        Method Return: Integer
-    */
-    setHealth(amount){
-        this.health = amount;
-    }
-
-    /*
         Method Name: isHuman
         Method Parameters: None
         Method Description: Determines whether the entity is controlled by a human.
@@ -591,16 +580,13 @@ class Plane extends Entity {
     // TODO: Comments
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (activeGameMode.paused){
+        if (activeGameMode.paused || !activeGameMode.isRunning() || this.isDead()){
             return;
         }
         let t = currentTime - activeGameMode.tickScheduler.getLastTime();
         let newPositionValues = this.getNewPositionValues(t);
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
-        // TODO: Temp
-        //this.interpolatedX = this.x;
-        //this.interpolatedY = this.y;
     }
 
 
@@ -707,7 +693,7 @@ class Plane extends Entity {
         let bestPlane = null;
         let bestDistance = null;
         // Find the best plane to shoot at
-        for (let plane of scene.getPlanes()){
+        for (let plane of this.scene.getPlanes()){
             // Check 1 - If the planes are on the same team then the shot won't hit this plane
             if (this.onSameTeam(plane)){ continue; }
             // Check 2 - If the plane located is in the correct x direction
@@ -768,7 +754,7 @@ class Plane extends Entity {
         if (bestPlane.isDead()){
             // Make a fake bullet just because that's how the handlekill function works
             let fauxBullet = new Bullet(null, null, null, null, null, null, this.getID(), null);
-            scene.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
+            this.scene.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
         }
     }
 }

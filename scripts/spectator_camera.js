@@ -372,7 +372,7 @@ class SpectatorCamera extends Entity {
     // TODO: Comments
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (activeGameMode.paused){
+        if (activeGameMode.paused || !activeGameMode.isRunning()){
             return;
         }
         let t = currentTime - activeGameMode.tickScheduler.getLastTime();

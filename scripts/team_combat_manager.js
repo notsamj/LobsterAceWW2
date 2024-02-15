@@ -31,37 +31,6 @@ class TeamCombatManager {
     }
 
     /*
-        Method Name: forceUpdatePlanes
-        Method Parameters:
-            listOfPlaneObjects:
-                A list of plane objects
-        Method Description: Updates planes based on information about them in the JSON object
-        Method Return: void
-        TODO: Keep or throw away?
-    */
-    /*forceUpdatePlanes(listOfPlaneObjects){
-        for (let team of this.teams){
-            for (let [plane, planeIndex] of this.planes[team]){
-                let foundOBJ = null;
-                for (let planeOBJ of listOfPlaneObjects){
-                    if (planeOBJ["id"] == plane.getID()){
-                        foundOBJ = planeOBJ;
-                        break;
-                    }
-                }
-                if (foundOBJ == null){
-                    console.error("Plane not found!");
-                    debugger;
-                    continue;
-                }
-                // Else found
-                if (foundOBJ["isDead"] && plane.isDead()){ continue; }
-                plane.update(foundOBJ);
-            }
-        }
-    }*/
-
-    /*
         Method Name: clear
         Method Parameters: None
         Method Description: Removes all planes and all bullets
