@@ -2,6 +2,7 @@
 const WebSocketServer = require("ws").WebSocketServer;
 // TODO: Import linked list
 // TODO: Import SimpleCryptography
+// TODO: Import lock
 const SIMPLE_CRYPTOGRAPHY = new SimpleCryptography();
 const SERVER = new WW2PGServer();
 class WW2PGServer {
@@ -9,11 +10,37 @@ class WW2PGServer {
         this.server = new WebSocketServer({ "port": port })
         this.port = port;
         this.clients = new NotSamLinkedList();
+        this.clientLock = new Lock();
+        this.gameHandler = new GameHandler();
         console.log("Server on and listening to port: %d", port);
         // TODO: Change this to something else with authentication
-        this.server.on("connection", (ws) => {
+        this.server.on("connection", async (ws) => {
+            await this.clientLock.awaitUnlock(true);
             this.clients.add(new Client(ws));
+            this.clientLock.unlock();
         });
+    }
+
+    async usernameTaken(username){
+        await this.clientLock.awaitUnlock(true);
+        for (let [client, clientIndex] of this.clients){
+            if (client.isActive() && client.getUsername() == username){
+                this.clientLock.unlock();
+                return true;
+            }
+        }
+        this.clientLock.unlock();
+        return false;
+    }
+
+    async removeInactives(){
+        await this.clientLock.awaitUnlock(true);
+        this.clients.deleteWithCondition((client) => { return client.isCancelled(); });
+        this.clientLock.unlock();
+    }
+
+    getGameHandler(){
+        return this.gameHandler;
     }
 }
 
@@ -24,44 +51,133 @@ class Client {
         this.stateManager = new ClientStateManager();
         this.stateManager.register(ClientStateManager.prospective, (encryptedData) => { this.verifyClient(encryptedData); });
         this.stateManager.register(ClientStateManager.cancelled, (encryptedData) => {}); // If cancelled ignore all data
+        this.stateManager.register(ClientStateManager.waiting, (encryptedData) => { this.whenWaiting(encryptedData); });
+        this.stateManager.register(ClientStateManager.in_game, (encryptedData) => { this.whenInGame(encryptedData); });
+        this.stateManager.register(ClientStateManager.in_lobby, (encryptedData) => { this.whenInLobby(encryptedData); });
+        this.stateManager.register(ClientStateManager.hosting, (encryptedData) => { this.whenHosting(encryptedData); });
+        console.log("Somebody is attempting to communicate.");
         this.ws.on("connection", (encryptedData) => {
             this.handleMessage(encryptedData);
         });
+        // TODO: Check if error always fires on disconnect
+        this.ws.on("error", () => {
+            console.log(this.username + " has disconnected.");
+            SERVER.getGameHandler().handleDisconnect(this.username);
+            this.stateManager.goto(ClientStateManager.cancelled);
+        });
+        SERVER.removeInactives();
+    }
+
+    getStateManager(){
+        return this.stateManager;
+    }
+
+    getUsername(){
+        return this.username;
+    }
+
+    isCancelled(){
+        return this.stateManager.getState() == ClientStateManager.cancelled;
+    }
+
+    isActive(){
+        return !this.isCancelled() && this.isVerified();
     }
 
     isVerified(){
-        return this.stateManager.getState() != ClientStateManager.cancelled && this.stateManager.getState() != ClientStateManager.prospective;
+        return this.stateManager.getState() != ClientStateManager.prospective;
     }
 
     handleMessage(encryptedData){
         this.stateManager.sendToHandler(encryptedData);
     }
 
-    verifyClient(encryptedData){
+    async verifyClient(encryptedData){
+        let dataJSON = Client.getDecryptedData(encryptedData);
+        // Password matches assume the rest of the data is correct (e.g. username not "")
+        let username = data["username"];
+        // If username is taken then cancel this user
+        if (await SERVER.usernameTaken(username)){
+            this.ws.send(JSON.stringify({"success": false, "reason": "error_username_taken"}));
+            this.stateManager.goto(ClientStateManager.cancelled);
+            return;
+        }
+        this.username = username;
+        this.stateManager.goto(ClientStateManager.waiting);
+        console.error(this.username + " has connected.");
+        this.ws.send(JSON.stringify({"success": true}));
+    }
+
+    whenWaiting(encryptedData){
+        let dataJSON = Client.getDecryptedData(encryptedData);
+        if (dataJSON["action"] == "refresh"){
+            this.ws.send(SERVER.generateRefreshResult());
+        }else if (dataJSON["action"] == "join"){
+            this.attemptToJoin();
+        }else if (dataJSON["action"] == "host"){
+            this.attemptToHost();
+        }else{
+            this.ws.send(JSON.stringify({"success": false, "reason": "unknown_query"}));
+        }
+    }
+
+    attemptToJoin(){
+        let gameHandler = SERVER.getGameHandler();
+
+        // If there is a game running
+        if (gameHandler.inProgress()){
+            this.ws.send(JSON.stringify({"success": false, "reason": "game_in_progress"}));
+            return;
+        }
+
+        // If there is a lobby running
+        if (gameHandler.lobbyInProgress()){
+            gameHandler.joinLobby(this.username);
+            this.stateManager.goto(ClientStateManager.in_lobby);
+            this.ws.send(JSON.stringify({"success": true}));
+            return;
+        }
+
+        // Else no lobby running
+        this.ws.send(JSON.stringify({"success": false}));
+    }
+
+    attemptToHost(){
+        let gameHandler = SERVER.getGameHandler();
+
+        // If there is a game running
+        if (gameHandler.inProgress()){
+            this.ws.send(JSON.stringify({"success": false, "reason": "game_in_progress"}));
+            return;
+        }
+
+        // If there is a lobby running
+        if (gameHandler.lobbyInProgress()){
+            this.ws.send(JSON.stringify({"success": false, "reason": "lobby_in_progress"}));
+            return;
+        }
+
+        // Else no lobby running
+        this.stateManager.goto(ClientStateManager.hosting);
+        gameHandler.hostLobby(this.username);
+        this.ws.send(JSON.stringify({"success": true}));
+    }
+
+    static getDecryptedData(encryptedData){
         // If bad message then quit the program (This is just a fun program so doesn't have to handle these things rationally)
         if (!SIMPLE_CRYPTOGRAPHY.validFormat(encryptedData)){
             console.error("Invalid data received.");
             process.exit(1);
         }
 
-        let dataJSON = SIMPLE_CRYPTOGRAPHY.decrypt(encryptedData);
-        let data = JSON.parse(dataJSON);
+        let dataString = SIMPLE_CRYPTOGRAPHY.decrypt(encryptedData);
+        let dataJSON = JSON.parse(dataString);
         // If bad password then quit the program (This is just a fun program so doesn't have to handle these things rationally)
-        if (data["password"] != PROGRAM_DATA["server_data"]["password"]){
+        if (dataJSON["password"] != PROGRAM_DATA["server_data"]["password"]){
             console.error("Invalid password received.");
             process.exit(1);
         }
-
-        // Password matches assume the rest of the data is correct (e.g. username not "")
-        let username = data["username"];
-        // If username is taken then cancel this user
-        if (SERVER.usernameTaken(username)){
-            this.ws.send("error_username_taken");
-            this.stateManager.goto(ClientStateManager.cancelled);
-            return;
-        }
-        this.username = username;
-        this.stateManager.goto(ClientStateManager.waiting);
+        return dataJSON;
     }
 }
 
@@ -69,6 +185,9 @@ class ClientStateManager {
     static prospective = 0;
     static cancelled = 1;
     static waiting = 2;
+    static in_game = 3;
+    static in_lobby = 4;
+    static hosting = 5;
 
     constructor(){
         this.state = ClientStateManager.prospective;
@@ -89,5 +208,68 @@ class ClientStateManager {
 
     goto(state){
         this.state = state;
+    }
+}
+
+class GameHandler {
+    constructor(){
+        this.game = null;
+        this.lobby = null;
+        this.gameInProgress = false;
+        this.lobbyInProgress = false;
+    }
+
+    startGame(){
+        this.game = new Dogfight(this.lobby.dissolve());
+    }
+
+    isInProgress(){
+        return this.game != null;
+    }
+
+    lobbyInProgress(){
+        return this.lobby.isInProgress();
+    }
+
+    // TODO
+    hostLobby(username){}
+    // TODO:
+    joinLobby(username){}
+
+    handleDisconnect(username){
+        // If there is a lobby then handle the disconnect
+        if (this.lobbyInProgress()){
+            this.lobby.handleDisconnect(username);
+        }else if (this.gameInProgress()){
+            // If there is a game in progress then kill the player
+            this.game.playerDisconnected(username); // TODO: Implement this method
+        }
+        // Else nothing needs to be done here
+    }
+
+    destroyLobby(){
+        this.lobby.destroy();
+    }
+}
+
+class Lobby {
+    constructor(host){
+        this.host = host;
+        this.participants = new NotSamLinkedList();
+        this.participants.add(host);
+    }
+
+    destroy(){
+        for (let [playerName, playerIndex] of this.participants){
+            SERVER.sendFromLobby(playerName);
+        }
+    }
+
+    dissolve(){
+        for (let [playerName, playerIndex] of this.participants){
+            SERVER.sendToGame(playerName);
+        }
+        let details = 1; // TODO
+        return details;
     }
 }
