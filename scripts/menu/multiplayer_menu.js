@@ -104,7 +104,7 @@ class JoinWindow {
     setup(menuInstance){
         let windowSizeX = 600;
         let windowX = (innerWidth) => { return (innerWidth - windowSizeX) / 2; }
-        let windowY = (innerHeight => { return innerHeight; })
+        let windowY = (innerHeight) => { return innerHeight; }
         
         // Button with details (e.g. "Dogfight" or Mission 1)
         let serverDetailsYSize = 300;
@@ -114,11 +114,13 @@ class JoinWindow {
         
         // Join button
         let joinButtonYSize = 100;
-        let joinButton = new RectangleButton("Join", "#3bc44b", "#e6f5f4", windowX, windowY, windowSizeX, joinButtonYSize, async (menuInstance) => {
+        let joinButtonY = (innerHeight) => { return innerHeight - serverDetailsYSize; } ;
+        let joinButton = new RectangleButton("Join", "#3bc44b", "#e6f5f4", windowX, joinButtonY, windowSizeX, joinButtonYSize, async (menuInstance) => {
             menuInstance.join();
         });
         this.joinButton = joinButton;
         menuInstance.addComponent(joinButton);
+        this.hide();
     }
 
     hide(){

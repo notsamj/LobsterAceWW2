@@ -1,6 +1,6 @@
 // If using NodeJS then do imports
 if (typeof window === "undefined"){
-    NotSamLinkedList = require("../scripts/notsam_linked_list");
+    NotSamLinkedList = require("./notsam_linked_list.js");
 }
 
 /*

@@ -165,8 +165,6 @@ const PROGRAM_DATA = {
         "assumed_tick_rate": 100, // TODO: Remove this constant?
         "ms_between_ticks": 10, // 10
         "max_bullet_y_velocity_multiplier": 2/800,
-        "server_ip": "localhost",
-        "server_port": "8080",
         "plane_shoot_gap_ms": 100,
         "max_bullets": 2000,
         "saved_ticks": 500,

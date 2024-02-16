@@ -120,6 +120,7 @@ class Menu {
         Method Return: void
     */
     static makeText(textStr, textColour, x, y, boxWidth, boxHeight, alignLR=LEFT, alignTB=TOP){
+        if (textStr == ""){ return; }
         let splitByLine = textStr.split("\n");
         let numLines = splitByLine.length;
         let screenX = x;

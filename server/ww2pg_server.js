@@ -1,10 +1,11 @@
 // TODO: File needs comments
 const WebSocketServer = require("ws").WebSocketServer;
-// TODO: Import linked list
-// TODO: Import SimpleCryptography
-// TODO: Import lock
+const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
+const Lock = require("../scripts/general/lock.js");
+const PROGRAM_DATA = require("../data/data_json.js");
+const SERVER_DATA = require("../data/user_data.js");
+const SimpleCryptography = require("./simple_cryptography.js");
 const SIMPLE_CRYPTOGRAPHY = new SimpleCryptography();
-const SERVER = new WW2PGServer();
 class WW2PGServer {
     constructor(port){
         this.server = new WebSocketServer({ "port": port })
@@ -202,14 +203,23 @@ class Client {
     }
     whenHosting(encryptedData){
         let dataJSON = Client.getDecryptedData(encryptedData);
+        // If leaving game
+        if (dataJSON["action"] == "leave_game"){
+            console.log(this.username + " (host) has disconnected.");
+            SERVER.getGameHandler().handleDisconnect(this.username);
+        }else if (dataJSON["action"] == "update_settings"){ // Updating with game settings
+            SERVER.getGameHandler().getLobby().updateSettings(this.username, dataJSON["new_settings"]);
+        }else{ // Updating with plane preference
+            SERVER.getGameHandler().getLobby().updatePreference(this.username, dataJSON["plane_update"]);
+        }
     }
 
     sendFromLobby(){
-        this.ws.send(JSON.stringify("message": "lobby_ended"));
+        this.ws.send(JSON.stringify({"message": "lobby_ended"}));
     }
 
     sendToGame(){
-        this.ws.send(JSON.stringify("message": "game_started"));
+        this.ws.send(JSON.stringify({"message": "game_started"}));
     }
 
     static getDecryptedData(encryptedData){
@@ -334,7 +344,7 @@ class Lobby {
         for (let [playerName, playerIndex] of this.participants){
             SERVER.sendToGame(playerName);
         }
-        let details = 1; // TODO
+        let details = this.gameModeSetup.getDetails(this.participants); // TODO
         return details;
     }
 
@@ -342,14 +352,66 @@ class Lobby {
     changeGamemode(){
 
     }
+
+    updatePreference(username, entityType){
+        this.gameModeSetup.updatePreference(username, entityType);
+    }
+
+    handleDisconnect(username){
+        // If the host left then destroy the lobby
+        if (this.host == username){
+            this.destroy();
+            return;
+        }
+
+        // One of the other players left
+        this.participants.deleteWithCondition((participantName) => { return participantName == username; })
+    }
 }
 
 class GamemodeSetup {
-    constructor(){}
+    constructor(){
+        this.participantTypes = {};
+    }
 }
 
 class DogfightSetup extends GamemodeSetup {
     constructor(){
         super();
+        this.botCounts = this.createBotCounts();
+        this.allyDifficulty = "easy";
+        this.axisDifficulty = "easy";
+    }
+
+    createBotCounts(){
+        for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
+            this.planeCounts[planeName] = 0;
+        }
+    }
+
+    updatePreference(username, entityType){
+        this.participantTypes[username] = entityType;
+    }
+
+    getDetails(){
+        let jsonRep = {};
+        jsonRep["users"] = [];
+        for (let [username, userEntityType] of Object.entries(this.participantTypes)){
+            // If not a freecam, then add to users list
+            if (userEntityType != "freecam"){
+                jsonRep["users"].push({
+                    "model": userEntityType,
+                    "id": username
+                });
+            }
+        }
+
+        jsonRep["planeCounts"] = this.botCounts;
+        jsonRep["allyDifficulty"] = this.allyDifficulty;
+        jsonRep["axisDifficulty"] = this.axisDifficulty;
+        return jsonRep;
     }
 }
+
+// Start Up
+const SERVER = new WW2PGServer(SERVER_DATA["server_data"]["server_port"]);
