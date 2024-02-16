@@ -1,5 +1,5 @@
 // TODO: This class needs comments
-class Dogfight {
+class ServerDogfight {
     constructor(dogFightJSON, bulletPhysicsEnabled=false){
         this.winner = null;
         this.bulletPhysicsEnabled = bulletPhysicsEnabled;

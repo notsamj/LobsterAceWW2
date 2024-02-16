@@ -19,6 +19,7 @@ class MenuManager {
         this.campaignMenu = new CampaignMenu();
         this.extraSettingsMenu = new ExtraSettingsMenu();
         this.activeMenu = this.mainMenu;
+        this.temporaryMessages = new NotSamLinkedList();
     }
 
     /*
@@ -54,12 +55,17 @@ class MenuManager {
     /*
         Method Name: display
         Method Parameters: None
-        Method Description: Display the active menu on the screen
+        Method Description: Display the active menu on the screen and temporary messages
         Method Return: void
     */
     display(){
         if (!this.hasActiveMenu()){ return; }
         this.activeMenu.display();
+        // Display all temporary messages
+        for (let [temporaryMessage, messageIndex] of this.temporaryMessages){
+            temporaryMessage.display();
+        }
+        this.temporaryMessages.deleteWithCondition((temporaryMessage) => {temporaryMessage.isExpired();});
     }
 
     /*
@@ -208,5 +214,26 @@ class MenuManager {
         return null;
     }
 
+    // TODO: Needs comments
+    addTemporaryMessage(message, colour, timeMS){
+        this.temporaryMessages.add(new TemporaryMessage(message, colour, timeMS));
+    }
+}
 
+// TODO: Class needs comments
+class TemporaryMessage {
+    constructor(message, colour, timeMS){
+        this.message = message;
+        this.colour = colour;
+        this.expiryLock = new CooldownLock(timeMS);
+        this.expiryLock.lock();
+    }
+
+    display(){
+        Menu.makeText(this.message, this.colour, 0, 0, getScreenWidth(), getScreenHeight(), CENTER, CENTER);
+    }
+
+    isExpired(){
+        return this.expiryLock.isReady();
+    }
 }

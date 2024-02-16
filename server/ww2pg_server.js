@@ -22,15 +22,7 @@ class WW2PGServer {
     }
 
     async usernameTaken(username){
-        await this.clientLock.awaitUnlock(true);
-        for (let [client, clientIndex] of this.clients){
-            if (client.isActive() && client.getUsername() == username){
-                this.clientLock.unlock();
-                return true;
-            }
-        }
-        this.clientLock.unlock();
-        return false;
+        return this.hasClient(username);
     }
 
     async removeInactives(){
@@ -41,6 +33,31 @@ class WW2PGServer {
 
     getGameHandler(){
         return this.gameHandler;
+    }
+
+    async findClient(username){
+        await this.clientLock.awaitUnlock(true);
+        for (let [client, clientIndex] of this.clients){
+            if (client.isActive() && client.getUsername() == username){
+                this.clientLock.unlock();
+                return client;
+            }
+        }
+        this.clientLock.unlock();
+        return null;
+    }
+
+    async hasClient(username){
+        await this.findClient(username) != null;
+    }
+
+    sendFromLobby(username){
+        if (!this.hasClient(username)){ return; }
+        let client = this.findClient(username);
+        client.sendFromLobby(username);
+    }
+    sendToGame(username){
+        client.sendToGame(username);
     }
 }
 
@@ -61,7 +78,7 @@ class Client {
         });
         // TODO: Check if error always fires on disconnect
         this.ws.on("error", () => {
-            console.log(this.username + " has disconnected.");
+            console.log(this.username + " has crudely disconnected.");
             SERVER.getGameHandler().handleDisconnect(this.username);
             this.stateManager.goto(ClientStateManager.cancelled);
         });
@@ -163,6 +180,38 @@ class Client {
         this.ws.send(JSON.stringify({"success": true}));
     }
 
+    whenInGame(encryptedData){
+        let dataJSON = Client.getDecryptedData(encryptedData);
+        // If leaving game
+        if (dataJSON["action"] == "leave_game"){
+            console.log(this.username + " has disconnected.");
+            SERVER.getGameHandler().handleDisconnect(this.username);
+        }else{ // Updating with plane data
+            SERVER.getGameHandler().updateFromUser(dataJSON["plane_update"]);
+        }
+    }
+    whenInLobby(encryptedData){
+        let dataJSON = Client.getDecryptedData(encryptedData);
+        // If leaving game
+        if (dataJSON["action"] == "leave_game"){
+            console.log(this.username + " has disconnected.");
+            SERVER.getGameHandler().handleDisconnect(this.username);
+        }else{ // Updating with plane preference
+            SERVER.getGameHandler().getLobby().updatePreference(this.username, dataJSON["plane_update"]);
+        }
+    }
+    whenHosting(encryptedData){
+        let dataJSON = Client.getDecryptedData(encryptedData);
+    }
+
+    sendFromLobby(){
+        this.ws.send(JSON.stringify("message": "lobby_ended"));
+    }
+
+    sendToGame(){
+        this.ws.send(JSON.stringify("message": "game_started"));
+    }
+
     static getDecryptedData(encryptedData){
         // If bad message then quit the program (This is just a fun program so doesn't have to handle these things rationally)
         if (!SIMPLE_CRYPTOGRAPHY.validFormat(encryptedData)){
@@ -227,14 +276,21 @@ class GameHandler {
         return this.game != null;
     }
 
+    getLobby(){
+        return this.lobby;
+    }
+
     lobbyInProgress(){
         return this.lobby.isInProgress();
     }
 
-    // TODO
-    hostLobby(username){}
-    // TODO:
-    joinLobby(username){}
+    hostLobby(username){
+        this.lobby = new Lobby(username);
+    }
+
+    joinLobby(username){
+        this.lobby.addParticipant(username);
+    }
 
     handleDisconnect(username){
         // If there is a lobby then handle the disconnect
@@ -250,6 +306,10 @@ class GameHandler {
     destroyLobby(){
         this.lobby.destroy();
     }
+
+    updateFromUser(planeUpdate){
+        this.game.newPlaneJSON(planeUpdate);
+    }
 }
 
 class Lobby {
@@ -257,6 +317,11 @@ class Lobby {
         this.host = host;
         this.participants = new NotSamLinkedList();
         this.participants.add(host);
+        this.gameModeSetup = new DogfightSetup(); // 
+    }
+
+    addParticipant(username){
+        this.participants.add(username);
     }
 
     destroy(){
@@ -271,5 +336,20 @@ class Lobby {
         }
         let details = 1; // TODO
         return details;
+    }
+
+    // TODO: Make this in UI on client side aswell
+    changeGamemode(){
+
+    }
+}
+
+class GamemodeSetup {
+    constructor(){}
+}
+
+class DogfightSetup extends GamemodeSetup {
+    constructor(){
+        super();
     }
 }
