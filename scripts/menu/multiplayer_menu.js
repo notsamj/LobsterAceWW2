@@ -108,9 +108,9 @@ class JoinWindow {
         
         // Button with details (e.g. "Dogfight" or Mission 1)
         let serverDetailsYSize = 300;
-        let serverDetailsButton = new TextComponent("", "#000000", windowX, windowY, windowSizeX, serverDetailsYSize);
-        this.serverDetailsButton = serverDetailsButton;
-        menuInstance.addComponent(serverDetailsButton);
+        let serverDetails = new TextComponent("", "#000000", windowX, windowY, windowSizeX, serverDetailsYSize);
+        this.serverDetails = serverDetails;
+        menuInstance.addComponent(serverDetails);
         
         // Join button
         let joinButtonYSize = 100;
@@ -125,12 +125,14 @@ class JoinWindow {
 
     hide(){
         this.joinButton.disableDisplay();
-        this.serverDetailsButton.disableDisplay();
+        this.serverDetails.disableDisplay();
     }
 
     show(serverResponse){
-        this.joinButton.enableDisplay();
-        this.serverDetailsButton.disableDisplay();
-        this.serverDetailsButton.setText(serverResponse["server_details"]);
+        if (!serverResponse["game_in_progress"]){
+            this.joinButton.enableDisplay();
+        }
+        this.serverDetails.enableDisplay();
+        this.serverDetails.setText(serverResponse["server_details"]);
     }
 }

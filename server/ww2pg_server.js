@@ -62,7 +62,7 @@ class WW2PGServer {
     }
 
     generateRefreshResult(){
-        // TODO
+        return this.gameHandler.generateRefreshResult();
     }
 }
 
@@ -153,7 +153,7 @@ class Client {
         }
 
         // If there is a lobby running
-        if (gameHandler.lobbyInProgress()){
+        if (gameHandler.isLobbyInProgress()){
             gameHandler.joinLobby(this.username);
             this.stateManager.goto(ClientStateManager.in_lobby);
             this.ws.send(JSON.stringify({"success": true}));
@@ -174,7 +174,7 @@ class Client {
         }
 
         // If there is a lobby running
-        if (gameHandler.lobbyInProgress()){
+        if (gameHandler.isLobbyInProgress()){
             this.ws.send(JSON.stringify({"success": false, "reason": "lobby_in_progress"}));
             return;
         }
@@ -237,6 +237,7 @@ class Client {
         encryptedData = encryptedData.toString();
 
         let dataString = SIMPLE_CRYPTOGRAPHY.decrypt(encryptedData);
+        console.log("Received data:", dataString);
         let dataJSON = JSON.parse(dataString);
         // If bad password then quit the program (This is just a fun program so doesn't have to handle these things rationally)
         if (dataJSON["password"] != SERVER_DATA["server_data"]["password"]){
@@ -282,7 +283,6 @@ class GameHandler {
         this.game = null;
         this.lobby = null;
         this.gameInProgress = false;
-        this.lobbyInProgress = false;
     }
 
     startGame(){
@@ -297,8 +297,8 @@ class GameHandler {
         return this.lobby;
     }
 
-    lobbyInProgress(){
-        return this.lobby.isInProgress();
+    isLobbyInProgress(){
+        return this.getLobby() != null;
     }
 
     hostLobby(username){
@@ -311,7 +311,7 @@ class GameHandler {
 
     handleDisconnect(username){
         // If there is a lobby then handle the disconnect
-        if (this.lobbyInProgress()){
+        if (this.isLobbyInProgress()){
             this.lobby.handleDisconnect(username);
         }else if (this.gameInProgress()){
             // If there is a game in progress then kill the player
@@ -327,6 +327,25 @@ class GameHandler {
     updateFromUser(planeUpdate){
         this.game.newPlaneJSON(planeUpdate);
     }
+
+    generateRefreshResult(){
+        let responseJSON = {};
+        let serverFree = !this.isInProgress() && !this.isLobbyInProgress();
+        responseJSON["server_free"] = serverFree;
+        // If the server is free then return this information
+        if (serverFree){
+            return JSON.stringify(responseJSON);
+        }
+        // If server is not free return reason
+        responseJSON["server_details"] = "";
+        if (this.isInProgress()){
+            responseJSON["server_details"] = "Game in progress.";
+        }else{
+            responseJSON["server_details"] = this.lobby.getType();
+        }
+        serverResponse["game_in_progress"] = this.isInProgress();
+        return JSON.stringify(responseJSON);
+    }
 }
 
 class Lobby {
@@ -335,6 +354,11 @@ class Lobby {
         this.participants = new NotSamLinkedList();
         this.participants.add(host);
         this.gameModeSetup = new DogfightSetup(); // 
+    }
+
+    // TODO
+    getType(){
+        return "dogfight";
     }
 
     addParticipant(username){

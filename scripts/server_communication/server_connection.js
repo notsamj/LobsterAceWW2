@@ -45,7 +45,7 @@ class ServerConnection {
             "username": USER_DATA["name"]
         }
         // Check for success -> if not success then display message
-        let response = await MessageResponse.sendAndReceive(this.socket, data, this, 5000);
+        let response = await MessageResponse.sendAndReceiveJSON(this.socket, data, this, 5000);
         // If null -> no response
         if (response == null){
             menuManager.addTemporaryMessage("No response from the server.", "red", 5000);
@@ -59,8 +59,15 @@ class ServerConnection {
     */
     async request(){
         if (!this.isSetup()){ await this.setupConnection(); }
-        // TODO: Get refresh data
-        return false;
+        let data = {
+            "action": "refresh",
+            "password": USER_DATA["server_data"]["password"]
+        }
+        let response = await MessageResponse.sendAndReceiveJSON(this.socket, data, this, 5000);
+        if (!response){
+            return false;
+        }
+        return response;
     }
 
     isSetup(){
@@ -94,10 +101,17 @@ class MessageResponse {
         return this.result;
     }
 
+    static async sendAndReceiveJSON(socket, messageJSON, serverConnection, timeout){
+        return JSON.parse(await MessageResponse.sendAndReceive(socket, JSON.stringify(messageJSON), serverConnection, timeout));
+    }
+
     static async sendAndReceive(socket, message, serverConnection, timeout){
+        console.log("Sending:", message);
         socket.send(message);
         let messageResponse = new MessageResponse(serverConnection, timeout);
-        return await messageResponse.awaitResponse();
+        let response = await messageResponse.awaitResponse();
+        console.log("Received:", response);
+        return response;
     }
 }
 
