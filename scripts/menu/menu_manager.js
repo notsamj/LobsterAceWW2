@@ -60,12 +60,16 @@ class MenuManager {
     */
     display(){
         if (!this.hasActiveMenu()){ return; }
+
+        // Dispaly the menu
         this.activeMenu.display();
+
         // Display all temporary messages
         for (let [temporaryMessage, messageIndex] of this.temporaryMessages){
             temporaryMessage.display();
         }
-        this.temporaryMessages.deleteWithCondition((temporaryMessage) => {temporaryMessage.isExpired();});
+
+        this.temporaryMessages.deleteWithCondition((temporaryMessage) => { return temporaryMessage.isExpired(); });
     }
 
     /*
@@ -230,7 +234,7 @@ class TemporaryMessage {
     }
 
     display(){
-        Menu.makeText(this.message, this.colour, 0, 0, getScreenWidth(), getScreenHeight(), CENTER, CENTER);
+        Menu.makeText(this.message, this.colour, 0, getScreenHeight(), getScreenWidth(), getScreenHeight(), CENTER, CENTER);
     }
 
     isExpired(){

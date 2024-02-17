@@ -11,15 +11,16 @@ class ServerConnection {
         Method Return: Constructor
     */
     constructor(){
-        this.ip = PROGRAM_DATA["settings"]["server_ip"];
-        this.port = PROGRAM_DATA["settings"]["server_port"];
+        this.ip = USER_DATA["server_data"]["server_ip"];
+        this.port = USER_DATA["server_data"]["server_port"];
         this.setup = false;
         this.socket = null;
         this.openedLock = new Lock();
-        this.stateManager = new ConnectionStateManager();
+        this.openedLock.lock();
+        this.messageCallbacks = new NotSamLinkedList();
     }
 
-    setupConnection(){
+    async setupConnection(){
         this.setup = true;
         this.socket = new WebSocket("ws://" + this.ip + ":" + this.port);
         this.socket.addEventListener("open", (event) => {
@@ -27,9 +28,15 @@ class ServerConnection {
             this.openedLock.unlock();
         });
         this.socket.addEventListener("message", (event) => {
-            this.stateManager.sendToHandler(event);
+            for (let [callback, callbackIndex] of this.messageCallbacks){
+                callback.complete(event.data);
+            }
+            this.messageCallbacks.clear();
         });
-        // Wait for connection to open
+        this.socket.addEventListener("error", (event) => {
+            menuManager.addTemporaryMessage("Connection to server failed.", "red", 5000);
+        });
+        // Wait for connection to open (or give up after 5 seconds)
         await this.openedLock.awaitUnlock();
         // Send the password
         console.log("Sending the password...")
@@ -37,7 +44,14 @@ class ServerConnection {
             "password": USER_DATA["server_data"]["password"],
             "username": USER_DATA["name"]
         }
-        this.scoket.send(JSON.stringify(data));
+        // Check for success -> if not success then display message
+        let response = await MessageResponse.sendAndReceive(this.socket, data, this, 5000);
+        // If null -> no response
+        if (response == null){
+            menuManager.addTemporaryMessage("No response from the server.", "red", 5000);
+        }else if (response["success"] == false){
+            menuManager.addTemporaryMessage("Failed to connect: " + response["reason"], "red", 5000);
+        }
     }
 
     /*
@@ -52,34 +66,38 @@ class ServerConnection {
     isSetup(){
         return this.setup;
     }
-}
 
-class ConnectionStateManager {
-    static prospective = 0;
-    static cancelled = 1;
-    static waiting = 2;
-    static in_game = 3;
-    static in_lobby = 4;
-    static hosting = 5;
-
-    constructor(){
-        this.state = ClientStateManager.prospective;
-        this.handlers = {};
-    }
-
-    register(state, handler){
-        this.handlers[state] = handler;
-    }
-
-    sendToHandler(data){
-        this.handlers[this.state](data);
-    }
-
-    getState(){
-        return this.state;
-    }
-
-    goto(state){
-        this.state = state;
+    addCallback(messageResponse){
+        this.messageCallbacks.add(messageResponse);
     }
 }
+
+class MessageResponse {
+    constructor(serverConnection, timeout){
+        this.result = null;
+        this.completedLock = new Lock();
+        this.completedLock.lock();
+        serverConnection.addCallback(this);
+        setTimeout(() => { this.complete(); }, timeout)
+    }
+
+    complete(result=null){
+        // If already completed return
+        if (this.completedLock.isReady()){ return; }
+        this.result = result;
+        this.completedLock.unlock();
+    }
+
+    async awaitResponse(){
+        // Wait for the lock to no longer be completed
+        await this.completedLock.awaitUnlock();
+        return this.result;
+    }
+
+    static async sendAndReceive(socket, message, serverConnection, timeout){
+        socket.send(message);
+        let messageResponse = new MessageResponse(serverConnection, timeout);
+        return await messageResponse.awaitResponse();
+    }
+}
+

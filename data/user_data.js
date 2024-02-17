@@ -6,4 +6,6 @@ const USER_DATA = {
         "server_port": "8080",
     }
 }
-module.exports = USER_DATA;
+if (typeof window === "undefined"){
+    module.exports = USER_DATA;
+}

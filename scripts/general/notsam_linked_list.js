@@ -375,13 +375,19 @@ class NotSamLinkedList{
     deleteWithCondition(conditionFunction){
         if (this.isEmpty()){ return; }
         let current = this.getLastNode();
-        while (current.previous != null){
+        while (current != null){
             // If value matches condition then remove it
             if (conditionFunction(current.value)){
                 if (current.next != null){
                     current.next.previous = current.previous;
+                }else{ // Else this is the end
+                    this.end = null;
                 }
-                current.previous.next = current.next;
+                if (current.previous != null){
+                    current.previous.next = current.next;
+                }else{ // Else this is the head
+                    this.head = null;
+                }
             }
             // Move to next
             current = current.previous;

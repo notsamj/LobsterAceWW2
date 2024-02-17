@@ -60,6 +60,10 @@ class WW2PGServer {
     sendToGame(username){
         client.sendToGame(username);
     }
+
+    generateRefreshResult(){
+        // TODO
+    }
 }
 
 class Client {
@@ -74,7 +78,7 @@ class Client {
         this.stateManager.register(ClientStateManager.in_lobby, (encryptedData) => { this.whenInLobby(encryptedData); });
         this.stateManager.register(ClientStateManager.hosting, (encryptedData) => { this.whenHosting(encryptedData); });
         console.log("Somebody is attempting to communicate.");
-        this.ws.on("connection", (encryptedData) => {
+        this.ws.on("message", (encryptedData) => {
             this.handleMessage(encryptedData);
         });
         // TODO: Check if error always fires on disconnect
@@ -113,7 +117,7 @@ class Client {
     async verifyClient(encryptedData){
         let dataJSON = Client.getDecryptedData(encryptedData);
         // Password matches assume the rest of the data is correct (e.g. username not "")
-        let username = data["username"];
+        let username = dataJSON["username"];
         // If username is taken then cancel this user
         if (await SERVER.usernameTaken(username)){
             this.ws.send(JSON.stringify({"success": false, "reason": "error_username_taken"}));
@@ -229,10 +233,13 @@ class Client {
             process.exit(1);
         }
 
+        // Turn to string
+        encryptedData = encryptedData.toString();
+
         let dataString = SIMPLE_CRYPTOGRAPHY.decrypt(encryptedData);
         let dataJSON = JSON.parse(dataString);
         // If bad password then quit the program (This is just a fun program so doesn't have to handle these things rationally)
-        if (dataJSON["password"] != PROGRAM_DATA["server_data"]["password"]){
+        if (dataJSON["password"] != SERVER_DATA["server_data"]["password"]){
             console.error("Invalid password received.");
             process.exit(1);
         }
