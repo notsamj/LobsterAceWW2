@@ -16,3 +16,8 @@ class SimpleCryptography {
         return true; // TODO
     }
 }
+
+// If using Node JS Export the class
+if (typeof window === "undefined"){
+    module.exports = SimpleCryptography;
+}

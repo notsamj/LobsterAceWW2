@@ -66,3 +66,8 @@ class SeededRandomizer {
         return this.getIntInRangeInclusive(start, end-1);
     }
 }
+
+// If using Node JS Export the class
+if (typeof window === "undefined"){
+    module.exports = SeededRandomizer;
+}

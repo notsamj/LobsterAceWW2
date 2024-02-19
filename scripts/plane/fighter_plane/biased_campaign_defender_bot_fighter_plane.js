@@ -1,3 +1,9 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    BiasedBotFighterPlane = require("./biased_bot_fighter_plane.js");
+}
+
 /*
     Class Name: BiasedCampaignDefenderBotFighterPlane
     Description: A fighter plane that is tasked with attacking a bomber plane and its protectors
@@ -80,4 +86,8 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         let biases = BiasedBotFighterPlane.createBiases(difficulty);
         return new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, biases);
     }
+}
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = BiasedCampaignDefenderBotFighterPlane;
 }

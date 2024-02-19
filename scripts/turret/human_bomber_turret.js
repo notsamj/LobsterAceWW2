@@ -1,3 +1,9 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    BomberTurret = require("./bomber_turret.js");
+    helperFunctions = require("../general/helper_functions.js");
+    getDegreesFromDisplacement = helperFunctions.getDegreesFromDisplacement;
+}
 /*
     Class Name: HumanBomberTurret
     Description: Class representing a Turret attached to a Bomber plane that is operated by a human
@@ -81,4 +87,8 @@ class HumanBomberTurret extends BomberTurret {
     static create(gunObject, scene, plane, autonomous){
         return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane, autonomous);
     }
+}
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = HumanBomberTurret;
 }

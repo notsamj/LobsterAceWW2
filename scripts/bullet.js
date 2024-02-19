@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Entity = require("../scripts/entity.js");
+    Entity = require("./entity.js");
 }
 /*
     Class Name: Bullet
@@ -102,7 +102,7 @@ class Bullet extends Entity {
         Method Return: Image
     */
     getImage(){
-        return images["bullet"];
+        return getImage("bullet");
     }
 
     /*

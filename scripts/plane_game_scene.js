@@ -2,6 +2,8 @@
 if (typeof window === "undefined"){
     Scene = require("../scripts/scene.js");
     TeamCombatManager = require("../scripts/team_combat_manager.js");
+    PROGRAM_DATA = require("../data/data_json.js");
+    SoundManager = require("./general/sound_manager.js");
 }
 /*
     Method Name: loadRotatedImages
@@ -51,8 +53,9 @@ class PlaneGameScene extends Scene {
         super();
         this.local = local;
         this.collisionsEnabled = true;
-        this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"]);
+        this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
         this.soundManager = new SoundManager();
+        this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
     }
 
     // TODO: Comments
@@ -63,6 +66,16 @@ class PlaneGameScene extends Scene {
     // TODO: Comments
     getSoundManager(){
         return this.soundManager;
+    }
+
+    // TODO: Comments
+    setBulletPhysicsEnabled(bulletPhysicsEnabled){
+        this.bulletPhysicsEnabled = bulletPhysicsEnabled;
+    }
+
+    // TODO: Comments
+    areBulletPhysicsEnabled(){
+        return this.bulletPhysicsEnabled;
     }
 
     /*

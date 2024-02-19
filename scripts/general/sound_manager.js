@@ -1,3 +1,9 @@
+// If using NodeJS -> Do required imports
+if (typeof window === "undefined"){
+    helperFunctions = require("../general/helper_functions.js");
+    getLocalStorage = helperFunctions.getLocalStorage;
+    setLocalStorage = helperFunctions.setLocalStorage;
+}
 /*
     Class Name: SoundManager
     Description: A class for managing the playing of sounds.
@@ -87,16 +93,41 @@ class SoundManager {
                 Bottom y game coordinate of the screen
             tY:
                 Top y game coordinate of the screen
-        Method Description: Plays all the sounds within a specified game coordinate area
+        Method Description: Plays all the sounds within a specified game coordinate area. It first prepares to pause all sounds then determines which need not be paused and then pauses all that are not needed to be playing.
         Method Return: void
     */
     playAll(lX, rX, bY, tY){
-        this.pauseAll();
+        this.prepareToPauseAll();
         // Play all sounds that take place on the screen
         while (this.soundQueue.getLength() > 0){
             let soundRequest = this.soundQueue.get(0);
             soundRequest.tryToPlay(lX, rX, bY, tY);
             this.soundQueue.pop(0);
+        }
+        this.pauseAllIfPrepared();
+    }
+
+    /*
+        Method Name: prepareToPauseAll
+        Method Parameters: None
+        Method Description: Prepares to pause all active sounds
+        Method Return: void
+    */
+    prepareToPauseAll(){
+        for (let sound of this.sounds){
+            sound.prepareToPause();
+        }
+    }
+
+    /*
+        Method Name: pauseAllIfPrepared
+        Method Parameters: None
+        Method Description: Pauses all active sounds that are prepared
+        Method Return: void
+    */
+    pauseAllIfPrepared(){
+        for (let sound of this.sounds){
+            sound.pauseIfPrepared();
         }
     }
 
@@ -246,9 +277,11 @@ class Sound {
     */
     constructor(soundName, mainVolume){
         this.name = soundName;
-        this.audio = new Audio(PROGRAM_DATA["sound_data"]["url"] + "/" + this.name + PROGRAM_DATA["sound_data"]["file_type"]);
+        // Audio will be {} if opened in NodeJS
+        this.audio = (typeof window != "undefined") ? new Audio(PROGRAM_DATA["sound_data"]["url"] + "/" + this.name + PROGRAM_DATA["sound_data"]["file_type"]) : {};
         this.volume = getLocalStorage(soundName, 0);
         this.adjustByMainVolume(mainVolume);
+        this.preparedToPause = true;
     }
 
     /*
@@ -269,6 +302,7 @@ class Sound {
     */
     play(){
         this.audio.play();
+        this.preparedToPause = false;
     }
 
     /*
@@ -329,4 +363,21 @@ class Sound {
     getVolume(){
         return this.volume;
     }
+
+    // TODO: Comments
+    prepareToPause(){
+        this.preparedToPause = true;
+    }
+
+    pauseIfPrepared(){
+        // Pause if prepared to
+        if (this.preparedToPause){
+            this.audio.pause();
+        }
+    }
+}
+
+// If using NodeJS then export the lock class
+if (typeof window === "undefined"){
+    module.exports = SoundManager;
 }

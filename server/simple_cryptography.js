@@ -1,7 +1,9 @@
 // TODO: Class needs comments
 // Note: Could store some seed in PROGRAM_DATA something like seed=500 and then use seeded rng to encode each character
 class SimpleCryptography {
-    constructor(){}
+    constructor(secretSeed){
+        this.secretSeed = secretSeed;
+    }
     validFormat(message){
         return true;
     }

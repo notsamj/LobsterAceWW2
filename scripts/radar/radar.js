@@ -1,3 +1,9 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../data/data_json.js");
+    helperFunctions = require("../general/helper_functions.js");
+    getImage = helperFunctions.getImage;
+}
 /*
     Class Name: Radar
     Description: A radar showing positions of enemies.
@@ -15,7 +21,7 @@ class Radar {
         this.size = PROGRAM_DATA["radar"]["size"]; // MUST BE EVEN
         this.entity = entity;
         this.blipSize = PROGRAM_DATA["radar"]["blip_size"];
-        this.radarOutline = images["radar_outline"];
+        this.radarOutline = getImage("radar_outline");
         this.blipDistance = PROGRAM_DATA["radar"]["blip_distance"];
         this.radarData = this.resetRadar();
     }
@@ -95,4 +101,9 @@ class Radar {
     // Abstract
     update(){}
     placeOnRadar(enemyX, enemyY){}
+}
+
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = Radar;
 }

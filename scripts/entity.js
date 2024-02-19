@@ -20,6 +20,10 @@ class Entity {
         this.dead = false;
     }
 
+    isLocal(){
+        return this.scene.isLocal();
+    }
+
     // Abstract
     calculateInterpolatedCoordinates(){}
     getInterpolatedX(){}

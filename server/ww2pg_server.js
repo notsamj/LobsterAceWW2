@@ -5,7 +5,8 @@ const Lock = require("../scripts/general/lock.js");
 const PROGRAM_DATA = require("../data/data_json.js");
 const SERVER_DATA = require("../data/user_data.js");
 const SimpleCryptography = require("./simple_cryptography.js");
-const SIMPLE_CRYPTOGRAPHY = new SimpleCryptography();
+const SIMPLE_CRYPTOGRAPHY = new SimpleCryptography(PROGRAM_DATA["secret_seed"]);
+const ServerDogFight = require("./server_dogfight.js");
 class WW2PGServer {
     constructor(port){
         this.server = new WebSocketServer({ "port": port })
@@ -52,17 +53,42 @@ class WW2PGServer {
         await this.findClient(username) != null;
     }
 
-    sendFromLobby(username){
-        if (!this.hasClient(username)){ return; }
-        let client = this.findClient(username);
+    async sendFromLobby(username){
+        if (!(await this.hasClient(username))){ return; }
+        let client = await this.findClient(username);
         client.sendFromLobby(username);
     }
-    sendToGame(username){
+
+    async sendToGame(username){
+        let client = await SERVER.findClient(username);
         client.sendToGame(username);
     }
 
     generateRefreshResult(){
         return this.gameHandler.generateRefreshResult();
+    }
+
+    async handleDisconnect(username){
+        this.gameHandler.handleDisconnect(username);
+        if (!this.gameHandler.isInProgress()){
+            return;
+        }
+        if (await this.checkIfGameEmpty()){
+            this.gameHandler.end();
+        }
+
+    }
+
+    async checkIfGameEmpty(){
+        await this.clientLock.awaitUnlock(true);
+        for (let [client, clientIndex] of this.clients){
+            if (client.isActive() && client.getState() == PROGRAM_DATA["client_states"]["in_game"]){
+                this.clientLock.unlock();
+                return false;
+            }
+        }
+        this.clientLock.unlock();
+        return true;
     }
 }
 
@@ -71,23 +97,39 @@ class Client {
         this.ws = ws;
         this.username = null;
         this.stateManager = new ClientStateManager();
-        this.stateManager.register(ClientStateManager.prospective, (encryptedData) => { this.verifyClient(encryptedData); });
-        this.stateManager.register(ClientStateManager.cancelled, (encryptedData) => {}); // If cancelled ignore all data
-        this.stateManager.register(ClientStateManager.waiting, (encryptedData) => { this.whenWaiting(encryptedData); });
-        this.stateManager.register(ClientStateManager.in_game, (encryptedData) => { this.whenInGame(encryptedData); });
-        this.stateManager.register(ClientStateManager.in_lobby, (encryptedData) => { this.whenInLobby(encryptedData); });
-        this.stateManager.register(ClientStateManager.hosting, (encryptedData) => { this.whenHosting(encryptedData); });
+        this.stateManager.register(PROGRAM_DATA["client_states"]["prospective"], (encryptedData) => { this.verifyClient(encryptedData); });
+        this.stateManager.register(PROGRAM_DATA["client_states"]["cancelled"], (encryptedData) => {}); // If cancelled ignore all data
+        this.stateManager.register(PROGRAM_DATA["client_states"]["waiting"], (encryptedData) => { this.whenWaiting(encryptedData); });
+        this.stateManager.register(PROGRAM_DATA["client_states"]["in_game"], (encryptedData) => { this.whenInGame(encryptedData); });
+        this.stateManager.register(PROGRAM_DATA["client_states"]["in_lobby"], (encryptedData) => { this.whenInLobby(encryptedData); });
+        this.stateManager.register(PROGRAM_DATA["client_states"]["hosting"], (encryptedData) => { this.whenHosting(encryptedData); });
+        this.lastReceivedMessageTime = Date.now();
+        this.heartbeat = null;
         console.log("Somebody is attempting to communicate.");
         this.ws.on("message", (encryptedData) => {
             this.handleMessage(encryptedData);
+            this.lastReceivedMessageTime = Date.now();
         });
         // TODO: Check if error always fires on disconnect
         this.ws.on("error", () => {
-            console.log(this.username + " has crudely disconnected.");
-            SERVER.getGameHandler().handleDisconnect(this.username);
-            this.stateManager.goto(ClientStateManager.cancelled);
+            console.log(this.username + " has disconnected from the server.");
+            this.stateManager.goto(PROGRAM_DATA["client_states"]["cancelled"]);
+            SERVER.handleDisconnect(this.username);
         });
         SERVER.removeInactives();
+    }
+
+    checkAlive(){
+        if (this.lastReceivedMessageTime + 10000 < Date.now()){
+            console.log(this.username + " has no heartbeat.");
+            this.stateManager.goto(PROGRAM_DATA["client_states"]["cancelled"]);
+            SERVER.handleDisconnect(this.username);
+            clearInterval(this.heartbeat);
+        }
+    }
+
+    getState(){
+        return this.stateManager.getState();
     }
 
     getStateManager(){
@@ -99,39 +141,54 @@ class Client {
     }
 
     isCancelled(){
-        return this.stateManager.getState() == ClientStateManager.cancelled;
+        return this.stateManager.getState() == PROGRAM_DATA["client_states"]["cancelled"];
     }
 
     isActive(){
+        if (this.getState() == PROGRAM_DATA["client_states"]["prospective"]){ return; }
         return !this.isCancelled() && this.isVerified();
     }
 
     isVerified(){
-        return this.stateManager.getState() != ClientStateManager.prospective;
+        return this.stateManager.getState() != PROGRAM_DATA["client_states"]["prospective"];
+    }
+
+    handleHeartbeat(dataJSON){
+        if (dataJSON["action"] == "ping"){
+            this.ws.send(JSON.stringify({"action": "pong", "mail_box": "heartbeat"}));
+            return true;
+        }
+        return false;
     }
 
     handleMessage(encryptedData){
-        this.stateManager.sendToHandler(encryptedData);
+        let dataJSON = Client.getDecryptedData(encryptedData);
+        if (dataJSON["action"] != "get_state" && dataJSON["action"] != "ping"){
+            //console.log("Received data:", dataJSON);
+        }
+        if (this.handleHeartbeat(dataJSON)){
+            return;
+        }
+        this.stateManager.sendToHandler(dataJSON);
     }
 
-    async verifyClient(encryptedData){
-        let dataJSON = Client.getDecryptedData(encryptedData);
+    async verifyClient(dataJSON){
         // Password matches assume the rest of the data is correct (e.g. username not "")
         let username = dataJSON["username"];
         // If username is taken then cancel this user
         if (await SERVER.usernameTaken(username)){
-            this.ws.send(JSON.stringify({"success": false, "reason": "error_username_taken"}));
-            this.stateManager.goto(ClientStateManager.cancelled);
+            this.ws.send(JSON.stringify({"success": false, "reason": "error_username_taken", "mail_box": dataJSON["mail_box"]}));
+            this.stateManager.goto(PROGRAM_DATA["client_states"]["cancelled"]);
             return;
         }
         this.username = username;
-        this.stateManager.goto(ClientStateManager.waiting);
+        this.stateManager.goto(PROGRAM_DATA["client_states"]["waiting"]);
         console.error(this.username + " has connected.");
-        this.ws.send(JSON.stringify({"success": true}));
+        this.ws.send(JSON.stringify({"success": true, "mail_box": "setup"}));
+        this.heartbeat = setInterval(() => this.checkAlive(), 10000);
     }
 
-    whenWaiting(encryptedData){
-        let dataJSON = Client.getDecryptedData(encryptedData);
+    whenWaiting(dataJSON){
         if (dataJSON["action"] == "refresh"){
             this.ws.send(SERVER.generateRefreshResult());
         }else if (dataJSON["action"] == "join"){
@@ -139,7 +196,7 @@ class Client {
         }else if (dataJSON["action"] == "host"){
             this.attemptToHost();
         }else{
-            this.ws.send(JSON.stringify({"success": false, "reason": "unknown_query"}));
+            this.ws.send(JSON.stringify({"success": false, "reason": "unknown_query", "mail_box": dataJSON["mail_box"]}));
         }
     }
 
@@ -147,74 +204,83 @@ class Client {
         let gameHandler = SERVER.getGameHandler();
 
         // If there is a game running
-        if (gameHandler.inProgress()){
-            this.ws.send(JSON.stringify({"success": false, "reason": "game_in_progress"}));
+        if (gameHandler.isInProgress()){
+            this.ws.send(JSON.stringify({"success": false, "reason": "game_in_progress", "mail_box": "join"}));
             return;
         }
 
         // If there is a lobby running
         if (gameHandler.isLobbyInProgress()){
             gameHandler.joinLobby(this.username);
-            this.stateManager.goto(ClientStateManager.in_lobby);
-            this.ws.send(JSON.stringify({"success": true}));
+            this.stateManager.goto(PROGRAM_DATA["client_states"]["in_lobby"]);
+            this.ws.send(JSON.stringify({"success": true, "mail_box": "join"}));
             return;
         }
 
         // Else no lobby running
-        this.ws.send(JSON.stringify({"success": false}));
+        this.ws.send(JSON.stringify({"success": false, "mail_box": "join"}));
     }
 
     attemptToHost(){
         let gameHandler = SERVER.getGameHandler();
 
         // If there is a game running
-        if (gameHandler.inProgress()){
-            this.ws.send(JSON.stringify({"success": false, "reason": "game_in_progress"}));
+        if (gameHandler.isInProgress()){
+            this.ws.send(JSON.stringify({"success": false, "reason": "game_in_progress", "mail_box": "host"}));
             return;
         }
 
         // If there is a lobby running
         if (gameHandler.isLobbyInProgress()){
-            this.ws.send(JSON.stringify({"success": false, "reason": "lobby_in_progress"}));
+            this.ws.send(JSON.stringify({"success": false, "reason": "lobby_in_progress", "mail_box": "host"}));
             return;
         }
 
         // Else no lobby running
-        this.stateManager.goto(ClientStateManager.hosting);
+        this.stateManager.goto(PROGRAM_DATA["client_states"]["hosting"]);
         gameHandler.hostLobby(this.username);
-        this.ws.send(JSON.stringify({"success": true}));
+        this.ws.send(JSON.stringify({"success": true, "mail_box": "host"}));
     }
 
-    whenInGame(encryptedData){
-        let dataJSON = Client.getDecryptedData(encryptedData);
+    whenInGame(dataJSON){
         // If leaving game
         if (dataJSON["action"] == "leave_game"){
-            console.log(this.username + " has disconnected.");
-            SERVER.getGameHandler().handleDisconnect(this.username);
-        }else{ // Updating with plane data
+            console.log(this.username + " has disconnected from the game.");
+            this.getStateManager().goto(PROGRAM_DATA["client_states"]["waiting"]);
+            SERVER.handleDisconnect(this.username);
+        }else if (dataJSON["action"] == "plane_update"){ // Updating with plane data
             SERVER.getGameHandler().updateFromUser(dataJSON["plane_update"]);
+        }else{ // Get state
+            let state = SERVER.getGameHandler().getState();
+            state["mail_box"] = dataJSON["mail_box"];
+            this.ws.send(JSON.stringify(state));
         }
     }
-    whenInLobby(encryptedData){
-        let dataJSON = Client.getDecryptedData(encryptedData);
+
+    whenInLobby(dataJSON){
         // If leaving game
         if (dataJSON["action"] == "leave_game"){
-            console.log(this.username + " has disconnected.");
-            SERVER.getGameHandler().handleDisconnect(this.username);
+            console.log(this.username + " has disconnected from the lobby.");
+            this.getStateManager().goto(PROGRAM_DATA["client_states"]["waiting"]);
+            SERVER.handleDisconnect(this.username);
         }else{ // Updating with plane preference
             SERVER.getGameHandler().getLobby().updatePreference(this.username, dataJSON["plane_update"]);
         }
     }
-    whenHosting(encryptedData){
-        let dataJSON = Client.getDecryptedData(encryptedData);
+
+    whenHosting(dataJSON){
         // If leaving game
         if (dataJSON["action"] == "leave_game"){
-            console.log(this.username + " (host) has disconnected.");
-            SERVER.getGameHandler().handleDisconnect(this.username);
+            console.log(this.username + " (host) has disconnected from the lobby.");
+            this.getStateManager().goto(PROGRAM_DATA["client_states"]["waiting"]);
+            SERVER.handleDisconnect(this.username);
         }else if (dataJSON["action"] == "update_settings"){ // Updating with game settings
-            SERVER.getGameHandler().getLobby().updateSettings(this.username, dataJSON["new_settings"]);
-        }else{ // Updating with plane preference
+            SERVER.getGameHandler().getLobby().updateSettings(dataJSON["new_settings"]);
+        }else if (dataJSON["action"] == "plane_update"){ // Updating with plane preference
             SERVER.getGameHandler().getLobby().updatePreference(this.username, dataJSON["plane_update"]);
+        }else{ // Starting game
+            SERVER.getGameHandler().startGame();
+            this.ws.send(JSON.stringify({"success": true, "mail_box": dataJSON["mail_box"]}));
         }
     }
 
@@ -223,7 +289,16 @@ class Client {
     }
 
     sendToGame(){
+        this.getStateManager().goto(PROGRAM_DATA["client_states"]["in_game"]);
         this.ws.send(JSON.stringify({"message": "game_started"}));
+    }
+
+    sendJSON(messageJSON){
+        this.send(JSON.stringify(messageJSON));
+    }
+
+    send(message){
+        this.ws.send(message);
     }
 
     static getDecryptedData(encryptedData){
@@ -237,7 +312,6 @@ class Client {
         encryptedData = encryptedData.toString();
 
         let dataString = SIMPLE_CRYPTOGRAPHY.decrypt(encryptedData);
-        console.log("Received data:", dataString);
         let dataJSON = JSON.parse(dataString);
         // If bad password then quit the program (This is just a fun program so doesn't have to handle these things rationally)
         if (dataJSON["password"] != SERVER_DATA["server_data"]["password"]){
@@ -249,15 +323,8 @@ class Client {
 }
 
 class ClientStateManager {
-    static prospective = 0;
-    static cancelled = 1;
-    static waiting = 2;
-    static in_game = 3;
-    static in_lobby = 4;
-    static hosting = 5;
-
     constructor(){
-        this.state = ClientStateManager.prospective;
+        this.state = PROGRAM_DATA["client_states"]["prospective"];
         this.handlers = {};
     }
 
@@ -282,11 +349,20 @@ class GameHandler {
     constructor(){
         this.game = null;
         this.lobby = null;
-        this.gameInProgress = false;
     }
 
-    startGame(){
-        this.game = new Dogfight(this.lobby.dissolve());
+    end(){
+        this.game.end();
+        this.game = null;
+    }
+
+    gameInProgress(){
+        return this.game != null;
+    }
+
+    async startGame(){
+        this.game = new ServerDogFight(this.lobby.dissolve());
+        this.lobby = null;
     }
 
     isInProgress(){
@@ -315,7 +391,7 @@ class GameHandler {
             this.lobby.handleDisconnect(username);
         }else if (this.gameInProgress()){
             // If there is a game in progress then kill the player
-            this.game.playerDisconnected(username); // TODO: Implement this method
+            this.game.playerDisconnected(username);
         }
         // Else nothing needs to be done here
     }
@@ -324,7 +400,7 @@ class GameHandler {
         this.lobby.destroy();
     }
 
-    updateFromUser(planeUpdate){
+    updateFromUser(planeUpdate){ 
         this.game.newPlaneJSON(planeUpdate);
     }
 
@@ -332,19 +408,23 @@ class GameHandler {
         let responseJSON = {};
         let serverFree = !this.isInProgress() && !this.isLobbyInProgress();
         responseJSON["server_free"] = serverFree;
+        responseJSON["mail_box"] = "refresh";
         // If the server is free then return this information
         if (serverFree){
             return JSON.stringify(responseJSON);
         }
         // If server is not free return reason
-        responseJSON["server_details"] = "";
         if (this.isInProgress()){
             responseJSON["server_details"] = "Game in progress.";
         }else{
             responseJSON["server_details"] = this.lobby.getType();
         }
-        serverResponse["game_in_progress"] = this.isInProgress();
+        responseJSON["game_in_progress"] = this.isInProgress();
         return JSON.stringify(responseJSON);
+    }
+
+    getState(){
+        return this.game.getLastState();
     }
 }
 
@@ -398,6 +478,15 @@ class Lobby {
         // One of the other players left
         this.participants.deleteWithCondition((participantName) => { return participantName == username; })
     }
+
+    updateSettings(newSettingsJSON){
+        // TODO: Something here dogfight -> mission, mission1 -> mission2, mission2 -> mission1
+        this.gameModeSetup.updateSettings(newSettingsJSON);
+    }
+
+    async getHostClient(){
+        return await SERVER.findClient(this.host);
+    }
 }
 
 class GamemodeSetup {
@@ -409,14 +498,16 @@ class GamemodeSetup {
 class DogfightSetup extends GamemodeSetup {
     constructor(){
         super();
-        this.botCounts = this.createBotCounts();
+        this.botCounts = {};
+        this.createBotCounts();
         this.allyDifficulty = "easy";
         this.axisDifficulty = "easy";
+        this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
     }
 
     createBotCounts(){
         for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
-            this.planeCounts[planeName] = 0;
+            this.botCounts[planeName] = 0;
         }
     }
 
@@ -440,7 +531,15 @@ class DogfightSetup extends GamemodeSetup {
         jsonRep["planeCounts"] = this.botCounts;
         jsonRep["allyDifficulty"] = this.allyDifficulty;
         jsonRep["axisDifficulty"] = this.axisDifficulty;
+        jsonRep["bullet_physics_enabled"] = this.bulletPhysicsEnabled;
         return jsonRep;
+    }
+
+    updateSettings(newSettingsJSON){
+        this.botCounts = newSettingsJSON["bot_counts"];
+        this.allyDifficulty = newSettingsJSON["ally_difficulty"];
+        this.axisDifficulty = newSettingsJSON["axis_difficulty"];
+        this.bulletPhysicsEnabled = newSettingsJSON["bullet_physics_enabled"];
     }
 }
 

@@ -1,3 +1,10 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    FighterPlane = require("../../scripts/plane/fighter_plane/fighter_plane.js");
+    helperFunctions = require("../../scripts/general/helper_functions.js");
+    onSameTeam = helperFunctions.onSameTeam;
+    Radar = require("../../scripts/radar/radar.js");
+}
 /*
     Class Name: PlaneRadar
     Description: A subclass of Radar. Specifically for planes.
@@ -25,7 +32,7 @@ class PlaneRadar extends Radar {
     update(){
         this.radarData = this.resetRadar();
         // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
-        for (let plane of scene.getPlanes()){
+        for (let plane of this.plane.getScene().getPlanes()){
             if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
                 this.placeOnRadar(plane.getX(), plane.getY(), "#db655c");
             }else if (plane instanceof BomberPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
@@ -36,7 +43,7 @@ class PlaneRadar extends Radar {
         }
 
         // Add all buildings to radar
-        for (let building of scene.getBuildings()){
+        for (let building of this.plane.getScene().getBuildings()){
             this.placeOnRadar(building.getCenterX(), building.getCenterY(), "#919191");
         }
     }
@@ -68,4 +75,9 @@ class PlaneRadar extends Radar {
             this.radarData[this.size/2+xOffsetAmount][this.size/2-1-yOffsetAmount] = colour;
         }
     }
+}
+
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = PlaneRadar;
 }

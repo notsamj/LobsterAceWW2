@@ -1,3 +1,12 @@
+// If using NodeJS -> Do required imports
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    TickLock = require("../../general/tick_lock.js");
+    BomberPlane = require("./bomber_plane.js");
+    var helperFunctions = require("../general/helper_functions.js");
+    angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
+}
+
 /*
     Class Name: BiasedCampaignBotBomberPlane
     Description: A subclass of the BomberPlane with biases for its actions and the task at bombing all buildings.
@@ -333,4 +342,9 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         if (!(bombHitX >= buildingInfo["first_building"] && bombHitX <= buildingInfo["last_building"])){ return; }
         this.decisions["bombing"] = true;
     }
+}
+
+// If using Node JS Export the class
+if (typeof window === "undefined"){
+    module.exports = BiasedCampaignBotBomberPlane;
 }

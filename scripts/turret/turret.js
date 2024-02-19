@@ -1,3 +1,10 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../data/data_json.js");
+    helperFunctions = require("../general/helper_functions.js");
+    angleBetweenCWDEG = helperFunctions.angleBetweenCWDEG;
+    Bullet = require("../bullet.js");
+}
 /*
     Class Name: Turret
     Description: Abstract class representing a Turret
@@ -150,4 +157,9 @@ class Turret {
     // Abstract
     getShootingAngle(){}
     getID(){}
+}
+
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = Turret;
 }

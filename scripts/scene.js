@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    NotSamLinkedList = require("../scripts/notsam_linked_list.js");
+    NotSamLinkedList = require("./general/notsam_linked_list.js");
 }
 
 var images = {};

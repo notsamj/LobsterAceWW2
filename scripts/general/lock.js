@@ -41,6 +41,25 @@ class Lock {
         return !this.isReady();
     }
 
+    // TODO: Comments
+    notLocked(){
+        return this.isReady();
+    }
+
+    // TODO: Comments
+    isLocked(){
+        return !this.isReady();
+    }
+
+    // TODO: Comments
+    isOpen(){
+        return this.isReady();
+    }
+
+    isUnlocked(){
+        return this.isReady();
+    }
+
     /*
         Method Name: lock
         Method Parameters: None

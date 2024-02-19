@@ -1,3 +1,7 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    Entity = require("./entity.js");
+}
 /*
     Class Name: Building
     Description: A simple grey building that exists to be displayed and destroyed
@@ -135,4 +139,8 @@ class Building extends Entity {
         building.setDead(rep["dead"]);
         return building;
     }
+}
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = Building;
 }

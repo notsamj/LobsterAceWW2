@@ -4,6 +4,7 @@ const USER_DATA = {
         "password": "myPassword",
         "server_ip": "localhost",
         "server_port": "8080",
+        "secret_seed": 99
     }
 }
 if (typeof window === "undefined"){

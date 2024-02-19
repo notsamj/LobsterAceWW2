@@ -2,6 +2,7 @@
     Class Name: ServerConnection
     Description: An object used for handling server connections.
     TODO: Comment this class
+    TODO: Encryption and decryption
 */
 class ServerConnection {
     /*
@@ -28,46 +29,113 @@ class ServerConnection {
             this.openedLock.unlock();
         });
         this.socket.addEventListener("message", (event) => {
-            for (let [callback, callbackIndex] of this.messageCallbacks){
-                callback.complete(event.data);
+            let data = event.data;
+            if (MAIL_SERVICE.deliver(data)){
+                return;
             }
-            this.messageCallbacks.clear();
+            this.handledByDefault(data);
         });
         this.socket.addEventListener("error", (event) => {
             menuManager.addTemporaryMessage("Connection to server failed.", "red", 5000);
         });
+        this.heartBeatInterval = setInterval(() => { this.heartBeat(); }, 9000);
         // Wait for connection to open (or give up after 5 seconds)
         await this.openedLock.awaitUnlock();
         // Send the password
         console.log("Sending the password...")
-        let data = {
-            "password": USER_DATA["server_data"]["password"],
-            "username": USER_DATA["name"]
-        }
         // Check for success -> if not success then display message
-        let response = await MessageResponse.sendAndReceiveJSON(this.socket, data, this, 5000);
+        let response = await MAIL_SERVICE.sendJSON("setup", { "username": USER_DATA["name"] });
         // If null -> no response
         if (response == null){
             menuManager.addTemporaryMessage("No response from the server.", "red", 5000);
         }else if (response["success"] == false){
             menuManager.addTemporaryMessage("Failed to connect: " + response["reason"], "red", 5000);
         }
+        console.log("Logged in");
+    }
+
+    handledByDefault(data){
+        if (this.isErrorMessage(data)){
+            this.handleError(data);
+            return true;
+        }
+        if (this.handleHeartbeat(data)){
+            return true;
+        }
+        if (this.startGameMessage(data)){
+            return true;
+        }
+        return false;
+    }
+
+    startGameMessage(data){
+        let dataJSON = JSON.parse(data);
+        if (!objectHasKey(dataJSON, "message")){
+            return false;
+        }
+        if (dataJSON["message"] == "game_started"){
+            let translator = new DogfightRemoteTranslator();
+            activeGameMode = new DogfightClient(translator);
+            menuManager.switchTo("game");
+            return true;
+        }
+        return false;
+    }
+
+    handleHeartbeat(data){
+        let dataJSON = JSON.parse(data);
+        if (dataJSON["action"] == "ping"){
+            this.sendJSON({ "action": "pong" });
+            return true;
+        }
+        return false;
     }
 
     /*
         Return value: JSON if got a response, false if not
     */
-    async request(){
+    async refresh(){
         if (!this.isSetup()){ await this.setupConnection(); }
-        let data = {
-            "action": "refresh",
-            "password": USER_DATA["server_data"]["password"]
-        }
-        let response = await MessageResponse.sendAndReceiveJSON(this.socket, data, this, 5000);
+        return await MAIL_SERVICE.sendJSON("refresh", { "action": "refresh" });
+    }
+
+    async hostRequest(){
+        return await MAIL_SERVICE.sendJSON("host", { "action": "host" });
+    }
+
+    async joinRequest(){
+        return await MAIL_SERVICE.sendJSON("join", { "action": "join" });
+    }
+
+    async hostUpdateSettings(newSettings){
+        this.sendJSON({ "action": "update_settings", "new_settings": newSettings });
+    }
+
+    async updateUserPreference(newPlaneType){
+        this.sendJSON({ "action": "plane_update", "plane_update": newPlaneType });
+    }
+
+    async heartBeat(){
+       let response = await MAIL_SERVICE.sendJSON("heartbeat", { "action": "ping" });
         if (!response){
+            menuManager.addTemporaryMessage("Heartbeat failed.", "red", 10000);
+            clearInterval(this.heartBeatInterval);
             return false;
         }
         return response;
+    }
+
+    async sendMail(jsonObject, mailBox, timeout=1000){
+        return await MAIL_SERVICE.sendJSON(mailBox, jsonObject, timeout);
+    }
+
+    sendJSON(jsonObject){
+        jsonObject["password"] = USER_DATA["server_data"]["password"]
+        this.send(JSON.stringify(jsonObject));
+    }
+
+    send(message){
+        this.socket.send(message);
     }
 
     isSetup(){
@@ -77,41 +145,13 @@ class ServerConnection {
     addCallback(messageResponse){
         this.messageCallbacks.add(messageResponse);
     }
-}
 
-class MessageResponse {
-    constructor(serverConnection, timeout){
-        this.result = null;
-        this.completedLock = new Lock();
-        this.completedLock.lock();
-        serverConnection.addCallback(this);
-        setTimeout(() => { this.complete(); }, timeout)
+    isErrorMessage(message){
+        // TODO
+        return false;
     }
 
-    complete(result=null){
-        // If already completed return
-        if (this.completedLock.isReady()){ return; }
-        this.result = result;
-        this.completedLock.unlock();
-    }
-
-    async awaitResponse(){
-        // Wait for the lock to no longer be completed
-        await this.completedLock.awaitUnlock();
-        return this.result;
-    }
-
-    static async sendAndReceiveJSON(socket, messageJSON, serverConnection, timeout){
-        return JSON.parse(await MessageResponse.sendAndReceive(socket, JSON.stringify(messageJSON), serverConnection, timeout));
-    }
-
-    static async sendAndReceive(socket, message, serverConnection, timeout){
-        console.log("Sending:", message);
-        socket.send(message);
-        let messageResponse = new MessageResponse(serverConnection, timeout);
-        let response = await messageResponse.awaitResponse();
-        console.log("Received:", response);
-        return response;
+    handleError(message){
+        // TODO
     }
 }
-

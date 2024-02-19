@@ -554,6 +554,16 @@ const PROGRAM_DATA = {
         "text_size": 20,
         "key_colour": "#ff6700",
         "value_colour": "#0066ff"
+    },
+
+    "client_states": {
+        "prospective": 0,
+        "cancelled": 1,
+        "waiting": 2,
+        "in_game": 3,
+        "in_lobby": 4,
+        "hosting": 5
+
     }
 }
 if (typeof window === "undefined"){

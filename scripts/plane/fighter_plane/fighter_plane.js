@@ -1,6 +1,10 @@
 // If using NodeJS -> Do required imports
 if (typeof window === "undefined"){
-    CooldownLock = require("../scripts/cooldown_lock.js");
+    TickLock = require("../../general/tick_lock.js");
+    Bullet = require("../../bullet.js");
+    Plane = require("../plane.js");
+    helperFunctions = require("../../general/helper_functions.js");
+    toRadians = helperFunctions.toRadians;
 }
 /*
     Class Name: FighterPlane
@@ -74,7 +78,7 @@ class FighterPlane extends Plane {
     shoot(){
         this.scene.getSoundManager().play("shoot", this.x, this.y);
         // If using physical bullets then do it this way
-        if (PROGRAM_DATA["settings"]["use_physics_bullets"]){
+        if (this.scene.areBulletPhysicsEnabled()){
             this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
         }else{ // Fake bullets
             this.instantShot(this.getGunX(), this.getGunY(), this.getNoseAngle());
@@ -163,8 +167,8 @@ class FighterPlane extends Plane {
             // Display flash
             let rotateX = this.scene.getDisplayX(this.getInterpolatedGunX(), 0, lX);
             let rotateY = this.scene.getDisplayY(this.getInterpolatedGunY(), 0, bY);
-            let flashImageWidth = images["flash"].width;
-            let flashImageHeight = images["flash"].height;
+            let flashImageWidth = getImage("flash").width;
+            let flashImageHeight = getImage("flash").height;
 
             // Prepare the display
             translate(rotateX, rotateY);
@@ -175,7 +179,7 @@ class FighterPlane extends Plane {
             }
 
             // Display flash
-            drawingContext.drawImage(images["flash"], 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+            drawingContext.drawImage(getImage("flash"), 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){
@@ -188,7 +192,8 @@ class FighterPlane extends Plane {
     }
 
 }
-// If using Node JS Export the class
+
+// If using Node JS -> Export the class
 if (typeof window === "undefined"){
     module.exports = FighterPlane;
 }

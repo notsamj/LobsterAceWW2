@@ -1,7 +1,6 @@
 // TODO: Comment class
-class DogfightLocalTranslator extends DogfightTranslator {
+class DogfightLocalTranslator {
     constructor(dogFightJSON){
-        super();
         this.dogfight = new Dogfight(dogFightJSON);
     }
 

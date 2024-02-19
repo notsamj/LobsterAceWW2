@@ -1,3 +1,8 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../data/data_json.js");
+    Entity = require("./entity.js");
+}
 /*
     Class Name: Bomber
     Description: Bomb dropped from a plane
@@ -118,7 +123,7 @@ class Bomb extends Entity {
         Method Return: Image
     */
     getImage(){
-        return images["bomb"];
+        return getImage("bomb");
     }
 
     /*
@@ -221,4 +226,8 @@ class Bomb extends Entity {
         bomb.setDead(rep["dead"]);
         return bomb;
     }
+}
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = Bomb;
 }

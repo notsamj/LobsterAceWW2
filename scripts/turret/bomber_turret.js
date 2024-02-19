@@ -1,3 +1,8 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    Turret = require("./turret.js");
+    Bullet = require("../bullet.js");
+}
 /*
     Class Name: BomberTurret
     Description: Abstract class representing a Turret attached to a Bomber plane
@@ -55,7 +60,7 @@ class BomberTurret extends Turret {
         if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
         this.shootCD.lock();
         this.scene.getSoundManager().play("shoot", this.getX(), this.getY());
-        if (PROGRAM_DATA["settings"]["use_physics_bullets"]){
+        if (this.scene.areBulletPhysicsEnabled()){
             this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
         }else{ // Fake bullets
             this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
@@ -197,4 +202,9 @@ class BomberTurret extends Turret {
         Method Return: String
     */
     getID(){ return this.plane.getID(); }
+}
+
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = BomberTurret;
 }

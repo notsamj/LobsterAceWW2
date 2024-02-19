@@ -1,6 +1,15 @@
 // If using NodeJS then do required imports
 if (typeof window === "undefined"){
-    PROGRAM_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../../data/data_json.js");
+}
+
+// TODO: Comments
+function getImage(imageName){
+    // If using Node JS return null
+    if (typeof window === "undefined"){
+        return null;
+    }
+    return images[imageName];
 }
 
 // TODO: Comments
@@ -121,6 +130,8 @@ function safeDivide(numerator, denominator, closeToZeroAmount, valueIfCloseToZer
     Method Return: void
 */
 function getLocalStorage(key, valueIfNotFound=null){
+    // In node js, you can't access this storage
+    if (typeof window === "undefined"){ return valueIfNotFound; }
     let value = localStorage.getItem(key);
     if (value == null){
         return valueIfNotFound;
@@ -139,6 +150,8 @@ function getLocalStorage(key, valueIfNotFound=null){
     Method Return: void
 */
 function setLocalStorage(key, value){
+    // In node js, you can't access this storage
+    if (typeof window === "undefined"){ return; }
     try {
         localStorage.setItem(key, value);
     }catch(e){}
@@ -735,7 +748,7 @@ if (typeof window === "undefined"){
         rotateCWDEG,
         rotateCCWDEG,
         angleBetweenCWDEG,
-        angleBetweenCWDEG,
+        angleBetweenCCWDEG,
         lessThanDir,
         lessThanEQDir,
         nextIntInDir,
@@ -747,6 +760,20 @@ if (typeof window === "undefined"){
         listMean,
         listMedian,
         listMin,
-        listMax
+        listMax,
+        getTickMultiplier,
+        objectHasKey,
+        mergeCopyObjects,
+        copyObject,
+        appendLists,
+        safeDivide,
+        getLocalStorage,
+        setLocalStorage,
+        getScreenWidth,
+        getScreenHeight,
+        getDegreesFromDisplacement,
+        planeModelToType,
+        copyArray,
+        getImage
     }
 }

@@ -1,3 +1,10 @@
+// If using NodeJS -> Do required imports
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    Plane = require("../plane.js");
+    helperFunctions = require("../../general/helper_functions.js");
+    toRadians = helperFunctions.toRadians;
+}
 /*
     Class Name: BomberPlane
     Description: Abstract class representing a Bomber Plane
@@ -96,8 +103,8 @@ class BomberPlane extends Plane {
                 // Display flash
                 let rotateX = this.scene.getDisplayX(gun.getInterpolatedX(), 0, lX);
                 let rotateY = this.scene.getDisplayY(gun.getInterpolatedY(), 0, bY);
-                let flashImageWidth = images["flash"].width;
-                let flashImageHeight = images["flash"].height;
+                let flashImageWidth = getImage("flash").width;
+                let flashImageHeight = getImage("flash").height;
 
                 // Prepare the display
                 translate(rotateX, rotateY);
@@ -108,7 +115,7 @@ class BomberPlane extends Plane {
                 }
 
                 // Display flash
-                drawingContext.drawImage(images["flash"], 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+                drawingContext.drawImage(getImage("flash"), 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
 
                 // If facing left then turn around the display (reset)
                 if (!this.isFacingRight()){
@@ -120,4 +127,9 @@ class BomberPlane extends Plane {
             }
         }
     }
+}
+
+// If using Node JS Export the class
+if (typeof window === "undefined"){
+    module.exports = BomberPlane;
 }

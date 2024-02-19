@@ -1,14 +1,20 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    CooldownLock = require("../scripts/cooldown_lock.js");
-    PROGRAM_DATA = require("../data/data_json.js");
-    var helperFuncs = require("../scripts/helper_functions.js");
-    rotateCWDEG = helperFuncs.rotateCWDEG;
-    rotateCCWDEG = helperFuncs.rotateCCWDEG;
-    lessThanEQDir = helperFuncs.lessThanEQDir;
-    randomNumberInclusive = helperFuncs.randomNumberInclusive;
-    displacementToDegrees = helperFuncs.displacementToDegrees;
-    nextIntInDir = helperFuncs.nextIntInDir;
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    TickLock = require("../../general/tick_lock.js");
+    FighterPlane = require("./fighter_plane.js");
+    helperFunctions = require("../../general/helper_functions.js");
+    displacementToDegrees = helperFunctions.displacementToDegrees;
+    angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
+    calculateAngleDiffDEG = helperFunctions.calculateAngleDiffDEG;
+    calculateAngleDiffDEGCW = helperFunctions.calculateAngleDiffDEGCW;
+    calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
+    rotateCWDEG = helperFunctions.rotateCWDEG;
+    rotateCCWDEG = helperFunctions.rotateCCWDEG;
+    randomNumberInclusive = helperFunctions.randomNumberInclusive;
+    randomFloatBetween = helperFunctions.randomFloatBetween;
+    toDegrees = helperFunctions.toDegrees;
+    fixDegrees = helperFunctions.fixDegrees;
 }
 /*
     Class Name: BiasedBotFighterPlane

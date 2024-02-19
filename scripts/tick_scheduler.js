@@ -1,3 +1,7 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../data/data_json.js");
+}
 // TODO: Comment this class
 class TickScheduler {
     constructor(callBack, gapMS, startTime){
@@ -43,4 +47,8 @@ class TickScheduler {
     getExpectedTicks(){
         return Math.floor(((this.lastTime - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"]));
     }
+}
+// If using NodeJS -> export the class
+if (typeof window === "undefined"){
+    module.exports = TickScheduler;
 }

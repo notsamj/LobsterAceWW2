@@ -17,6 +17,8 @@ class MenuManager {
         this.soundMenu = new SoundMenu();
         this.missionStartMenu = new MissionStartMenu();
         this.campaignMenu = new CampaignMenu();
+        this.participantMenu = new ParticipantMenu();
+        this.hostMenu = new HostMenu();
         this.extraSettingsMenu = new ExtraSettingsMenu();
         this.activeMenu = this.mainMenu;
         this.temporaryMessages = new NotSamLinkedList();
@@ -183,6 +185,10 @@ class MenuManager {
             this.activeMenu = this.missionStartMenu;
         }else if (newMenu == "extraSettings"){
             this.activeMenu = this.extraSettingsMenu;
+        }else if (newMenu == "participant"){
+            this.activeMenu = this.participantMenu;
+        }else if (newMenu == "host"){
+            this.activeMenu = this.hostMenu;
         }else{
             this.activeMenu = null;
         }
@@ -213,13 +219,17 @@ class MenuManager {
             return this.missionStartMenu;
         }else if (menuName == "extraSettings"){
             return this.extraSettingsMenu;
+        }else if (newMenu == "participant"){
+            return this.participantMenu;
+        }else if (newMenu == "host"){
+            return this.hostMenu;
         }
         // Else
         return null;
     }
 
     // TODO: Needs comments
-    addTemporaryMessage(message, colour, timeMS){
+    addTemporaryMessage(message, colour, timeMS=Infinity){
         this.temporaryMessages.add(new TemporaryMessage(message, colour, timeMS));
     }
 }

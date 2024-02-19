@@ -1,9 +1,16 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Entity = require("../scripts/entity.js");
-    PROGRAM_DATA = require("../data/data_json.js");
-    CircleHitbox = require("../scripts/hitboxes.js").CircleHitbox;
-    toRadians = require("../scripts/helper_functions.js").toRadians;
+    Entity = require("../../scripts/entity.js");
+    PROGRAM_DATA = require("../../data/data_json.js");
+    CircleHitbox = require("../../scripts/general/hitboxes.js").CircleHitbox;
+    helperFunctions = require("../../scripts/general/helper_functions.js");
+    toRadians = helperFunctions.toRadians;
+    onSameTeam = helperFunctions.onSameTeam;
+    getTickMultiplier = helperFunctions.getTickMultiplier;
+    fixDegrees = helperFunctions.fixDegrees;
+    angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
+    safeDivide = helperFunctions.safeDivide;
+    calculateAngleDiffDEG = helperFunctions.calculateAngleDiffDEG;
 }
 /*
     Class Name: Plane
@@ -173,7 +180,6 @@ class Plane extends Entity {
         Method Return: void
     */
     setHealth(health){
-        console.log("aaaa")
         this.health = health;
     }
 
@@ -285,9 +291,9 @@ class Plane extends Entity {
 
         // Determine angle
         if (this.facingRight){
-            newAngle += amount * getTickMultiplier();
+            newAngle += amount;
         }else{
-            newAngle -= amount * getTickMultiplier();
+            newAngle -= amount;
         }
 
         // Ensure the angle is between 0 and 360
@@ -616,9 +622,9 @@ class Plane extends Entity {
 
         // If dead then draw the explosion instead
         if (this.isDead()){
-            scale(this.getWidth() / images["explosion"].width, this.getHeight() / images["explosion"].height);
-            drawingContext.drawImage(images["explosion"], displayX  / (this.getWidth() / images["explosion"].width), displayY / (this.getHeight() / images["explosion"].height));
-            scale(images["explosion"].width / this.getWidth(),images["explosion"].height / this.getHeight()); 
+            scale(this.getWidth() / getImage("explosion").width, this.getHeight() / getImage("explosion").height);
+            drawingContext.drawImage(getImage("explosion"), displayX  / (this.getWidth() / getImage("explosion").width), displayY / (this.getHeight() / getImage("explosion").height));
+            scale(getImage("explosion").width / this.getWidth(),getImage("explosion").height / this.getHeight()); 
             return; 
         }
 

@@ -12,7 +12,9 @@ class MultiplayerMenu extends Menu {
     */
     constructor(){
         super();
-        this.setup()
+        this.setup();
+        this.hostLock = new Lock();
+        this.joinLock = new Lock();
     }
 
     /*
@@ -42,7 +44,19 @@ class MultiplayerMenu extends Menu {
         let hostButtonX = 0;
         let hostButtonY = refreshButtonY + refreshButtonYSize;
         let hostButton = new RectangleButton("Host", "#cccccc", "#e6f5f4", hostButtonX, hostButtonY, hostButtonXSize, hostButtonYSize, async (menuInstance) => {
+            if (this.hostLock.isLocked() || this.joinLock.isLocked()){
+                return;
+            }
+            this.hostLock.lock();
+            let response = await SERVER_CONNECTION.hostRequest();
+            if (!response){
+                return;
+            }
+            if (!response["success"]){
+                return;
+            }
             menuManager.switchTo("host");
+            this.hostLock.unlock();
         });
         hostButton.disable();
         this.hostButton = hostButton;
@@ -70,7 +84,7 @@ class MultiplayerMenu extends Menu {
         this.hostButton.disable();
         this.hostButton.setColour("#cccccc");
 
-        let response = await SERVER_CONNECTION.request("refresh");
+        let response = await SERVER_CONNECTION.refresh();
         // If a response has been received
         if (response){
             this.updateScreen(response);
@@ -92,6 +106,22 @@ class MultiplayerMenu extends Menu {
         }
         // Else not able to host, server did response, so join window must be able to display
         this.joinWindow.show(response);
+    }
+
+    async join(){
+        if (this.hostLock.isLocked() || this.joinLock.isLocked()){
+            return;
+        }
+        this.joinLock.lock();
+        let response = await SERVER_CONNECTION.joinRequest();
+        if (!response){
+            return;
+        }
+        if (!response["success"]){
+            return;
+        }
+        menuManager.switchTo("participant");
+        this.joinLock.unlock();
     }
 }
 

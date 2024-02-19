@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Lock = require("../scripts/lock.js");
+    Lock = require("./lock.js");
 }
 /*
     Class Name: TickLock

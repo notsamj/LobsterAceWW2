@@ -2,7 +2,7 @@
 class DogfightClient {
     constructor(dogfightTranslator){
         this.translator = dogfightTranslator;
-        this.running = false;
+        this.running = true;
         this.stats = new AfterMatchStats();
         this.tickInProgressLock = new Lock();
         this.stateLock = new Lock();
@@ -13,9 +13,15 @@ class DogfightClient {
         this.deadCamera = null;
         this.planes = [];
         this.paused = false;
+        this.inputLock = new Lock();
         this.tickScheduler = new TickScheduler(async (realGap) => { await this.regularTick(realGap); }, PROGRAM_DATA["settings"]["ms_between_ticks"], Date.now());
         scene.enableTicks();
         this.startUp();
+    }
+
+    /// Note: Used to make sure only 1 input per real tick (not per game tick)
+    inputAllowed(){
+        return this.inputLock.isUnlocked();
     }
 
     pause(){
@@ -40,7 +46,7 @@ class DogfightClient {
     async regularTick(timeGapMS){
         if (this.tickInProgressLock.notReady()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
-
+        this.inputLock.unlock();
         // Request state from server (don't await)
         this.requestStateFromServer();
 
@@ -52,11 +58,12 @@ class DogfightClient {
 
         while (this.isRunning() && this.numTicks < expectedTicks){
             await this.gameTick(timeGapMS);
+            this.inputLock.lock();
             this.numTicks++;
         }
 
-        // Send the current position (don't await)
-        this.sendPlanePosition();
+        // Send the current position
+        await this.sendPlanePosition();
 
         // Load state from server
         this.loadStateFromServer();
@@ -104,7 +111,7 @@ class DogfightClient {
         if (this.userEntity instanceof SpectatorCamera || this.userEntity.isDead()){
             return;
         }
-        this.translator.sendPlanePosition(this.userEntity.toJSON());
+        await this.translator.sendPlanePosition(this.userEntity.toJSON());
     }
 
     async loadStateFromServer(){
@@ -188,6 +195,7 @@ class DogfightClient {
                 }
                 this.planes.push(plane);
             }else{
+                console.log("Bot plane", planeObject)
                 let plane;
                 if (planeModelToType([planeObject["basic"]["plane_class"]]) == "Fighter"){
                     plane = BiasedBotFighterPlane.fromJSON(planeObject, scene, false);

@@ -1,7 +1,14 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../data/data_json.js");
+    TickLock = require("../general/tick_lock.js");
+    BotBomberTurret = require("./bot_bomber_turret.js");
+    helperFunctions = require("../general/helper_functions.js");
+    fixDegrees = helperFunctions.fixDegrees;
+}
 /*
     Class Name: BiasedBotBomberTurret
     Description: A subclass of the BotBomberTurret with biases for its actions
-    Note: (TODO) This is a WORK IN PROGRESS but functional just no biases currently active
 */
 class BiasedBotBomberTurret extends BotBomberTurret {
     /*
@@ -64,4 +71,9 @@ class BiasedBotBomberTurret extends BotBomberTurret {
     static create(gunObject, scene, plane, biases){
         return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane, biases, autonomous);
     }
+}
+
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = BiasedBotBomberTurret;
 }

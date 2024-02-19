@@ -1,3 +1,11 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    TickLock = require("../../general/tick_lock.js");
+    FighterPlane = require("./fighter_plane.js");
+    PlaneRadar = require("../../radar/plane_radar.js");
+    CooldownLock = require("../../general/cooldown_lock.js");
+}
 /*
     Class Name: HumanFighterPlane
     Description: A fighter plane operated by a human
@@ -25,6 +33,7 @@ class HumanFighterPlane extends FighterPlane {
         this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
         this.autonomous = autonomous;
+        this.userPositionUpdateLock = new CooldownLock(1000); // TODO: Needed?
     }
 
     // TODO: Comments
@@ -53,8 +62,8 @@ class HumanFighterPlane extends FighterPlane {
 
     // TODO: Comments
     fromJSON(rep, tickDifference=0){
-        // If this is local then don't take decisions from server
-        if (this.autonomous){
+        // If this is local and the plane owned by the user then don't take decisions from server
+        if (this.autonomous && this.isLocal()){
             this.id = rep["basic"]["id"];
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
@@ -67,7 +76,21 @@ class HumanFighterPlane extends FighterPlane {
             this.speed = rep["basic"]["speed"];
             this.health = rep["basic"]["health"];
             this.startingHealth = rep["basic"]["starting_health"];
-        }else{ // If server then take decisions from local
+        }else if (!this.autonomous && !this.isLocal()){ // If server then take decisions from local
+            this.decisions = rep["decisions"];
+        }else{ // This is running in a browser but the user does not control this plane
+            this.id = rep["basic"]["id"];
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+            this.x = rep["basic"]["x"];
+            this.y = rep["basic"]["y"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
+            this.throttle = rep["basic"]["throttle"];
+            this.speed = rep["basic"]["speed"];
+            this.health = rep["basic"]["health"];
+            this.startingHealth = rep["basic"]["starting_health"];
             this.decisions = rep["decisions"];
         }
 
@@ -136,7 +159,7 @@ class HumanFighterPlane extends FighterPlane {
     // TODO: Comments
     makeDecisions(){
         // Sometimes the human will be controlled by the external input so don't make decisions
-        if (!this.autonomous){
+        if (!this.autonomous || !activeGameMode.inputAllowed()){
             return;
         }
         this.resetDecisions();
@@ -263,4 +286,8 @@ class HumanFighterPlane extends FighterPlane {
         }
         this.decisions["shoot"] = true;
     }
+}
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = HumanFighterPlane;
 }

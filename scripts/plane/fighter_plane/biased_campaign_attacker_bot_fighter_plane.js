@@ -1,3 +1,11 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    BiasedBotFighterPlane = require("./biased_bot_fighter_plane.js");
+    helperFunctions = require("../general/helper_functions.js");
+    calculateAngleDiffDEGCW = helperFunctions.calculateAngleDiffDEGCW;
+    calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
+}
 /*
     Class Name: BiasedCampaignAttackerBotFighterPlane
     Description: A bot fighter plane who is flying with a bomber to attack targets
@@ -189,4 +197,8 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         let biases = BiasedBotFighterPlane.createBiases(difficulty);
         return new BiasedCampaignAttackerBotFighterPlane(planeClass, scene, biases);
     }
+}
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = BiasedCampaignAttackerBotFighterPlane;
 }

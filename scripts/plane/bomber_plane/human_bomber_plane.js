@@ -1,3 +1,12 @@
+// If using NodeJS -> Do required imports
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    TickLock = require("../../general/tick_lock.js");
+    BomberPlane = require("./bomber_plane.js");
+    HumanBomberTurret = require("../../turret/human_bomber_turret.js");
+    helperFunctions = require("../../general/helper_functions.js");
+    calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
+}
 /*
     Class Name: HumanBomberPlane
     Description: A bomber plane operated by a human
@@ -64,15 +73,36 @@ class HumanBomberPlane extends BomberPlane {
 
     // TODO: Comments
     fromJSON(rep){
-        // If running locally only take some attributes
-        if (this.autonomous){
+        // If this is local and the plane owned by the user then don't take decisions from server
+        if (this.autonomous && this.isLocal()){
+            this.id = rep["basic"]["id"];
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+            this.x = rep["basic"]["x"];
+            this.y = rep["basic"]["y"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
+            this.throttle = rep["basic"]["throttle"];
+            this.speed = rep["basic"]["speed"];
+            this.health = rep["basic"]["health"];
+            this.startingHealth = rep["basic"]["starting_health"];
+            this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
+            for (let i = 0; i < this.guns.length; i++){
+                this.gun.fromJSON(rep["guns"][i]);
+            }
+        }else if (!this.autonomous && !this.isLocal()){ // If server then take decisions from local
+            this.decisions = rep["decisions"];
+            for (let i = 0; i < this.guns.length; i++){
+                this.gun.fromJSON(rep["guns"][i]);
+            }
+        }else{ // This is running in a browser but the user does not control this plane
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
             this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
             for (let i = 0; i < this.guns.length; i++){
                 this.gun.fromJSON(rep["guns"][i]);
             }
-        }else{ // Otherwise take everything
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
             this.facingRight = rep["basic"]["facing_right"];
@@ -336,4 +366,9 @@ class HumanBomberPlane extends BomberPlane {
             this.decisions["throttle"] = -1;
         }
     }
+}
+
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = HumanBomberPlane;
 }

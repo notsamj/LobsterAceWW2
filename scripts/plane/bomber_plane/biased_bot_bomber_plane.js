@@ -1,3 +1,17 @@
+// If using NodeJS -> Do required imports
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    TickLock = require("../../general/tick_lock.js");
+    BomberPlane = require("./bomber_plane.js");
+    BiasedBotFighterPlane = require("../fighter_plane/biased_bot_fighter_plane.js");
+    helperFunctions = require("../../general/helper_functions.js");
+    displacementToDegrees = helperFunctions.displacementToDegrees;
+    angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
+    calculateAngleDiffDEG = helperFunctions.calculateAngleDiffDEG;
+    calculateAngleDiffDEGCW = helperFunctions.calculateAngleDiffDEGCW;
+    calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
+}
+
 /*
     Class Name: BiasedBotBomberPlane
     Description: A subclass of the BomberPlane that is a bot with biases for its actions
@@ -477,4 +491,9 @@ class BiasedBotBomberPlane extends BomberPlane {
     getCurrentEnemy(){
         return this.currentEnemy;
     }
+}
+
+// If using Node JS Export the class
+if (typeof window === "undefined"){
+    module.exports = BiasedBotBomberPlane;
 }

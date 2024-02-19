@@ -1,8 +1,21 @@
+const PlaneGameScene = require("../scripts/plane_game_scene.js");
+const SoundManager = require("../scripts/general/sound_manager.js");
+const AfterMatchStats = require("../scripts/after_match_stats.js");
+const TickScheduler = require("../scripts/tick_scheduler.js");
+const Lock = require("../scripts/general/lock.js");
+const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
+const helperFunctions = require("../scripts/general/helper_functions.js");
+
+const HumanFighterPlane = require("../scripts/plane/fighter_plane/human_fighter_plane.js");
+const HumanBomberPlane = require("../scripts/plane/bomber_plane/human_bomber_plane.js");
+const BiasedBotBomberPlane = require("../scripts/plane/bomber_plane/biased_bot_bomber_plane.js");
+const BiasedBotFighterPlane = require("../scripts/plane/fighter_plane/biased_bot_fighter_plane.js");
+
 // TODO: This class needs comments
 class ServerDogfight {
-    constructor(dogFightJSON, bulletPhysicsEnabled=false){
+    constructor(dogFightJSON){
         this.winner = null;
-        this.bulletPhysicsEnabled = bulletPhysicsEnabled;
+        this.bulletPhysicsEnabled = dogFightJSON["bullet_physics_enabled"];
         this.isATestSession = this.isThisATestSession(dogFightJSON);
         this.numTicks = 0;
 
@@ -11,8 +24,10 @@ class ServerDogfight {
 
         this.scene = new PlaneGameScene(this.soundManager);
         this.scene.enableTicks();
+        this.scene.setBulletPhysicsEnabled(this.bulletPhysicsEnabled);
         this.scene.setStatsManager(this.stats);
 
+        this.planes = [];
         this.createPlanes(dogFightJSON);
         this.scene.setEntities(this.planes);
 
@@ -23,6 +38,14 @@ class ServerDogfight {
         this.running = true;
         this.paused = false;
         this.lastState = this.generateState();
+    }
+
+    playerDisconnected(username){
+        for (let plane of this.planes){
+            if (plane.getID() == username){
+                plane.die();
+            }
+        }
     }
 
     pause(){
@@ -159,7 +182,6 @@ class ServerDogfight {
 
 
     createPlanes(dogFightJSON){
-        this.planes = [];
         let allyX = PROGRAM_DATA["dogfight_settings"]["ally_spawn_x"];
         let allyY = PROGRAM_DATA["dogfight_settings"]["ally_spawn_y"];
         let axisX = PROGRAM_DATA["dogfight_settings"]["axis_spawn_x"];
@@ -169,25 +191,25 @@ class ServerDogfight {
         // Add users
         for (let user of dogFightJSON["users"]){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
-            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this.scene, 0, true, false) : new HumanBomberPlane(userEntityModel, this.scene, 0, true, false);
-            userPlane.setCenterX(planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
-            userPlane.setCenterY(planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY);
-            userPlane.setFacingRight((planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);
+            let userPlane = helperFunctions.planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this.scene, 0, true, false) : new HumanBomberPlane(userEntityModel, this.scene, 0, true, false);
+            userPlane.setCenterX(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
+            userPlane.setCenterY(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY);
+            userPlane.setFacingRight((helperFunctions.planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);
             userPlane.setID(user["id"]);
             this.planes.push(userPlane);
         }
 
         // Add bots
         for (let [planeName, planeCount] of Object.entries(dogFightJSON["planeCounts"])){
-            let allied = (planeModelToAlliance(planeName) == "Allies");
+            let allied = (helperFunctions.planeModelToAlliance(planeName) == "Allies");
             let x = allied ? allyX : axisX; 
             let y = allied ? allyY : axisY;
-            let facingRight = (planeModelToAlliance(planeName) == "Allies") ? allyFacingRight : !allyFacingRight;
+            let facingRight = (helperFunctions.planeModelToAlliance(planeName) == "Allies") ? allyFacingRight : !allyFacingRight;
             for (let i = 0; i < planeCount; i++){
-                let aX = x + randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
-                let aY = y + randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
+                let aX = x + helperFunctions.randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
+                let aY = y + helperFunctions.randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
                 let botPlane;
-                if (planeModelToType(planeName) == "Fighter"){
+                if (helperFunctions.planeModelToType(planeName) == "Fighter"){
                     botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this.scene, allied ? dogFightJSON["allyDifficulty"] : dogFightJSON["axisDifficulty"], true);
                 }else{
                     botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this.scene, allied ? dogFightJSON["allyDifficulty"] : dogFightJSON["axisDifficulty"], true);
@@ -217,7 +239,6 @@ class ServerDogfight {
 
     async newPlaneJSON(planeJSON){
         await this.userInputLock.awaitUnlock(true);
-        
         // Remove a previous instance if present (assume only 1)
         for (let [planeObject, planeIndex] of this.userInputQueue){
             if (planeJSON["id"] == planeObject["id"]){
@@ -231,3 +252,4 @@ class ServerDogfight {
         this.userInputLock.unlock();
     }
 }
+module.exports=ServerDogfight;

@@ -1,3 +1,9 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    BomberTurret = require("./bomber_turret.js");
+    helperFunctions = require("../general/helper_functions.js");
+    displacementToDegrees = helperFunctions.displacementToDegrees;
+}
 /*
     Class Name: BotBomberTurret
     Description: Abstract Class representing a Turret attached to a Bomber plane that is operated by the computer
@@ -109,7 +115,7 @@ class BotBomberTurret extends BomberTurret {
         // If the distance is acceptable then the shot is good
         if (distanceToEnemy < this.plane.getMaxShootingDistance()){
             // Either physics bullets OR don't shoot past the limit of instant shot
-            if (PROGRAM_DATA["settings"]["use_physics_bullets"] || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
+            if (this.scene.areBulletPhysicsEnabled() || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
                 return true;
             }
         }
@@ -131,4 +137,9 @@ class BotBomberTurret extends BomberTurret {
     static create(gunObject, scene, plane){
         return new BotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane);
     }
+}
+
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = BotBomberTurret;
 }

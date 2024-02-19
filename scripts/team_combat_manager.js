@@ -1,8 +1,9 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    NotSamLinkedList = require("../scripts/notsam_linked_list.js");
-    NotSamArrayList = require("../scripts/notsam_array_list.js");
-    planeModelToAlliance = require("../scripts/helper_functions.js").planeModelToAlliance;
+    NotSamLinkedList = require("./general/notsam_linked_list.js");
+    NotSamArrayList = require("./general/notsam_array_list.js");
+    planeModelToAlliance = require("./general/helper_functions.js").planeModelToAlliance;
+    AfterMatchStats = require("./after_match_stats.js");
 }
 /*
     Class Name: TeamCombatManager
@@ -14,14 +15,17 @@ class TeamCombatManager {
         Method Parameters:
             teams:
                 The names of the alliances
+            scene:
+                A plane game scene
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(teams){
+    constructor(teams, scene){
         this.planes = {};
         this.bullets = {};
         this.teams = teams;
         this.stats = new AfterMatchStats();
+        this.scene = scene;
         this.clear();
     }
 
@@ -201,9 +205,9 @@ class TeamCombatManager {
         }
 
         // For each bomb check each building for collisions
-        for (let [entity, eI] of scene.getEntities()){
+        for (let [entity, eI] of this.scene.getEntities()){
             if (entity instanceof Building){
-                for (let [entity2, eI2] of scene.getEntities()){
+                for (let [entity2, eI2] of this.scene.getEntities()){
                     if (entity2 instanceof Bomb){
                         let building = entity;
                         let bomb = entity2;

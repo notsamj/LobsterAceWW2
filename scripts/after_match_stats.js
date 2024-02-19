@@ -1,3 +1,8 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    helperFunctions = require("../scripts/general/helper_functions.js");
+    objectHasKey = helperFunctions.objectHasKey;
+}
 /*
     Class Name: AfterMatchStats
     Description: Records the events taking place in a Dogfight for later review
@@ -53,10 +58,10 @@ class AfterMatchStats {
         Method Return: void
     */
     addPlayerKill(userName, alliance){
-        if (!objectHasKey(this.playerKillCounts["kills"][alliance], userName)){
-            this.playerKillCounts["kills"][alliance][userName] = 1;
+        if (!objectHasKey(this.playerKillCounts[alliance], userName)){
+            this.playerKillCounts[alliance][userName] = 1;
         }else{
-            this.playerKillCounts["kills"][alliance][userName] += 1;
+            this.playerKillCounts[alliance][userName] += 1;
         }
     }
 
@@ -139,6 +144,7 @@ class AfterMatchStats {
         let allyText = this.makeTeamText("Allies");
         
         // Make winner text
+        debugger;
         Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(getScreenHeight()), Math.floor(getScreenWidth()*0.75), Math.floor(getScreenHeight()/3));
         Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), CENTER, CENTER);
         Menu.makeText(axisText, AfterMatchStats.getTeamColour("Axis"), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), CENTER, CENTER);
@@ -169,4 +175,9 @@ class AfterMatchStats {
         this.playerKillCounts = statsObject["player_kills"];
         this.botKillCounts = statsObject["bot_kills"];
     }
+}
+
+// If using NodeJS then export the lock class
+if (typeof window === "undefined"){
+    module.exports = AfterMatchStats;
 }

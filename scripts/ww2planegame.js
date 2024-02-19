@@ -16,6 +16,8 @@ var performanceTimer = new PerformanceTimer();
 const CLOUD_MANAGER = new CloudManager();
 const HEADS_UP_DISPLAY = new HUD();
 const SERVER_CONNECTION = new ServerConnection();
+const MAIL_SERVICE = new MailService();
+const PROGRAM_TESTER = new ProgramTester();
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
