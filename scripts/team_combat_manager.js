@@ -411,7 +411,7 @@ class TeamCombatManager {
         let shooter = this.getEntity(bullet.getShooterID());
         // If human 
         if (shooter.isHuman()){
-            this.stats.addPlayerKill(planeModelToAlliance(shooter.getPlaneClass()));
+            this.stats.addPlayerKill(shooter.getID(), planeModelToAlliance(shooter.getPlaneClass()));
         }else{
             this.stats.addBotKill(shooter.getPlaneClass());
         }

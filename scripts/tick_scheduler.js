@@ -38,6 +38,14 @@ class TickScheduler {
         this.startTime = startTime;
     }
 
+    timeSinceLastExpectedTick(time){
+        return (time - this.startTime) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+    }
+
+    timeSinceLastActualTick(time){
+        return time - this.getLastTime();
+    }
+
     /*
         Method Name: getExpectedTicks
         Method Parameters: None
@@ -45,7 +53,12 @@ class TickScheduler {
         Method Return: long
     */
     getExpectedTicks(){
-        return Math.floor(((this.lastTime - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"]));
+        return Math.floor(this.getExpectedTicksToTime(this.lastTime));
+    }
+
+    // TODO: Comments
+    getExpectedTicksToTime(time){
+        return (time - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"];
     }
 }
 // If using NodeJS -> export the class

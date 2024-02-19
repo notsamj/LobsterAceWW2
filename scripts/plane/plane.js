@@ -589,10 +589,17 @@ class Plane extends Entity {
         if (activeGameMode.paused || !activeGameMode.isRunning() || this.isDead()){
             return;
         }
-        let t = currentTime - activeGameMode.tickScheduler.getLastTime();
-        let newPositionValues = this.getNewPositionValues(t);
+        let extraTime = (currentTime - (activeGameMode.tickScheduler.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks));
+        let newPositionValues = this.getNewPositionValues(extraTime);
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
+        if (Math.abs(this.x - this.interpolatedX) > 500){
+            console.log("aaaaa", this.x, this.interpolatedX);
+        }
+        // This sort of works its a tiny bit shakey for a straight line
+        //this.interpolatedX = this.x + this.speed * (currentTime - (activeGameMode.tickScheduler.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks)) / 1000;
+        // This works for smooth performance when going in a straight line
+        // this.interpolatedX = 50e3 + 594 * (currentTime - activeGameMode.tickScheduler.startTime) / 1000; 
     }
 
 
