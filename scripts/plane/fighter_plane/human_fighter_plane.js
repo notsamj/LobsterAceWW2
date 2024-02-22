@@ -64,8 +64,6 @@ class HumanFighterPlane extends FighterPlane {
     // TODO: Comments
     fromJSON(rep, tickDifference=0){
         let takePosition = !this.autonomous && rep["modificationCount"] > this.modificationCount;
-        // TEMP
-        //takePosition = true;
         // If this is local and the plane owned by the user then don't take decisions from server
         if (this.autonomous && this.isLocal()){
             this.health = rep["basic"]["health"];

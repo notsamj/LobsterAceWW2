@@ -240,10 +240,21 @@ class ServerDogfight {
     async newPlaneJSON(planeJSON){
         await this.userInputLock.awaitUnlock(true);
         // Remove a previous instance if present (assume only 1)
+        let previousInput = null;
         for (let [planeObject, planeIndex] of this.userInputQueue){
             if (planeJSON["id"] == planeObject["id"]){
-                this.userInputQueue.remove(planeIndex);
+                previousInput = this.userInputQueue.pop(planeIndex);
                 break;
+            }
+        }
+
+        // If a previous input exists, merge it
+        if (previousInput != null){
+            for (let key of Object.keys(planeJSON)){
+                // Merge all 0 values with non-zero values of previous input so that changes aren't overridden
+                if (planeJSON[key] == 0 && previousInput[key] != 0){
+                    planeJSON[key] = previousInput[key];
+                }
             }
         }
 

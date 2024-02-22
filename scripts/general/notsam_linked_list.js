@@ -328,6 +328,7 @@ class NotSamLinkedList{
                 Index at which to pop the element
         Method Description: Remove the element and return it
         Method Return: Object (Unknown type)
+        Note: This is inefficient because of 2d complexity where d = index
     */
     pop(index){
         if (!((index >= 0 && index < this.getSize()))){

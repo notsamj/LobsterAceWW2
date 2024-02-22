@@ -77,8 +77,9 @@ class BiasedBotFighterPlane extends FighterPlane {
         if (!this.autonomous){
             return;
         }
-        this.resetDecisions();
         let startingDecisions = copyObject(this.decisions);
+        this.resetDecisions();
+        
         if (this.updateEnemyLock.isReady()){
             this.updateEnemyLock.lock();
             // Check if the selected enemy should be changed
@@ -90,7 +91,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         }else{ // No enemy ->
             this.handleWhenNoEnemy();
         }
-
+        
         // Check if decisions have been modified
         if (!FighterPlane.doDecisionsMatch(startingDecisions, this.decisions)){
             this.modificationCount++;
@@ -109,13 +110,11 @@ class BiasedBotFighterPlane extends FighterPlane {
 
         // Change facing direction
         if (this.decisions["face"] != 0){
-            this.decisions["face"] = 0;
             this.face(this.decisions["face"] == 1 ? true : false);
         }
 
         // Adjust angle
         if (this.decisions["angle"] != 0){
-            this.decisions["angle"] = 0;
             if (this.rotationCD.isReady()){
                 this.rotationCD.lock();
                 this.adjustAngle(this.decisions["angle"]);
@@ -124,7 +123,6 @@ class BiasedBotFighterPlane extends FighterPlane {
 
         // Adjust throttle
         if (this.decisions["throttle"] != 0){
-            this.decisions["throttle"] = 0;
             this.adjustThrottle(this.decisions["throttle"]);
         }
     }
@@ -160,8 +158,6 @@ class BiasedBotFighterPlane extends FighterPlane {
     fromJSON(rep, tickDifference=0){
         // This is always local being received from the server
         let takePosition = rep["modificationCount"] > this.modificationCount;
-        // TEMP
-        //takePosition = true;
         if (takePosition){
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
@@ -358,7 +354,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         if (this.turningDirection == null){
             this.turningDirection = this.comeUpWithEvasiveTurningDirection();
         }
-        this.adjustAngle(this.turningDirection);
+        this.decisions["angle"] = this.turningDirection;
     }
 
     /*
@@ -414,23 +410,23 @@ class BiasedBotFighterPlane extends FighterPlane {
 
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
-            this.adjustAngle(-1);
+            this.decisions["angle"] = -1;
         }
         // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
         else if (dCW < dCCW && !this.facingRight){
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
         // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
         else if (dCCW < dCW && this.facingRight){
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
         // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
         else if (dCCW < dCW && !this.facingRight){
-            this.adjustAngle(-1);
+            this.decisions["angle"] = -1;
         }
         // Otherwise just turn clockwise (Shouldn't actually be possible?)
         else{
-            this.adjustAngle(1);
+            this.decisions["angle"] = 1;
         }
 
     }

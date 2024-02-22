@@ -51,8 +51,8 @@ class DogfightClient {
         await this.tickInProgressLock.awaitUnlock(true);
         this.inputLock.unlock(); // TODO: Remove inputlock
 
-        // Request state from server (don't await)
-        this.requestStateFromServer();
+        // Load state from server
+        await this.loadStateFromServer();
 
         // Update camera
         this.updateCamera();
@@ -65,8 +65,8 @@ class DogfightClient {
         // Send the current position
         await this.sendPlanePosition();
 
-        // Load state from server
-        this.loadStateFromServer();
+        // Request state from server
+        this.requestStateFromServer();
         this.tickInProgressLock.unlock();
     }
 
@@ -120,12 +120,13 @@ class DogfightClient {
         if (state == null){ return; }
         // Check game end
         this.running = state["running"];
+        
         // If not running then load the end
         if (!this.isRunning()){
             this.stats.fromJSON(state["stats"]);
             return;
         }
-        this.numTicks = state["num_ticks"];
+        
         // Load sounds
         SOUND_MANAGER.fromSoundRequestList(state["sound_list"]);
         // Update planes
