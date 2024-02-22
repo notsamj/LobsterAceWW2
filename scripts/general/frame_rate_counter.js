@@ -50,6 +50,11 @@ class FrameRateCounter {
         return fps;
     }
 
+    // TODO: Comments
+    getMaxFPS(){
+        return this.maxFPS;
+    }
+
     /*
         Method Name: fromPastSecond
         Method Parameters: None

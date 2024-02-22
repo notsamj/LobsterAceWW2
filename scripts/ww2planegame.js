@@ -4,7 +4,6 @@ var scene;
 var menuManager;
 var setupDone = false;
 var frameCounter = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);
-var frameLock = new CooldownLock(Math.floor(1/PROGRAM_DATA["settings"]["frame_rate"]));
 var activeGameMode = null;
 var loadedPercent = 0;
 var debug = false;
@@ -22,7 +21,6 @@ USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { retu
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
 USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 84; }, false)
-var tickInterval;
 // Functions
 
 /*
@@ -36,29 +34,30 @@ async function tick(){
         runningTicksBehind++;
         console.log("Main tick loop is running %d ticks behind.", runningTicksBehind)
         if (runningTicksBehind > MAX_RUNNING_LATE){
-            clearInterval(tickInterval);
         }
         return;
     }
     mainTickLock.lock();
-    if (setupDone){
-        if (document.hidden){
-            menuManager.lostFocus();
-        }
+    if (document.hidden){
+        menuManager.lostFocus();
     }
-    if (frameLock.isReady()){
-        if (activeGameMode != null){
-            // TODO: Clean up with getter
-            await activeGameMode.tickInProgressLock.awaitUnlock(true);
-        }
-        frameLock.lock();
-        draw();
+    // Play game
+    if (activeGameMode != null){
+        // TODO: Clean up with getter
+        await activeGameMode.tickInProgressLock.awaitUnlock(true);
+        await activeGameMode.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+    }
+
+    // Draw frame
+    if (frameCounter.getFPS() < frameCounter.getMaxFPS()){
         frameCounter.countFrame();
-        if (activeGameMode != null){
-            activeGameMode.tickInProgressLock.unlock();
-        }
+        draw();
+    }
+    if (activeGameMode != null){
+        activeGameMode.tickInProgressLock.unlock();
     }
     mainTickLock.unlock();
+    requestAnimationFrame(tick);
 }
 
 /*
@@ -102,8 +101,7 @@ async function setup() {
 
     // Prepare to start running
     startTime = Date.now();
-    //tickInterval = setInterval(tick, PROGRAM_DATA["settings"]["ms_between_ticks"]);
-    tickInterval = setInterval(tick, 1);
+    requestAnimationFrame(tick);
 
     await loadPlanes();
     await loadExtraImages();

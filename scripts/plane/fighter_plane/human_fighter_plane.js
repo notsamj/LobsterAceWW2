@@ -5,6 +5,7 @@ if (typeof window === "undefined"){
     FighterPlane = require("./fighter_plane.js");
     PlaneRadar = require("../../radar/plane_radar.js");
     CooldownLock = require("../../general/cooldown_lock.js");
+    copyObject = helperFunctions.copyObject;
 }
 /*
     Class Name: HumanFighterPlane
@@ -33,7 +34,6 @@ class HumanFighterPlane extends FighterPlane {
         this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
         this.autonomous = autonomous;
-        this.userPositionUpdateLock = new CooldownLock(1000); // TODO: Needed?
     }
 
     // TODO: Comments
@@ -55,51 +55,64 @@ class HumanFighterPlane extends FighterPlane {
             "speed": this.speed,
             "health": this.health,
             "starting_health": this.startingHealth,
-            "dead": this.isDead()
+            "dead": this.isDead(),
         }
+        rep["modificationCount"] = this.modificationCount;
         return rep;
     }
 
     // TODO: Comments
     fromJSON(rep, tickDifference=0){
+        let takePosition = !this.autonomous && rep["modificationCount"] > this.modificationCount;
+        // TEMP
+        //takePosition = true;
         // If this is local and the plane owned by the user then don't take decisions from server
         if (this.autonomous && this.isLocal()){
-            this.id = rep["basic"]["id"];
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
             this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
-            this.x = rep["basic"]["x"];
-            this.y = rep["basic"]["y"];
-            this.facingRight = rep["basic"]["facing_right"];
-            this.angle = rep["basic"]["angle"];
-            this.throttle = rep["basic"]["throttle"];
-            this.speed = rep["basic"]["speed"];
             this.health = rep["basic"]["health"];
-            this.startingHealth = rep["basic"]["starting_health"];
         }else if (!this.autonomous && !this.isLocal()){ // If server then take decisions from local
             this.decisions = rep["decisions"];
         }else{ // This is running in a browser but the user does not control this plane
-            this.id = rep["basic"]["id"];
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
             this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+            this.decisions = rep["decisions"];
+        }
+
+        // If this is not the one controlling the plane and the local inputs are out of date
+        if (takePosition){
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
             this.facingRight = rep["basic"]["facing_right"];
             this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
-            this.health = rep["basic"]["health"];
-            this.startingHealth = rep["basic"]["starting_health"];
-            this.decisions = rep["decisions"];
+            // Approximate plane positions in current tick based on position in server tick
+            if (tickDifference > 0){
+                this.rollForward(tickDifference);
+            }else if (tickDifference < 0){
+                this.rollBackward(tickDifference);
+            }
         }
+    }
 
-        // Approximate plane positions in current tick based on position in server tick
-        if (tickDifference > 0){
-            this.rollForward(tickDifference);
-        }else if (tickDifference < 0){
-            this.rollBackward(tickDifference);
-        }
+    // TODO: Comments
+    initFromJSON(rep){
+        this.id = rep["basic"]["id"];
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        this.x = rep["basic"]["x"];
+        this.y = rep["basic"]["y"];
+        this.facingRight = rep["basic"]["facing_right"];
+        this.angle = rep["basic"]["angle"];
+        this.throttle = rep["basic"]["throttle"];
+        this.speed = rep["basic"]["speed"];
+        this.health = rep["basic"]["health"];
+        this.startingHealth = rep["basic"]["starting_health"];
+        this.decisions = rep["decisions"];
     }
 
     // TODO: Comments
@@ -109,8 +122,8 @@ class HumanFighterPlane extends FighterPlane {
         // For the first time even if autonomous need to set x
         // TODO: DO this for other things maybe just human bomber
         hFP.setX(rep["basic"]["x"]);
-        hFP.setY(rep["basic"]["y"])
-        hFP.fromJSON(rep)
+        hFP.setY(rep["basic"]["y"]);
+        hFP.initFromJSON(rep);
         return hFP;
     }
 
@@ -149,24 +162,22 @@ class HumanFighterPlane extends FighterPlane {
     }
 
     // TODO: Comments
-    resetDecisions(){
-        this.decisions["face"] = 0;
-        this.decisions["angle"] = 0;
-        this.decisions["shoot"] = false;
-        this.decisions["throttle"] = 0;
-    }
-
-    // TODO: Comments
     makeDecisions(){
         // Sometimes the human will be controlled by the external input so don't make decisions
         if (!this.autonomous || !activeGameMode.inputAllowed()){
             return;
         }
         this.resetDecisions();
+        let startingDecisions = copyObject(this.decisions);
         this.checkMoveLeftRight();
         this.checkUpDown();
         this.checkShoot();
         this.checkThrottle();
+        
+        // Check if decisions have been modified
+        if (!FighterPlane.doDecisionsMatch(startingDecisions, this.decisions)){
+            this.modificationCount++;
+        }
     }
 
     /*

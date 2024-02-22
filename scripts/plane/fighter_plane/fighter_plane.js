@@ -44,6 +44,26 @@ class FighterPlane extends Plane {
     }
 
     // TODO: Comments
+    resetDecisions(){
+        this.decisions["face"] = 0;
+        this.decisions["angle"] = 0;
+        this.decisions["shoot"] = false;
+        this.decisions["throttle"] = 0;
+    }
+
+    // TODO: Comments
+    static doDecisionsMatch(decisions1, decisions2){
+        let c1 = decisions1["face"] == decisions2["face"];
+        if (!c1){ return false; }
+        let c2 = decisions1["angle"] == decisions2["angle"];
+        if (!c2){ return false; }
+        let c3 = decisions1["shoot"] == decisions2["shoot"];
+        if (!c3){ return false; }
+        let c4 = decisions1["throttle"] == decisions2["throttle"];
+        return c4;
+    }
+
+    // TODO: Comments
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){

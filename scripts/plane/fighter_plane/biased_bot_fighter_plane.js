@@ -15,6 +15,7 @@ if (typeof window === "undefined"){
     randomFloatBetween = helperFunctions.randomFloatBetween;
     toDegrees = helperFunctions.toDegrees;
     fixDegrees = helperFunctions.fixDegrees;
+    copyObject = helperFunctions.copyObject;
 }
 /*
     Class Name: BiasedBotFighterPlane
@@ -77,6 +78,7 @@ class BiasedBotFighterPlane extends FighterPlane {
             return;
         }
         this.resetDecisions();
+        let startingDecisions = copyObject(this.decisions);
         if (this.updateEnemyLock.isReady()){
             this.updateEnemyLock.lock();
             // Check if the selected enemy should be changed
@@ -88,14 +90,11 @@ class BiasedBotFighterPlane extends FighterPlane {
         }else{ // No enemy ->
             this.handleWhenNoEnemy();
         }
-    }
 
-    // TODO: Comments
-    resetDecisions(){
-        this.decisions["face"] = 0;
-        this.decisions["angle"] = 0;
-        this.decisions["shoot"] = false;
-        this.decisions["throttle"] = 0;
+        // Check if decisions have been modified
+        if (!FighterPlane.doDecisionsMatch(startingDecisions, this.decisions)){
+            this.modificationCount++;
+        }
     }
 
     // TODO: Comments
@@ -153,11 +152,43 @@ class BiasedBotFighterPlane extends FighterPlane {
             "starting_health": this.startingHealth,
             "dead": this.isDead()
         }
+        rep["modificationCount"] = this.modificationCount;
         return rep;
     }
 
     // TODO: Comments
     fromJSON(rep, tickDifference=0){
+        // This is always local being received from the server
+        let takePosition = rep["modificationCount"] > this.modificationCount;
+        // TEMP
+        //takePosition = true;
+        if (takePosition){
+            this.x = rep["basic"]["x"];
+            this.y = rep["basic"]["y"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
+            this.throttle = rep["basic"]["throttle"];
+            this.speed = rep["basic"]["speed"];
+            this.modificationCount = rep["modificationCount"];
+            
+            // Approximate plane positions in current tick based on position in server tick
+            if (tickDifference > 0){
+                this.rollForward(tickDifference);
+            }else if (tickDifference < 0){
+                this.rollBackward(tickDifference);
+            }
+            
+        }
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        this.decisions = rep["decisions"];
+        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
+    }
+
+    // TODO: Comments
+    initFromJSON(rep){
+        this.id = rep["basic"]["id"];
         this.health = rep["basic"]["health"];
         this.dead = rep["basic"]["dead"];
         this.x = rep["basic"]["x"];
@@ -172,19 +203,13 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.decisions = rep["decisions"];
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
         this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
-        // Approximate plane positions in current tick based on position in server tick
-        if (tickDifference > 0){
-            this.rollForward(tickDifference);
-        }else if (tickDifference < 0){
-            this.rollBackward(tickDifference);
-        }
     }
 
     // TODO: Comments
     static fromJSON(rep, scene){
         let planeClass = rep["basic"]["plane_class"];
         let fp = new BiasedBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
-        fp.fromJSON(rep)
+        fp.initFromJSON(rep)
         return fp;
     }
 

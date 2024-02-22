@@ -14,7 +14,7 @@ class DogfightClient {
         this.planes = [];
         this.paused = false;
         this.inputLock = new Lock();
-        this.tickScheduler = new TickScheduler(async (realGap) => { await this.regularTick(realGap); }, PROGRAM_DATA["settings"]["ms_between_ticks"], Date.now());
+        this.startTime = Date.now();
         scene.enableTicks();
         this.startUp();
     }
@@ -40,27 +40,27 @@ class DogfightClient {
 
     end(){
         this.translator.end();
-        this.tickScheduler.end();
     }
 
-    async regularTick(timeGapMS){
-        if (this.tickInProgressLock.notReady()){ return; }
+    getExpectedTicks(){
+        return Math.floor((Date.now() - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+    }
+
+    async tick(timeGapMS){
+        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
-        this.inputLock.unlock();
+        this.inputLock.unlock(); // TODO: Remove inputlock
+
         // Request state from server (don't await)
         this.requestStateFromServer();
 
         // Update camera
         this.updateCamera();
 
-        // Tick until the expected number of ticks have passed
-        let expectedTicks = this.tickScheduler.getExpectedTicks();
-
-        while (this.isRunning() && this.numTicks < expectedTicks){
-            await this.gameTick(timeGapMS);
-            this.inputLock.lock();
-            this.numTicks++;
-        }
+        // Tick the scene
+        await scene.tick(timeGapMS);
+        this.inputLock.lock();
+        this.numTicks++;
 
         // Send the current position
         await this.sendPlanePosition();
@@ -68,15 +68,6 @@ class DogfightClient {
         // Load state from server
         this.loadStateFromServer();
         this.tickInProgressLock.unlock();
-    }
-
-    async gameTick(timeGapMS){
-        // Tick
-        if (!this.isRunning() || this.paused){
-            return;
-        }
-        // Tick the scene
-        await scene.tick(timeGapMS);
     }
 
     updateCamera(){
@@ -134,6 +125,7 @@ class DogfightClient {
             this.stats.fromJSON(state["stats"]);
             return;
         }
+        this.numTicks = state["num_ticks"];
         // Load sounds
         SOUND_MANAGER.fromSoundRequestList(state["sound_list"]);
         // Update planes
@@ -195,7 +187,6 @@ class DogfightClient {
                 }
                 this.planes.push(plane);
             }else{
-                console.log("Bot plane", planeObject)
                 let plane;
                 if (planeModelToType([planeObject["basic"]["plane_class"]]) == "Fighter"){
                     plane = BiasedBotFighterPlane.fromJSON(planeObject, scene, false);
@@ -223,7 +214,7 @@ class DogfightClient {
             scene.addEntity(this.userEntity);
         }
         scene.setFocusedEntity(this.userEntity);
-        this.tickScheduler.setStartTime(state["start_time"]);
+        this.startTime = state["start_time"];
         this.numTicks = state["num_ticks"];
         this.running = true;
     }
