@@ -91,7 +91,6 @@ class SceneTickManager {
         let expectedTicks = this.getExpectedTicks();
         while (this.numTicks < expectedTicks || testMode){
             testMode = false;
-            await this.scene.tick(this.tickLength);
             if (callOnTick != null && this.scene.hasTicksEnabled()){
                 await callOnTick();
             }

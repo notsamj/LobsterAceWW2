@@ -38,8 +38,8 @@ class SoundMenu extends Menu {
         // Interface for sound amounts
         let i = 0;
         this.createSoundSettings("main volume", i++);
-        for (let soundName of PROGRAM_DATA["sound_data"]["sounds"]){
-            this.createSoundSettings(soundName, i++);
+        for (let soundData of PROGRAM_DATA["sound_data"]["sounds"]){
+            this.createSoundSettings(soundData["name"], i++);
         }
 
         // Information

@@ -28,6 +28,26 @@ class HostMenu extends Menu {
         this.axisDifficulty = "easy";
     }
 
+
+    resetSettings(){
+        // Reset the settings
+        this.userPlaneIndex = 0;
+        this.alliedPlaneIndex = 0;
+        this.axisPlaneIndex = 0;
+        this.allyDifficulty = "easy";
+        this.axisDifficulty = "easy";
+
+        // Update plane counts
+        for (let key of Object.keys(this.planeCounts)){
+            this.planeCounts[key] = 0;
+        }
+
+        // Update the UI
+        this.userPlaneStaticImage.setImage(images[this.userPlanes[this.userPlaneIndex]]);
+        this.currentAxisPlaneCountComponent.setText("0");
+        this.currentAlliedPlaneCountComponent.setText("0");
+    }
+
     /*
         Method Name: setup
         Method Parameters: None
@@ -59,6 +79,8 @@ class HostMenu extends Menu {
                 menuManager.addTemporaryMessage("Failed to start game.", "red", 50000);
                 return;
             }
+            // Reset plane selection
+            this.userPlaneIndex = 0;
             console.log("Managed to start the game");
         }));
 
@@ -76,6 +98,7 @@ class HostMenu extends Menu {
         userPlane.setOnClick(() => {
             userPlane.setImage(this.switchPlanes()); 
         });
+        this.userPlaneStaticImage = userPlane;
         this.components.push(userPlane);
 
         // Allied Section
@@ -364,7 +387,8 @@ class HostMenu extends Menu {
         Method Return: void
     */
     goToMainMenu(){
-        menuManager.switchTo("main");
+        SERVER_CONNECTION.sendJSON({"action": "leave_game"});
+        //menuManager.switchTo("main");
     }
 
     /*

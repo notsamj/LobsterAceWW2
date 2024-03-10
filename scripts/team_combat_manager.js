@@ -153,13 +153,16 @@ class TeamCombatManager {
         for (let [existingBullet, index] of bulletArray){
             if (existingBullet.isDead()){
                 bullet.setID("b" + "_" + bullet.getAlliance() + "_" + index);
+                bullet.setIndex(index);
                 bulletArray.put(index, bullet);
                 return;
             }
         }
         // No empty spaces found...
         if (bulletArray.getLength() < bulletArray.getSize()){
-            bullet.setID("b"+ "_" + bullet.getAlliance() + "_" + bulletArray.getLength());
+            let bulletIndex = bulletArray.getLength();
+            bullet.setID("b"+ "_" + bullet.getAlliance() + "_" + bulletIndex);
+            bullet.setIndex(bulletIndex);
             bulletArray.append(bullet);
         }
     }
@@ -196,6 +199,9 @@ class TeamCombatManager {
         Method Return: void
     */
     checkCollisions(timeDiff){
+        // No collisions in testing
+        //if (activeGameMode.isRunningATestSession()){ return; }
+
         // Check ally and axis bullet hits
         for (let team of this.teams){
             for (let otherTeam of this.teams){
@@ -231,21 +237,92 @@ class TeamCombatManager {
                 Another alliance
             timeDiff:
                 Time between ticks
-        Method Description: Checks for collisions between planes of 'team' and bullets of 'otherTeam'
+        Method Description: Checks for collisions between planes of 'team' and bullets of 'otherTeam' and other things to determine if bullet is worth keeping aroun
         Method Return: void
     */
     checkBulletCollisionsFromTeamToTeam(team, otherTeam, timeDiff){
+        // Check for bullet too far from planes
+        let planesLeftX = Number.MAX_SAFE_INTEGER;
+        let planesRightX = Number.MIN_SAFE_INTEGER;
+        let planesTopY = Number.MIN_SAFE_INTEGER;
+        let planesBottomY = Number.MAX_SAFE_INTEGER;
+
+        // Determine border of all planes of team A
+        for (let [plane, pIndex] of this.planes[otherTeam]){
+            if (plane.isDead()){ continue; }
+            planesLeftX = Math.min(plane.getX(), planesLeftX);
+            planesRightX = Math.max(plane.getX(), planesRightX);
+            planesTopY = Math.max(plane.getY(), planesTopY);
+            planesBottomY = Math.min(plane.getY(), planesBottomY);
+            //console.log(planesLeftX,planesRightX,planesTopY,planesBottomY)
+        }
+
+        // For each team B bullet if far from the border of team A plane then ignore
+        let ignoreBulletsCheck1 = [];
         for (let [bullet, bIndex] of this.bullets[team]){
-            if (bullet.isDead()){ continue; }
-            for (let [plane, pIndex] of this.planes[otherTeam]){
-                if (plane.isDead()){ continue; }
-                if (bullet.collidesWith(plane, timeDiff)){
+            ignoreBulletsCheck1.push(false);
+            let bX = bullet.getX();
+            let bY = bullet.getY();
+            // If too far left
+            if (bX < planesLeftX - PROGRAM_DATA["settings"]["expected_canvas_width"]){
+                ignoreBulletsCheck1[bIndex] = true;
+                continue;
+            }
+            // If too far right
+            if (bX > planesRightX + PROGRAM_DATA["settings"]["expected_canvas_width"]){
+                ignoreBulletsCheck1[bIndex] = true;
+                continue;
+            }
+            // If too low
+            if (bY < planesBottomY - PROGRAM_DATA["settings"]["expected_canvas_height"]){
+                ignoreBulletsCheck1[bIndex] = true;
+                continue;
+            }
+            // If too high
+            if (bY > planesTopY + PROGRAM_DATA["settings"]["expected_canvas_height"]){
+                ignoreBulletsCheck1[bIndex] = true;
+                continue;
+            }
+        }
+        
+
+        // Make simple bullet data
+        let simpleBulletData = [];
+        for (let [bullet, bIndex] of this.bullets[team]){
+            if (bullet.isDead() || ignoreBulletsCheck1[bIndex]){ simpleBulletData.push({}); continue; }
+            let x1 = bullet.getX();
+            let x2 = bullet.getX2BeforeTick();
+            let y1 = bullet.getY();
+            let y2 = bullet.getY2BeforeTick();
+            let leftX = Math.min(x1, x2);
+            let rightX = Math.max(x1, x2);
+            let topY = Math.max(y1, y2);
+            let bottomY = Math.min(y1, y2);
+            simpleBulletData.push({"lX": leftX, "rX": rightX, "bY": bottomY, "tY": topY});
+        }
+
+        // Loop through planes to look for collision
+        for (let [plane, pIndex] of this.planes[otherTeam]){
+            if (plane.isDead()){ continue; }
+            let x1 = plane.getX();
+            let x2 = plane.getX2BeforeTick();
+            let y1 = plane.getY();
+            let y2 = plane.getY2BeforeTick();
+            let leftX = Math.min(x1, x2);
+            let rightX = Math.max(x1, x2);
+            let topY = Math.max(y1, y2);
+            let bottomY = Math.min(y1, y2);
+            let simplePlaneData = {"lX": leftX, "rX": rightX, "bY": bottomY, "tY": topY};
+            for (let [bullet, bIndex] of this.bullets[team]){
+                if (bullet.isDead() || ignoreBulletsCheck1[bIndex]){ continue; }
+                //console.log("Checking1")
+                if (bullet.collidesWithPlane(plane, timeDiff, simpleBulletData[bIndex], simplePlaneData)){
                     plane.damage(1);
+                    bullet.die();
                     if (plane.isDead()){
                         this.handleKill(bullet, plane);
+                        break;
                     }
-                    bullet.die();
-                    break;
                 }
             }
         }
@@ -443,6 +520,26 @@ class TeamCombatManager {
             bulletJSON.push(bullet.toJSON());
         }
         return bulletJSON;
+    }
+
+    // TODO: Comments
+    fromBulletJSON(bulletsJSON){
+        //let c = 0;
+       //let c2 = 0;
+        for (let bulletJSON of bulletsJSON){
+            let allianceName = planeModelToAlliance(bulletJSON["shooter_class"]);
+            let index = bulletJSON["index"];
+            // Add bullet 
+            if (index >= this.bullets[allianceName].getLength()){
+                this.bullets[allianceName].push(Bullet.fromJSON(bulletJSON, scene));
+                //c++;
+            }else{
+                //console.log(index, this.bullets[allianceName].getLength(), this.bullets[allianceName].get(index))
+                this.bullets[allianceName].get(index).fromJSON(bulletJSON, scene);
+                //c2++;
+            }
+        }
+        //console.log(c, c2);
     }
 }
 // If using NodeJS -> export the class

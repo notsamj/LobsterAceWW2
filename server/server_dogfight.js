@@ -11,12 +11,23 @@ const HumanBomberPlane = require("../scripts/plane/bomber_plane/human_bomber_pla
 const BiasedBotBomberPlane = require("../scripts/plane/bomber_plane/biased_bot_bomber_plane.js");
 const BiasedBotFighterPlane = require("../scripts/plane/fighter_plane/biased_bot_fighter_plane.js");
 
-// TODO: This class needs comments
+/*
+    Class Name: ServerDogfight
+    Description: A dogfight that is run by a server with connected clients.
+*/
 class ServerDogfight {
-    constructor(dogFightJSON){
+    /*
+        Method Name: constructor
+        Method Parameters:
+            dogfightJSON:
+                A json object with information on the settings of a dogfight
+        Method Description: Constructor
+        Method Return: Constructor
+    */
+    constructor(dogfightJSON){
         this.winner = null;
-        this.bulletPhysicsEnabled = dogFightJSON["bullet_physics_enabled"];
-        this.isATestSession = this.isThisATestSession(dogFightJSON);
+        this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
+        this.isATestSession = this.isThisATestSession(dogfightJSON);
         this.numTicks = 0;
 
         this.soundManager = new SoundManager();
@@ -28,18 +39,27 @@ class ServerDogfight {
         this.scene.setStatsManager(this.stats);
 
         this.planes = [];
-        this.createPlanes(dogFightJSON);
+        this.createPlanes(dogfightJSON);
         this.scene.setEntities(this.planes);
 
-        this.tickScheduler = new TickScheduler(() => { this.regularTick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"], Date.now());
+        this.tickScheduler = new TickScheduler(() => { this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
         this.running = true;
         this.paused = false;
+        this.gameOver = false;
         this.lastState = this.generateState();
     }
 
+    /*
+        Method Name: playerDisconnected
+        Method Parameters:
+            username:
+                The username of the player that has disconnected
+        Method Description: Kills off a player who has disconnected
+        Method Return: void
+    */
     playerDisconnected(username){
         for (let plane of this.planes){
             if (plane.getID() == username){
@@ -48,57 +68,76 @@ class ServerDogfight {
         }
     }
 
+    /*
+        Method Name: pause
+        Method Parameters: None
+        Method Description: Pauses the game
+        Method Return: void
+    */
     pause(){
         this.paused = true;
     }
 
+    /*
+        Method Name: unpause
+        Method Parameters: None
+        Method Description: Resumes the game
+        Method Return: void
+    */
     unpause(){
         this.paused = false;
     }
 
+    /*
+        Method Name: isRunning
+        Method Parameters: None
+        Method Description: Determines if the game is running
+        Method Return: Boolean, true -> running, false -> not running
+    */
     isRunning(){
-        return this.running;
+        return this.running && !this.isGameOver();
     }
 
+    /*
+        Method Name: end
+        Method Parameters: None
+        Method Description: Ends a game
+        Method Return: void
+    */
     end(){
         this.running = false;
         this.tickScheduler.end();
     }
 
+    /*
+        Method Name: areBulletPhysicsEnabled
+        Method Parameters: None
+        Method Description: Provides information about whether bullet physics are enabled in the game
+        Method Return: Boolean, true -> bullet physics enabled, false -> bullet physics not enabled
+    */
     areBulletPhysicsEnabled(){
         return this.bulletPhysicsEnabled;
     }
 
     /*
-        Method Name: regularTick
+        Method Name: tick
         Method Parameters: None
         Method Description: Run the actions that take place during a tick
         Method Return: void
     */
-    async regularTick(){
-        if (this.tickInProgressLock.notReady()){ return; }
+    async tick(){
+        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.tickScheduler.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
-        let expectedTicks = this.tickScheduler.getExpectedTicks();
 
-        // Tick until the expected number of ticks have passed
-        while (this.isRunning() && this.numTicks < expectedTicks){
-            await this.gameTick();
-            this.numTicks++;
-        }
+        // Tick the scene
+        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.checkForEnd();
+        this.numTicks++;
 
         // Save current state and update from user input
         this.lastState = this.generateState();
         await this.updateFromUserInput();
         this.tickInProgressLock.unlock();
-    }
-
-    async gameTick(){
-        if (!this.isRunning() || this.paused){
-            return;
-        }
-        // Tick the scene
-        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.checkForEnd();
     }
 
     /*
@@ -126,21 +165,22 @@ class ServerDogfight {
             this.winner = axisCount != 0 ? "Axis" : "Allies";
             this.stats.setWinner(this.winner);
             this.running = false;
+            this.gameOver = true;
         }
     }
 
     /*
         Method Name: isThisATestSession
         Method Parameters:
-            dogFightJSON:
+            dogfightJSON:
                 Details about the dog fight
         Method Description: Determine if this is a test session (not a real fight so no end condition)
         Method Return: boolean, true -> this is determined to be a test session, false -> this isn't detewrmined to be a test session
     */
-    isThisATestSession(dogFightJSON){
+    isThisATestSession(dogfightJSON){
         let noAllies = true;
         let noAxis = true;
-        for (let [planeModel, planeCount] of Object.entries(dogFightJSON["planeCounts"])){
+        for (let [planeModel, planeCount] of Object.entries(dogfightJSON["planeCounts"])){
             if (planeModelToAlliance(planeModel) == "Axis" && planeCount > 0){
                 noAxis = false;
             }else if (planeModelToAlliance(planeModel) == "Allies" && planeCount > 0){
@@ -154,16 +194,38 @@ class ServerDogfight {
         return noAxis || noAxis;
     }
 
+    /*
+        Method Name: getLastState
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: JSON object representing the last state of the game produced
+    */
     getLastState(){
         return this.lastState;
     }
 
+    /*
+        Method Name: isGameOver
+        Method Parameters: None
+        Method Description: Checks if the game is over
+        Method Return: boolean, true -> the game is over, false -> the game is not over
+    */
+    isGameOver(){
+        return this.gameOver;
+    }
+
+    /*
+        Method Name: generateState
+        Method Parameters: None
+        Method Description: Generates a representation of the current game state
+        Method Return: A JSON Object representing the current game state
+    */
     generateState(){
         let stateRep = {};
         stateRep["paused"] = this.paused;
         stateRep["num_ticks"] = this.numTicks;
         stateRep["start_time"] = this.tickScheduler.getStartTime();
-        stateRep["running"] = this.isRunning();
+        stateRep["game_over"] = this.isGameOver()
         // Send different things if running
         if (this.isRunning()){
             // Add sound
@@ -180,8 +242,15 @@ class ServerDogfight {
         return stateRep;
     }
 
-
-    createPlanes(dogFightJSON){
+    /*
+        Method Name: createPlanes
+        Method Parameters:
+            dogfightJSON:
+                A JSON object containing the settings for a dog fight
+        Method Description: Creates a list of planes (this.planes) that are part of the dogfight
+        Method Return: void
+    */
+    createPlanes(dogfightJSON){
         let allyX = PROGRAM_DATA["dogfight_settings"]["ally_spawn_x"];
         let allyY = PROGRAM_DATA["dogfight_settings"]["ally_spawn_y"];
         let axisX = PROGRAM_DATA["dogfight_settings"]["axis_spawn_x"];
@@ -189,7 +258,7 @@ class ServerDogfight {
         let allyFacingRight = allyX < axisX;
 
         // Add users
-        for (let user of dogFightJSON["users"]){
+        for (let user of dogfightJSON["users"]){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
             let userPlane = helperFunctions.planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this.scene, 0, true, false) : new HumanBomberPlane(userEntityModel, this.scene, 0, true, false);
             userPlane.setCenterX(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
@@ -200,7 +269,7 @@ class ServerDogfight {
         }
 
         // Add bots
-        for (let [planeName, planeCount] of Object.entries(dogFightJSON["planeCounts"])){
+        for (let [planeName, planeCount] of Object.entries(dogfightJSON["planeCounts"])){
             let allied = (helperFunctions.planeModelToAlliance(planeName) == "Allies");
             let x = allied ? allyX : axisX; 
             let y = allied ? allyY : axisY;
@@ -210,9 +279,9 @@ class ServerDogfight {
                 let aY = y + helperFunctions.randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
                 let botPlane;
                 if (helperFunctions.planeModelToType(planeName) == "Fighter"){
-                    botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this.scene, allied ? dogFightJSON["allyDifficulty"] : dogFightJSON["axisDifficulty"], true);
+                    botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this.scene, allied ? dogfightJSON["allyDifficulty"] : dogfightJSON["axisDifficulty"], true);
                 }else{
-                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this.scene, allied ? dogFightJSON["allyDifficulty"] : dogFightJSON["axisDifficulty"], true);
+                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this.scene, allied ? dogfightJSON["allyDifficulty"] : dogfightJSON["axisDifficulty"], true);
                 }
                 botPlane.setCenterX(aX);
                 botPlane.setCenterY(aY);
@@ -222,6 +291,12 @@ class ServerDogfight {
         }
     }
 
+    /*
+        Method Name: updateFromUserInput
+        Method Parameters: None
+        Method Description: Updates a plane from the user input received from a client
+        Method Return: void
+    */
     async updateFromUserInput(){
         if (this.paused){ return; }
         await this.userInputLock.awaitUnlock(true);
@@ -237,6 +312,12 @@ class ServerDogfight {
         this.userInputLock.unlock();
     }
 
+    /*
+        Method Name: newPlaneJSON
+        Method Parameters: None
+        Method Description: Handles a JSON object of plane information received from a client
+        Method Return: void
+    */
     async newPlaneJSON(planeJSON){
         await this.userInputLock.awaitUnlock(true);
         // Remove a previous instance if present (assume only 1)

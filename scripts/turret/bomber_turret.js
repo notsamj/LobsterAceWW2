@@ -50,14 +50,17 @@ class BomberTurret extends Turret {
 
     /*
         Method Name: shoot
-        Method Parameters: None
+        Method Parameters:
+            shootingAngle:
+                // TODO
         Method Description: Shoots the turret, if it is ready and the angle is in an allowed range.
         Method Return: void
     */
-    shoot(){
+    shoot(shootingAngle){
         if (!this.readyToShoot()){ return; }
-        let shootingAngle = this.getShootingAngle();
-        if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
+        if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ 
+            return; 
+        }
         this.shootCD.lock();
         this.scene.getSoundManager().play("shoot", this.getX(), this.getY());
         if (this.scene.areBulletPhysicsEnabled()){

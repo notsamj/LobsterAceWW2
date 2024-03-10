@@ -122,7 +122,12 @@ class Building extends Entity {
         rect(displayX, displayY, this.width, this.height);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the building
+        Method Return: JSON Object
+    */
     toJSON(){
         return {
             "x": this.x,
@@ -133,7 +138,16 @@ class Building extends Entity {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            scene:
+                The scene that the building is a part of
+            rep:
+                JSON representation of a building
+        Method Description: Creates a building from a json representation
+        Method Return: Building
+    */
     static fromJSON(scene, rep){
         let building = new Building(rep["x"], rep["width"], rep["height"], rep["health"]);
         building.setDead(rep["dead"]);

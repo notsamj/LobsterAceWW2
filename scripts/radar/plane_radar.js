@@ -65,13 +65,13 @@ class PlaneRadar extends Radar {
         let myY = this.entity.getY();
         let xOffsetAmount = Math.min(Math.floor(Math.abs(myX-objectX)/this.blipDistance), (this.size - 2)/2);
         let yOffsetAmount = Math.min(Math.floor(Math.abs(myY-objectY)/this.blipDistance), (this.size - 2)/2);
-        if (objectX < myX && objectY > myY){
+        if (objectX < myX && objectY >= myY){
             this.radarData[this.size/2-1-xOffsetAmount][this.size/2-1-yOffsetAmount] = colour;
         }else if (objectX < myX && objectY < myY){
             this.radarData[this.size/2-1-xOffsetAmount][this.size/2+yOffsetAmount] = colour;
-        }else if (objectX > myX && objectY < myY){
+        }else if (objectX >= myX && objectY < myY){
             this.radarData[this.size/2+xOffsetAmount][this.size/2+yOffsetAmount] = colour;
-        }else{ // if (objectX > myX && objectY > myY)
+        }else{ // if (objectX >= myX && objectY >= myY)
             this.radarData[this.size/2+xOffsetAmount][this.size/2-1-yOffsetAmount] = colour;
         }
     }

@@ -38,7 +38,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     static fromJSON(rep, scene){
         let planeClass = rep["basic"]["plane_class"];
         let fp = new BiasedCampaignAttackerBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
-        fp.fromJSON(rep)
+        fp.initFromJSON(rep)
         return fp;
     }
 
@@ -46,10 +46,30 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     makeDecisions(){
         // Only make decisions if autonomous
         if (!this.autonomous){ return; }
-        super.makeDecisions();
+
+        let startingDecisions = copyObject(this.decisions);
+        this.resetDecisions();
+        
+        if (this.updateEnemyLock.isReady()){
+            this.updateEnemyLock.lock();
+            // Check if the selected enemy should be changed
+            this.updateEnemy();
+        }
+        // If there is an enemy then act accordingly
+        if (this.hasCurrentEnemy()){
+            this.handleEnemy(this.currentEnemy);
+        }else{ // No enemy ->
+            this.handleWhenNoEnemy();
+        }
+
         // Always make sure throttle is at max if fighting 
         if (this.currentEnemy != null){
             this.decisions["throttle"] = 1;
+        }
+
+        // Check if decisions have been modified
+        if (FighterPlane.areMovementDecisionsChanged(startingDecisions, this.decisions)){
+            this.movementModCount++;
         }
     }
 
@@ -110,7 +130,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         if (xDistance > PROGRAM_DATA["ai"]["fighter_plane"]["max_x_distance_from_bomber_cruising_campaign"] || yDistance > PROGRAM_DATA["ai"]["fighter_plane"]["max_y_distance_from_bomber_cruising_campaign"]){
             // Make sure that you are facing the right way
             if (bomber.isFacingRight() != this.isFacingRight()){
-                this.face(!this.isFacingRight());
+                this.decisions["face"] = this.isFacingRight() ? 1 : -1;
             }
             let angleToBomberDEG = this.angleToOtherDEG(bomber);
             let dCW = calculateAngleDiffDEGCW(this.angle, angleToBomberDEG);

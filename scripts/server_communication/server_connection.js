@@ -14,88 +14,121 @@ class ServerConnection {
     constructor(){
         this.ip = USER_DATA["server_data"]["server_ip"];
         this.port = USER_DATA["server_data"]["server_port"];
-        this.setup = false;
+        this.connected = false;
+        this.loggedIn = false;
         this.socket = null;
+        this.setupSyncLock = new Lock();
         this.openedLock = new Lock();
         this.openedLock.lock();
-        this.messageCallbacks = new NotSamLinkedList();
+        this.heartBeatLock = new Lock();
+        this.sc = new SimpleCryptography(USER_DATA["server_data"]["secret_seed"]);
+        MAIL_SERVICE.addMonitor("error", (errorMessage) => {this.handleError(errorMessage);});
+        MAIL_SERVICE.addMonitor("lobby_end", (message) => {this.handleLobbyEnd(message)});
+        MAIL_SERVICE.addMonitor("game_start", (message) => {this.handleGameStart(message)});
+        MAIL_SERVICE.addMonitor("heart_beat_receive", (message) => {this.handleHeartbeat(message)});
+    }
+
+    isLoggedIn(){
+        return this.connected && this.loggedIn;
+    }
+
+    isConnected(){
+        return this.connected;
+    }
+
+    async reset(){
+        this.openedLock.lock();
+        this.heartBeatLock.unlock();
+        clearInterval(this.heartBeatInterval); // Is this a problem if heart beat interval is null?
+        await this.setupConnection();
     }
 
     async setupConnection(){
-        this.setup = true;
+        if (this.setupSyncLock.isLocked()){ return; }
+        this.setupSyncLock.lock();
+        // If setting up connection -> These are both false
+        this.loggedIn = false;
+        this.connected = false;
+
         this.socket = new WebSocket("ws://" + this.ip + ":" + this.port);
         this.socket.addEventListener("open", (event) => {
             console.log("Connection to server opened.");
+            this.connected = true;
             this.openedLock.unlock();
         });
         this.socket.addEventListener("message", (event) => {
             let data = event.data;
-            if (MAIL_SERVICE.deliver(data)){
+            if (!this.sc.matchesEncryptedFormat(data)){
+                throw new Error("Data in bad format!");
+            }
+            let decryptedData = this.sc.decrypt(data);
+            let dataJSON = JSON.parse(decryptedData);
+            if (dataJSON["password"] != USER_DATA["server_data"]["password"]){
+                console.log(dataJSON)
+                throw new Error("Received invalid password!");
+            }
+            if (MAIL_SERVICE.deliver(decryptedData)){
                 return;
             }
-            this.handledByDefault(data);
+            console.error("Received unknown data:", decryptedData);
         });
         this.socket.addEventListener("error", (event) => {
             menuManager.addTemporaryMessage("Connection to server failed.", "red", 5000);
+            this.openedLock.unlock();
+            this.loggedIn = false;
+            this.connected = false;
+            clearInterval(this.heartBeatInterval);
         });
-        this.heartBeatInterval = setInterval(() => { this.heartBeat(); }, 9000);
+
         // Wait for connection to open (or give up after 5 seconds)
         await this.openedLock.awaitUnlock();
-        // Send the password
-        console.log("Sending the password...")
-        // Check for success -> if not success then display message
-        let response = await MAIL_SERVICE.sendJSON("setup", { "username": USER_DATA["name"] });
-        // If null -> no response
-        if (response == null){
-            menuManager.addTemporaryMessage("No response from the server.", "red", 5000);
-        }else if (response["success"] == false){
-            menuManager.addTemporaryMessage("Failed to connect: " + response["reason"], "red", 5000);
+        // If the setup failed then return
+        if (this.isConnected()){
+            // Send the password
+            console.log("Sending the password...")
+            // Check for success -> if not success then display message
+            let response = await MAIL_SERVICE.sendJSON("setup", { "username": USER_DATA["name"] });
+            // If null -> no response
+            if (response == null){
+                menuManager.addTemporaryMessage("No response from the server.", "red", 5000);
+            }else if (response["success"] == false){
+                menuManager.addTemporaryMessage("Failed to connect: " + response["reason"], "red", 5000);
+            }else{
+                // Else working
+                this.loggedIn = true;
+                console.log("Logged in");
+                // Time to set up the heart beat
+                this.heartBeatInterval = setInterval(() => { this.sendHeartBeat(); }, 1000);
+            }
         }
-        console.log("Logged in");
+        this.setupSyncLock.unlock();
     }
 
-    handledByDefault(data){
-        if (this.isErrorMessage(data)){
-            this.handleError(data);
-            return true;
-        }
-        if (this.handleHeartbeat(data)){
-            return true;
-        }
-        if (this.startGameMessage(data)){
-            return true;
-        }
-        return false;
-    }
-
-    startGameMessage(data){
+    handleGameStart(data){
+        console.log("data", data)
         let dataJSON = JSON.parse(data);
         if (!objectHasKey(dataJSON, "message")){
-            return false;
+            return;
         }
         if (dataJSON["message"] == "game_started"){
             let translator = new DogfightRemoteTranslator();
-            activeGameMode = new DogfightClient(translator);
+            activeGameMode = new RemoteDogfightClient(translator);
             menuManager.switchTo("game");
-            return true;
         }
-        return false;
     }
 
-    handleHeartbeat(data){
+    receiveHeartBeat(data){
         let dataJSON = JSON.parse(data);
         if (dataJSON["action"] == "ping"){
             this.sendJSON({ "action": "pong" });
-            return true;
         }
-        return false;
     }
 
     /*
         Return value: JSON if got a response, false if not
     */
     async refresh(){
-        if (!this.isSetup()){ await this.setupConnection(); }
+        if (!this.isLoggedIn()){ await this.reset(); }
         return await MAIL_SERVICE.sendJSON("refresh", { "action": "refresh" });
     }
 
@@ -115,14 +148,20 @@ class ServerConnection {
         this.sendJSON({ "action": "plane_update", "plane_update": newPlaneType });
     }
 
-    async heartBeat(){
-       let response = await MAIL_SERVICE.sendJSON("heartbeat", { "action": "ping" });
+    async sendHeartBeat(){
+        if (!this.heartBeatLock.isReady() || !this.isLoggedIn()){ return; }
+        await this.heartBeatLock.awaitUnlock(true);
+        let response = await MAIL_SERVICE.sendJSON("heart_beat", { "action": "ping" });
         if (!response){
             menuManager.addTemporaryMessage("Heartbeat failed.", "red", 10000);
             clearInterval(this.heartBeatInterval);
-            return false;
+            this.setup = false;
         }
-        return response;
+        this.heartBeatLock.unlock();
+    }
+
+    async receiveHeartBeat(){
+
     }
 
     async sendMail(jsonObject, mailBox, timeout=1000){
@@ -135,23 +174,20 @@ class ServerConnection {
     }
 
     send(message){
-        this.socket.send(message);
+        this.socket.send(this.sc.encrypt(message));
     }
 
     isSetup(){
         return this.setup;
     }
 
-    addCallback(messageResponse){
-        this.messageCallbacks.add(messageResponse);
-    }
-
-    isErrorMessage(message){
-        // TODO
-        return false;
-    }
-
     handleError(message){
-        // TODO
+        menuManager.addTemporaryMessage(message, "red", 10000);
+    }
+
+    handleLobbyEnd(){
+        console.log("Got lobby end")
+        menuManager.addTemporaryMessage("Lobby ended", "yellow", 5000);
+        menuManager.switchTo("main");
     }
 }

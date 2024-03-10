@@ -54,26 +54,46 @@ class PlaneGameScene extends Scene {
         this.local = local;
         this.collisionsEnabled = true;
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
-        this.soundManager = new SoundManager();
+        this.soundManager = soundManager;
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
     }
 
-    // TODO: Comments
+    /*
+        Method Name: isLocal
+        Method Parameters: None
+        Method Description: Determines if an scene (instance not other copies) is present in the browser rather than on the NodeJS server 
+        Method Return: Boolean, true -> In a browser, false -> not in a browser (on a server)
+    */
     isLocal(){
         return this.local;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     getSoundManager(){
         return this.soundManager;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     setBulletPhysicsEnabled(bulletPhysicsEnabled){
         this.bulletPhysicsEnabled = bulletPhysicsEnabled;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     areBulletPhysicsEnabled(){
         return this.bulletPhysicsEnabled;
     }
@@ -168,32 +188,62 @@ class PlaneGameScene extends Scene {
         return this.teamCombatManager.getLivingPlanes();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     getAllPlanes(){
         return this.teamCombatManager.getAllPlanes();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     getPlane(id){
         return this.teamCombatManager.getPlane(id); 
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     getPlaneJSON(){
         return this.teamCombatManager.getPlaneJSON();
     }
     
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     getBulletJSON(){
         return this.teamCombatManager.getBulletJSON();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     setStatsManager(statsManager){
         this.teamCombatManager.setStatsManager(statsManager);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     getBuildingJSON(){
         let buildingJSON = [];
         for (let building of this.getBuildings()){
@@ -202,7 +252,12 @@ class PlaneGameScene extends Scene {
         return buildingJSON;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     getBombJSON(){
         let bombJSON = [];
         for (let entity of this.entities){

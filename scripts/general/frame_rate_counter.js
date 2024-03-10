@@ -3,6 +3,7 @@
     Description: A class to count frame rate
 */
 class FrameRateCounter {
+    static FRAME_GAP_CONSTANT = 0.9;
     /*
         Method Name: constructor
         Method Parameters:
@@ -13,6 +14,8 @@ class FrameRateCounter {
     */
     constructor(maxFPS){
         this.maxFPS = maxFPS;
+        this.minFrameGap = 1000 / maxFPS * FrameRateCounter.FRAME_GAP_CONSTANT;
+        this.lastFrameTime = 0;
         this.frameTimes = [];
         for (let i = 0; i < maxFPS; i++){ this.frameTimes.push(0); }
     }
@@ -28,6 +31,7 @@ class FrameRateCounter {
         for (let i = 0; i < this.frameTimes.length; i++){
             if (!FrameRateCounter.fromPastSecond(currentTime, this.frameTimes[i])){
                 this.frameTimes[i] = currentTime;
+                this.lastFrameTime = currentTime;
                 break;
             }
         }
@@ -53,6 +57,11 @@ class FrameRateCounter {
     // TODO: Comments
     getMaxFPS(){
         return this.maxFPS;
+    }
+
+    // TODO: Comments
+    ready(){
+        return this.getFPS() < this.getMaxFPS() && Date.now() - this.lastFrameTime > this.minFrameGap;
     }
 
     /*

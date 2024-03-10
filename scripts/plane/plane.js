@@ -51,7 +51,16 @@ class Plane extends Entity {
             "throttle": 0, // 1 -> up by 1 deg, -1 -> down by 1 deg, 0 -> no change
             "shoot": false, // true -> shoot, false -> don't shoot
         }
-        this.modificationCount = 0;
+        this.movementModCount = 0;
+    }
+
+    // TODO: Comment these two
+    getX2BeforeTick(){
+        return this.x - this.getXVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
+    }
+
+    getY2BeforeTick(){
+        return this.y - this.getYVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
     }
 
     // Abstract
@@ -424,8 +433,8 @@ class Plane extends Entity {
         let acceleration = throttleAcc - dragAcc;
 
         // Speed
-        let speed = this.speed += acceleration * timeProportion;
-        speed = Math.max(this.speed, 0);
+        let speed = this.speed + acceleration * timeProportion;
+        speed = Math.max(speed, 0);
 
         // Finally the position
 
@@ -587,10 +596,13 @@ class Plane extends Entity {
     // TODO: Comments
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (activeGameMode.paused || !activeGameMode.isRunning() || this.isDead()){
+        if (activeGameMode.isPaused() || !activeGameMode.isRunning() || this.isDead()){
             return;
         }
-        let extraTime = (currentTime - (activeGameMode.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks));
+        /*this.interpolatedX = this.x;
+        this.interpolatedY = this.y;
+        return;*/
+        let extraTime = (currentTime - (activeGameMode.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks)) % PROGRAM_DATA["settings"]["ms_between_ticks"];
         let newPositionValues = this.getNewPositionValues(extraTime);
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];

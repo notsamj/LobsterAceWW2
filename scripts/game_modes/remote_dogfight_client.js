@@ -1,8 +1,7 @@
 // TODO: Comment class
-class DogfightClient {
+class RemoteDogfightClient {
     constructor(dogfightTranslator){
         this.translator = dogfightTranslator;
-        this.running = true;
         this.stats = new AfterMatchStats();
         this.tickInProgressLock = new Lock();
         this.stateLock = new Lock();
@@ -16,8 +15,13 @@ class DogfightClient {
         this.inputLock = new Lock();
         this.startTime = Date.now();
         scene.enableTicks();
+        this.running = false;
+        this.gameOver = false;
         this.startUp();
     }
+
+    isPaused(){ return false; }
+    runsLocally(){ return false; }
 
     /// Note: Used to make sure only 1 input per real tick (not per game tick)
     inputAllowed(){
@@ -35,7 +39,7 @@ class DogfightClient {
     }
 
     isRunning(){
-        return this.running;
+        return this.running && !this.isGameOver();
     }
 
     end(){
@@ -71,6 +75,9 @@ class DogfightClient {
     }
 
     updateCamera(){
+        if (this.userEntity == null){
+            debugger;
+        }
         // No need to update if user is meant to be a camera
         if (this.userEntity instanceof SpectatorCamera){
             return;
@@ -109,6 +116,7 @@ class DogfightClient {
         // Update the scene based on the server's last state
         await this.stateLock.awaitUnlock(true);
         // Only update if the new state is really new
+        if (this.newServerState == null){ return; }
         if (this.lastServerState == null || this.lastServerState["num_ticks"] < this.newServerState["num_ticks"]){
             this.loadState(this.newServerState);
             this.lastServerState = this.newServerState;
@@ -116,35 +124,47 @@ class DogfightClient {
         this.stateLock.unlock();
     }
 
+    isGameOver(){
+        return this.gameOver;
+    }
+
     loadState(state){
         if (state == null){ return; }
         // Check game end
-        this.running = state["running"];
+        this.gameOver = state["game_over"];
         
         // If not running then load the end
-        if (!this.isRunning()){
+        if (this.isGameOver()){
             this.stats.fromJSON(state["stats"]);
             return;
         }
         
         // Load sounds
         SOUND_MANAGER.fromSoundRequestList(state["sound_list"]);
+
+        // TODO: If tickdifference is great enough then take from server!
+        let tickDifference = state["num_ticks"] - this.numTicks;
+        // TODO: Put this in settings
+        if (tickDifference > 10){
+            this.numTicks = state["num_ticks"];
+        }
+
         // Update planes
         for (let planeObject of state["planes"]){
             let plane = scene.getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
+                console.log(planeObject["basic"]["id"])
+                debugger;
                 this.addNewPlane(planeObject);
                 continue;
             }
-            plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks);
+            plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks, tickDifference > 10);
         }
 
         // Update bullets
-        scene.clearBullets();
-        for (let bulletObject of state["bullets"]){
-            scene.addBullet(Bullet.fromJSON(bulletObject, scene));
-        }
+        //console.log("Received bullets from server", state["bullets"])
+        scene.getTeamCombatManager().fromBulletJSON(state["bullets"]);
     }
 
     addNewPlane(planeObject){
@@ -164,7 +184,7 @@ class DogfightClient {
     }
 
     display(){
-        if (!this.isRunning()){
+        if (this.isGameOver()){
             this.stats.display();
         }
     }
@@ -173,6 +193,7 @@ class DogfightClient {
         // Get a state from the server and await it then set start time then set up based on the server state
         let state = await this.translator.getState();
         let myID = USER_DATA["name"];
+        //console.log(state["planes"])
         // Add planes
         for (let planeObject of state["planes"]){
             if (planeObject["basic"]["human"]){
@@ -180,11 +201,13 @@ class DogfightClient {
                 let plane;
                 if (planeModelToType([planeObject["basic"]["plane_class"]]) == "Fighter"){
                     plane = HumanFighterPlane.fromJSON(planeObject, scene, planeIsMe);
+                    console.log("New human", planeIsMe)
                 }else{
                     plane = HumanBomberPlane.fromJSON(planeObject, scene, planeIsMe);
                 }
                 if (planeIsMe){
                     this.userEntity = plane;
+                    console.log("USER ENTITY SET", this.userEntity)
                 }
                 this.planes.push(plane);
             }else{
@@ -202,7 +225,9 @@ class DogfightClient {
         scene.setEntities(this.planes);
 
         // If no user then add a freecam
+        //console.log("Is user entity null?", this.userEntity)
         if (this.userEntity == null){
+            console.log("Apparently a camera")
             let allyX = PROGRAM_DATA["dogfight_settings"]["ally_spawn_x"];
             let allyY = PROGRAM_DATA["dogfight_settings"]["ally_spawn_y"];
             let axisX = PROGRAM_DATA["dogfight_settings"]["axis_spawn_x"];
@@ -218,5 +243,6 @@ class DogfightClient {
         this.startTime = state["start_time"];
         this.numTicks = state["num_ticks"];
         this.running = true;
+        console.log("Start up done")
     }
 }

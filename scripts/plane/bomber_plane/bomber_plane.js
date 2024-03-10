@@ -27,6 +27,7 @@ class BomberPlane extends Plane {
     constructor(planeClass, scene, angle=0, facingRight=true){
         super(planeClass, scene);
         this.decisions["bombing"] = false;
+        this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
     /*

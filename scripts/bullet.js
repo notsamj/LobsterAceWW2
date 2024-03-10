@@ -39,6 +39,19 @@ class Bullet extends Entity {
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bullet_data"]["radius"]);
         this.shooterClass = shooterClass;
         this.shooterID = shooterID;
+        this.index = null;
+    }
+
+    /*
+        Method Name: setIndex
+        Method Parameters:
+            index:
+                Index of the bullet in the bullet array
+        Method Description: Setter
+        Method Return: void
+    */
+    setIndex(index){
+        this.index = index;
     }
 
     /*
@@ -206,29 +219,221 @@ class Bullet extends Entity {
     }
 
     /*
+        Method Name: getX2BeforeTick
+        Method Parameters: None
+        Method Description: Determines the x location of the bullet prior to it's latest movement
+        Method Return: float
+    */
+    getX2BeforeTick(){
+        return this.x - this.getXVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
+    }
+
+    /*
+        Method Name: getY2BeforeTick
+        Method Parameters: None
+        Method Description: Determines the y location of the bullet prior to it's latest movement
+        Method Return: float
+    */
+    getY2BeforeTick(){
+        return this.y - this.getYVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
+    }
+
+    /*
+        Method Name: collidesWithPlane
+        Method Parameters:
+            plane:
+                A plane to check for a collision with
+            timeDiff:
+                The time length of a tick
+            simpleBulletData:
+                Some simple information about this bullet
+            simplePlaneData:
+                Some simple information about the plane
+        Method Description: Checks for a collision between this bullet and a plane
+        Method Return: Boolean, true -> collides, false -> does not collide
+    */
+    collidesWithPlane(plane, timeDiff, simpleBulletData, simplePlaneData){
+        let h1 = this.getHitbox();
+        let h2 = plane.getHitbox();
+
+        // Quick checks
+
+        // If plane right < bullet left
+        if (simplePlaneData["rX"] + h2.getRadiusEquivalentX() < simpleBulletData["lX"] - h1.getRadiusEquivalentX()){
+            return false;
+        }
+
+        // If plane left > bullet right
+        if (simplePlaneData["lX"] - h2.getRadiusEquivalentX() > simpleBulletData["rX"] + h1.getRadiusEquivalentX()){
+            return false;
+        }
+
+        // If plane top < bullet bottom
+        if (simplePlaneData["tY"] + h2.getRadiusEquivalentX() < simpleBulletData["bY"] - h1.getRadiusEquivalentX()){
+            return false;
+        }
+
+         // If plane bottom > bullet top
+        if (simplePlaneData["bY"] - h2.getRadiusEquivalentX() > simpleBulletData["tY"] + h1.getRadiusEquivalentX()){
+            return false;
+        }
+
+        let timeProportion = timeDiff / 1000;
+        let h1X = this.x;
+        let h1Y = this.y;
+        let h1VX = this.getXVelocity();
+        let h1VY = this.getYVelocity();
+
+        let h2X = plane.getX();
+        let h2Y = plane.getY();
+        let h2VX = plane.getXVelocity();
+        let h2VY = plane.getYVelocity();
+
+        // More complex checks
+        let h1Details = {
+            "start_x": h1X,
+            "start_y": h1Y,
+            "x_velocity": h1VX,
+            "y_velocity": h1VY 
+        }
+        let h2Details = {
+            "start_x": h2X,
+            "start_y": h2Y,
+            "x_velocity": h2VX,
+            "y_velocity": h2VY 
+        }
+
+        // Update the hitboxes to the starting locations
+        h1.update(h1Details["start_x"], h1Details["start_y"]);
+        h2.update(h2Details["start_x"], h2Details["start_y"]);
+
+        // If they immediately collide
+        if (h1.collidesWith(h2)){
+            return true;
+        }
+        // Separating code into two separate sequential blocks to try out the feature and to redeclare the time variable
+        {
+            // Try the l/r collision
+            let leftObject = h1;
+            let leftDetails = h1Details;
+            let rightObject = h2;
+            let rightDetails = h2Details;
+            if (h2X - h2.getRadiusEquivalentX() < h1X - h1.getRadiusEquivalentX()){
+                leftObject = h2;
+                leftDetails = h2Details;
+                rightObject = h1;
+                rightDetails = h1Details;
+            }
+
+            /* Calculations
+                leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
+                rightObjectLeftEnd = rightObject.getCenterX() - leftObject.getRadiusEquivalentX();
+                leftObjectRightEnd + leftObjectVX * time = rightObjectLeftEnd + rightObjectVX * time
+                leftObjectRightEnd - rightObjectLeftEnd = (rightObjectVX - leftObjectVX) * time
+                time = (leftObjectRightEnd - rightObjectLeftEnd) / (rightObjectVX - leftObjectVX)
+            */
+            let leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
+            let rightObjectLeftEnd = rightObject.getCenterX() - rightObject.getRadiusEquivalentX();
+            let time = safeDivide(leftObjectRightEnd - rightObjectLeftEnd, rightDetails["x_velocity"] - leftDetails["x_velocity"], 0.0000001, null);
+            /* Expected values for time:
+                null - Denominator close to zero
+                < 0 - Never collide in x
+                > 0 <= timeProportion - Collide in x at a reasonable time
+                > 0 > timeProportion - Collide later on (assuming 0 acceleration)
+            */
+            // If time is reasonable then compute their locations and see if they collide
+            if (time != null && time >= 0 && time <= timeProportion){
+                let leftObjectX = leftDetails["start_x"] + leftDetails["x_velocity"] * time + 1; // + 1 to make sure is enough to the right
+                let leftObjectY = leftDetails["start_y"] + leftDetails["y_velocity"] * time;
+                let rightObjectX = rightDetails["start_x"] + rightDetails["x_velocity"] * time;
+                let rightObjectY = rightDetails["start_y"] + rightDetails["y_velocity"] * time;
+                leftObject.update(leftObjectX, leftObjectY);
+                rightObject.update(rightObjectX, rightObjectY);
+                if (leftObject.collidesWith(rightObject)){
+                    return true;
+                }
+            }
+        }
+        // This one isn't necessary but it just looks right to me
+        {
+            // Try the top/bottom collision
+            let bottomObject = h1;
+            let bottomDetails = h1Details;
+            let topObject = h2;
+            let topDetails = h2Details;
+            if (h2Y - h2.getRadiusEquivalentY() < h1Y - h1.getRadiusEquivalentY()){
+                bottomObject = h2;
+                bottomDetails = h2Details;
+                topObject = h1;
+                topDetails = h1Details;
+            }
+
+            /* Calculations
+                bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
+                topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
+                bottomObjectTopEnd + bottomObjectVY * time = topObjectBottomEnd + topObjectVY * time
+                bottomObjectTopEnd - topObjectBottomEnd = (topObjectVY - bottomObjectVY) * time
+                time = (bottomObjectTopEnd - topObjectBottomEnd) / (topObjectVY - bottomObjectVY)
+            */
+            let bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
+            let topObjectBottomEnd = topObject.getCenterY() - topObject.getRadiusEquivalentY();
+            let time = safeDivide(bottomObjectTopEnd - topObjectBottomEnd, topDetails["y_velocity"] - bottomObject["y_velocity"], 0.0000001, null);
+            /* Eypected values for time:
+                null - Denominator close to zero
+                < 0 - Never collide in y
+                > 0 <= timeProportion - Collide in y at a reasonable time
+                > 0 > timeProportion - Collide later on (assuming 0 acceleration)
+            */
+            // If time is reasonable then compute their locations and see if they collide
+            if (time != null && time >= 0 && time <= timeProportion){
+                let bottomObjectY = bottomDetails["start_y"] + bottomDetails["y_velocity"] * time + 1; // + 1 to make sure is enough to the top
+                let bottomObjectX = bottomDetails["start_x"] + bottomDetails["x_velocity"] * time;
+                let topObjectX = topDetails["start_x"] + topDetails["x_velocity"] * time;
+                let topObjectY = topDetails["start_y"] + topDetails["y_velocity"] * time;
+                bottomObject.update(bottomObjectX, bottomObjectY);
+                topObject.update(topObjectX, topObjectY);
+                if (bottomObject.collidesWith(topObject)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /*
         Method Name: display
         Method Parameters:
             lX:
                 The bottom left x displayed on the canvas relative to the focused entity
             bY:
                 The bottom left y displayed on the canvas relative to the focused entity
+            displayTime:
+                The time that the frame is being displayed
         Method Description: Displays a plane on the screen (if it is within the bounds)
         Method Return: void
     */
-    display(lX, bY){
+    display(lX, bY, displayTime){
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 
         // If not on screen then return
+        // Note: For this and bomb this code isn't perfect because it doesn't consider interpolated location
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.scene.getDisplayX(this.getCenterX(), this.getWidth(), lX);
-        let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
+        this.calculateInterpolatedCoordinates(displayTime);
+        let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the bullet
+        Method Return: JSON object
+    */
     toJSON(){
         return {
             "x": this.x,
@@ -237,21 +442,71 @@ class Bullet extends Entity {
             "x_velocity": this.xVelocity,
             "y_velocity": this.yVelocity,
             "shooter_class": this.shooterClass,
-            "shooter_id": this.shooterID
+            "shooter_id": this.shooterID,
+            "index": this.index
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setXVelocity
+        Method Parameters:
+            xVelocity:
+                An x velocity float
+        Method Description: Setter
+        Method Return: void
+    */
     setXVelocity(xVelocity){
         this.xVelocity = xVelocity;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setYVelocity
+        Method Parameters:
+            yVelocity:
+                A y velocity float
+        Method Description: Setter
+        Method Return: void
+    */
     setYVelocity(yVelocity){
         this.yVelocity = yVelocity;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            bulletJSONObject:
+                Information about a bullet
+        Method Description: Sets the attributes of a bullet from a json representation
+        Method Return: void
+    */
+    fromJSON(bulletJSONObject){
+        // Don't overwrite a living bullet
+        // TODO: Local still kills bullets even without collision right?
+        if (!this.isDead()){ 
+            return; 
+        }
+        // No need to taken info from a dead bullet
+        if (bulletJSONObject["dead"]){ return; }
+        this.dead = false;
+        this.x = bulletJSONObject["x"];
+        this.y = bulletJSONObject["y"];
+        this.xVelocity = bulletJSONObject["x_velocity"];
+        this.yVelocity = bulletJSONObject["y_velocity"];
+        this.shooterClass = bulletJSONObject["shooter_class"];
+        this.shooterID = bulletJSONObject["shooter_id"];
+        this.index = bulletJSONObject["index"];
+    }
+
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            bulletJSONObject:
+                Information about a bullet
+            scene:
+                The scene that the bullet is a part of
+        Method Description: Creates a bullet from a representation
+        Method Return: JSON Object
+    */
     static fromJSON(bulletJSONObject, scene){
         let x = bulletJSONObject["x"];
         let y = bulletJSONObject["y"];

@@ -49,7 +49,7 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Return: int
     */
     getShootingAngle(){
-        return fixDegrees(this.shootingAngle + this.biases["shooting_angle_offset"]);
+        return fixDegrees(this.decisions["angle"] + this.biases["shooting_angle_offset"]);
     }
 
     /*
@@ -68,7 +68,7 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Description: Creates an instance of a biased bot bomber turret and returns it
         Method Return: BiasedBotBomberTurret
     */
-    static create(gunObject, scene, plane, biases){
+    static create(gunObject, scene, plane, biases, autonomous){
         return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane, biases, autonomous);
     }
 }

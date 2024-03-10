@@ -61,6 +61,7 @@ class BotBomberTurret extends BomberTurret {
     makeDecisions(enemyList){
         // If it can't make its own decisions then skip this
         if (!this.autonomous){ return; }
+        this.resetDecisions();
         this.checkShoot(enemyList);
     }
 
@@ -100,6 +101,16 @@ class BotBomberTurret extends BomberTurret {
         if (hasDecidedToFireShot){
             this.decisions["angle"] = angleDEG;
             this.decisions["shooting"] = true;
+        }
+    }
+
+    // TODO: Comments
+    executeDecisions(){
+        // If decided to shoot
+        if (this.decisions["shooting"]){
+            if (this.shootCD.isReady()){
+                this.shoot(this.getShootingAngle());
+            }
         }
     }
 

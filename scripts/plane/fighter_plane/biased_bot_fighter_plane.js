@@ -93,8 +93,8 @@ class BiasedBotFighterPlane extends FighterPlane {
         }
         
         // Check if decisions have been modified
-        if (!FighterPlane.doDecisionsMatch(startingDecisions, this.decisions)){
-            this.modificationCount++;
+        if (FighterPlane.areMovementDecisionsChanged(startingDecisions, this.decisions)){
+            this.movementModCount++;
         }
     }
 
@@ -102,7 +102,8 @@ class BiasedBotFighterPlane extends FighterPlane {
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            if (this.shootLock.isReady() && !this.scene.isLocal()){
+            //console.log("Gonna shoot", this.shootLock.isReady() , !this.scene.isLocal() , activeGameMode.runsLocally())
+            if (this.shootLock.isReady() && (!this.scene.isLocal() || activeGameMode.runsLocally())){
                 this.shootLock.lock();
                 this.shoot();
             }
@@ -110,7 +111,7 @@ class BiasedBotFighterPlane extends FighterPlane {
 
         // Change facing direction
         if (this.decisions["face"] != 0){
-            this.face(this.decisions["face"] == 1 ? true : false);
+            this.face(this.decisions["face"] > 1);
         }
 
         // Adjust angle
@@ -150,14 +151,14 @@ class BiasedBotFighterPlane extends FighterPlane {
             "starting_health": this.startingHealth,
             "dead": this.isDead()
         }
-        rep["modificationCount"] = this.modificationCount;
+        rep["movement_mod_count"] = this.movementModCount;
         return rep;
     }
 
     // TODO: Comments
     fromJSON(rep, tickDifference=0){
         // This is always local being received from the server
-        let takePosition = rep["modificationCount"] > this.modificationCount;
+        let takePosition = rep["movement_mod_count"] > this.movementModCount;
         if (takePosition){
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
@@ -165,7 +166,8 @@ class BiasedBotFighterPlane extends FighterPlane {
             this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
-            this.modificationCount = rep["modificationCount"];
+            this.movementModCount = rep["movement_mod_count"];
+            this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
             
             // Approximate plane positions in current tick based on position in server tick
             if (tickDifference > 0){
@@ -179,7 +181,6 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.dead = rep["basic"]["dead"];
         this.decisions = rep["decisions"];
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
-        this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
     }
 
     // TODO: Comments

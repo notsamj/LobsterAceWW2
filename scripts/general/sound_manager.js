@@ -29,8 +29,8 @@ class SoundManager {
         Method Return: void
     */
     loadSounds(){
-        for (let soundName of PROGRAM_DATA["sound_data"]["sounds"]){
-            this.sounds.push(new Sound(soundName, this.mainVolume));
+        for (let soundData of PROGRAM_DATA["sound_data"]["sounds"]){
+            this.sounds.push(new Sound(soundData["name"], soundData["type"], this.mainVolume));
         }
     }
 
@@ -188,7 +188,7 @@ class SoundManager {
     getSoundRequestList(){
         let soundRequestList = [];
         for (let [soundRequest, sRI] of this.soundQueue){
-            soundRequestList.push()
+            soundRequestList.push(soundRequest.toJSON());
         }
         return soundRequestList;
     }
@@ -270,15 +270,20 @@ class Sound {
         Method Parameters: 
             soundName:
                 The name of the sound
+            soundType:
+                A string specifying if the sound is ongoing or discrete
             mainVolume:
                 The main volume of program
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(soundName, mainVolume){
+    constructor(soundName, soundType, mainVolume){
         this.name = soundName;
+        this.ongoing = soundType == "ongoing";
+        this.lastPlayed = 0;
         // Audio will be {} if opened in NodeJS
         this.audio = (typeof window != "undefined") ? new Audio(PROGRAM_DATA["sound_data"]["url"] + "/" + this.name + PROGRAM_DATA["sound_data"]["file_type"]) : {};
+        this.running = false;
         this.volume = getLocalStorage(soundName, 0);
         this.adjustByMainVolume(mainVolume);
         this.preparedToPause = true;
@@ -301,8 +306,12 @@ class Sound {
         Method Return: void
     */
     play(){
-        this.audio.play();
+        // Already playing....
+        this.lastPlayed = Date.now();
         this.preparedToPause = false;
+        if (this.isRunning() || this.volume == 0){ return; }
+        this.audio.play();
+        this.running = true;
     }
 
     /*
@@ -312,7 +321,7 @@ class Sound {
         Method Return: Boolean, true -> is running, false -> is not running
     */
     isRunning(){
-        return this.audio.currentTime < this.audio.duration && this.audio.currentTime > 0;
+        return this.audio.currentTime < this.audio.duration && this.running;
     }
 
     /*
@@ -322,7 +331,10 @@ class Sound {
         Method Return: void
     */
     pause(){
+        // Ongoing sounds can be paused but not discrete sounds
+        if (!this.ongoing){ return; }
         if (this.isRunning()){
+            this.running = false;
             this.audio.pause();
         }
     }
@@ -366,13 +378,19 @@ class Sound {
 
     // TODO: Comments
     prepareToPause(){
+        if (!this.ongoing){ return; }
+        // Check if its been 1s since last played then ready to dismiss
+        if (Date.now() < this.lastPlayed + 100){ // Just using 100ms as the standard TODO: Save this in a data file
+            return;
+        }
         this.preparedToPause = true;
     }
 
     pauseIfPrepared(){
+        if (!this.ongoing){ return; }
         // Pause if prepared to
         if (this.preparedToPause){
-            this.audio.pause();
+            this.pause();
         }
     }
 }

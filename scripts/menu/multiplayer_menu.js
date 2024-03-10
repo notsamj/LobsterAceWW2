@@ -55,6 +55,7 @@ class MultiplayerMenu extends Menu {
             if (!response["success"]){
                 return;
             }
+            menuManager.getMenuByName("host").resetSettings();
             menuManager.switchTo("host");
             this.hostLock.unlock();
         });
@@ -88,8 +89,9 @@ class MultiplayerMenu extends Menu {
         // If a response has been received
         if (response){
             this.updateScreen(response);
+        }else{
+            //console.log("Failed to refresh:", response);
         }
-
         // Enable the button so it can be clicked now that the refresh is complete. And show it as green again.
         this.refreshButton.setColour("#3bc44b");
         this.refreshButton.enable();
@@ -109,19 +111,23 @@ class MultiplayerMenu extends Menu {
     }
 
     async join(){
+        console.log(this.hostLock.isLocked(), this.joinLock.isLocked())
         if (this.hostLock.isLocked() || this.joinLock.isLocked()){
             return;
         }
         this.joinLock.lock();
+        console.log("Sending Join Request")
         let response = await SERVER_CONNECTION.joinRequest();
-        if (!response){
-            return;
-        }
-        if (!response["success"]){
-            return;
-        }
-        menuManager.switchTo("participant");
         this.joinLock.unlock();
+        console.log("Join request response....", response)
+        if (response && response["success"]){
+            menuManager.getMenuByName("participant").resetSettings();
+            menuManager.switchTo("participant");
+        }else if (response){
+            menuManager.addTemporaryMessage("Failed to join: " + response["reason"], "red", 5000);
+        }else{
+            menuManager.addTemporaryMessage("Failed to get join response", "red", 5000);
+        }
     }
 }
 

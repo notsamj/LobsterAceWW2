@@ -40,6 +40,7 @@ class HumanBomberTurret extends BomberTurret {
     // TODO: Comments
     makeDecisions(){
         if (!this.autonomous){ return; }
+        this.resetDecisions();
         this.checkShoot();
     }
     
@@ -67,6 +68,16 @@ class HumanBomberTurret extends BomberTurret {
         if (USER_INPUT_MANAGER.isActivated("bomber_shoot_input")){
             this.decisions["shooting"] = true;
             this.decisions["angle"] = this.getShootingAngle();
+        }
+    }
+
+    // TODO: Comments
+    executeDecisions(){
+        // If decided to shoot
+        if (this.decisions["shooting"]){
+            if (this.shootCD.isReady()){
+                this.shoot(this.decisions["angle"]);
+            }
         }
     }
 

@@ -29,18 +29,34 @@ class Bomb extends Entity {
         super(scene);
         this.x = x;
         this.y = y;
+        this.interpolatedX = 0;
+        this.interpolatedY = 0;
         this.yVelocity = yVelocity + PROGRAM_DATA["bomb_data"]["initial_y_velocity"];
         this.xVelocity = xVelocity;
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bomb_data"]["radius"]);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setXVelocity
+        Method Parameters:
+            xVelocity:
+                A float x velocity
+        Method Description: Setter
+        Method Return: void
+    */
     setXVelocity(xVelocity){
         this.xVelocity = xVelocity;
     }
 
-    // TODO: Comments
-    setXVelocity(yVelocity){
+    /*
+        Method Name: setYVelocity
+        Method Parameters:
+            yVelocity:
+                A float y velocity
+        Method Description: Setter
+        Method Return: void
+    */
+    setYVelocity(yVelocity){
         this.yVelocity = yVelocity;
     }
 
@@ -190,10 +206,12 @@ class Bomb extends Entity {
                 The bottom left x displayed on the canvas relative to the focused entity
             bY:
                 The bottom left y displayed on the canvas relative to the focused entity
+            displayTime:
+                Time at which frame is displayed
         Method Description: Displays a plane on the screen (if it is within the bounds)
         Method Return: void
     */
-    display(lX, bY){
+    display(lX, bY, displayTime){
         if (this.isDead()){ return; }
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
@@ -202,12 +220,18 @@ class Bomb extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.scene.getDisplayX(this.getCenterX(), this.getWidth(), lX);
-        let displayY = this.scene.getDisplayY(this.getCenterY(), this.getHeight(), bY);
+        this.calculateInterpolatedCoordinates(displayTime);
+        let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the bomb
+        Method Return: A JSON Object
+    */
     toJSON(){
         return {
             "x": this.x,
@@ -218,7 +242,14 @@ class Bomb extends Entity {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            scene:
+                A Scene reference that includes the bomb
+        Method Description: Creates a Bomb object from a JSON representation
+        Method Return: Bomb
+    */
     static fromJSON(scene, rep){
         let bomb = new Bomb(rep["x"], rep["y"], scene, 0, 0);
         bomb.setXVelocity(rep["x_velocity"]);

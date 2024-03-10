@@ -35,7 +35,7 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
     static fromJSON(rep, scene){
         let planeClass = rep["basic"]["plane_class"];
         let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
-        fp.fromJSON(rep)
+        fp.initFromJSON(rep)
         return fp;
     }
 

@@ -77,14 +77,16 @@ class NotSamLinkedList{
      *   Method Return: None
      */
     insert(value, index=this.getSize()){
-        if (index > this.getSize() || index < 0){
-            console.log(`Invalid insertion index! (${index})`);
+        // Note: Inefficient
+        let size = this.getSize();
+        if (index > size || index < 0){
+            console.error(`Invalid insertion index! (${index})`);
             return; 
         }
         let newNode = new DLLNode(null, value);
 
         // If empty list
-        if (this.getSize() == 0){
+        if (size == 0){
             this.head = newNode;
             this.end = newNode;
             return;
@@ -103,7 +105,8 @@ class NotSamLinkedList{
             i++;
         }
         // This is only the case when at the end of the list
-        if (index == this.getSize()){
+        if (index == size){
+            this.end = newNode;
             previous.next = newNode;
             newNode.next = null;
             newNode.previous = previous;
@@ -178,7 +181,7 @@ class NotSamLinkedList{
      */
     print(){
         if (this.getSize() == 0){
-            console.log("List Empty --> cannot print!!");
+            console.error("List Empty --> cannot print!!");
             return;
         }
 
@@ -186,7 +189,7 @@ class NotSamLinkedList{
         let i = 0;
         // Loop through the list and print each value
         while (current != null){
-            console.log(`${i}: ${current.value}:`);
+            console.error(`${i}: ${current.value}:`);
             i++;
             current = current.next;
         }
@@ -218,7 +221,7 @@ class NotSamLinkedList{
     getNode(index){
         // If the index is out of bounds
         if (this.getSize() < index + 1 || index < 0){
-            console.log(`Issue @ Index: ${index} (List Size: ${this.getSize()})`);
+            console.error(`Issue @ Index: ${index} (List Size: ${this.getSize()})`);
             return;
         }
 
@@ -276,7 +279,8 @@ class NotSamLinkedList{
         Method Return: void
     */
     remove(index){
-        if (!((index >= 0 && index < this.getSize()))){
+        let size = this.getSize();
+        if (!((index >= 0 && index < size))){
             return;
         }
 
@@ -286,6 +290,11 @@ class NotSamLinkedList{
                 this.head.previous = null;
             } 
             return;
+        }else if (index == size){
+            this.end = this.end.previous;
+            if (this.end != null){
+                this.end.next = null;
+            }
         }
         let node = this.getNode(index);
         let previous = node.previous; // MUST NOT BE NULL OR ERROR
@@ -318,7 +327,7 @@ class NotSamLinkedList{
         Method Return: boolean, true -> empty, false -> not empty
     */
     isEmpty(){
-        return this.getSize() == 0;
+        return this.head == null;
     }
 
     /*
@@ -328,7 +337,6 @@ class NotSamLinkedList{
                 Index at which to pop the element
         Method Description: Remove the element and return it
         Method Return: Object (Unknown type)
-        Note: This is inefficient because of 2d complexity where d = index
     */
     pop(index){
         if (!((index >= 0 && index < this.getSize()))){
@@ -382,12 +390,12 @@ class NotSamLinkedList{
                 if (current.next != null){
                     current.next.previous = current.previous;
                 }else{ // Else this is the end
-                    this.end = null;
+                    this.end = current.previous;
                 }
                 if (current.previous != null){
                     current.previous.next = current.next;
                 }else{ // Else this is the head
-                    this.head = null;
+                    this.head = current.next;
                 }
             }
             // Move to next

@@ -111,7 +111,7 @@ class AfterMatchStats {
 
         // Add player's stats if on this team
         for (let playerName of Object.keys(this.playerKillCounts[team])){
-            ranking.push({"name": playerName, "kills": this.playerKillCounts[team][playerName]["kills"]})
+            ranking.push({"name": playerName, "kills": this.playerKillCounts[team][playerName]})
         }
 
         // Find bot kills on This team
@@ -142,7 +142,6 @@ class AfterMatchStats {
         let winnerText = "Winner: " + this.winner;
         let axisText = this.makeTeamText("Axis");
         let allyText = this.makeTeamText("Allies");
-        
         // Make winner text
         Menu.makeText(winnerText, this.getWinnerColour(), 0, Math.floor(getScreenHeight()), Math.floor(getScreenWidth()*0.75), Math.floor(getScreenHeight()/3));
         Menu.makeText(allyText, AfterMatchStats.getTeamColour("Allies"), 0, Math.floor(getScreenHeight()*2/3), Math.floor(getScreenWidth()/2), Math.floor(getScreenHeight()*2/3), CENTER, CENTER);

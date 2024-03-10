@@ -102,6 +102,11 @@ class NotSamArrayList {
         this.add(value);
     }
 
+    // TODO: Comments
+    push(value){
+        this.add(value);
+    }
+
     /*
         Method Name: has
         Method Parameters:

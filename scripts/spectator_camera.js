@@ -375,24 +375,14 @@ class SpectatorCamera extends Entity {
         if (activeGameMode.paused || !activeGameMode.isRunning()){
             return;
         }
-        let extraTime = (currentTime - (activeGameMode.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks));
-        let newPositionValues;
-        if (!this.isFollowing()){
-            newPositionValues = this.getNewPositionValues(extraTime);
+        if (this.isFollowing()){
+            let newPositionValues = this.followingEntity.calculateInterpolatedCoordinates(currentTime);
+            this.interpolatedX = this.followingEntity.getInterpolatedX();
+            this.interpolatedY = this.followingEntity.getInterpolatedY();
         }else{
-            newPositionValues = this.followingEntity.getNewPositionValues(extraTime);
+            this.interpolatedX = this.x;
+            this.interpolatedY = this.y;
         }
-        this.interpolatedX = newPositionValues["x"];
-        this.interpolatedY = newPositionValues["y"];
-    }
-
-    // TODO: Comments
-    getNewPositionValues(timeDiffMS){
-        let timeProportion = (timeDiffMS / 1000);
-
-        let y = this.y + this.yVelocity * timeProportion;
-        let x = this.x + this.xVelocity * timeProportion;
-        return {"x": x, "y": y}
     }
 
     /*

@@ -57,36 +57,44 @@ class HumanFighterPlane extends FighterPlane {
             "starting_health": this.startingHealth,
             "dead": this.isDead(),
         }
-        rep["modificationCount"] = this.modificationCount;
+        rep["movement_mod_count"] = this.movementModCount;
         return rep;
     }
 
     // TODO: Comments
-    fromJSON(rep, tickDifference=0){
-        let takePosition = !this.autonomous && rep["modificationCount"] > this.modificationCount;
+    fromJSON(rep, tickDifference=0, forceTakenPosition=false){
+        let takePosition = (!this.autonomous && rep["movement_mod_count"] > this.movementModCount) || forceTakenPosition;
+        if (this.getID() == "Person2" && this.scene.isLocal() && tickDifference==0 && !forceTakenPosition && !this.autonomous && Math.abs(this.y - rep["basic"]["y"]) > 50){
+            //console.log(takePosition, this.y, rep["basic"]["y"])
+            console.log(this);
+            console.log(rep);
+            breakProgram
+        }else if (this.getID() == "Person2" && takePosition){
+            //console.log(rep)
+        }
         // If this is local and the plane owned by the user then don't take decisions from server
         if (this.autonomous && this.isLocal()){
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
             this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
-            this.health = rep["basic"]["health"];
         }else if (!this.autonomous && !this.isLocal()){ // If server then take decisions from local
             this.decisions = rep["decisions"];
         }else{ // This is running in a browser but the user does not control this plane
             this.health = rep["basic"]["health"];
-            this.dead = rep["basic"]["dead"];
-            this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
             this.decisions = rep["decisions"];
         }
 
+        // TODO: Taking angle and facing right if !autonomous (only check needed) seems to fix some issues
+
         // If this is not the one controlling the plane and the local inputs are out of date
         if (takePosition){
+            this.movementModCount = rep["movement_mod_count"];
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
-            this.facingRight = rep["basic"]["facing_right"];
-            this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
+            this.facingRight = rep["basic"]["facing_right"];
+            this.angle = rep["basic"]["angle"];
             // Approximate plane positions in current tick based on position in server tick
             if (tickDifference > 0){
                 this.rollForward(tickDifference);
@@ -154,8 +162,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     tick(timeDiffMS){
-        this.radarLock.tick();
-        this.updateRadar();
+        // Only need radar if autonomous
+        if (this.autonomous){ this.radarLock.tick(); this.updateRadar(); }
         super.tick(timeDiffMS);
     }
 
@@ -165,16 +173,15 @@ class HumanFighterPlane extends FighterPlane {
         if (!this.autonomous || !activeGameMode.inputAllowed()){
             return;
         }
-        this.resetDecisions();
         let startingDecisions = copyObject(this.decisions);
+        this.resetDecisions();
         this.checkMoveLeftRight();
         this.checkUpDown();
         this.checkShoot();
         this.checkThrottle();
-        
         // Check if decisions have been modified
-        if (!FighterPlane.doDecisionsMatch(startingDecisions, this.decisions)){
-            this.modificationCount++;
+        if (FighterPlane.areMovementDecisionsChanged(startingDecisions, this.decisions)){
+            this.movementModCount++;
         }
     }
 

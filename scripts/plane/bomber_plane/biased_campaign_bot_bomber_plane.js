@@ -31,9 +31,8 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle, facingRight, biases){
+    constructor(planeClass, scene, angle, facingRight, biases, autonomous=true){
         super(planeClass, scene, angle, facingRight);
-        this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.biases = biases;
         this.generateGuns(biases);
         this.throttle += this.biases["throttle"];
@@ -96,26 +95,64 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
 
     // TODO: Comments
     fromJSON(rep){
-        // If running locally only take some attributes
-        if (this.autonomous){
+        let takePosition = !this.autonomous && rep["movement_mod_count"] > this.movementModCount;
+        // If this is local and the plane owned by the user then don't take decisions from server
+        if (this.autonomous && this.isLocal()){
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
             this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
             for (let i = 0; i < this.guns.length; i++){
-                this.gun.fromJSON(rep["guns"][i]);
+                this.guns[i].fromJSON(rep["guns"][i]);
             }
-        }else{ // Otherwise take everything
+        }else if (!this.autonomous && !this.isLocal()){ // If server then take decisions from local
+            this.decisions = rep["decisions"];
+            for (let i = 0; i < this.guns.length; i++){
+                this.guns[i].fromJSON(rep["guns"][i]);
+            }
+        }else{ // This is running in a browser but the user does not control this plane
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
+            this.decisions = rep["decisions"];
+            for (let i = 0; i < this.guns.length; i++){
+                this.guns[i].fromJSON(rep["guns"][i]);
+            }
+        }
+
+        // If this is not the one controlling the plane and the local inputs are out of date
+        if (takePosition){
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
             this.facingRight = rep["basic"]["facing_right"];
             this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
-            this.health = rep["basic"]["health"];
-            this.startingHealth = rep["basic"]["starting_health"];
-            this.dead = rep["basic"]["dead"];
-            this.decisions = rep["basic"]["decisions"];
-            this.udLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+            this.udLock.setTicksLeft(rep["locks"]["ud_lock"]);
+            // Approximate plane positions in current tick based on position in server tick
+            if (tickDifference > 0){
+                this.rollForward(tickDifference);
+            }else if (tickDifference < 0){
+                this.rollBackward(tickDifference);
+            }
+        }
+    }
+
+    initFromJSON(rep){
+        this.id = rep["basic"]["id"];
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        this.x = rep["basic"]["x"];
+        this.y = rep["basic"]["y"];
+        this.facingRight = rep["basic"]["facing_right"];
+        this.angle = rep["basic"]["angle"];
+        this.throttle = rep["basic"]["throttle"];
+        this.speed = rep["basic"]["speed"];
+        this.health = rep["basic"]["health"];
+        this.startingHealth = rep["basic"]["starting_health"];
+        this.decisions = rep["decisions"];
+        this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
+        for (let i = 0; i < this.guns.length; i++){
+            this.guns[i].fromJSON(rep["guns"][i]);
         }
     }
 
@@ -123,7 +160,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     static fromJSON(rep, scene, autonomous){
         let planeClass = rep["basic"]["plane_class"];
         let bp = new BiasedCampaignBotBomberPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
-        bp.fromJSON(rep)
+        bp.initFromJSON(rep)
         return bp;
     }
 
@@ -164,6 +201,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         if (this.decisions["bombing"]){
             if (this.bombLock.isReady()){
                 this.dropBomb();
+                this.bombLock.lock();
             }
         }
 

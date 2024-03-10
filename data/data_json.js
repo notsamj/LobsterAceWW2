@@ -268,11 +268,11 @@ const PROGRAM_DATA = {
 
     "sound_data": {
         "sounds": [
-            "shoot",
-            "explode",
-            "damage",
-            "engine",
-            "bomb"
+            { "name": "shoot", "type": "discrete" },
+            { "name": "explode", "type": "discrete" },
+            { "name": "damage", "type": "discrete" },
+            { "name": "engine", "type": "ongoing" },
+            { "name": "bomb", "type": "discrete" }
         ],
         "url": "./sounds",
         "file_type": ".mp3"

@@ -51,23 +51,17 @@ class Turret {
     */
     tick(){
         this.shootCD.tick();
-        this.makeDecisions();
-        this.executeDecisions();
+        /*this.makeDecisions();
+        this.executeDecisions();*/
     }
 
     // Abstract
     makeDecisions(){}
+    executeDecisions(){}
 
     // TODO: Comments
-    executeDecisions(){
-        // If decided to shoot
-        if (this.decisions["shooting"]){
-            if (this.shootCD.isReady()){
-                this.decisions["shooting"] = false;
-                this.shoot(this.decisions["angle"]);
-                this.shootCD.lock();
-            }
-        }
+    resetDecisions(){
+        this.decisions["shooting"] = false;
     }
 
     /*
@@ -128,20 +122,6 @@ class Turret {
     */
     getFov2(){
         return this.fov2;
-    }
-
-    /*
-        Method Name: shoot
-        Method Parameters:
-            shootingAngle:
-                Angle of the shot
-        Method Description: Shoots the turret, if the angle is in the allowed range.
-        Method Return: void
-    */
-    shoot(shootingAngle){
-        if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
-        this.scene.getSoundManager().play("shoot", this.getX(), this.getY());
-        this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
     }
 
     /*

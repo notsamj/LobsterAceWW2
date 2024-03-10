@@ -1,6 +1,8 @@
 /*
     Class Name: Mission
     Description: A game mode with attackers and defenders. Attackers must destroy all buildings, defenders destroy the attacker bomber plane.
+    Note: TODO: Comments
+    TODO: Make a remote mission and an abstract mission
 */
 class Mission extends GameMode {
     /*
@@ -10,24 +12,36 @@ class Mission extends GameMode {
                 A JSON object with information about the mission
             userEntityType:
                 The type of entity that the user is using
+            scene:
+                TODO
         Method Description: Constructor
         Method Return: Constructor
     */
-	constructor(missionObject, userEntityType){
+	constructor(missionObject, userEntityType, scene){
 		super();
         this.userEntityType = userEntityType;
 		this.missionObject = missionObject;
-		this.running = true;
-		this.tickManager = new SceneTickManager(Date.now(), scene, PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.stats = new AfterMatchStats();
+        this.scene = scene;
+        this.scene.getTeamCombatManager().setStatsManager(this.stats);
         this.allyDifficulty = menuManager.getMenuByName("missionStart").getAllyDifficulty();
         this.axisDifficulty = menuManager.getMenuByName("missionStart").getAxisDifficulty();
 		this.buildings = this.createBuildings();
 		this.planes = this.createPlanes(userEntityType);
         this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
         this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
-		scene.setEntities(appendLists(this.planes, this.buildings));
-        AfterMatchStats.reset();
+        this.startTime = Date.now();
+        this.numTicks = 0;
+        this.tickInProgressLock = new Lock();
+		this.scene.setEntities(appendLists(this.planes, this.buildings));
+        this.running = true;
+        this.scene.setBulletPhysicsEnabled(PROGRAM_DATA["settings"]["use_physics_bullets"]);
+        this.scene.enableTicks();
 	}
+
+    runsLocally(){
+        return true;
+    }
 
     /*
         Method Name: getAttackerDifficulty
@@ -76,15 +90,15 @@ class Mission extends GameMode {
         Method Return: void
     */
     async tick(){
-        if (!this.isRunning()){
-            return;
-        }
-        await this.tickManager.tick(() => {
-            this.attackerSpawnLock.tick();
-            this.defenderSpawnLock.tick();
-            this.checkSpawn();
-            this.checkForEnd();
-        });
+        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.paused){ return; }
+        await this.tickInProgressLock.awaitUnlock(true);
+        this.attackerSpawnLock.tick();
+        this.defenderSpawnLock.tick();
+        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.numTicks++;
+        this.checkSpawn();
+        this.checkForEnd();
+        this.tickInProgressLock.unlock();
     }
 
     /*
@@ -140,13 +154,13 @@ class Mission extends GameMode {
             userPlane.setDead(false);
             this.setupPlanes([userPlane]);
             // User must be currently a freecam (and focused)
-            let tempCamera = scene.getFocusedEntity();
-            scene.setFocusedEntity(userPlane);
+            let tempCamera = this.scene.getFocusedEntity();
+            this.scene.setFocusedEntity(userPlane);
             tempCamera.die();
         }
         this.setupPlanes(planes);
         for (let plane of planes){
-            scene.addPlane(plane);
+            this.scene.addPlane(plane);
         }
     }
 
@@ -192,7 +206,7 @@ class Mission extends GameMode {
         Method Return: void
     */
     endGame(attackerWon){
-        AfterMatchStats.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
+        this.stats.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
         this.running = false;
     }
 
@@ -216,11 +230,11 @@ class Mission extends GameMode {
             let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
             for (let i = 0; i < count; i++){
                 if (PROGRAM_DATA["plane_data"][planeModel]["type"] == "Bomber"){
-                    planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, scene, difficulty));
+                    planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, this.scene, difficulty));
                 }else if (side == "attackers"){
-                    planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
+                    planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, this.scene, difficulty));
                 }else { // Defender Fighter plane
-                    planes.push(BiasedCampaignDefenderBotFighterPlane.createBiasedPlane(planeModel, scene, difficulty));
+                    planes.push(BiasedCampaignDefenderBotFighterPlane.createBiasedPlane(planeModel, this.scene, difficulty));
                 }
             }
         }
@@ -276,13 +290,13 @@ class Mission extends GameMode {
     	
         // Add user plane (or freecam) to the planes list
     	if (userEntityType == "freecam"){
-    		planes.push(new SpectatorCamera(scene));
+    		planes.push(new SpectatorCamera(this.scene));
     	}else if (PROGRAM_DATA["plane_data"][userEntityType]["type"] == "Bomber"){
-    		planes.push(new HumanBomberPlane(userEntityType, scene))
+    		planes.push(new HumanBomberPlane(userEntityType, this.scene))
     	}else{ // User is fighter plane
-    		planes.push(new HumanFighterPlane(userEntityType, scene))
+    		planes.push(new HumanFighterPlane(userEntityType, this.scene))
     	}
-    	scene.setFocusedEntity(planes[0]);
+    	this.scene.setFocusedEntity(planes[0]);
     	
         // Populate with bot planes
 
@@ -356,7 +370,7 @@ class Mission extends GameMode {
     display(){
         this.updateHUD();
     	if (!this.isRunning()){
-            AfterMatchStats.display();
+            this.stats.display();
         }
     }
 }

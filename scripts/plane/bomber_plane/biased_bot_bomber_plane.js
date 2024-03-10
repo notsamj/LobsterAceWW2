@@ -4,6 +4,7 @@ if (typeof window === "undefined"){
     TickLock = require("../../general/tick_lock.js");
     BomberPlane = require("./bomber_plane.js");
     BiasedBotFighterPlane = require("../fighter_plane/biased_bot_fighter_plane.js");
+    BiasedBotBomberTurret = require("../../turret/biased_bot_bomber_turret.js");
     helperFunctions = require("../../general/helper_functions.js");
     displacementToDegrees = helperFunctions.displacementToDegrees;
     angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
@@ -47,6 +48,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         this.health += this.biases["health"];
         this.startingHealth = this.health;
         this.autonomous = autonomous;
+        this.enemyList = [];
     }
 
     // TODO: Comments
@@ -83,34 +85,73 @@ class BiasedBotBomberPlane extends BomberPlane {
 
     // TODO: Comments
     fromJSON(rep){
-        // If running locally only take some attributes
-        if (this.autonomous){
+        let takePosition = !this.autonomous && rep["movement_mod_count"] > this.movementModCount;
+        // If this is local and the plane owned by the user then don't take decisions from server
+        if (this.autonomous && this.isLocal()){
             this.health = rep["basic"]["health"];
             this.dead = rep["basic"]["dead"];
+            this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
             for (let i = 0; i < this.guns.length; i++){
-                this.gun.fromJSON(rep["guns"][i]);
+                this.guns[i].fromJSON(rep["guns"][i]);
             }
-        }else{ // Otherwise take everything
+        }else if (!this.autonomous && !this.isLocal()){ // If server then take decisions from local
+            this.decisions = rep["decisions"];
+            for (let i = 0; i < this.guns.length; i++){
+                this.guns[i].fromJSON(rep["guns"][i]);
+            }
+        }else{ // This is running in a browser but the user does not control this plane
+            this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
+            this.decisions = rep["decisions"];
+            for (let i = 0; i < this.guns.length; i++){
+                this.guns[i].fromJSON(rep["guns"][i]);
+            }
+        }
+
+        // If this is not the one controlling the plane and the local inputs are out of date
+        if (takePosition){
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
             this.facingRight = rep["basic"]["facing_right"];
             this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
-            this.health = rep["basic"]["health"];
-            this.startingHealth = rep["basic"]["starting_health"];
-            this.dead = rep["basic"]["dead"];
-            this.decisions = rep["basic"]["decisions"];
-            this.udLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+            this.udLock.setTicksLeft(rep["locks"]["ud_lock"]);
+            // Approximate plane positions in current tick based on position in server tick
+            if (tickDifference > 0){
+                this.rollForward(tickDifference);
+            }else if (tickDifference < 0){
+                this.rollBackward(tickDifference);
+            }
         }
     }
 
     // TODO: Comments
     static fromJSON(rep, scene, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let bp = new BiasedCampaignBotBomberPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
-        bp.fromJSON(rep)
+        let bp = new BiasedBotBomberPlane(planeClass, scene, 0, true, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
+        bp.initFromJSON(rep)
         return bp;
+    }
+
+    initFromJSON(rep){
+        this.id = rep["basic"]["id"];
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        this.x = rep["basic"]["x"];
+        this.y = rep["basic"]["y"];
+        this.facingRight = rep["basic"]["facing_right"];
+        this.angle = rep["basic"]["angle"];
+        this.throttle = rep["basic"]["throttle"];
+        this.speed = rep["basic"]["speed"];
+        this.health = rep["basic"]["health"];
+        this.startingHealth = rep["basic"]["starting_health"];
+        this.decisions = rep["decisions"];
+        this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
+        for (let i = 0; i < this.guns.length; i++){
+            this.guns[i].fromJSON(rep["guns"][i]);
+        }
     }
 
     /*
@@ -120,14 +161,14 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Return: List of planes
     */
     getFriendlyList(){
-        let entities = this.scene.getPlanes();
-        let enemies = [];
-        for (let entity of entities){
-            if (entity instanceof Plane && this.onSameTeam(entity) && entity.isAlive()){
-                enemies.push(entity);
+        let planes = this.scene.getPlanes();
+        let friendlies = [];
+        for (let plane of planes){
+            if (plane instanceof Plane && this.onSameTeam(plane) && plane.isAlive()){
+                friendlies.push(plane);
             }
         }
-        return enemies;
+        return friendlies;
     }
 
 
@@ -164,7 +205,6 @@ class BiasedBotBomberPlane extends BomberPlane {
             }
         }
         // Otherwise we are just looking for enemies
-
         if (this.updateEnemyLock.isReady()){
             this.updateEnemyLock.lock();
             // Check if the selected enemy should be changed
@@ -182,7 +222,7 @@ class BiasedBotBomberPlane extends BomberPlane {
 
         // Let guns make decisions
         for (let gun of this.guns){
-            gun.makeDecisions(enemyList);
+            gun.makeDecisions(this.enemyList);
         }
     }
 
@@ -304,10 +344,10 @@ class BiasedBotBomberPlane extends BomberPlane {
         if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= PROGRAM_DATA["settings"]["enemy_disregard_distance_time_constant"] * this.speed){
             return;
         }
-        let enemies = this.getEnemyList();
+        this.enemyList = this.getEnemyList();
         let bestRecord = null;
         // Loop through all enemies and determine a score for being good to attack
-        for (let enemy of enemies){
+        for (let enemy of this.enemyList){
             let distance = this.distance(enemy);
             let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * PROGRAM_DATA["settings"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"]);
             if (focusedCountMultiplier < 1 ){ focusedCountMultiplier = 1; }

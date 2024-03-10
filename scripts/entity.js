@@ -18,14 +18,37 @@ class Entity {
         this.y = null;
         this.scene = scene;
         this.dead = false;
+        this.interpolatedX = 0;
+        this.interpolatedY = 0;
     }
 
+    /*
+        Method Name: isLocal
+        Method Parameters: None
+        Method Description: Determines if an entity (instance not other copies) is present in the browser rather than on the NodeJS server 
+        Method Return: Boolean, true -> In a browser, false -> not in a browser (on a server)
+    */
     isLocal(){
         return this.scene.isLocal();
     }
 
+    /*
+        Method Name: calculateInterpolatedCoordinates
+        Method Parameters: None
+        Method Description: Calculates the x and y coordinates of this object at the current moment
+        Method Return: void
+    */
+    calculateInterpolatedCoordinates(displayTime){
+        // TODO: Clean this up
+        if (activeGameMode.paused || !activeGameMode.isRunning() || this.isDead()){
+            return;
+        }
+        let extraTime = (displayTime - (activeGameMode.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks)) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+        this.interpolatedX = this.x + this.xVelocity * extraTime / 1000;
+        this.interpolatedY = this.y + this.yVelocity * extraTime / 1000;
+    }
+
     // Abstract
-    calculateInterpolatedCoordinates(){}
     getInterpolatedX(){}
     getInterpolatedY(){}
 

@@ -219,9 +219,9 @@ class MenuManager {
             return this.missionStartMenu;
         }else if (menuName == "extraSettings"){
             return this.extraSettingsMenu;
-        }else if (newMenu == "participant"){
+        }else if (menuName == "participant"){
             return this.participantMenu;
-        }else if (newMenu == "host"){
+        }else if (menuName == "host"){
             return this.hostMenu;
         }
         // Else

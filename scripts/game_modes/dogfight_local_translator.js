@@ -1,7 +1,7 @@
 // TODO: Comment class
 class DogfightLocalTranslator {
-    constructor(dogFightJSON){
-        this.dogfight = new Dogfight(dogFightJSON);
+    constructor(dogfightJSON){
+        this.dogfight = new Dogfight(dogfightJSON);
     }
 
     async getState(){

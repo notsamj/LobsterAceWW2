@@ -52,22 +52,20 @@ class FighterPlane extends Plane {
     }
 
     // TODO: Comments
-    static doDecisionsMatch(decisions1, decisions2){
-        let c1 = decisions1["face"] == decisions2["face"];
-        if (!c1){ return false; }
-        let c2 = decisions1["angle"] == decisions2["angle"];
-        if (!c2){ return false; }
-        let c3 = decisions1["shoot"] == decisions2["shoot"];
-        if (!c3){ return false; }
-        let c4 = decisions1["throttle"] == decisions2["throttle"];
-        return c4;
+    static areMovementDecisionsChanged(decisions1, decisions2){
+        let c1 = decisions1["face"] != decisions2["face"];
+        if (c1){ return true; }
+        let c2 = decisions1["angle"] != decisions2["angle"];
+        if (c2){ return true; }
+        let c3 = decisions1["throttle"] != decisions2["throttle"];
+        return c3;
     }
 
     // TODO: Comments
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            if (this.shootLock.isReady() && !this.scene.isLocal()){
+            if (this.shootLock.isReady() && (!this.scene.isLocal() || activeGameMode.runsLocally())){
                 this.shootLock.lock();
                 this.shoot();
             }
@@ -99,6 +97,7 @@ class FighterPlane extends Plane {
         this.scene.getSoundManager().play("shoot", this.x, this.y);
         // If using physical bullets then do it this way
         if (this.scene.areBulletPhysicsEnabled()){
+            //console.log("add bullet")
             this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
         }else{ // Fake bullets
             this.instantShot(this.getGunX(), this.getGunY(), this.getNoseAngle());

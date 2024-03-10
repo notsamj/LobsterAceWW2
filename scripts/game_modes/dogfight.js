@@ -2,6 +2,7 @@
     Class Name: Dogfight
     Description: The state of a dogfight
 */
+// TODO: Comment this file
 class Dogfight extends GameMode {
     /*
         Method Name: constructor
@@ -14,49 +15,21 @@ class Dogfight extends GameMode {
     constructor(scene){
         super();
         this.scene = scene;
-        this.startingEntities = [];
         this.running = false;
         this.winner = null;
         this.isATestSession = false;
-        this.tickManager = new SceneTickManager(Date.now(), this.scene, PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        AfterMatchStats.reset();
+        this.stats = new AfterMatchStats();
+        this.scene.getTeamCombatManager().setStatsManager(this.stats);
+        this.tickInProgressLock = new Lock();
+        this.startTime = Date.now();
+        this.numTicks = 0;
+        this.userEntity = null;
+        this.paused = false;
     }
 
-    /*
-        Method Name: start
-        Method Parameters:
-            startingEntities:
-                The entities to start the dogfight with
-        Method Description: Starts a dogfight
-        Method Return: void
-    */
-    start(startingEntities){
-        this.startingEntities = startingEntities;
-        this.isATestSession = this.isThisATestSession();
-        this.running = true;
-        this.tickManager.setStartTime(Date.now());
+    isRunningATestSession(){
+        return this.isATestSession;
     }
-
-    /*
-        Method Name: getTickManager
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: TickManager
-    */
-    getTickManager(){
-        return this.tickManager;
-    }
-
-    /*
-        Method Name: isRunning
-        Method Parameters: None
-        Method Description: Proxy for accessing a boolean value
-        Method Return: boolean, true -> running, false -> not running
-    */
-    isRunning(){
-        return this.running;
-    }
-
     /*
         Method Name: tick
         Method Parameters: None
@@ -64,12 +37,35 @@ class Dogfight extends GameMode {
         Method Return: void
     */
     async tick(){
-        if (!this.isRunning()){
+        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.paused){ return; }
+        // Update camera
+        this.updateCamera();
+        await this.tickInProgressLock.awaitUnlock(true);
+        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.numTicks++;
+        this.checkForEnd();
+        this.tickInProgressLock.unlock();
+    }
+
+    // TODO: Comments
+    updateCamera(){
+        // No need to update if user is meant to be a camera
+        if (this.userEntity instanceof SpectatorCamera){
+            return;
+        }else if (this.userEntity.isAlive() && this.deadCamera == null){ // No need to do anything if following user
             return;
         }
-        await this.tickManager.tick(() => {
-            this.checkForEnd();
-        });
+
+        // if the user is dead then switch to dead camera
+        if (this.userEntity.isDead() && this.deadCamera == null){
+            this.deadCamera = new SpectatorCamera(scene, this.userEntity.getX(), this.userEntity.getY());
+            scene.addEntity(this.deadCamera);
+            scene.setFocusedEntity(this.deadCamera);
+        }else if (this.userEntity.isAlive() && this.deadCamera != null){ // More appropriate for campaign (resurrection) but whatever
+            this.deadCamera.die(); // Kill so automatically deleted by scene
+            this.deadCamera = null;
+            scene.setFocusedEntity(this.userEntity);
+        }
     }
 
     /*
@@ -82,7 +78,7 @@ class Dogfight extends GameMode {
         let allyCount = 0;
         let axisCount = 0;
         // Loop through all the planes, count how many are alive
-        for (let entity of this.startingEntities){
+        for (let entity of this.planes){
             if (entity instanceof Plane && !entity.isDead()){
                 let plane = entity;
                 if (planeModelToAlliance(plane.getPlaneClass()) == "Axis"){
@@ -95,7 +91,7 @@ class Dogfight extends GameMode {
         // Check if the game is over and act accordingly
         if ((axisCount == 0 || allyCount == 0) && !this.isATestSession){
             this.winner = axisCount != 0 ? "Axis" : "Allies";
-            AfterMatchStats.setWinner(this.winner);
+            this.stats.setWinner(this.winner);
             this.running = false;
         }
     }
@@ -109,7 +105,7 @@ class Dogfight extends GameMode {
     isThisATestSession(){
         let allyCount = 0;
         let axisCount = 0;
-        for (let entity of this.startingEntities){
+        for (let entity of this.planes){
             if (entity instanceof Plane){
                 let plane = entity;
                 if (planeModelToAlliance(plane.getPlaneClass()) == "Axis"){

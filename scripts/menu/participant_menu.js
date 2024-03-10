@@ -18,6 +18,13 @@ class ParticipantMenu extends Menu {
         this.setup();
     }
 
+    resetSettings(){
+        this.userPlaneIndex = 0;
+
+        // Update the UI
+        this.userPlaneStaticImage.setImage(images[this.userPlanes[this.userPlaneIndex]]);
+    }
+
     /*
         Method Name: setup
         Method Parameters: None
@@ -53,6 +60,7 @@ class ParticipantMenu extends Menu {
         userPlane.setOnClick(() => {
             userPlane.setImage(this.switchPlanes()); 
         });
+        this.userPlaneStaticImage = userPlane;
         this.components.push(userPlane);
     }
 
@@ -100,6 +108,7 @@ class ParticipantMenu extends Menu {
         Method Return: void
     */
     goToMainMenu(){
+        SERVER_CONNECTION.sendJSON({"action": "leave_game"});
         menuManager.switchTo("main");
     }
 }
