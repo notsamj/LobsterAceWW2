@@ -1,21 +1,6 @@
-const PlaneGameScene = require("../scripts/plane_game_scene.js");
-const SoundManager = require("../scripts/general/sound_manager.js");
-const AfterMatchStats = require("../scripts/after_match_stats.js");
-const TickScheduler = require("../scripts/tick_scheduler.js");
-const Lock = require("../scripts/general/lock.js");
-const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
-const helperFunctions = require("../scripts/general/helper_functions.js");
-
-const HumanFighterPlane = require("../scripts/plane/fighter_plane/human_fighter_plane.js");
-const HumanBomberPlane = require("../scripts/plane/bomber_plane/human_bomber_plane.js");
-const BiasedBotBomberPlane = require("../scripts/plane/bomber_plane/biased_bot_bomber_plane.js");
-const BiasedBotFighterPlane = require("../scripts/plane/fighter_plane/biased_bot_fighter_plane.js");
-
-/*
-    Class Name: ServerDogfight
-    Description: A dogfight that is run by a server with connected clients.
-*/
-class ServerDogfight {
+// TODO: Comments
+const PlaneGameScene = require("../scripts/game_modes/mission.js");
+class ServerMisson extends Mission {
     /*
         Method Name: constructor
         Method Parameters:
@@ -27,6 +12,7 @@ class ServerDogfight {
     constructor(dogfightJSON){
         this.winner = null;
         this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
+        this.isATestSession = this.isThisATestSession(dogfightJSON);
         this.numTicks = 0;
 
         this.soundManager = new SoundManager();
@@ -45,15 +31,10 @@ class ServerDogfight {
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
-        this.isATestSession = this.isThisATestSession(dogfightJSON);
         this.running = true;
         this.paused = false;
         this.gameOver = false;
         this.lastState = this.generateState();
-    }
-
-    isPaused(){
-        return false;
     }
 
     /*
@@ -184,25 +165,6 @@ class ServerDogfight {
     isThisATestSession(dogfightJSON){
         let noAllies = true;
         let noAxis = true;
-        // Check humans
-        for (let userObject of dogfightJSON["users"]){
-            let planeModel = userObject["model"];
-            if (planeModel == "freecam"){ return; }
-            if (planeModelToAlliance(planeModel) == "Axis"){
-                noAxis = false;
-            }else if (planeModelToAlliance(planeModel) == "Allies"){
-                noAllies = false;
-            }
-            // If determines its not a test session stop checking
-            if (!(noAxis || noAllies)){
-                break;
-            }
-        }
-        // If there are both allies and axis then return false
-        if (!(noAxis || noAllies)){
-            return false;
-        }
-        // Check bots
         for (let [planeModel, planeCount] of Object.entries(dogfightJSON["plane_counts"])){
             if (planeModelToAlliance(planeModel) == "Axis" && planeCount > 0){
                 noAxis = false;
@@ -210,11 +172,11 @@ class ServerDogfight {
                 noAllies = false;
             }
             // If determines its not a test session stop checking
-            if (!noAxis && !noAllies){
+            if (!noAxis && !noAxis){
                 break;
             }
         }
-        return noAxis || noAllies;
+        return noAxis || noAxis;
     }
 
     /*
@@ -367,4 +329,4 @@ class ServerDogfight {
         this.userInputLock.unlock();
     }
 }
-module.exports=ServerDogfight;
+module.exports=ServerMisson;

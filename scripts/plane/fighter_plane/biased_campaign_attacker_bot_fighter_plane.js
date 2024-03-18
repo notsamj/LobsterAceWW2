@@ -161,7 +161,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             this.decisions["angle"] = 1;
         }
         // Speed up or slow down depending on bomber's speed
-        if (this.getSpeed() > bomber.getSpeed()){
+        if (this.getSpeed() > bomber.getSpeed() + PROGRAM_DATA["ai"]["fighter_plane"]["bomber_cruise_speed_following_offset"]){
             this.decisions["throttle"] = -1;
         }else{
             this.decisions["throttle"] = 1;

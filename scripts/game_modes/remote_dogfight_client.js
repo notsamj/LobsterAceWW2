@@ -1,4 +1,5 @@
 // TODO: Comment class
+// TODO: Extend game mode?
 class RemoteDogfightClient {
     constructor(dogfightTranslator){
         this.translator = dogfightTranslator;
@@ -18,6 +19,15 @@ class RemoteDogfightClient {
         this.running = false;
         this.gameOver = false;
         this.startUp();
+    }
+
+    correctTicks(){ return; }
+    getNumTicks(){
+        return this.numTicks;
+    }
+
+    getStartTime(){
+        return this.startTime;
     }
 
     isPaused(){ return false; }
@@ -240,6 +250,7 @@ class RemoteDogfightClient {
             scene.addEntity(this.userEntity);
         }
         scene.setFocusedEntity(this.userEntity);
+        console.log("Set focused entity to", this.userEntity)
         this.startTime = state["start_time"];
         this.numTicks = state["num_ticks"];
         this.running = true;

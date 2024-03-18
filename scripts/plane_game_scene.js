@@ -163,22 +163,6 @@ class PlaneGameScene extends Scene {
     }
 
     /*
-        Method Name: getBuildings
-        Method Parameters: None
-        Method Description: Find all the buildings and return them in a list.
-        Method Return: List of Building
-    */
-    getBuildings(){
-        let buildings = [];
-        for (let [entity, entityIndex] of this.entities){
-            if (entity instanceof Building){
-                buildings.push(entity);
-            }
-        }
-        return buildings;
-    }
-
-    /*
         Method Name: getPlanes
         Method Parameters: None
         Method Description: Gets all the planes and returns them
@@ -300,7 +284,8 @@ class PlaneGameScene extends Scene {
         this.entities.clear();
         this.teamCombatManager.clear();
         for (let entity of entities){
-            if (entity instanceof Plane || entity instanceof Bullet){
+            // TODO: This is somewhat ugly
+            if (entity instanceof Plane || entity instanceof Bullet || entity instanceof Bomb || entity instanceof Building){
                 this.teamCombatManager.addEntity(entity);
             }else{
                 this.entities.push(entity);
@@ -469,8 +454,8 @@ class PlaneGameScene extends Scene {
         }
         // TODO: Clean this up
         HEADS_UP_DISPLAY.updateElement("Entities", numberOfEntities);
-        HEADS_UP_DISPLAY.updateElement("Allied Planes Remaining", allyPlanes);
-        HEADS_UP_DISPLAY.updateElement("Axis Planes Remaining", axisPlanes);
+        HEADS_UP_DISPLAY.updateElement("Allied Planes", allyPlanes);
+        HEADS_UP_DISPLAY.updateElement("Axis Planes", axisPlanes);
         HEADS_UP_DISPLAY.display();
     }
     
@@ -548,8 +533,8 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     display(){
-        let displayTime = Date.now();
         if (!this.displayEnabled){ return; }
+        let displayTime = Date.now();
         let lX = 0; // Bottom left x
         let bY = 0; // Bottom left y
         let focusedEntity = null;
@@ -575,6 +560,10 @@ class PlaneGameScene extends Scene {
 
         // Display all extra entities
         for (let [entity, eI] of this.entities){
+            entity.display(lX, bY, displayTime);
+        }
+
+        for (let [entity, eI] of this.teamCombatManager.getBombs()){
             entity.display(lX, bY, displayTime);
         }
         

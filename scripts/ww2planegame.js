@@ -36,6 +36,8 @@ USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 8
 async function tick(forced=false){
     // Safety incase an error occurs stop running
     if (programOver){ return; }
+    // Fix num ticks if running a huge defecit
+    if (activeGameMode != null && activeGameMode.getNumTicks() < activeGameMode.getExpectedTicks() - PROGRAM_DATA["settings"]["max_tick_deficit"]){ activeGameMode.correctTicks(); }
     if (mainTickLock.notReady()){
         runningTicksBehind++;
         console.log("Main tick loop is running %d ticks behind.", runningTicksBehind)
@@ -49,7 +51,7 @@ async function tick(forced=false){
     }
     // Play game
     if (activeGameMode != null){
-        //console.log(activeGameMode.getExpectedTicks() - activeGameMode.numTicks)
+        //console.log(activeGameMode.getExpectedTicks() - activeGameMode.getNumTicks)
         await activeGameMode.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
         await activeGameMode.tickInProgressLock.awaitUnlock(true); // TODO: Clean up with getter
     }
@@ -130,8 +132,8 @@ async function setup() {
     HEADS_UP_DISPLAY.updateElement("Speed", 0);
     HEADS_UP_DISPLAY.updateElement("x", 0);
     HEADS_UP_DISPLAY.updateElement("y", 0);
-    HEADS_UP_DISPLAY.updateElement("Allied Planes Remaining", 0);
-    HEADS_UP_DISPLAY.updateElement("Axis Planes Remaining", 0);
+    HEADS_UP_DISPLAY.updateElement("Allied Planes", 0);
+    HEADS_UP_DISPLAY.updateElement("Axis Planes", 0);
 
 
     // Set up scene & menus

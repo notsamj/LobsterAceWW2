@@ -68,7 +68,7 @@ class BomberPlane extends Plane {
     */
     dropBomb(){
         this.scene.getSoundManager().play("bomb", this.x, this.y);
-        this.scene.addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.scene, this.getXVelocity(), this.getYVelocity()));
+        this.scene.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.scene, this.getXVelocity(), this.getYVelocity()));
     }
 
     /*

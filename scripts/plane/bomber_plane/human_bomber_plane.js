@@ -40,6 +40,11 @@ class HumanBomberPlane extends BomberPlane {
     }
 
     // TODO: Comments
+    setAutonomous(value){
+        this.autonomous = value;
+    }
+
+    // TODO: Comments
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;

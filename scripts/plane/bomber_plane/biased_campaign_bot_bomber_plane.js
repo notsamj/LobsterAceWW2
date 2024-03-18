@@ -319,7 +319,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     getBuildingInfo(){
         let frontEnd = null;
         let backEnd = null;
-        for (let building of activeGameMode.getBuildings()){
+        for (let [building, bI] of this.scene.getTeamCombatManager().getBuildings()){
             if (frontEnd == null || building.getX() < frontEnd){
                 frontEnd = building.getX();
             }

@@ -54,6 +54,16 @@ class Plane extends Entity {
         this.movementModCount = 0;
     }
 
+    // TODO: Comments
+    increaseModCount(){
+        this.movementModCount += 1;
+    }
+
+    // TODO: Comments
+    setAlive(alive){
+        this.dead = !alive;
+    }
+
     // TODO: Comment these two
     getX2BeforeTick(){
         return this.x - this.getXVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
@@ -602,12 +612,13 @@ class Plane extends Entity {
         /*this.interpolatedX = this.x;
         this.interpolatedY = this.y;
         return;*/
-        let extraTime = (currentTime - (activeGameMode.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks)) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+        let extraTime = (currentTime - (activeGameMode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
         let newPositionValues = this.getNewPositionValues(extraTime);
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
+        //console.log(this.interpolatedX, extraTime)
         // This sort of works its a tiny bit shakey for a straight line
-        //this.interpolatedX = this.x + this.speed * (currentTime - (activeGameMode.tickScheduler.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.numTicks)) / 1000;
+        //this.interpolatedX = this.x + this.speed * (currentTime - (activeGameMode.tickScheduler.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.getNumTicks)) / 1000;
         // This works for smooth performance when going in a straight line
         // this.interpolatedX = 50e3 + 594 * (currentTime - activeGameMode.tickScheduler.startTime) / 1000; 
     }
@@ -675,11 +686,25 @@ class Plane extends Entity {
             rotate(-1 * toRadians(this.getAngle()));
             // If facing left then turn around the display
             if (!this.isFacingRight()){
-                scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
+                try{
+                    scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
+                }catch(e){
+                    console.log(this.getSmokeNumber())
+                    console.log(e);
+                    console.log(this);
+                    debugger;
+                }
             }
 
             // Display smoke
-            drawingContext.drawImage(this.getSmokeImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
+            try {
+                drawingContext.drawImage(this.getSmokeImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
+            }catch(e){
+                console.log(this.getSmokeNumber())
+                console.log(e);
+                console.log(this);
+                debugger;
+            }
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){

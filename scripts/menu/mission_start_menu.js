@@ -59,7 +59,7 @@ class MissionStartMenu extends Menu {
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            activeGameMode = new Mission(this.mission, this.userPlanes[this.userPlaneIndex], scene);
+            activeGameMode = new LocalMission(this.mission, this.createJSONRep(), scene);
             this.goToGame();
         }));
 
@@ -105,6 +105,24 @@ class MissionStartMenu extends Menu {
         this.components.push(new RectangleButton(() => { return this.getAxisDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisDifficultyButtonX, axisDifficultyButtonY, difficultyButtonSize, difficultyButtonSize, (instance) => {
             this.cycleAxisDifficulty();
         }));
+    }
+
+    // TODO: Comments
+    createJSONRep(){
+        let jsonRep = {};
+        jsonRep["users"] = [];
+        // If not a freecam, then add to users list
+        let userEntityType = this.userPlanes[this.userPlaneIndex];
+        // If not a freecam, then add to users list
+        if (userEntityType != "freecam"){
+            jsonRep["users"].push({
+                "model": userEntityType,
+                "id": USER_DATA["name"]
+            });
+        }
+        jsonRep["ally_difficulty"] = this.allyDifficulty;
+        jsonRep["axis_difficulty"] = this.axisDifficulty;
+        return jsonRep;
     }
 
     /*

@@ -43,7 +43,7 @@ class PlaneRadar extends Radar {
         }
 
         // Add all buildings to radar
-        for (let building of this.plane.getScene().getBuildings()){
+        for (let [building, bI] of scene.getTeamCombatManager().getBuildings()){
             this.placeOnRadar(building.getCenterX(), building.getCenterY(), "#919191");
         }
     }

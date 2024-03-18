@@ -23,10 +23,20 @@ class TeamCombatManager {
     constructor(teams, scene){
         this.planes = {};
         this.bullets = {};
+        this.buildings = new NotSamLinkedList();
+        this.bombs = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bombs"]);
         this.teams = teams;
         this.stats = new AfterMatchStats();
         this.scene = scene;
-        this.clear();
+        for (let team of teams){
+            this.planes[team] = new NotSamLinkedList();
+            this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets"]);
+        }
+    }
+
+    // TODO: Comments
+    getAllPlanesFromAlliance(allianceName){
+        return this.planes[allianceName];
     }
 
     // TODO: Comments
@@ -43,6 +53,8 @@ class TeamCombatManager {
     clear(){
         this.clearPlanes();
         this.clearBullets();
+        this.buildings.clear();
+        this.bombs.clear();
     }
 
     /*
@@ -53,7 +65,7 @@ class TeamCombatManager {
     */
     clearPlanes(){
         for (let team of this.teams){
-            this.planes[team] = new NotSamLinkedList();
+            this.planes[team].clear();
         }
     }
 
@@ -65,7 +77,7 @@ class TeamCombatManager {
     */
     clearBullets(){
         for (let team of this.teams){
-            this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets"]);
+            this.bullets[team].clear();
         }
     }
 
@@ -73,8 +85,8 @@ class TeamCombatManager {
         Method Name: addEntity
         Method Parameters:
             entity:
-                Plane or bullet
-        Method Description: Adds either a plane or a bullet
+                Plane or bullet or bomb or a building
+        Method Description: Adds either a plane or a bullet or a bomb or a building
         Method Return: void
     */
     addEntity(entity){
@@ -82,6 +94,10 @@ class TeamCombatManager {
             this.addPlane(entity);
         }else if (entity instanceof Bullet){
             this.addBullet(entity);
+        }else if (entity instanceof Bomb){
+            this.addBomb(entity);
+        }else if (entity instanceof Building){
+            this.addBuilding(entity);
         }
     }
 
@@ -139,6 +155,44 @@ class TeamCombatManager {
         planeLL.push(plane);
     }
 
+    // TODO: Comments
+    addBuilding(building){
+        building.setID("building_" + this.buildings.getLength());
+        this.buildings.push(building);
+    }
+
+    // TODO: Comments
+    getBuildings(){
+        return this.buildings;
+    }
+
+    /*
+        Method Name: addBomb
+        Method Parameters:
+            bomb:
+                A bomb to add
+        Method Description: Adds a bomb to the list of bombs, also sets the ID
+        Method Return: void
+    */
+    addBomb(bomb){
+        let bombArray = this.bombs;
+        for (let [exisitingBomb, index] of bombArray){
+            if (exisitingBomb.isDead()){
+                bomb.setID("b" + "_" + index);
+                bomb.setIndex(index);
+                bombArray.put(index, bomb);
+                return;
+            }
+        }
+        // No empty spaces found...
+        if (bombArray.getLength() < bombArray.getSize()){
+            let bombIndex = bombArray.getLength();
+            bomb.setID("bomb"+ "_" + bombIndex);
+            bomb.setIndex(bombIndex);
+            bombArray.append(bomb);
+        }
+    }
+
     /*
         Method Name: addBullet
         Method Parameters:
@@ -187,6 +241,10 @@ class TeamCombatManager {
                 await bullet.tick(timeDiff);
             }
         }
+        for (let [bomb, bombIndex] of this.bombs){
+            if (bomb.isDead()){ continue; }
+            bomb.tick(timeDiff);
+        }
         this.checkCollisions(timeDiff);
     }
 
@@ -211,18 +269,14 @@ class TeamCombatManager {
         }
 
         // For each bomb check each building for collisions
-        for (let [entity, eI] of this.scene.getEntities()){
-            if (entity instanceof Building){
-                for (let [entity2, eI2] of this.scene.getEntities()){
-                    if (entity2 instanceof Bomb){
-                        let building = entity;
-                        let bomb = entity2;
-                        if (bomb.collidesWith(building, timeDiff)){
-                            building.damage(1);
-                            bomb.die();
-                            break;
-                        }
-                    }
+        for (let [bomb, bombIndex] of this.bombs){
+            if (bomb.isDead()){ continue; }
+            for (let [building, buildingIndex] of this.buildings){
+                if (building.isDead()){ continue; }
+                if (bomb.collidesWith(building, timeDiff)){
+                    building.damage(1);
+                    bomb.die();
+                    break;
                 }
             }
         }
@@ -384,6 +438,14 @@ class TeamCombatManager {
                 }
             }
         }
+
+        for (let [building, buildingIndex] of this.buildings){
+            building.display(lX, bY, displayTime);
+        }
+
+        for (let [bomb, bombIndex] of this.bombs){
+            //bomb.display(lX, bY, displayTime);
+        }
     }
 
     /*
@@ -456,6 +518,11 @@ class TeamCombatManager {
         return bullets;
     }
 
+    // TODO: Comments
+    getBombs(){
+        return this.bombs;
+    }
+
     /*
         Method Name: countAlliance
         Method Parameters:
@@ -523,19 +590,62 @@ class TeamCombatManager {
     }
 
     // TODO: Comments
+    getBombJSON(){
+        let bombJSON = [];
+        for (let [bomb, bombIndex] of this.bombs){
+            bombJSON.push(bomb.toJSON());
+        }
+        return bombJSON;
+    }
+
+    // TODO: Comments
+    getBuildingJSON(){
+        let buildingJSON = [];
+        for (let [building, buildingIndex] of this.buildings){
+            buildingJSON.push(building.toJSON());
+        }
+        return buildingJSON;
+    }
+    
+    // TODO: Comments
+    fromBuildingJSON(buildingsJSON){
+        let index = 0;
+        for (let buildingJSON of buildingsJSON){
+            // Add building or set stats from JSON 
+            if (index >= this.buildings.getLength()){
+                this.buildings.push(Building.fromJSON(buildingJSON, this.scene));
+            }else{
+                this.buildings.get(index).fromJSON(buildingJSON, this.scene);
+            }
+            index++;
+        }
+    }
+
+    // TODO: Comments
+    fromBombJSON(bombsJSON){
+        for (let bombJSON of bombsJSON){
+            let index = bombJSON["index"];
+            // Add bomb 
+            if (index >= this.bombs.getLength()){
+                this.bombs.push(Bomb.fromJSON(bombJSON, this.scene));
+            }else{
+                this.bombs.get(index).fromJSON(bombJSON, this.scene);
+            }
+        }
+    }
+
+    // TODO: Comments
     fromBulletJSON(bulletsJSON){
-        //let c = 0;
-       //let c2 = 0;
         for (let bulletJSON of bulletsJSON){
             let allianceName = planeModelToAlliance(bulletJSON["shooter_class"]);
             let index = bulletJSON["index"];
             // Add bullet 
             if (index >= this.bullets[allianceName].getLength()){
-                this.bullets[allianceName].push(Bullet.fromJSON(bulletJSON, scene));
+                this.bullets[allianceName].push(Bullet.fromJSON(bulletJSON, this.scene));
                 //c++;
             }else{
                 //console.log(index, this.bullets[allianceName].getLength(), this.bullets[allianceName].get(index))
-                this.bullets[allianceName].get(index).fromJSON(bulletJSON, scene);
+                this.bullets[allianceName].get(index).fromJSON(bulletJSON, this.scene);
                 //c2++;
             }
         }

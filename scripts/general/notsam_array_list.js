@@ -34,6 +34,11 @@ class NotSamArrayList {
         }
     }
 
+    // TODO: Comments
+    clear(){
+        this.length = 0;
+    }
+
     /*
         Method Name: convert_from_array
         Method Parameters:

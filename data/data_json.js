@@ -167,6 +167,7 @@ const PROGRAM_DATA = {
         "max_bullet_y_velocity_multiplier": 2/800,
         "plane_shoot_gap_ms": 100,
         "max_bullets": 2000,
+        "max_bombs": 500,
         "saved_ticks": 500,
         "keep_alive_interval": 5000,
         "time_to_ready_up": 5000, // 5000
@@ -180,7 +181,8 @@ const PROGRAM_DATA = {
         "max_expected_screen_width": 3840,
         "max_expected_screen_height": 2160,
         "max_cloud_animation_speed_y": 0.5,
-        "max_cloud_animation_speed_x": 0.5
+        "max_cloud_animation_speed_x": 0.5,
+        "max_tick_deficit": 100
     },
     "constants": {
         "gravity": 9.81
@@ -198,6 +200,7 @@ const PROGRAM_DATA = {
             "max_enemy_distance_campaign": 5000,
             "max_x_distance_from_bomber_cruising_campaign": 2000,
             "max_y_distance_from_bomber_cruising_campaign": 500,
+            "bomber_cruise_speed_following_offset": 1,
             "update_enemy_cooldown": 1000,
             "max_ticks_on_course": 6000,
             "tick_cd": 500,
@@ -300,14 +303,15 @@ const PROGRAM_DATA = {
             "attackers": "Allies",
             "defenders": "Axis",
             "easy": {
+                "max_planes": 40,
                 "attacker_plane_counts": {
-                    "republic_p_47": 3, // 5?
-                    "p51_mustang": 3, // 5?
+                    "republic_p_47": 3, // 5? 3?
+                    "p51_mustang": 3, // 5? 3?
                     "b24": 1
                 },
                 "defender_plane_counts": {
-                    "me_309": 3,
-                    "me_bf_109": 3
+                    "me_309": 3, // 3?
+                    "me_bf_109": 3 // 3
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
@@ -321,6 +325,7 @@ const PROGRAM_DATA = {
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "medium": {
+                "max_planes": 50,
                 "attacker_plane_counts": {
                     "republic_p_47": 3, // 5?
                     "p51_mustang": 3, // 5?
@@ -342,6 +347,7 @@ const PROGRAM_DATA = {
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hard": {
+                "max_planes": 60,
                 "attacker_plane_counts": {
                     "republic_p_47": 5,
                     "p51_mustang": 5,
@@ -363,6 +369,7 @@ const PROGRAM_DATA = {
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
+                "max_planes": 70,
                 "attacker_plane_counts": {
                     "republic_p_47": 8,
                     "p51_mustang": 8,
@@ -428,6 +435,7 @@ const PROGRAM_DATA = {
             "attackers": "Allies",
             "defenders": "Axis",
             "easy": {
+                "max_planes": 40,
                 "attacker_plane_counts": {
                     "republic_p_47": 3, // 5?
                     "p51_mustang": 3, // 5?
@@ -449,6 +457,7 @@ const PROGRAM_DATA = {
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "medium": {
+                "max_planes": 50,
                 "attacker_plane_counts": {
                     "republic_p_47": 3, // 5?
                     "p51_mustang": 3, // 5?
@@ -470,6 +479,7 @@ const PROGRAM_DATA = {
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hard": {
+                "max_planes": 60,
                 "attacker_plane_counts": {
                     "republic_p_47": 5,
                     "p51_mustang": 5,
@@ -491,6 +501,7 @@ const PROGRAM_DATA = {
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
+                "max_planes": 70,
                 "attacker_plane_counts": {
                     "republic_p_47": 8,
                     "p51_mustang": 8,

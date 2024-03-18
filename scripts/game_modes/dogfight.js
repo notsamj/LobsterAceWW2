@@ -30,43 +30,6 @@ class Dogfight extends GameMode {
     isRunningATestSession(){
         return this.isATestSession;
     }
-    /*
-        Method Name: tick
-        Method Parameters: None
-        Method Description: Run the actions that take place during a tick
-        Method Return: void
-    */
-    async tick(){
-        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.paused){ return; }
-        // Update camera
-        this.updateCamera();
-        await this.tickInProgressLock.awaitUnlock(true);
-        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.numTicks++;
-        this.checkForEnd();
-        this.tickInProgressLock.unlock();
-    }
-
-    // TODO: Comments
-    updateCamera(){
-        // No need to update if user is meant to be a camera
-        if (this.userEntity instanceof SpectatorCamera){
-            return;
-        }else if (this.userEntity.isAlive() && this.deadCamera == null){ // No need to do anything if following user
-            return;
-        }
-
-        // if the user is dead then switch to dead camera
-        if (this.userEntity.isDead() && this.deadCamera == null){
-            this.deadCamera = new SpectatorCamera(scene, this.userEntity.getX(), this.userEntity.getY());
-            scene.addEntity(this.deadCamera);
-            scene.setFocusedEntity(this.deadCamera);
-        }else if (this.userEntity.isAlive() && this.deadCamera != null){ // More appropriate for campaign (resurrection) but whatever
-            this.deadCamera.die(); // Kill so automatically deleted by scene
-            this.deadCamera = null;
-            scene.setFocusedEntity(this.userEntity);
-        }
-    }
 
     /*
         Method Name: checkForEnd

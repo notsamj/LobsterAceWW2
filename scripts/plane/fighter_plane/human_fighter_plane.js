@@ -37,6 +37,11 @@ class HumanFighterPlane extends FighterPlane {
     }
 
     // TODO: Comments
+    setAutonomous(value){
+        this.autonomous = value;
+    }
+
+    // TODO: Comments
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;
@@ -64,13 +69,17 @@ class HumanFighterPlane extends FighterPlane {
     // TODO: Comments
     fromJSON(rep, tickDifference=0, forceTakenPosition=false){
         let takePosition = (!this.autonomous && rep["movement_mod_count"] > this.movementModCount) || forceTakenPosition;
-        if (this.getID() == "Person2" && this.scene.isLocal() && tickDifference==0 && !forceTakenPosition && !this.autonomous && Math.abs(this.y - rep["basic"]["y"]) > 50){
+        /*if (this.getID() == "Person2" && this.scene.isLocal() && tickDifference==0 && !forceTakenPosition && !this.autonomous && Math.abs(this.y - rep["basic"]["y"]) > 50){
             //console.log(takePosition, this.y, rep["basic"]["y"])
             console.log(this);
             console.log(rep);
             breakProgram
         }else if (this.getID() == "Person2" && takePosition){
             //console.log(rep)
+        }*/
+        if (this.getID() == "Person2" && this.scene.isLocal() && tickDifference==0 && !forceTakenPosition && !this.autonomous && Math.abs(this.x - rep["basic"]["x"]) > 50){
+            console.log(rep, this.x, this.movementModCount);
+            debugger;
         }
         // If this is local and the plane owned by the user then don't take decisions from server
         if (this.autonomous && this.isLocal()){
@@ -81,6 +90,8 @@ class HumanFighterPlane extends FighterPlane {
             this.decisions = rep["decisions"];
         }else{ // This is running in a browser but the user does not control this plane
             this.health = rep["basic"]["health"];
+            this.dead = rep["basic"]["dead"];
+            this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
             this.decisions = rep["decisions"];
         }
 

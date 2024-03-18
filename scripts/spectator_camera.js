@@ -372,7 +372,7 @@ class SpectatorCamera extends Entity {
     // TODO: Comments
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (activeGameMode.paused || !activeGameMode.isRunning()){
+        if (activeGameMode.isPaused() || !activeGameMode.isRunning()){
             return;
         }
         if (this.isFollowing()){

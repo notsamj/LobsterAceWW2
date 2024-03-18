@@ -660,7 +660,7 @@ class GameHandler {
         Method Return: Boolean, true -> There is a game in progress, false -> There is no game in progress
     */
     gameInProgress(){
-        this.isInProgress();
+        return this.isInProgress();
     }
 
     /*
@@ -741,7 +741,6 @@ class GameHandler {
             this.lobby.handleDisconnect(username);
         }else if (this.gameInProgress()){
             // If there is a game in progress then kill the player
-            console.log("Server dogfight handling", username, "gone")
             this.game.playerDisconnected(username);
         }
         // Else nothing needs to be done here
@@ -1032,9 +1031,9 @@ class DogfightSetup extends GamemodeSetup {
             }
         }
 
-        jsonRep["planeCounts"] = this.botCounts;
-        jsonRep["allyDifficulty"] = this.allyDifficulty;
-        jsonRep["axisDifficulty"] = this.axisDifficulty;
+        jsonRep["plane_counts"] = this.botCounts;
+        jsonRep["ally_difficulty"] = this.allyDifficulty;
+        jsonRep["axis_difficulty"] = this.axisDifficulty;
         jsonRep["bullet_physics_enabled"] = this.bulletPhysicsEnabled;
         return jsonRep;
     }

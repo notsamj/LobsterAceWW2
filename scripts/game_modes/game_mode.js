@@ -6,6 +6,20 @@
 class GameMode {
     constructor(){
         this.running = false;
+        this.numTicks = 0;
+        this.startTime = Date.now();
+    }
+
+    getStartTime(){
+        return this.startTime;
+    }
+
+    getNumTicks(){
+        return this.numTicks;
+    }
+
+    correctTicks(){
+        this.numTicks = this.getExpectedTicks();
     }
 
     /*
@@ -27,7 +41,7 @@ class GameMode {
     }
 
     unpause(){
-        this.numTicks = this.getExpectedTicks();
+        this.correctTicks();
         this.paused = false;
     }
 
@@ -48,10 +62,10 @@ class GameMode {
 
     isRunningATestSession(){ return false; }
 
+    inputAllowed(){ return true; }
 
     // Abstract Methods
     display(){}
-    inputAllowed(){}
     runsLocally(){}
     isPaused(){ return false; }
 }

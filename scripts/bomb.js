@@ -34,6 +34,19 @@ class Bomb extends Entity {
         this.yVelocity = yVelocity + PROGRAM_DATA["bomb_data"]["initial_y_velocity"];
         this.xVelocity = xVelocity;
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bomb_data"]["radius"]);
+        this.index = null;
+    }
+
+    /*
+        Method Name: setIndex
+        Method Parameters:
+            index:
+                Index of the bomb in the bomb array
+        Method Description: Setter
+        Method Return: void
+    */
+    setIndex(index){
+        this.index = index;
     }
 
     /*
@@ -93,7 +106,7 @@ class Bomb extends Entity {
     */
     explode(){
         // Loop through and damage all nearby buildings
-        for (let building of this.scene.getBuildings()){
+        for (let [building, bI] of this.scene.getTeamCombatManager().getBuildings()){
             if (building.distance(this) < PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]){
                 building.damage(1);
             }

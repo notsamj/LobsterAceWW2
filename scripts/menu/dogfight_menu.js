@@ -207,9 +207,9 @@ class DogfightMenu extends Menu {
             });
         }
 
-        jsonRep["planeCounts"] = this.planeCounts;
-        jsonRep["allyDifficulty"] = this.allyDifficulty;
-        jsonRep["axisDifficulty"] = this.axisDifficulty;
+        jsonRep["plane_counts"] = this.planeCounts;
+        jsonRep["ally_difficulty"] = this.allyDifficulty;
+        jsonRep["axis_difficulty"] = this.axisDifficulty;
         return jsonRep;
     }
 
