@@ -110,7 +110,9 @@ class ServerDogfight {
     */
     end(){
         this.running = false;
+        this.gameOver = true;
         this.tickScheduler.end();
+        this.gameHandler.gameOver(this.generateState());
     }
 
     /*
@@ -168,8 +170,7 @@ class ServerDogfight {
         if ((axisCount == 0 || allyCount == 0) && !this.isATestSession){
             this.winner = axisCount != 0 ? "Axis" : "Allies";
             this.stats.setWinner(this.winner);
-            this.running = false;
-            this.gameOver = true;
+            this.end();
         }
     }
 

@@ -26,6 +26,15 @@ class ServerConnection {
         MAIL_SERVICE.addMonitor("lobby_end", (message) => {this.handleLobbyEnd(message)});
         MAIL_SERVICE.addMonitor("game_start", (message) => {this.handleGameStart(message)});
         MAIL_SERVICE.addMonitor("heart_beat_receive", (message) => {this.handleHeartbeat(message)});
+        MAIL_SERVICE.addMonitor("reset_participant_type", (message) => {this.handleResetParticipantType(message)});
+    }
+
+    handleResetParticipantType(messageJSON){
+        if (messageJSON["type"] == "mission"){
+            menuManager.getMenuByName("participant").resetParticipantType(PROGRAM_DATA["missions"][messageJSON["new_mission_id"]]);
+        }else{ // Dogfight
+            menuManager.getMenuByName("participant").resetParticipantType();
+        }
     }
 
     isLoggedIn(){

@@ -6,10 +6,12 @@ class ServerMisson extends Mission {
         Method Parameters:
             dogfightJSON:
                 A json object with information on the settings of a dogfight
+            TODO
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(dogfightJSON){
+    constructor(dogfightJSON, gameHandler){
+        this.gameHandler = gameHandler;
         this.winner = null;
         this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
         this.isATestSession = this.isThisATestSession(dogfightJSON);
@@ -91,7 +93,9 @@ class ServerMisson extends Mission {
     */
     end(){
         this.running = false;
+        this.gameOver = true;
         this.tickScheduler.end();
+        this.gameHandler.gameOver(this.generateState());
     }
 
     /*
@@ -149,8 +153,7 @@ class ServerMisson extends Mission {
         if ((axisCount == 0 || allyCount == 0) && !this.isATestSession){
             this.winner = axisCount != 0 ? "Axis" : "Allies";
             this.stats.setWinner(this.winner);
-            this.running = false;
-            this.gameOver = true;
+            this.end();
         }
     }
 

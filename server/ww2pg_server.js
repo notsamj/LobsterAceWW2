@@ -9,6 +9,7 @@ const ServerDogFight = require("./server_dogfight.js");
 /*
     Class Name: WW2PGServer
     Description: A server for hosting games involving World War 2 Plane Game
+    TODO: Comments
 */
 class WW2PGServer {
     /*
@@ -639,7 +640,13 @@ class GameHandler {
     */
     constructor(){
         this.game = null;
+        this.endState = null;
         this.lobby = null;
+    }
+
+    gameOver(endState){
+        this.endState = endState;
+        this.game = null;
     }
 
     /*
@@ -670,7 +677,7 @@ class GameHandler {
         Method Return: void
     */
     async startGame(){
-        this.game = new ServerDogFight(this.lobby.dissolve());
+        this.game = new ServerDogFight(this.lobby.dissolve(), this);
         this.lobby = null;
     }
 
@@ -800,6 +807,10 @@ class GameHandler {
         Method Return: JSON Object
     */
     getState(){
+        // If game isn't running send the last state from a game that we have
+        if (this.game == null){
+            return this.endState;
+        }
         return this.game.getLastState();
     }
 }
@@ -819,8 +830,25 @@ class Lobby {
         this.host = host;
         this.participants = new NotSamLinkedList();
         this.participants.add(host);
-        this.gameModeSetup = new DogfightSetup(); // 
+        this.gameModeSetup = new DogfightSetup();
         this.running = true;
+    }
+
+    async sendAllUsers(messageJSON){
+        for (let [playerName, playerIndex] of this.participants){
+            let client = await SERVER.findClient(playerName);
+            if (client == null){ continue; }
+            client.sendJSON(messageJSON);
+        }
+    }
+
+    async sendAllButHost(messageJSON){
+        for (let [playerName, playerIndex] of this.participants){
+            if (playerName == this.host){ continue; }
+            let client = await SERVER.findClient(playerName);
+            if (client == null){ continue; }
+            client.sendJSON(messageJSON);
+        }
     }
 
     /*
@@ -830,7 +858,7 @@ class Lobby {
         Method Return: String
     */
     getType(){
-        return "dogfight";
+        return this.gameModeSetup.getType();
     }
 
     /*
@@ -852,7 +880,6 @@ class Lobby {
         Method Return: void
     */
     destroy(){
-        console.log("Destroying")
         for (let [playerName, playerIndex] of this.participants){
             SERVER.sendFromLobby(playerName);
         }
@@ -881,8 +908,14 @@ class Lobby {
         Method Return: void
     */
     // TODO: Make this in UI on client side aswell
-    changeGamemode(){
-
+    changeGamemode(messageJSON){
+        if (messageJSON["new_gamemode"] == "mission"){
+            this.gameModeSetup = new MissionSetup(this);
+            this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "mission", "new_mission_id": this.mission["id"]}));
+        }else{ // Dogfight
+            this.gameModeSetup = new DogfightSetup();
+            this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "dogfight"}));
+        }
     }
 
     /*
@@ -914,6 +947,9 @@ class Lobby {
 
         // One of the other players left
         this.participants.deleteWithCondition((participantName) => { return participantName == username; })
+
+        // Remove them from user types
+        this.gameModeSetup.updatePreference(username, "freecam");
     }
 
     /*
@@ -964,6 +1000,9 @@ class GamemodeSetup {
     constructor(){
         this.participantTypes = {};
     }
+
+    // Abstract
+    getType(){}
 }
 
 /*
@@ -984,6 +1023,10 @@ class DogfightSetup extends GamemodeSetup {
         this.allyDifficulty = "easy";
         this.axisDifficulty = "easy";
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
+    }
+
+    getType(){
+        return "dogfight";
     }
 
     /*
@@ -1051,6 +1094,96 @@ class DogfightSetup extends GamemodeSetup {
         this.allyDifficulty = newSettingsJSON["ally_difficulty"];
         this.axisDifficulty = newSettingsJSON["axis_difficulty"];
         this.bulletPhysicsEnabled = newSettingsJSON["bullet_physics_enabled"];
+    }
+}
+
+/*
+    Class Name: MissionSetup
+    Description: A class for setting up a mission
+*/
+class MissionSetup extends GamemodeSetup {
+    /*
+        Method Name: constructor
+        Method Parameters: TODO
+        Method Description: Constructor
+        Method Return: Constructor
+    */
+    constructor(lobby){
+        super();
+        this.lobby = lobby;
+        this.mission = PROGRAM_DATA["missions"][0];
+        this.botCounts = {};
+        this.allyDifficulty = "easy";
+        this.axisDifficulty = "easy";
+        this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
+    }
+
+    getType(){
+        return "mission";
+    }
+
+    /*
+        Method Name: updatePreference
+        Method Parameters:
+            username:
+                User who's preference to update
+            entityType:
+                The user's new entity type
+        Method Description: Updates the preferred plane of a user
+        Method Return: void
+    */
+    updatePreference(username, entityType){
+        this.participantTypes[username] = entityType;
+    }
+
+    /*
+        Method Name: getDetails
+        Method Parameters: None
+        Method Description: Provides details about a mission
+        Method Return: JSON Object
+    */
+    getDetails(){
+        let jsonRep = {};
+        jsonRep["users"] = [];
+        for (let [username, userEntityType] of Object.entries(this.participantTypes)){
+            // If not a freecam, then add to users list
+            if (userEntityType != "freecam"){
+                jsonRep["users"].push({
+                    "model": userEntityType,
+                    "id": username
+                });
+            }
+        }
+        jsonRep["mission_id"] = this.mission["id"];
+        jsonRep["ally_difficulty"] = this.allyDifficulty;
+        jsonRep["axis_difficulty"] = this.axisDifficulty;
+        jsonRep["bullet_physics_enabled"] = this.bulletPhysicsEnabled;
+        return jsonRep;
+    }
+
+    /*
+        Method Name: updateSettings
+        Method Parameters:
+            newSettingsJSON:
+                A JSOn object with new settings
+        Method Description: Updates the setting of a dogfight from a provided JSON object
+        Method Return: void
+    */
+    updateSettings(newSettingsJSON){
+        this.allyDifficulty = newSettingsJSON["ally_difficulty"];
+        this.axisDifficulty = newSettingsJSON["axis_difficulty"];
+        this.bulletPhysicsEnabled = newSettingsJSON["bullet_physics_enabled"];
+        let oldID = this.mission["id"];
+        this.mission = PROGRAM_DATA["missions"][newSettingsJSON["id"]];
+        // If changed mission
+        if (oldID != this.mission["id"]){
+            this.resetUserType();
+        }
+    }
+
+    resetUserType(){
+        this.participantTypes = {};
+        this.lobby.sendAllButHost({"mail_box": "reset_participant_type", "new_mission_id": this.mission["id"]});
     }
 }
 

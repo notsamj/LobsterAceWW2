@@ -12,7 +12,7 @@ class ParticipantMenu extends Menu {
     */
     constructor(){
         super();
-        this.userPlanes = this.createUserPlaneSelection();
+        this.userPlanes = this.createDogfightUserSelection();
         this.userPlaneIndex = 0;
         this.botDetailsComponent = null;
         this.setup();
@@ -23,6 +23,24 @@ class ParticipantMenu extends Menu {
 
         // Update the UI
         this.userPlaneStaticImage.setImage(images[this.userPlanes[this.userPlaneIndex]]);
+    }
+
+    resetParticipantType(mission=null){
+        let dogfightNotMission = mission == null;
+        if (dogfightNotMission){
+            this.userPlanes = this.createDogfightUserSelection();
+        }else{
+            this.userPlanes = this.createMissionPlanes(mission);
+        }
+        this.resetSettings();
+    }
+
+    createMissionPlanes(mission){
+        let userPlanes = ["freecam"];
+        for (let planeName of mission["user_planes"]){
+            userPlanes.push(planeName);
+        }
+        return userPlanes;
     }
 
     /*
@@ -78,12 +96,12 @@ class ParticipantMenu extends Menu {
     }
 
     /*
-        Method Name: createUserPlaneSelection
+        Method Name: createDogfightUserSelection
         Method Parameters: None
         Method Description: Creates a list of planes for the user to choose between
         Method Return: void
     */
-    createUserPlaneSelection(){
+    createDogfightUserSelection(){
         let userPlanes = ["freecam"];
         for (let [planeName, planeData] of Object.entries(PROGRAM_DATA["plane_data"])){
             userPlanes.push(planeName);

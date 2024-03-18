@@ -283,6 +283,7 @@ const PROGRAM_DATA = {
 
     "missions": [
         {
+            "id": 0,
             "description": "Mission 1\nAn American assault on German\npositions in Western Germany.",
             "user_planes": [
                 "republic_p_47",
@@ -415,6 +416,7 @@ const PROGRAM_DATA = {
             }
         },
         {
+            "id": 1,
             "description": "Mission 2\nAn American assault on Japanese positions on\n a small island\nsomewhere between Japan and Hawaii.",
             "user_planes": [
                 "republic_p_47",

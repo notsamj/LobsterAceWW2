@@ -12,9 +12,15 @@ class HostMenu extends Menu {
     */
     constructor(){
         super();
-        this.planeCounts = {};
+
+        // Dogfight & Mission
         this.userPlanes = this.createUserPlaneSelection();
         this.userPlaneIndex = 0;
+        this.allyDifficulty = "easy";
+        this.axisDifficulty = "easy";
+        
+        // Dogfight Specific
+        this.planeCounts = {};
         this.alliedPlanes = this.createAlliedPlaneSelection();
         this.alliedPlaneIndex = 0;
         this.axisPlanes = this.createAxisPlaneSelection();
@@ -22,10 +28,76 @@ class HostMenu extends Menu {
         this.currentAlliedPlaneCountComponent = null;
         this.currentAxisPlaneCountComponent = null;
         this.botDetailsComponent = null;
+
         this.setup();
+
+        // Dogfight Specific
         this.updateBotDetails();
-        this.allyDifficulty = "easy";
-        this.axisDifficulty = "easy";
+    }
+
+    switchToDogfight(){
+        this.userPlanes = this.createUserPlaneSelection();
+        this.userPlaneIndex = 0;
+        this.alliedPlaneIndex = 0;
+        this.axisPlaneIndex = 0;
+
+        this.alliedHeader.enable();
+        this.axisHeader.enable();
+        this.botHeader.enable();
+
+        this.alliedPlus5Button.enable();
+        this.axisPlus5Button.enable();
+
+        this.alliedPlus1Button.enable();
+        this.axisPlus1Button.enable();
+
+        this.alliedMinus1Button.enable();
+        this.axisMinus1Button.enable();
+
+        this.alliedMinus5Button.enable();
+        this.axisMinus5Button.enable();
+
+        this.currentAlliedPlaneCountComponent.enable();
+        this.currentAxisPlaneCountComponent.enable();
+        this.botDetailsComponent.enable();
+
+        this.resetSettings();
+    }
+
+    createUserMissionPlaneSelection(mission){
+        let userPlanes = ["freecam"];
+        for (let planeName of mission["user_planes"]){
+            userPlanes.push(planeName);
+        }
+        return userPlanes;
+    }
+
+    switchToMission(mission){
+        // Create planes from mission object
+        this.userPlanes = this.createUserMissionPlaneSelection(mission);
+        this.userPlaneIndex = 0;
+
+        this.alliedHeader.disable();
+        this.axisHeader.disable();
+        this.botHeader.disable();
+
+        this.alliedPlus5Button.disable();
+        this.axisPlus5Button.disable();
+
+        this.alliedPlus1Button.disable();
+        this.axisPlus1Button.disable();
+
+        this.alliedMinus1Button.disable();
+        this.axisMinus1Button.disable();
+
+        this.alliedMinus5Button.disable();
+        this.axisMinus5Button.disable();
+
+        this.currentAlliedPlaneCountComponent.disable();
+        this.currentAxisPlaneCountComponent.disable();
+        this.botDetailsComponent.disable();
+
+        this.resetSettings();
     }
 
 
@@ -44,6 +116,8 @@ class HostMenu extends Menu {
 
         // Update the UI
         this.userPlaneStaticImage.setImage(images[this.userPlanes[this.userPlaneIndex]]);
+        this.axisPlaneImage.setImage(images[this.axisPlanes[this.axisPlaneIndex]]);
+        this.alliedPlaneImage.setImage(images[this.alliedPlanes[this.alliedPlaneIndex]]);
         this.currentAxisPlaneCountComponent.setText("0");
         this.currentAlliedPlaneCountComponent.setText("0");
     }
@@ -60,6 +134,7 @@ class HostMenu extends Menu {
         // Background
         this.components.push(new AnimatedCloudBackground())
 
+        // Back Button
         let backButtonX = () => { return 50; }
         let backButtonY = (innerHeight) => { return innerHeight-27; }
         let backButtonXSize = 200;
@@ -79,13 +154,10 @@ class HostMenu extends Menu {
                 menuManager.addTemporaryMessage("Failed to start game.", "red", 50000);
                 return;
             }
-            // Reset plane selection
-            this.userPlaneIndex = 0;
-            console.log("Managed to start the game");
+            instance.resetSettings();
         }));
 
         // User Section
-
         let userHeaderX = () => { return 300; }
         let userHeaderY = (innerHeight) => { return innerHeight - 27; }
         let userHeaderXSize = 200;
@@ -102,11 +174,12 @@ class HostMenu extends Menu {
         this.components.push(userPlane);
 
         // Allied Section
-        let alliesHeaderX = () => { return 600; }
+        let alliedHeaderX = () => { return 600; }
         let alliesHeaderY = (innerHeight) => { return innerHeight - 27; }
-        let alliesHeaderXSize = 270;
+        let alliedHeaderXSize = 270;
         let alliesHeaderYSize = 100;
-        this.components.push(new TextComponent("Allies", PROGRAM_DATA["team_to_colour"]["Allies"], alliesHeaderX, alliesHeaderY, alliesHeaderXSize, alliesHeaderYSize));
+        this.alliedHeader = new TextComponent("Allies", PROGRAM_DATA["team_to_colour"]["Allies"], alliedHeaderX, alliesHeaderY, alliedHeaderXSize, alliesHeaderYSize);
+        this.components.push(this.alliedHeader);
 
         let alliedPlaneX = () => { return 650; }
         let alliedPlaneScreenY = (innerHeight) => { return innerHeight - 127; };
@@ -114,15 +187,17 @@ class HostMenu extends Menu {
         alliedPlane.setOnClick(() => {
             alliedPlane.setImage(this.switchAlliedPlanes()); 
         });
+        this.alliedPlaneImage = alliedPlane;
         this.components.push(alliedPlane);
 
-        let alliedMinus5ButtonX = (innerWidth) => { return alliesHeaderX(innerWidth); }
-        let alliedMinute5ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); };
-        this.components.push(new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus5ButtonX, alliedMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        let alliedMinus5ButtonX = (innerWidth) => { return alliedHeaderX(innerWidth); }
+        let alliedMinus5ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); };
+        this.alliedMinus5Button = new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus5ButtonX, alliedMinus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", -5);
-        }));
+        });
+        this.components.push(this.alliesMinus5Button);
 
-        let allyDifficultyButtonX = (innerWidth) => { return alliesHeaderX(innerWidth); }
+        let allyDifficultyButtonX = (innerWidth) => { return alliedHeaderX(innerWidth); }
         let allyDifficultyButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight() - addRemoveButtonSize; }
         this.components.push(new RectangleButton(() => { return this.getAllyDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", allyDifficultyButtonX, allyDifficultyButtonY, addRemoveButtonSize*3, addRemoveButtonSize*3, (instance) => {
             this.cycleAllyDifficulty();
@@ -130,9 +205,10 @@ class HostMenu extends Menu {
 
         let alliedMinus1ButtonX = (innerWidth) => { return alliedMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
         let alliedMinus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
-        this.components.push(new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus1ButtonX, alliedMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.alliedMinus1Button = new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus1ButtonX, alliedMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", -1);
-        }));
+        })
+        this.components.push(this.alliedMinus1Button);
 
         let alliedCurrentCountTextX = (innerWidth) => { return alliedMinus1ButtonX(innerWidth) + addRemoveButtonSize; }
         let alliedCurrentCountTextY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
@@ -143,22 +219,25 @@ class HostMenu extends Menu {
 
         let alliedPlus1ButtonX = (innerWidth) => { return alliedCurrentCountTextX(innerWidth) + alliedCurrentCountTextXSize; }
         let alliedPlus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
-        this.components.push(new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus1ButtonX, alliedPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.alliedPlus1Button = new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus1ButtonX, alliedPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", 1);
-        }));
+        });
+        this.components.push();
 
         let alliedPlus5ButtonX = (innerWidth) => { return alliedPlus1ButtonX(innerWidth) + addRemoveButtonSize; }
         let alliedPlus5ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
-        this.components.push(new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus5ButtonX, alliedPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.alliedPlus5Button = new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus5ButtonX, alliedPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", 5);
-        }));
+        });
+        this.components.push(this.alliedPlus5Button);
 
         // Axis Section
         let axisHeaderX = () => { return 900; }
         let axisHeaderY = (innerHeight) => { return innerHeight - 27; }
         let axisHeaderXSize = 200;
         let axisHeaderYSize = 100;
-        this.components.push(new TextComponent("Axis", PROGRAM_DATA["team_to_colour"]["Axis"], axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize));
+        this.axisHeader = new TextComponent("Axis", PROGRAM_DATA["team_to_colour"]["Axis"], axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize);
+        this.components.push(this.axisHeader);
 
 
         let axisPlaneX = () => { return 950; }
@@ -167,13 +246,15 @@ class HostMenu extends Menu {
         axisPlane.setOnClick(() => {
             axisPlane.setImage(this.switchAxisPlanes()); 
         });
+        this.axisPlaneImage = axisPlane;
         this.components.push(axisPlane);
 
         let axisMinus5ButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
-        let axisMinute5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.components.push(new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus5ButtonX, axisMinute5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        let axisMinus5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
+        this.axisMinus5Button = new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus5ButtonX, axisMinus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -5);
-        }));
+        });
+        this.components.push(this.axisMinus5Button);
 
         let axisDifficultyButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
         let axisDifficultyButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight() - addRemoveButtonSize; }
@@ -183,9 +264,10 @@ class HostMenu extends Menu {
 
         let axisMinus1ButtonX = (innerWidth) => { return axisMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
         let axisMinus1ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.components.push(new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus1ButtonX, axisMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.axisMinus1Button = new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus1ButtonX, axisMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -1);
-        }));
+        });
+        this.components.push(this.axisMinus1Button);
 
         let axisCurrentCountTextX = (innerWidth) => { return axisMinus1ButtonX(innerWidth) + addRemoveButtonSize; }
         let axisCurrentCountTextY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
@@ -196,22 +278,25 @@ class HostMenu extends Menu {
 
         let axisPlus1ButtonX = (innerWidth) => { return axisCurrentCountTextX(innerWidth) + axisCurrentCountTextXSize; }
         let axisPlus1ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.components.push(new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus1ButtonX, axisPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.axisPlus1Button = new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus1ButtonX, axisPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", 1);
-        }));
+        });
+        this.components.push(this.axisPlus1Button);
 
         let axisPlus5ButtonX = (innerWidth) => { return axisPlus1ButtonX(innerWidth) + addRemoveButtonSize; }
         let axisPlus5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.components.push(new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus5ButtonX, axisPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.axisPlus5Button = new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus5ButtonX, axisPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", 5);
-        }));
+        });
+        this.components.push(this.axisPlus5Button);
 
         // Bot Details Section
         let botHeaderX = (innerWidth) => { return 1200; }
         let botHeaderY = (innerHeight) => { return innerHeight-27; }
         let botHeaderXSize = 700;
         let botHeaderYSize = 150;
-        this.components.push(new TextComponent("Bot Details", "#000000", botHeaderX, axisHeaderY, botHeaderXSize, botHeaderYSize));
+        this.botHeader = new TextComponent("Bot Details", "#000000", botHeaderX, axisHeaderY, botHeaderXSize, botHeaderYSize);
+        this.components.push(this.botHeader);
 
         let botBodyX = (innerWidth) => { return botHeaderX(innerWidth); }
         let botBodyY = (innerHeight) => { return botHeaderY(innerHeight) - botHeaderYSize; }
@@ -219,7 +304,45 @@ class HostMenu extends Menu {
         let botBodyYSize = PROGRAM_DATA["settings"]["expected_canvas_height"] - botHeaderYSize - startButtonYSize;
         this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
         this.components.push(this.botDetailsComponent);
+            
+        // Switch Buttons
+        let switchButtonX = 150;
+        let switchButtonY = 400;
+        let switchButtonXSize = 300;
+        let switchButtonYSize = 200;
+
+        // Switch to Mission Button
+        this.switchToMissionButton = new RectangleButton("--> Mission", green, "#e6f5f4", switchButtonX, switchButtonY, switchButtonXSize, switchButtonYSize, (instance) => {
+            this.switchToMission();
+        });
+        // Switch to Dogfight Button
+        this.switchToDogfightButton = new RectangleButton("--> Dogfight", green, "#e6f5f4", switchButtonX, switchButtonY, switchButtonXSize, switchButtonYSize, (instance) => {
+            this.switchToDogfight();
+        });
+        this.switchToDogfightButton.disable();
+
+        // Mission Details Area
+        let missionDetailsButtonXSize = 600;
+        let missionDetailsButtonYSize = 400;
+        let missionDetailsX = switchButtonX;
+        let missionDetailsY = switchButtonY + missionDetailsButtonYSize;
+        this.missionDetails = new TextComponent("", "#6f5f4", missionDetailsX, missionDetailsY, missionDetailsButtonXSize, missionDetailsButtonYSize);
+        this.missionDetails.disable();
+
+        let nextPreviousButtonSize = 100;
+        let nextPreviousButtonY = switchButtonY;
         
+        // Switch Mission Previous Button
+        this.missionPreviousButton = new RectangleButton("Previous", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", switchButtonX - nextPreviousButtonSize, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
+            menuInstance.previous();
+        });
+        this.components.push(this.missionPreviousButton);
+
+        // Switch Mission Next Button  
+        this.missionNextButton = new RectangleButton("Next", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", switchButtonX+switchButtonXSize, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
+            menuInstance.next();
+        })
+        this.components.push(this.missionNextButton);
     }
 
     /*
