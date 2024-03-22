@@ -2,7 +2,7 @@
 if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../../data/data_json.js");
     BiasedBotFighterPlane = require("./biased_bot_fighter_plane.js");
-    helperFunctions = require("../general/helper_functions.js");
+    helperFunctions = require("../../general/helper_functions.js");
     calculateAngleDiffDEGCW = helperFunctions.calculateAngleDiffDEGCW;
     calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
 }
@@ -85,6 +85,54 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         this.throttle = Math.min(Math.max(1, this.throttle + amt), this.startingThrottle);
     }
 
+    // TODO: Comments
+    initFromJSON(rep){
+        this.id = rep["basic"]["id"];
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        this.x = rep["basic"]["x"];
+        this.y = rep["basic"]["y"];
+        this.facingRight = rep["basic"]["facing_right"];
+        this.angle = rep["basic"]["angle"];
+        this.throttle = rep["basic"]["throttle"];
+        this.speed = rep["basic"]["speed"];
+        this.health = rep["basic"]["health"];
+        this.startingHealth = rep["basic"]["starting_health"];
+        this.startingThrottle = rep["basic"]["starting_throttle"];
+        this.dead = rep["basic"]["dead"];
+        this.decisions = rep["decisions"];
+        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
+    }
+
+    // TODO: Comments
+    toJSON(){
+        let rep = {};
+        rep["decisions"] = this.decisions;
+        rep["locks"] = {
+            "shoot_lock": this.shootLock.getTicksLeft(),
+            "rotation_cd": this.rotationCD.getTicksLeft()
+        }
+        rep["biases"] = this.biases;
+        rep["basic"] = {
+            "id": this.id,
+            "x": this.x,
+            "y": this.y,
+            "human": this.isHuman(),
+            "plane_class": this.planeClass,
+            "facing_right": this.facingRight,
+            "angle": this.angle,
+            "throttle": this.throttle,
+            "speed": this.speed,
+            "health": this.health,
+            "starting_health": this.startingHealth,
+            "starting_throttle": this.startingThrottle,
+            "dead": this.isDead()
+        }
+        rep["movement_mod_count"] = this.movementModCount;
+        return rep;
+    }
+
     /*
         Method Name: handleWhenNoEnemy
         Method Parameters: None
@@ -142,6 +190,12 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             }
             // Make sure you're at top speed heading to the bomber!
             this.decisions["throttle"] = 1;
+            // TODO: Commented code is bad I think because as above comment says...
+            /*if ((this.getX() > bomber.getX() && bomber.isFacingRight()) || (this.getX() < bomber.getX() && !bomber.isFacingRight())){
+                this.decisions["throttle"] = 1;
+            }else{
+                this.decisions["throttle"] = -1;
+            }*/
             return;
         }
         // Else close to the bomber
@@ -161,11 +215,18 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             this.decisions["angle"] = 1;
         }
         // Speed up or slow down depending on bomber's speed
-        if (this.getSpeed() > bomber.getSpeed() + PROGRAM_DATA["ai"]["fighter_plane"]["bomber_cruise_speed_following_offset"]){
+        let desiredThrottle = Math.floor(this.calculateThrottleToMatchSpeed(bomber.getSpeed() + PROGRAM_DATA["ai"]["fighter_plane"]["bomber_cruise_speed_following_offset"]));
+        if (this.throttle > desiredThrottle){
             this.decisions["throttle"] = -1;
-        }else{
+        }else if (this.throttle < desiredThrottle){
             this.decisions["throttle"] = 1;
         }
+    }
+
+    // TODO: Comments
+    calculateThrottleToMatchSpeed(bomberSpeed){
+        let dragAtBomberSpeed = Math.sqrt(Math.abs(bomberSpeed));
+        return dragAtBomberSpeed / this.throttleConstant;
     }
 
     /*
@@ -187,7 +248,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         for (let enemy of enemies){
             let distance = this.distance(enemy);
             if (distance > PROGRAM_DATA["ai"]["fighter_plane"]["max_enemy_distance_campaign"]){ continue; }
-            let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
+            let score = BiasedBotFighterPlane.calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "enemy": enemy,

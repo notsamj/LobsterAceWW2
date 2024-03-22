@@ -231,21 +231,24 @@ class TeamCombatManager {
     */
     async tick(timeDiff){
         for (let team of this.teams){
+            /*TEMP
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
                 await plane.tick(timeDiff);
-            }
+            }*/
 
+            /*TEMP
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead()){ continue; }
                 await bullet.tick(timeDiff);
-            }
+            }*/
         }
+        /*TEMP
         for (let [bomb, bombIndex] of this.bombs){
             if (bomb.isDead()){ continue; }
             bomb.tick(timeDiff);
         }
-        this.checkCollisions(timeDiff);
+        this.checkCollisions(timeDiff);*/
     }
 
     /*
@@ -574,8 +577,10 @@ class TeamCombatManager {
     // TODO: Comments
     getPlaneJSON(){
         let planeJSON = [];
-        for (let plane of this.getAllPlanes()){
-            planeJSON.push(plane.toJSON());
+        for (let team of this.teams){
+            for (let [plane, pIndex] of this.planes[team]){
+                planeJSON.push(plane.toJSON());
+            }
         }
         return planeJSON;
     }
@@ -613,8 +618,10 @@ class TeamCombatManager {
         for (let buildingJSON of buildingsJSON){
             // Add building or set stats from JSON 
             if (index >= this.buildings.getLength()){
+                //console.log("Push", index, this.buildings.getLength())
                 this.buildings.push(Building.fromJSON(buildingJSON, this.scene));
             }else{
+                //console.log(this.buildings.getLength(), index, this.buildings.get(index));
                 this.buildings.get(index).fromJSON(buildingJSON, this.scene);
             }
             index++;
@@ -629,7 +636,13 @@ class TeamCombatManager {
             if (index >= this.bombs.getLength()){
                 this.bombs.push(Bomb.fromJSON(bombJSON, this.scene));
             }else{
-                this.bombs.get(index).fromJSON(bombJSON, this.scene);
+                let test = this.bombs;
+                let bomb = this.bombs.get(index);
+                if (bomb == null){
+                    debugger;
+                }
+                console.log("bomb", bomb, bomb == null, bomb === null)
+                bomb.fromJSON(bombJSON, this.scene);
             }
         }
     }

@@ -78,6 +78,7 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     next(){
+        if (PROGRAM_DATA["missions"].length < 2){ return; }
         this.missionIndex = (this.missionIndex + 1) % PROGRAM_DATA["missions"].length;
         this.loadCurrentMission();
     }
@@ -89,6 +90,7 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     previous(){
+        if (PROGRAM_DATA["missions"].length < 2){ return; }
         this.missionIndex = this.missionIndex == 0 ? PROGRAM_DATA["missions"].length - 1 : (this.missionIndex - 1);
         this.loadCurrentMission();
     }

@@ -80,7 +80,7 @@ class RemoteDogfightClient {
         await this.sendPlanePosition();
 
         // Request state from server
-        this.requestStateFromServer();
+        // TEMP this.requestStateFromServer();
         this.tickInProgressLock.unlock();
     }
 
@@ -160,6 +160,7 @@ class RemoteDogfightClient {
         }
 
         // Update planes
+        /*TEMP
         for (let planeObject of state["planes"]){
             let plane = scene.getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
@@ -170,7 +171,7 @@ class RemoteDogfightClient {
                 continue;
             }
             plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks, tickDifference > 10);
-        }
+        }*/
 
         // Update bullets
         //console.log("Received bullets from server", state["bullets"])

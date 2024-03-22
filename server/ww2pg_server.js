@@ -6,6 +6,8 @@ const SERVER_DATA = require("../data/user_data.js");
 const SimpleCryptography = require("../scripts/general/simple_cryptography.js");
 const SIMPLE_CRYPTOGRAPHY = new SimpleCryptography(SERVER_DATA["server_data"]["secret_seed"]);
 const ServerDogFight = require("./server_dogfight.js");
+const ServerMission = require("./server_mission.js");
+const PlaneGameScene = require("../scripts/plane_game_scene.js");
 /*
     Class Name: WW2PGServer
     Description: A server for hosting games involving World War 2 Plane Game
@@ -107,19 +109,18 @@ class WW2PGServer {
         if (!(await this.hasClient(username))){ return; }
         let client = await this.findClient(username);
         client.getStateManager().goto(PROGRAM_DATA["client_states"]["waiting"]);
-        console.log("Sending", username, "from the lobby")
         client.sendFromLobby();
     }
 
     /*
         Method Name: sendToGame
-        Method Parameters: None
+        Method Parameters: TODO
         Method Description: Sends a client to the game from the lobby
         Method Return: void
     */
-    async sendToGame(username){
+    async sendToGame(username, gameType){
         let client = await SERVER.findClient(username);
-        client.sendToGame(username);
+        client.sendToGame(gameType);
     }
 
     /*
@@ -469,6 +470,12 @@ class Client {
             SERVER.getGameHandler().getLobby().updateSettings(dataJSON["new_settings"]);
         }else if (dataJSON["action"] == "plane_update"){ // Updating with plane preference
             SERVER.getGameHandler().getLobby().updatePreference(this.username, dataJSON["plane_update"]);
+        }else if (dataJSON["action"] == "switch_game_mode"){
+            SERVER.getGameHandler().getLobby().switchGamemode(dataJSON["new_game_mode"]);
+            this.sendJSON({"success": true, "mail_box": dataJSON["mail_box"]});
+        }else if (dataJSON["action"] == "switch_mission"){
+            SERVER.getGameHandler().getLobby().switchMission(dataJSON["new_mission_id"]);
+            this.sendJSON({"success": true, "mail_box": dataJSON["mail_box"]});
         }else{ // Starting game
             SERVER.getGameHandler().startGame();
             this.sendJSON({"success": true, "mail_box": dataJSON["mail_box"]});
@@ -488,13 +495,13 @@ class Client {
 
     /*
         Method Name: sendToGame
-        Method Parameters: None
+        Method Parameters: TODO
         Method Description: Moves a player to the game state and sends them a message informing them
         Method Return: void
     */
-    sendToGame(){
+    sendToGame(gameType){
         this.getStateManager().goto(PROGRAM_DATA["client_states"]["in_game"]);
-        this.sendJSON({"mail_box": "game_start", "message": "game_started"});
+        this.sendJSON({"mail_box": "game_start", "message": "game_started", "game_type": gameType});
     }
 
     /*
@@ -677,7 +684,7 @@ class GameHandler {
         Method Return: void
     */
     async startGame(){
-        this.game = new ServerDogFight(this.lobby.dissolve(), this);
+        this.game = this.lobby.getGameModeSetup().create(this.lobby.dissolve(), this);
         this.lobby = null;
     }
 
@@ -834,6 +841,10 @@ class Lobby {
         this.running = true;
     }
 
+    getGameModeSetup(){
+        return this.gameModeSetup;
+    }
+
     async sendAllUsers(messageJSON){
         for (let [playerName, playerIndex] of this.participants){
             let client = await SERVER.findClient(playerName);
@@ -894,7 +905,7 @@ class Lobby {
     */
     dissolve(){
         for (let [playerName, playerIndex] of this.participants){
-            SERVER.sendToGame(playerName);
+            SERVER.sendToGame(playerName, this.getType());
         }
         let details = this.gameModeSetup.getDetails(this.participants); // TODO
         this.running = false;
@@ -902,20 +913,29 @@ class Lobby {
     }
 
     /*
-        Method Name: changeGamemode
-        Method Parameters: None
+        Method Name: switchGamemode
+        Method Parameters: TODO
         Method Description: Changes the game mode of lobby
         Method Return: void
     */
-    // TODO: Make this in UI on client side aswell
-    changeGamemode(messageJSON){
-        if (messageJSON["new_gamemode"] == "mission"){
+    switchGamemode(newGameModeName){
+        if (newGameModeName == "mission"){
             this.gameModeSetup = new MissionSetup(this);
-            this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "mission", "new_mission_id": this.mission["id"]}));
+            this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "mission", "new_mission_id": this.gameModeSetup.getMission()["id"]}));
         }else{ // Dogfight
             this.gameModeSetup = new DogfightSetup();
             this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "dogfight"}));
         }
+    }
+
+    /*
+        Method Name: switchMission
+        Method Parameters: TODO
+        Method Description: Changes the game mode of lobby
+        Method Return: void
+    */
+    switchMission(newMissionID){
+        this.gameModeSetup.switchMission(newMissionID);
     }
 
     /*
@@ -1003,6 +1023,7 @@ class GamemodeSetup {
 
     // Abstract
     getType(){}
+    create(){}
 }
 
 /*
@@ -1081,6 +1102,10 @@ class DogfightSetup extends GamemodeSetup {
         return jsonRep;
     }
 
+    create(gameDetails, gameHandler){
+        return new ServerDogFight(gameDetails, gameHandler);
+    }
+
     /*
         Method Name: updateSettings
         Method Parameters:
@@ -1116,6 +1141,20 @@ class MissionSetup extends GamemodeSetup {
         this.allyDifficulty = "easy";
         this.axisDifficulty = "easy";
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
+    }
+
+    getMission(){
+        return this.mission;
+    }
+
+    create(gameDetails, gameHandler){
+        return new ServerMission(gameDetails, gameHandler, new PlaneGameScene());
+    }
+
+    switchMission(newMissionID){
+        console.log("Switching to", newMissionID, PROGRAM_DATA["missions"][newMissionID])
+        this.mission = PROGRAM_DATA["missions"][newMissionID];
+        this.resetUserType();
     }
 
     getType(){
@@ -1173,12 +1212,6 @@ class MissionSetup extends GamemodeSetup {
         this.allyDifficulty = newSettingsJSON["ally_difficulty"];
         this.axisDifficulty = newSettingsJSON["axis_difficulty"];
         this.bulletPhysicsEnabled = newSettingsJSON["bullet_physics_enabled"];
-        let oldID = this.mission["id"];
-        this.mission = PROGRAM_DATA["missions"][newSettingsJSON["id"]];
-        // If changed mission
-        if (oldID != this.mission["id"]){
-            this.resetUserType();
-        }
     }
 
     resetUserType(){

@@ -114,14 +114,18 @@ class ServerConnection {
     }
 
     handleGameStart(data){
-        console.log("data", data)
         let dataJSON = JSON.parse(data);
         if (!objectHasKey(dataJSON, "message")){
             return;
         }
         if (dataJSON["message"] == "game_started"){
-            let translator = new DogfightRemoteTranslator();
-            activeGameMode = new RemoteDogfightClient(translator);
+            if (dataJSON["game_type"] == "dogfight"){
+                let translator = new DogfightRemoteTranslator();
+                activeGameMode = new RemoteDogfightClient(translator);
+            }else{ // Mission
+                let translator = new MissionRemoteTranslator();
+                activeGameMode = new RemoteMissionClient(translator);
+            }
             menuManager.switchTo("game");
         }
     }

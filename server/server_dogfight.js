@@ -21,10 +21,12 @@ class ServerDogfight {
         Method Parameters:
             dogfightJSON:
                 A json object with information on the settings of a dogfight
+            TODO
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(dogfightJSON){
+    constructor(dogfightJSON, gameHandler){
+        this.gameHandler = gameHandler;
         this.winner = null;
         this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
         this.numTicks = 0;
@@ -41,7 +43,8 @@ class ServerDogfight {
         this.createPlanes(dogfightJSON);
         this.scene.setEntities(this.planes);
 
-        this.tickScheduler = new TickScheduler(() => { this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
+        // TEMP this.tickScheduler = new TickScheduler(() => { this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
+        this.tickScheduler = new TickScheduler(() => { this.tick(); }, 5, Date.now());
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
@@ -132,17 +135,24 @@ class ServerDogfight {
         Method Return: void
     */
     async tick(){
+        console.log(Date.now() - this.lastTime)
+        this.lastTime = Date.now();
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.tickScheduler.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
 
         // Tick the scene
-        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.checkForEnd();
+        // TEMP await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        // TEMP this.checkForEnd();
         this.numTicks++;
 
         // Save current state and update from user input
-        this.lastState = this.generateState();
-        await this.updateFromUserInput();
+        //this.lastState = this.generateState();
+        // TEMP await this.updateFromUserInput();
+        let diff = this.tickScheduler.getExpectedTicks() - this.numTicks;
+        if (diff > 1){
+            //console.log("Tick diff", diff);
+        }
+        console.log("Tick diff", diff);
         this.tickInProgressLock.unlock();
     }
 
@@ -256,7 +266,8 @@ class ServerDogfight {
             stateRep["sound_list"] = this.soundManager.getSoundRequestList();
             this.soundManager.clearRequests();
             // Add planes
-            stateRep["planes"] = this.scene.getPlaneJSON();
+            stateRep["planes"] = []; // TEMP
+            //stateRep["planes"] = this.scene.getTeamCombatManager().getPlaneJSON();
             // Add bullets
             stateRep["bullets"] = this.scene.getBulletJSON();
         }else{

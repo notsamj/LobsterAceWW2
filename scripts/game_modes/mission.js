@@ -1,3 +1,18 @@
+if (typeof window === "undefined"){
+    AfterMatchStats = require("../after_match_stats.js");
+    BomberPlane = require("../plane/bomber_plane/bomber_plane.js");
+    BiasedCampaignBotBomberPlane = require("../plane/bomber_plane/biased_campaign_bot_bomber_plane.js");
+    BiasedCampaignAttackerBotFighterPlane = require("../plane/fighter_plane/biased_campaign_attacker_bot_fighter_plane.js");
+    BiasedCampaignDefenderBotFighterPlane = require("../plane/fighter_plane/biased_campaign_defender_bot_fighter_plane.js");
+    HumanFighterPlane = require("../plane/fighter_plane/human_fighter_plane.js");
+    HumanBomberPlane = require("../plane/bomber_plane/human_bomber_plane.js");
+    GameMode = require("./game_mode.js");
+    Building = require("../building.js");
+    helperFunctions = require("../general/helper_functions.js");
+    mergeCopyObjects = helperFunctions.mergeCopyObjects;
+    appendLists = helperFunctions.appendLists;
+    randomNumberInclusive = helperFunctions.randomNumberInclusive;
+}
 /*
     Class Name: Mission
     Description: An abstract game mode with attackers and defenders. Attackers must destroy all buildings, defenders destroy the attacker bomber plane.
@@ -34,6 +49,7 @@ class Mission extends GameMode {
         this.tickInProgressLock = new Lock();
 		this.scene.setEntities(appendLists(this.planes, this.buildings));
         this.running = true;
+        this.gameOver = false;
         this.scene.setBulletPhysicsEnabled(PROGRAM_DATA["settings"]["use_physics_bullets"]);
         this.scene.enableTicks();
 	}
@@ -90,9 +106,9 @@ class Mission extends GameMode {
         this.attackerSpawnLock.tick();
         this.defenderSpawnLock.tick();
         await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.numTicks++;
         this.checkSpawn();
         this.checkForEnd();
+        this.numTicks++;
         this.tickInProgressLock.unlock();
     }
 
@@ -270,8 +286,6 @@ class Mission extends GameMode {
     	if (livingBombers == 0){
     		this.endGame(false);
     	}
-        HEADS_UP_DISPLAY.updateElement("Remaining Buildings", livingBuildings);
-        HEADS_UP_DISPLAY.updateElement("Remaining Bombers", livingBombers);
     }
 
     /*
@@ -285,6 +299,7 @@ class Mission extends GameMode {
     endGame(attackerWon){
         this.stats.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
         this.running = false;
+        this.gameOver = true;
     }
 
     /*
@@ -446,10 +461,13 @@ class Mission extends GameMode {
             let hp = randomNumberInclusive(difficultyBuildingRules["min_health"], difficultyBuildingRules["max_health"]);
             let width = randomNumberInclusive(buildingRules["min_width"], buildingRules["max_width"]);
             let height = randomNumberInclusive(buildingRules["min_height"], buildingRules["max_height"]);
-            let building = new Building(nextX, width, height, hp);
+            let building = new Building(nextX, width, height, hp, this.scene);
             buildings.push(building);
             nextX += width + randomNumberInclusive(buildingRules["min_gap"], buildingRules["max_gap"]);
         }
         return buildings;
     }
+}
+if (typeof window === "undefined"){
+    module.exports=Mission;
 }

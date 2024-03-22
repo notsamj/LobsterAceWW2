@@ -3,7 +3,7 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../../data/data_json.js");
     TickLock = require("../../general/tick_lock.js");
     BomberPlane = require("./bomber_plane.js");
-    var helperFunctions = require("../general/helper_functions.js");
+    var helperFunctions = require("../../general/helper_functions.js");
     angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
 }
 
@@ -66,7 +66,6 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         rep["decisions"] = this.decisions;
         rep["locks"] = {
             "bomb_lock": this.bombLock.getTicksLeft(),
-            "ud_lock": this.udLock.getTicksLeft()
         }
         rep["biases"] = this.biases;
         rep["basic"] = {
@@ -127,7 +126,6 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
             this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
-            this.udLock.setTicksLeft(rep["locks"]["ud_lock"]);
             // Approximate plane positions in current tick based on position in server tick
             if (tickDifference > 0){
                 this.rollForward(tickDifference);
@@ -159,7 +157,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     // TODO: Comments
     static fromJSON(rep, scene, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let bp = new BiasedCampaignBotBomberPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
+        let bp = new BiasedCampaignBotBomberPlane(planeClass, scene, rep["angle"], rep["facing_right"], rep["biases"], autonomous);
         bp.initFromJSON(rep)
         return bp;
     }

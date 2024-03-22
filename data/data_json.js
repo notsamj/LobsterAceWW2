@@ -306,8 +306,8 @@ const PROGRAM_DATA = {
             "easy": {
                 "max_planes": 40,
                 "attacker_plane_counts": {
-                    "republic_p_47": 3, // 5? 3?
-                    "p51_mustang": 3, // 5? 3?
+                    "republic_p_47": 3, // 3?
+                    "p51_mustang": 3, // 3?
                     "b24": 1
                 },
                 "defender_plane_counts": {

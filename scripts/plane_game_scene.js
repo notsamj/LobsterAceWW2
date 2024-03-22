@@ -4,6 +4,8 @@ if (typeof window === "undefined"){
     TeamCombatManager = require("../scripts/team_combat_manager.js");
     PROGRAM_DATA = require("../data/data_json.js");
     SoundManager = require("./general/sound_manager.js");
+    Bomb = require("./bomb.js");
+    Building = require("./building.js");
 }
 /*
     Method Name: loadRotatedImages
@@ -49,13 +51,17 @@ class PlaneGameScene extends Scene {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(soundManager, local=false){
+    constructor(soundManager=null, local=false){
         super();
         this.local = local;
         this.collisionsEnabled = true;
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
         this.soundManager = soundManager;
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
+    }
+
+    setSoundManager(soundManager){
+        this.soundManager = soundManager;
     }
 
     /*
@@ -397,12 +403,14 @@ class PlaneGameScene extends Scene {
     async tick(timeDiff){
         if (!this.ticksEnabled){ return; }
         // Tick all entities
+        /*
+        TEMP
         for (let [entity, entityIndex] of this.entities){
             await entity.tick(timeDiff);
-        }
+        }*/
         await this.teamCombatManager.tick(timeDiff);
         // Delete all dead buildings and bombs and other entities?
-        this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
+        // TEMP this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
     }
 
     /*

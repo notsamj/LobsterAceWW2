@@ -1,6 +1,7 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     Entity = require("./entity.js");
+    RectangleHitbox = require("./general/hitboxes.js").RectangleHitbox;
 }
 /*
     Class Name: Building
@@ -18,10 +19,11 @@ class Building extends Entity {
                 The height of the building
             health:
                 The health of the building
+            TODO
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, width, height, health){
+    constructor(x, width, height, health, scene){
         super(scene);
         this.x = x;
         this.width = width;
@@ -122,6 +124,15 @@ class Building extends Entity {
         rect(displayX, displayY, this.width, this.height);
     }
 
+    // TODO: Comments
+    touchesRegion(lX, rX, bY, tY){
+        if (this.x + this.getWidth() < lX){ return false; }
+        if (this.x > rX){ return false; }
+        if (tY < 0){ return false; }
+        if (bY > this.getHeight()){ return false; }
+        return true;
+    }
+
     /*
         Method Name: toJSON
         Method Parameters: None
@@ -138,18 +149,24 @@ class Building extends Entity {
         }
     }
 
+    // TODO: Comments
+    fromJSON(rep){
+        this.health = rep["health"];
+        this.setDead(rep["dead"]);
+    }
+
     /*
         Method Name: fromJSON
         Method Parameters:
-            scene:
-                The scene that the building is a part of
             rep:
                 JSON representation of a building
+            scene:
+                The scene that the building is a part of
         Method Description: Creates a building from a json representation
         Method Return: Building
     */
-    static fromJSON(scene, rep){
-        let building = new Building(rep["x"], rep["width"], rep["height"], rep["health"]);
+    static fromJSON(rep, scene){
+        let building = new Building(rep["x"], rep["width"], rep["height"], rep["health"], scene);
         building.setDead(rep["dead"]);
         return building;
     }

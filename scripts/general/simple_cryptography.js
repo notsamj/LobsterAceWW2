@@ -5,9 +5,13 @@ if (typeof window === "undefined"){
 class SimpleCryptography {
     constructor(secretSeed){
         this.secretSeed = secretSeed;
+        this.disabled = false; // TEMP
     }
 
     encrypt(data){
+        if (this.disabled){
+            return data;
+        }
         let encryptedData = [];
         let numChars = data.length;
         let randomizer = new SeededRandomizer(this.secretSeed + numChars);
@@ -27,6 +31,9 @@ class SimpleCryptography {
     }
 
     decrypt(encryptedData){
+        if (this.disabled){
+            return encryptedData;
+        }
         // Make sure each number is in the proper range
         let dataFormat = /[0-9]+/g;
         let matches = [...encryptedData.matchAll(dataFormat)];
@@ -50,6 +57,9 @@ class SimpleCryptography {
     }
 
     matchesEncryptedFormat(data){
+        if (this.disabled){
+            return true;
+        }
         let format = /^\[(([0-9]+,)*[0-9]+)?\]$/;
         // If it doesn't match then ignore
         if (data.match(format) == null){ return false; }

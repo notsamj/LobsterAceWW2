@@ -49,7 +49,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.tickCD = 0;
         this.biases = biases;
         this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.throttle += this.biases["throttle"];
+        this.throttle = Math.floor(this.throttle + this.biases["throttle"]); // Throttle must be an integer
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
         this.startingHealth = this.health;
@@ -159,6 +159,9 @@ class BiasedBotFighterPlane extends FighterPlane {
     fromJSON(rep, tickDifference=0){
         // This is always local being received from the server
         let takePosition = rep["movement_mod_count"] > this.movementModCount;
+        if (this.getModel() == "p51_mustang"){
+            //console.log(rep["movement_mod_count"], rep["decisions"]["throttle"], this.movementModCount, this.decisions["throttle"], rep["basic"]["throttle"], this.throttle);
+        }
         if (takePosition){
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
@@ -489,7 +492,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let score = calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
+            let score = BiasedBotFighterPlane.calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "enemy": enemy,
@@ -616,10 +619,11 @@ class BiasedBotFighterPlane extends FighterPlane {
         }
         return count;
     }
-}
 
-function calculateEnemyScore(distance, focusedCount){
-    return distance + focusedCount * PROGRAM_DATA["settings"]["focused_count_distance_equivalent"];
+    // TODO: Comments
+    static calculateEnemyScore(distance, focusedCount){
+        return distance + focusedCount * PROGRAM_DATA["settings"]["focused_count_distance_equivalent"];
+    }
 }
 
 // If using Node JS Export the class

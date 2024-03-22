@@ -59,6 +59,18 @@ class Component {
         this.displayEnabled = false;
     }
 
+    // TODO: Comments
+    fullDisable(){
+        this.displayEnabled = false;
+        this.enabled = false;
+    }
+
+    fullEnable(){
+        this.displayEnabled = true;
+        this.enabled = true;
+    }
+
+
     // Either meant to be blank or meant to be overridden
     covers(){}
     clicked(){}

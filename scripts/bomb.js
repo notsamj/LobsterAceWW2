@@ -2,6 +2,8 @@
 if (typeof window === "undefined"){
     PROGRAM_DATA = require("../data/data_json.js");
     Entity = require("./entity.js");
+    Bullet = require("./bullet.js");
+    CircleHitbox = require("./general/hitboxes.js").CircleHitbox;
 }
 /*
     Class Name: Bomber
@@ -208,7 +210,7 @@ class Bomb extends Entity {
         Method Return: boolean, true if collides, false otherwise
     */
     collidesWith(building, timeDiff){
-        let result = hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), building.getHitbox(), building.getCenterX(), building.getCenterY(), 0, 0, timeDiff/1000);
+        let result = Bullet.hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), building.getHitbox(), building.getCenterX(), building.getCenterY(), 0, 0, timeDiff/1000);
         return result;
     }
 

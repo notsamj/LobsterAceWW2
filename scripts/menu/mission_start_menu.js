@@ -85,7 +85,7 @@ class MissionStartMenu extends Menu {
         let alliesHeaderY = (innerHeight) => { return innerHeight - 27; }
         let alliesHeaderXSize = 270;
         let alliesHeaderYSize = 100;
-        this.components.push(new TextComponent("Allies", PROGRAM_DATA["team_to_colour"]["Allies"], alliesHeaderX, alliesHeaderY, alliesHeaderXSize, alliesHeaderYSize));
+        this.components.push(new TextComponent("Allied Difficulty", PROGRAM_DATA["team_to_colour"]["Allies"], alliesHeaderX, alliesHeaderY, alliesHeaderXSize, alliesHeaderYSize));
 
         let allyDifficultyButtonX = (innerWidth) => { return alliesHeaderX(innerWidth); }
         let allyDifficultyButtonY = (innerHeight) => { return alliesHeaderY(innerHeight) - difficultyButtonSize; }
@@ -98,7 +98,7 @@ class MissionStartMenu extends Menu {
         let axisHeaderY = (innerHeight) => { return innerHeight - 27; }
         let axisHeaderXSize = 200;
         let axisHeaderYSize = 100;
-        this.components.push(new TextComponent("Axis", PROGRAM_DATA["team_to_colour"]["Axis"], axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize));
+        this.components.push(new TextComponent("Axis Difficulty", PROGRAM_DATA["team_to_colour"]["Axis"], axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize));
 
         let axisDifficultyButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
         let axisDifficultyButtonY = (innerHeight) => { return axisHeaderY(innerHeight) - difficultyButtonSize; }

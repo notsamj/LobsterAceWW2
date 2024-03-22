@@ -13,6 +13,9 @@ class HostMenu extends Menu {
     constructor(){
         super();
 
+        // Locks
+        this.switchGameModeLock = new Lock();
+
         // Dogfight & Mission
         this.userPlanes = this.createUserPlaneSelection();
         this.userPlaneIndex = 0;
@@ -29,37 +32,60 @@ class HostMenu extends Menu {
         this.currentAxisPlaneCountComponent = null;
         this.botDetailsComponent = null;
 
+        // Mission Specific
+        this.mission = PROGRAM_DATA["missions"][0];
+
         this.setup();
 
         // Dogfight Specific
         this.updateBotDetails();
     }
 
-    switchToDogfight(){
+    async switchToDogfight(){
+        if (this.switchGameModeLock.isLocked()){ return; }
+        this.switchGameModeLock.lock();
+        let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "dogfight"}, "switch_game_mode");
+        this.switchGameModeLock.unlock();
+        if (!response || !response["success"]){
+            menuManager.addTemporaryMessage("Failed to switch to a dogfight.", "red", 5000);
+            return;
+        }
         this.userPlanes = this.createUserPlaneSelection();
         this.userPlaneIndex = 0;
         this.alliedPlaneIndex = 0;
         this.axisPlaneIndex = 0;
 
-        this.alliedHeader.enable();
-        this.axisHeader.enable();
-        this.botHeader.enable();
+        this.alliedHeader.fullEnable();
+        this.axisHeader.fullEnable();
+        this.botHeader.fullEnable();
 
-        this.alliedPlus5Button.enable();
-        this.axisPlus5Button.enable();
+        this.alliedPlus5Button.fullEnable();
+        this.axisPlus5Button.fullEnable();
 
-        this.alliedPlus1Button.enable();
-        this.axisPlus1Button.enable();
+        this.alliedPlus1Button.fullEnable();
+        this.axisPlus1Button.fullEnable();
 
-        this.alliedMinus1Button.enable();
-        this.axisMinus1Button.enable();
+        this.alliedMinus1Button.fullEnable();
+        this.axisMinus1Button.fullEnable();
 
-        this.alliedMinus5Button.enable();
-        this.axisMinus5Button.enable();
+        this.alliedMinus5Button.fullEnable();
+        this.axisMinus5Button.fullEnable();
 
-        this.currentAlliedPlaneCountComponent.enable();
-        this.currentAxisPlaneCountComponent.enable();
-        this.botDetailsComponent.enable();
+        this.currentAlliedPlaneCountComponent.fullEnable();
+        this.currentAxisPlaneCountComponent.fullEnable();
+        this.botDetailsComponent.fullEnable();
+
+        this.switchToMissionButton.fullEnable();
+
+        this.alliedDifficultyHeader.fullDisable();
+        this.axisDifficultyHeader.fullDisable();
+
+        this.switchToDogfightButton.fullDisable();
+        this.missionPreviousButton.fullDisable();
+        this.missionNextButton.fullDisable();
+
+        this.alliedPlaneImage.fullEnable();
+        this.axisPlaneImage.fullEnable();
 
         this.resetSettings();
     }
@@ -72,30 +98,51 @@ class HostMenu extends Menu {
         return userPlanes;
     }
 
-    switchToMission(mission){
+    async switchToMission(){
+        if (this.switchGameModeLock.isLocked()){ return; }
+        this.switchGameModeLock.lock();
+        let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "mission"}, "switch_game_mode");
+        this.switchGameModeLock.unlock();
+        if (!response || !response["success"]){
+            menuManager.addTemporaryMessage("Failed to switch to a mission.", "red", 5000);
+            return;
+        }
         // Create planes from mission object
-        this.userPlanes = this.createUserMissionPlaneSelection(mission);
+        this.mission = PROGRAM_DATA["missions"][0];
+        this.userPlanes = this.createUserMissionPlaneSelection(this.mission);
         this.userPlaneIndex = 0;
 
-        this.alliedHeader.disable();
-        this.axisHeader.disable();
-        this.botHeader.disable();
+        this.alliedHeader.fullDisable();
+        this.axisHeader.fullDisable();
+        this.botHeader.fullDisable();
 
-        this.alliedPlus5Button.disable();
-        this.axisPlus5Button.disable();
+        this.alliedPlus5Button.fullDisable();
+        this.axisPlus5Button.fullDisable();
 
-        this.alliedPlus1Button.disable();
-        this.axisPlus1Button.disable();
+        this.alliedPlus1Button.fullDisable();
+        this.axisPlus1Button.fullDisable();
 
-        this.alliedMinus1Button.disable();
-        this.axisMinus1Button.disable();
+        this.alliedMinus1Button.fullDisable();
+        this.axisMinus1Button.fullDisable();
 
-        this.alliedMinus5Button.disable();
-        this.axisMinus5Button.disable();
+        this.alliedMinus5Button.fullDisable();
+        this.axisMinus5Button.fullDisable();
 
-        this.currentAlliedPlaneCountComponent.disable();
-        this.currentAxisPlaneCountComponent.disable();
-        this.botDetailsComponent.disable();
+        this.currentAlliedPlaneCountComponent.fullDisable();
+        this.currentAxisPlaneCountComponent.fullDisable();
+        this.botDetailsComponent.fullDisable();
+
+        this.switchToMissionButton.fullDisable();
+
+        this.alliedDifficultyHeader.fullEnable();
+        this.axisDifficultyHeader.fullEnable();
+
+        this.switchToDogfightButton.fullEnable();
+        this.missionPreviousButton.fullEnable();
+        this.missionNextButton.fullEnable();
+
+        this.alliedPlaneImage.fullDisable();
+        this.axisPlaneImage.fullDisable();
 
         this.resetSettings();
     }
@@ -132,15 +179,15 @@ class HostMenu extends Menu {
         let addRemoveButtonSize = 50;
 
         // Background
-        this.components.push(new AnimatedCloudBackground())
+        this.components.push(new AnimatedCloudBackground());
 
         // Back Button
         let backButtonX = () => { return 50; }
         let backButtonY = (innerHeight) => { return innerHeight-27; }
         let backButtonXSize = 200;
         let backButtonYSize = 76;
-        this.components.push(new RectangleButton("Main Menu", "#3bc44b", "#e6f5f4", backButtonX, backButtonY, backButtonXSize, backButtonYSize, (instance) => {
-            instance.goToMainMenu();
+        this.components.push(new RectangleButton("Main Menu", "#3bc44b", "#e6f5f4", backButtonX, backButtonY, backButtonXSize, backButtonYSize, (menuInstance) => {
+            menuInstance.goToMainMenu();
         }));
 
         // Start Button
@@ -148,13 +195,13 @@ class HostMenu extends Menu {
         let startButtonY = () => { return 200; }
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
-        this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, async (instance) => {
+        this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, async (menuInstance) => {
             let response = await SERVER_CONNECTION.sendMail({"action": "host_start_game"}, "host");
             if (!response || !response["success"]){
                 menuManager.addTemporaryMessage("Failed to start game.", "red", 50000);
                 return;
             }
-            instance.resetSettings();
+            menuInstance.resetSettings();
         }));
 
         // User Section
@@ -192,20 +239,20 @@ class HostMenu extends Menu {
 
         let alliedMinus5ButtonX = (innerWidth) => { return alliedHeaderX(innerWidth); }
         let alliedMinus5ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); };
-        this.alliedMinus5Button = new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus5ButtonX, alliedMinus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.alliedMinus5Button = new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus5ButtonX, alliedMinus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Allies", -5);
         });
-        this.components.push(this.alliesMinus5Button);
+        this.components.push(this.alliedMinus5Button);
 
         let allyDifficultyButtonX = (innerWidth) => { return alliedHeaderX(innerWidth); }
         let allyDifficultyButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight() - addRemoveButtonSize; }
-        this.components.push(new RectangleButton(() => { return this.getAllyDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", allyDifficultyButtonX, allyDifficultyButtonY, addRemoveButtonSize*3, addRemoveButtonSize*3, (instance) => {
+        this.components.push(new RectangleButton(() => { return this.getAllyDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", allyDifficultyButtonX, allyDifficultyButtonY, addRemoveButtonSize*3, addRemoveButtonSize*3, (menuInstance) => {
             this.cycleAllyDifficulty();
         }));
 
         let alliedMinus1ButtonX = (innerWidth) => { return alliedMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
         let alliedMinus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
-        this.alliedMinus1Button = new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus1ButtonX, alliedMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.alliedMinus1Button = new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedMinus1ButtonX, alliedMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Allies", -1);
         })
         this.components.push(this.alliedMinus1Button);
@@ -219,14 +266,14 @@ class HostMenu extends Menu {
 
         let alliedPlus1ButtonX = (innerWidth) => { return alliedCurrentCountTextX(innerWidth) + alliedCurrentCountTextXSize; }
         let alliedPlus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
-        this.alliedPlus1Button = new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus1ButtonX, alliedPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.alliedPlus1Button = new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus1ButtonX, alliedPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Allies", 1);
         });
-        this.components.push();
+        this.components.push(this.alliedPlus1Button);
 
         let alliedPlus5ButtonX = (innerWidth) => { return alliedPlus1ButtonX(innerWidth) + addRemoveButtonSize; }
         let alliedPlus5ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
-        this.alliedPlus5Button = new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus5ButtonX, alliedPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.alliedPlus5Button = new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus5ButtonX, alliedPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Allies", 5);
         });
         this.components.push(this.alliedPlus5Button);
@@ -251,20 +298,20 @@ class HostMenu extends Menu {
 
         let axisMinus5ButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
         let axisMinus5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.axisMinus5Button = new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus5ButtonX, axisMinus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.axisMinus5Button = new RectangleButton("-5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus5ButtonX, axisMinus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -5);
         });
         this.components.push(this.axisMinus5Button);
 
         let axisDifficultyButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
         let axisDifficultyButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight() - addRemoveButtonSize; }
-        this.components.push(new RectangleButton(() => { return this.getAxisDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisDifficultyButtonX, axisDifficultyButtonY, addRemoveButtonSize*3, addRemoveButtonSize*3, (instance) => {
+        this.components.push(new RectangleButton(() => { return this.getAxisDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisDifficultyButtonX, axisDifficultyButtonY, addRemoveButtonSize*3, addRemoveButtonSize*3, (menuInstance) => {
             this.cycleAxisDifficulty();
         }));
 
         let axisMinus1ButtonX = (innerWidth) => { return axisMinus5ButtonX(innerWidth) + addRemoveButtonSize; }
         let axisMinus1ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.axisMinus1Button = new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus1ButtonX, axisMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.axisMinus1Button = new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus1ButtonX, axisMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -1);
         });
         this.components.push(this.axisMinus1Button);
@@ -278,14 +325,14 @@ class HostMenu extends Menu {
 
         let axisPlus1ButtonX = (innerWidth) => { return axisCurrentCountTextX(innerWidth) + axisCurrentCountTextXSize; }
         let axisPlus1ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.axisPlus1Button = new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus1ButtonX, axisPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.axisPlus1Button = new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus1ButtonX, axisPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Axis", 1);
         });
         this.components.push(this.axisPlus1Button);
 
         let axisPlus5ButtonX = (innerWidth) => { return axisPlus1ButtonX(innerWidth) + addRemoveButtonSize; }
         let axisPlus5ButtonY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
-        this.axisPlus5Button = new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus5ButtonX, axisPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
+        this.axisPlus5Button = new RectangleButton("+5", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisPlus5ButtonX, axisPlus5ButtonY, addRemoveButtonSize, addRemoveButtonSize, (menuInstance) => {
             this.modifyDisplayedBotPlaneCount("Axis", 5);
         });
         this.components.push(this.axisPlus5Button);
@@ -312,14 +359,16 @@ class HostMenu extends Menu {
         let switchButtonYSize = 200;
 
         // Switch to Mission Button
-        this.switchToMissionButton = new RectangleButton("--> Mission", green, "#e6f5f4", switchButtonX, switchButtonY, switchButtonXSize, switchButtonYSize, (instance) => {
-            this.switchToMission();
+        this.switchToMissionButton = new RectangleButton("Switch To Mission", "#3bc44b", "#e6f5f4", switchButtonX, switchButtonY, switchButtonXSize, switchButtonYSize, (menuInstance) => {
+            menuInstance.switchToMission();
         });
+        this.components.push(this.switchToMissionButton);
         // Switch to Dogfight Button
-        this.switchToDogfightButton = new RectangleButton("--> Dogfight", green, "#e6f5f4", switchButtonX, switchButtonY, switchButtonXSize, switchButtonYSize, (instance) => {
-            this.switchToDogfight();
+        this.switchToDogfightButton = new RectangleButton("Switch To Dogfight", "#3bc44b", "#e6f5f4", switchButtonX, switchButtonY, switchButtonXSize, switchButtonYSize, (menuInstance) => {
+            menuInstance.switchToDogfight();
         });
-        this.switchToDogfightButton.disable();
+        this.components.push(this.switchToDogfightButton);
+        this.switchToDogfightButton.fullDisable();
 
         // Mission Details Area
         let missionDetailsButtonXSize = 600;
@@ -327,7 +376,7 @@ class HostMenu extends Menu {
         let missionDetailsX = switchButtonX;
         let missionDetailsY = switchButtonY + missionDetailsButtonYSize;
         this.missionDetails = new TextComponent("", "#6f5f4", missionDetailsX, missionDetailsY, missionDetailsButtonXSize, missionDetailsButtonYSize);
-        this.missionDetails.disable();
+        this.missionDetails.fullDisable();
 
         let nextPreviousButtonSize = 100;
         let nextPreviousButtonY = switchButtonY;
@@ -336,14 +385,78 @@ class HostMenu extends Menu {
         this.missionPreviousButton = new RectangleButton("Previous", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", switchButtonX - nextPreviousButtonSize, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
             menuInstance.previous();
         });
+        this.missionPreviousButton.fullDisable();
         this.components.push(this.missionPreviousButton);
 
         // Switch Mission Next Button  
         this.missionNextButton = new RectangleButton("Next", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", switchButtonX+switchButtonXSize, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
             menuInstance.next();
         })
+        this.missionNextButton.fullDisable();
         this.components.push(this.missionNextButton);
+
+        // Ally and Axis Difficulty Headers
+        let alliedDifficultyHeaderX = () => { return 600; }
+        let alliedDifficultyHeaderY = (innerHeight) => { return innerHeight - 27; }
+        let alliedDifficultyHeaderXSize = 270;
+        let alliedDifficultyHeaderYSize = 100;
+        this.alliedDifficultyHeader = new TextComponent("Allied Difficulty", PROGRAM_DATA["team_to_colour"]["Allies"], alliedDifficultyHeaderX, alliedDifficultyHeaderY, alliedDifficultyHeaderXSize, alliedDifficultyHeaderYSize);
+        this.alliedDifficultyHeader.fullDisable();
+        this.components.push(this.alliedDifficultyHeader);
+
+        let axisDifficultyHeaderX = () => { return 900; }
+        let axisDifficultyHeaderY = (innerHeight) => { return innerHeight - 27; }
+        let axisDifficultyHeaderXSize = 200;
+        let axisDifficultyHeaderYSize = 100;
+        this.axisDifficultyHeader = new TextComponent("Axis Difficulty", PROGRAM_DATA["team_to_colour"]["Axis"], axisDifficultyHeaderX, axisDifficultyHeaderY, axisDifficultyHeaderXSize, axisDifficultyHeaderYSize);
+        this.axisDifficultyHeader.fullDisable();
+        this.components.push(this.axisDifficultyHeader);
     }
+
+    /*
+        Method Name: next
+        Method Parameters: None
+        Method Description: Selects the next mission
+        Method Return: void
+    */
+    async next(){
+        if (PROGRAM_DATA["missions"].length < 2){ return; }
+        if (this.switchGameModeLock.isLocked()){ return; }
+        this.switchGameModeLock.lock();
+        let newMission = PROGRAM_DATA["missions"][this.mission["id"]+1 % PROGRAM_DATA["missions"].length];
+        let permission = true; // TODO
+        let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
+        this.switchGameModeLock.unlock();
+        if (!response || !response["success"]){
+            menuManager.addTemporaryMessage("Failed to switch to next mission.", "red", 5000);
+            return;
+        }
+        this.mission = newMission;
+        this.loadCurrentMission();
+    }
+
+    /*
+        Method Name: previous
+        Method Parameters: None
+        Method Description: Selects the previous mission
+        Method Return: void
+    */
+    async previous(){
+        if (PROGRAM_DATA["missions"].length < 2){ return; }
+        if (this.switchGameModeLock.isLocked()){ return; }
+        this.switchGameModeLock.lock();
+        let newMission = this.mission["id"] == 0 ? PROGRAM_DATA["missions"][PROGRAM_DATA["missions"].length - 1] : PROGRAM_DATA["missions"][this.mission["id"] - 1];
+        let permission = true; // TODO
+        let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
+        this.switchGameModeLock.unlock();
+        if (!response || !response["success"]){
+            menuManager.addTemporaryMessage("Failed to switch to previous mission.", "red", 5000);
+            return;
+        }
+        this.mission = newMission;
+        this.loadCurrentMission();
+    }
+
 
     /*
         Method Name: switchPlanes
@@ -581,7 +694,8 @@ class HostMenu extends Menu {
             "bot_counts": this.planeCounts,
             "axis_difficulty": this.axisDifficulty,
             "ally_difficulty": this.allyDifficulty,
-            "bullet_physics_enabled": PROGRAM_DATA["settings"]["use_physics_bullets"]
+            "bullet_physics_enabled": PROGRAM_DATA["settings"]["use_physics_bullets"],
+            "mission_id": this.mission["id"]
         }
         SERVER_CONNECTION.hostUpdateSettings(settings);
     }

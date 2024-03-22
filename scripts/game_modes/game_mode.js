@@ -45,6 +45,8 @@ class GameMode {
         this.paused = false;
     }
 
+    isPaused(){ return this.paused; }
+
     /*
         Method Name: isRunning
         Method Parameters: None
@@ -67,7 +69,6 @@ class GameMode {
     // Abstract Methods
     display(){}
     runsLocally(){}
-    isPaused(){ return false; }
 }
 // If using NodeJS then export the class
 if (typeof window === "undefined"){

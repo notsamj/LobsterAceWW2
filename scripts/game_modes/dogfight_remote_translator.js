@@ -9,9 +9,6 @@ class DogfightRemoteTranslator {
         if (this.getStateLock.isReady()){
             this.getStateLock.lock();
             this.lastState = await SERVER_CONNECTION.sendMail({"action": "get_state"}, "get_state");
-            if (this.lastState == null){
-                console.log("a")
-            }
             this.getStateLock.unlock();
         }
         return this.lastState; 

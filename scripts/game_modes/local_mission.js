@@ -68,6 +68,7 @@ class LocalMission extends Mission {
         return true;
     }
 
+    // TODO: Bring this to local client
     /*
         Method Name: updateHUD
         Method Parameters: None
@@ -83,6 +84,23 @@ class LocalMission extends Mission {
         }
         HEADS_UP_DISPLAY.updateElement("Next Ally Respawn", ((allyLock.getTicksLeft() * PROGRAM_DATA["settings"]["ms_between_ticks"]) / 1000).toFixed(0));
         HEADS_UP_DISPLAY.updateElement("Next Axis Respawn", ((axisLock.getTicksLeft() * PROGRAM_DATA["settings"]["ms_between_ticks"]) / 1000).toFixed(0));
+
+
+        let livingBuildings = 0;
+        for (let building of this.buildings){
+            if (building.isAlive()){
+                livingBuildings++;
+            }
+        }
+
+        let livingBombers = 0;
+        for (let plane of this.planes){
+            if (plane instanceof BomberPlane && plane.isAlive()){
+                livingBombers++;
+            }
+        }
+        HEADS_UP_DISPLAY.updateElement("Remaining Buildings", livingBuildings);
+        HEADS_UP_DISPLAY.updateElement("Remaining Bombers", livingBombers);
     }
 
     /*

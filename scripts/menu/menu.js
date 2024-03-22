@@ -163,7 +163,8 @@ class Menu {
     click(x, y){
         for (let i = this.components.length - 1; i >= 0; i--){
             let component = this.components[i];
-            if (component.covers(x, y)){
+            //console.log("Checking", component, component.covers(x, y))
+            if (component.covers(x, y) && !component.isDisabled()){
                 component.clicked(this);
                 break;
             }
