@@ -1,6 +1,7 @@
 /*
     Class Name: UserInputManager
     Description: A class for managing the user's inputs.
+    TODO: Comments
 */
 class UserInputManager {
      /*
@@ -11,6 +12,33 @@ class UserInputManager {
     */
     constructor(){
         this.handlerNodes = [];
+        this.tickedAggregators = [];
+    }
+
+    registerTickedAggregator(alias, onEventName, onEventChecker, offEventName, offEventChecker){
+        let tickedAggregator = new TickedAggregator(alias);
+        document.addEventListener(onEventName, (event) => {
+            if (onEventChecker(event)){
+                tickedAggregator.enableTicks();
+            }
+        });
+        document.addEventListener(offEventName, (event) => {
+            if (offEventChecker(event)){
+                tickedAggregator.disableTicks();
+            }
+        });
+        this.tickedAggregators.push(tickedAggregator);
+    }
+
+    getTickedAggregator(alias){
+        for (let tickedAggregator of this.tickedAggregators){
+            if (tickedAggregator.getAlias() == alias){ return tickedAggregator; }
+        }
+        return null;
+    }
+
+    tick(){
+        for (let tickedAggregator of this.tickedAggregators){ tickedAggregator.tick(); }
     }
 
     /*
@@ -70,7 +98,7 @@ class UserInputManager {
     }
     
     /*
-        Method Name: has
+        Method Name: isActivated
         Method Parameters:
             alias:
                 The name of the listener
@@ -79,6 +107,45 @@ class UserInputManager {
     */
     isActivated(alias){
         return this.has(alias) ? this.get(alias).isActivated() : false;
+    }
+}
+
+class TickedAggregator {
+    constructor(alias){
+        this.alias = alias;
+        this.ticksEnabled = false;
+        this.ticks = 0;
+    }
+
+    disableTicks(){
+        this.ticksEnabled = false;
+    }
+
+    enableTicks(){
+        this.ticksEnabled = true;
+    }
+
+    isTicking(){
+        return this.ticksEnabled;
+    }
+
+    tick(){
+        if (!this.isTicking()){ return; }
+        this.ticks++;
+    }
+
+    getTicks(){
+        return this.ticks;
+    }
+
+    clear(){
+        let ticks = this.getTicks();
+        this.ticks = 0;
+        return ticks;
+    }
+
+    getAlias(){
+        return this.alias;
     }
 }
 

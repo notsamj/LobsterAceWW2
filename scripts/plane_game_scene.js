@@ -435,7 +435,7 @@ class PlaneGameScene extends Scene {
         let planeSpeed = 0;
         let throttle = 0;
         let health = 0;
-        let fps = frameCounter.getFPS();
+        let fps = FRAME_COUNTER.getFPS();
         let numberOfEntities = this.getNumberOfEntities();
         let allyPlanes = this.teamCombatManager.countAlliance("Allies");
         let axisPlanes = this.teamCombatManager.countAlliance("Axis");

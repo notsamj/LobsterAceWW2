@@ -1,4 +1,7 @@
 const PROGRAM_DATA = {
+    "controls": {
+        "max_angle_change_per_tick": 5
+    },
     "plane_data": {
         "spitfire": {
             "radius": 64,
@@ -161,9 +164,8 @@ const PROGRAM_DATA = {
         "expected_canvas_width": 1920,
         "expected_canvas_height": 927,
         "frame_rate": 60, // 60
-        "tick_rate": 100, // 100
-        "assumed_tick_rate": 100, // TODO: Remove this constant?
-        "ms_between_ticks": 10, // 10
+        "tick_rate": 20, // 100
+        "ms_between_ticks": 50, // 10
         "max_bullet_y_velocity_multiplier": 2/800,
         "plane_shoot_gap_ms": 100,
         "max_bullets": 2000,

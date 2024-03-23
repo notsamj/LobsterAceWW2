@@ -1,6 +1,7 @@
 /*
     Class Name: FrameRateCounter
     Description: A class to count frame rate
+    TODO: Comment this class
 */
 class FrameRateCounter {
     static FRAME_GAP_CONSTANT = 0.9;
@@ -18,6 +19,10 @@ class FrameRateCounter {
         this.lastFrameTime = 0;
         this.frameTimes = [];
         for (let i = 0; i < maxFPS; i++){ this.frameTimes.push(0); }
+    }
+
+    getLastFrameTime(){
+        return this.lastFrameTime;
     }
 
     /*

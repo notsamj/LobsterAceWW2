@@ -612,7 +612,8 @@ class Plane extends Entity {
         /*this.interpolatedX = this.x;
         this.interpolatedY = this.y;
         return;*/
-        let extraTime = (currentTime - (activeGameMode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+        //let extraTime = (currentTime - (activeGameMode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+        let extraTime = currentTime - FRAME_COUNTER.getLastFrameTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];

@@ -4,7 +4,7 @@ var scene;
 var menuManager;
 var setupDone = false;
 var programOver = false;
-var frameCounter = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);
+var FRAME_COUNTER = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);
 var activeGameMode = null;
 var loadedPercent = 0;
 var debug = false;
@@ -23,6 +23,9 @@ USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return
 USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
 USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 84; }, false)
 
+USER_INPUT_MANAGER.registerTickedAggregator("w", "keydown", (event) => { return event.keyCode == 87; }, "keyup", (event) => { return event.keyCode == 87; });
+USER_INPUT_MANAGER.registerTickedAggregator("s", "keydown", (event) => { return event.keyCode == 83; }, "keyup", (event) => { return event.keyCode == 83; });
+
 // Functions
 
 /*
@@ -36,6 +39,7 @@ USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 8
 async function tick(forced=false){
     // Safety incase an error occurs stop running
     if (programOver){ return; }
+    USER_INPUT_MANAGER.tick();
     // Fix num ticks if running a huge defecit
     if (activeGameMode != null && activeGameMode.getNumTicks() < activeGameMode.getExpectedTicks() - PROGRAM_DATA["settings"]["max_tick_deficit"]){ activeGameMode.correctTicks(); }
     if (mainTickLock.notReady()){
@@ -57,8 +61,8 @@ async function tick(forced=false){
     }
 
     // Draw frame
-    if (frameCounter.ready()){
-        frameCounter.countFrame();
+    if (FRAME_COUNTER.ready()){
+        FRAME_COUNTER.countFrame();
         draw();
     }
     if (activeGameMode != null){
