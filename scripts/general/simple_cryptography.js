@@ -5,7 +5,7 @@ if (typeof window === "undefined"){
 class SimpleCryptography {
     constructor(secretSeed){
         this.secretSeed = secretSeed;
-        this.disabled = false; // TEMP
+        this.disabled = false;
     }
 
     encrypt(data){

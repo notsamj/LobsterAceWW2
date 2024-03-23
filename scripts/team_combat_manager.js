@@ -231,24 +231,22 @@ class TeamCombatManager {
     */
     async tick(timeDiff){
         for (let team of this.teams){
-            /*TEMP
+            
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
                 await plane.tick(timeDiff);
-            }*/
+            }
 
-            /*TEMP
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead()){ continue; }
                 await bullet.tick(timeDiff);
-            }*/
+            }
         }
-        /*TEMP
         for (let [bomb, bombIndex] of this.bombs){
             if (bomb.isDead()){ continue; }
             bomb.tick(timeDiff);
         }
-        this.checkCollisions(timeDiff);*/
+        this.checkCollisions(timeDiff);
     }
 
     /*

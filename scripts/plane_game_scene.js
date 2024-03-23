@@ -403,14 +403,13 @@ class PlaneGameScene extends Scene {
     async tick(timeDiff){
         if (!this.ticksEnabled){ return; }
         // Tick all entities
-        /*
-        TEMP
+
         for (let [entity, entityIndex] of this.entities){
             await entity.tick(timeDiff);
-        }*/
+        }
         await this.teamCombatManager.tick(timeDiff);
         // Delete all dead buildings and bombs and other entities?
-        // TEMP this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
+        this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
     }
 
     /*

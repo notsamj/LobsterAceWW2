@@ -43,8 +43,7 @@ class ServerDogfight {
         this.createPlanes(dogfightJSON);
         this.scene.setEntities(this.planes);
 
-        // TEMP this.tickScheduler = new TickScheduler(() => { this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
-        this.tickScheduler = new TickScheduler(() => { this.tick(); }, 5, Date.now());
+        this.tickScheduler = new TickScheduler(async () => { await this.tick(); await this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
@@ -135,24 +134,17 @@ class ServerDogfight {
         Method Return: void
     */
     async tick(){
-        console.log(Date.now() - this.lastTime)
-        this.lastTime = Date.now();
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.tickScheduler.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
 
         // Tick the scene
-        // TEMP await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        // TEMP this.checkForEnd();
+        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.checkForEnd();
         this.numTicks++;
 
         // Save current state and update from user input
-        //this.lastState = this.generateState();
-        // TEMP await this.updateFromUserInput();
-        let diff = this.tickScheduler.getExpectedTicks() - this.numTicks;
-        if (diff > 1){
-            //console.log("Tick diff", diff);
-        }
-        console.log("Tick diff", diff);
+        this.lastState = this.generateState();
+        await this.updateFromUserInput();
         this.tickInProgressLock.unlock();
     }
 
@@ -266,8 +258,7 @@ class ServerDogfight {
             stateRep["sound_list"] = this.soundManager.getSoundRequestList();
             this.soundManager.clearRequests();
             // Add planes
-            stateRep["planes"] = []; // TEMP
-            //stateRep["planes"] = this.scene.getTeamCombatManager().getPlaneJSON();
+            stateRep["planes"] = this.scene.getTeamCombatManager().getPlaneJSON();
             // Add bullets
             stateRep["bullets"] = this.scene.getBulletJSON();
         }else{

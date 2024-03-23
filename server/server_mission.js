@@ -124,7 +124,6 @@ class ServerMisson extends Mission {
         this.lastState = this.generateState();
         await this.updateFromUserInput();
         this.tickInProgressLock.unlock();
-        console.log(this.tickScheduler.getExpectedTicks() - this.numTicks);
     }
 
     /*
