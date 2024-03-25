@@ -28,6 +28,7 @@ class LocalDogfight extends Dogfight {
     */
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
+        this.lastTickTime = Date.now();
         // Update camera
         this.updateCamera();
         await this.tickInProgressLock.awaitUnlock(true);

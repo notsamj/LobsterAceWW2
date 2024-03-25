@@ -186,12 +186,13 @@ class FighterPlane extends Plane {
             // Display flash
             let rotateX = this.scene.getDisplayX(this.getInterpolatedGunX(), 0, lX);
             let rotateY = this.scene.getDisplayY(this.getInterpolatedGunY(), 0, bY);
+            let interpolatedAngle = this.getInterpolatedAngle();
             let flashImageWidth = getImage("flash").width;
             let flashImageHeight = getImage("flash").height;
 
             // Prepare the display
             translate(rotateX, rotateY);
-            rotate(-1 * toRadians(this.getAngle()));
+            rotate(-1 * toRadians(interpolatedAngle));
             // If facing left then turn around the display
             if (!this.isFacingRight()){
                 scale(-1, 1);
@@ -205,7 +206,7 @@ class FighterPlane extends Plane {
                 scale(-1, 1);
             }
             // Reset the rotation and translation
-            rotate(toRadians(this.getAngle()));
+            rotate(toRadians(interpolatedAngle));
             translate(-1 * rotateX, -1 * rotateY);
         }
     }

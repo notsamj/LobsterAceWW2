@@ -327,11 +327,11 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     checkUpDown(){
-        let wKey = keyIsDown(87);
-        let sKey = keyIsDown(83);
+        let wKeyCount = USER_INPUT_MANAGER.getTickedAggregator("w").clear();
+        let sKeyCount = USER_INPUT_MANAGER.getTickedAggregator("s").clear();
         let numKeysDown = 0;
-        numKeysDown += wKey ? 1 : 0;
-        numKeysDown += sKey ? 1 : 0;
+        numKeysDown += wKeyCount > 0 ? 1 : 0;
+        numKeysDown += sKeyCount > 0 ? 1 : 0;
 
         // Only ready to switch direction again once you've stopped holding for at least 1 cd
         if (numKeysDown === 0){
@@ -339,10 +339,10 @@ class HumanBomberPlane extends BomberPlane {
         }else if (numKeysDown > 1){ // Can't which while holding > 1 key
             return;
         }
-        if (wKey){
-            this.decisions["angle"] = -1;
-        }else if (sKey){
-            this.decisions["angle"] = 1;
+        if (wKeyCount > 0){
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], wKeyCount);
+        }else if (sKeyCount > 0){
+            this.decisions["angle"] = Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], sKeyCount);
         }
     }
 

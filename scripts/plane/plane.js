@@ -327,7 +327,7 @@ class Plane extends Entity {
     }
 
     /*
-        Method Name: adjustAngle
+        Method Name: face
         Method Parameters:
             facingRight:
                 New orientation for the plane
@@ -421,13 +421,13 @@ class Plane extends Entity {
         if (this.y - this.hitBox.getRadiusEquivalentY() <= 0){
             this.die();
         }
-        this.makeDecisions();
         this.executeDecisions();
         let newPositionValues = this.getNewPositionValues(timeDiffMS);
         this.x = newPositionValues["x"];
         this.y = newPositionValues["y"];
         this.speed = newPositionValues["speed"];
         this.scene.getSoundManager().play("engine", this.x, this.y);
+        this.makeDecisions();
     }
 
     // TODO: Comments
@@ -604,6 +604,11 @@ class Plane extends Entity {
     }
 
     // TODO: Comments
+    getInterpolatedAngle(){
+        return this.interpolatedAngle;
+    }
+
+    // TODO: Comments
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
         if (activeGameMode.isPaused() || !activeGameMode.isRunning() || this.isDead()){
@@ -613,8 +618,9 @@ class Plane extends Entity {
         this.interpolatedY = this.y;
         return;*/
         //let extraTime = (currentTime - (activeGameMode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
-        let extraTime = currentTime - FRAME_COUNTER.getLastFrameTime();
+        let extraTime = currentTime - activeGameMode.getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
+        this.interpolatedAngle = fixDegrees(this.getAngle() + (this.isFacingRight() ? 1 : -1) * Math.floor(extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"])); 
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
         //console.log(this.interpolatedX, extraTime)
@@ -660,10 +666,11 @@ class Plane extends Entity {
         // Find x and y of image given its rotation
         let rotateX = displayX + this.getWidth() / 2;
         let rotateY = displayY + this.getHeight() / 2;
-
+        let interpolatedAngle = this.getInterpolatedAngle();
+        
         // Prepare the display
         translate(rotateX, rotateY);
-        rotate(-1 * toRadians(this.getAngle()));
+        rotate(-1 * toRadians(interpolatedAngle));
         // If facing left then turn around the display
         if (!this.isFacingRight()){
             scale(-1, 1);
@@ -677,14 +684,14 @@ class Plane extends Entity {
             scale(-1, 1);
         }
         // Reset the rotation and translation
-        rotate(toRadians(this.getAngle()));
+        rotate(toRadians(interpolatedAngle));
         translate(-1 * rotateX, -1 * rotateY);
 
         // If smoking then draw a smoke image overtop
         if (this.isSmoking()){
             // Prepare the display
             translate(rotateX, rotateY);
-            rotate(-1 * toRadians(this.getAngle()));
+            rotate(-1 * toRadians(interpolatedAngle));
             // If facing left then turn around the display
             if (!this.isFacingRight()){
                 try{
@@ -712,7 +719,7 @@ class Plane extends Entity {
                 scale(-1 * this.getSmokeImage().width / this.getWidth(), this.getSmokeImage().height / this.getHeight());
             }
             // Reset the rotation and translation
-            rotate(toRadians(this.getAngle()));
+            rotate(toRadians(interpolatedAngle));
             translate(-1 * rotateX, -1 * rotateY);
         }
     }

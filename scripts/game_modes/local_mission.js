@@ -17,6 +17,7 @@ class LocalMission extends Mission {
     */
     constructor(missionObject, missionSetupJSON, scene){
         super(missionObject, missionSetupJSON, scene);
+        this.lastTickTime = Date.now();
         this.deadCamera = null;
         if (missionSetupJSON["users"].length == 0){
             let cam = new SpectatorCamera(scene, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);

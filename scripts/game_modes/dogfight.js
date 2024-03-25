@@ -20,7 +20,6 @@ class Dogfight extends GameMode {
         this.isATestSession = false;
         this.stats = new AfterMatchStats();
         this.scene.getTeamCombatManager().setStatsManager(this.stats);
-        this.tickInProgressLock = new Lock();
         this.startTime = Date.now();
         this.numTicks = 0;
         this.userEntity = null;

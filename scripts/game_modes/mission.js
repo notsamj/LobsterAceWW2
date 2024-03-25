@@ -46,7 +46,6 @@ class Mission extends GameMode {
         this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
         this.startTime = Date.now();
         this.numTicks = 0;
-        this.tickInProgressLock = new Lock();
 		this.scene.setEntities(appendLists(this.planes, this.buildings));
         this.running = true;
         this.gameOver = false;

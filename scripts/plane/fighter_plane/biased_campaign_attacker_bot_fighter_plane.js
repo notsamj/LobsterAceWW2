@@ -184,9 +184,9 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             let dCW = calculateAngleDiffDEGCW(this.angle, angleToBomberDEG);
             let dCCW = calculateAngleDiffDEGCCW(this.angle, angleToBomberDEG);
             if (dCW < dCCW){
-                this.decisions["angle"] = -1;
+                this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
             }else if (dCCW < dCW){
-                this.decisions["angle"] = 1;
+                this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
             }
             // Make sure you're at top speed heading to the bomber!
             this.decisions["throttle"] = 1;
@@ -207,12 +207,14 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         }
 
         // Adjust angle to match bomber's angle
-        let dCW = calculateAngleDiffDEGCW(this.angle, bomber.getAngle());
-        let dCCW = calculateAngleDiffDEGCCW(this.angle, bomber.getAngle());
+        let bomberAngle = bomber.getAngle();
+        let dCW = calculateAngleDiffDEGCW(this.angle, bomberAngle);
+        let dCCW = calculateAngleDiffDEGCCW(this.angle, bomberAngle);
+        let angleDiff = calculateAngleDiff(this.angle, bomberAngle);
         if (dCW < dCCW){
-            this.decisions["angle"] = -1;
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
         }else if (dCCW < dCW){
-            this.decisions["angle"] = 1;
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
         }
         // Speed up or slow down depending on bomber's speed
         let desiredThrottle = Math.floor(this.calculateThrottleToMatchSpeed(bomber.getSpeed() + PROGRAM_DATA["ai"]["fighter_plane"]["bomber_cruise_speed_following_offset"]));

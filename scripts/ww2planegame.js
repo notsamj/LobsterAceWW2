@@ -57,7 +57,7 @@ async function tick(forced=false){
     if (activeGameMode != null){
         //console.log(activeGameMode.getExpectedTicks() - activeGameMode.getNumTicks)
         await activeGameMode.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        await activeGameMode.tickInProgressLock.awaitUnlock(true); // TODO: Clean up with getter
+        await activeGameMode.getTickInProgressLock().awaitUnlock(true); // TODO: Clean up with getter
     }
 
     // Draw frame
@@ -66,7 +66,7 @@ async function tick(forced=false){
         draw();
     }
     if (activeGameMode != null){
-        activeGameMode.tickInProgressLock.unlock(); // TODO: Clean up with getter
+        activeGameMode.getTickInProgressLock().unlock(); // TODO: Clean up with getter
     }
     mainTickLock.unlock();
     // Try and tick immediately (incase need to catch up if it doesn't need it catch up then no problem)
