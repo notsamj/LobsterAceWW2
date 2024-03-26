@@ -181,7 +181,7 @@ class HumanFighterPlane extends FighterPlane {
     // TODO: Comments
     makeDecisions(){
         // Sometimes the human will be controlled by the external input so don't make decisions
-        if (!this.autonomous || !activeGameMode.inputAllowed()){
+        if (!this.autonomous || !activeGamemode.inputAllowed()){
             return;
         }
         let startingDecisions = copyObject(this.decisions);
@@ -268,9 +268,9 @@ class HumanFighterPlane extends FighterPlane {
             return;
         }
         if (wKeyCount > 0){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], wKeyCount);
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"], wKeyCount);
         }else if (sKeyCount > 0){
-            this.decisions["angle"] = Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], sKeyCount);
+            this.decisions["angle"] = Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"], sKeyCount);
         }
     }
 

@@ -259,7 +259,7 @@ class TeamCombatManager {
     */
     checkCollisions(timeDiff){
         // No collisions in testing
-        //if (activeGameMode.isRunningATestSession()){ return; }
+        //if (activeGamemode.isRunningATestSession()){ return; }
 
         // Check ally and axis bullet hits
         for (let team of this.teams){

@@ -65,7 +65,7 @@ class FighterPlane extends Plane {
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            if (this.shootLock.isReady() && (!this.scene.isLocal() || activeGameMode.runsLocally())){
+            if (this.shootLock.isReady() && (!this.scene.isLocal() || activeGamemode.runsLocally())){
                 this.shootLock.lock();
                 this.shoot();
             }

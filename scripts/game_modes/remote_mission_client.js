@@ -3,6 +3,7 @@
 class RemoteMissionClient {
     constructor(missionTranslator){
         this.scene = scene;
+        this.scene.setGamemode(this);
         this.translator = missionTranslator;
         this.stats = new AfterMatchStats();
         this.tickInProgressLock = new Lock();
@@ -16,7 +17,7 @@ class RemoteMissionClient {
         this.paused = false;
         this.inputLock = new Lock();
         this.startTime = Date.now();
-        scene.enableTicks();
+        this.scene.enableTicks();
         this.running = false;
         this.gameOver = false;
         this.attackerSpawnLock = new TickLock(0, false);

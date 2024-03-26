@@ -35,8 +35,8 @@ class PauseMenu extends Menu {
         let mainMenuButtonY = (innerWidth) => {return 600; };
         this.components.push(new RectangleButton("Return to main menu", "#3bc44b", "#e6f5f4", buttonX, mainMenuButtonY, buttonSizeX, buttonSizeY, (instance) => {
             instance.goToMainMenu();
-            activeGameMode.end();
-            activeGameMode = null;
+            activeGamemode.end();
+            activeGamemode = null;
         }));
     }
 

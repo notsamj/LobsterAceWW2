@@ -52,7 +52,7 @@ class DogfightMenu extends Menu {
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            activeGameMode = new LocalDogfight(this.createJSONRep());
+            activeGamemode = new LocalDogfight(this.createJSONRep());
             this.goToGame();
         }));
 

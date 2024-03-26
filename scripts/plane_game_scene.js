@@ -58,6 +58,15 @@ class PlaneGameScene extends Scene {
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
         this.soundManager = soundManager;
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
+        this.gamemode = null;
+    }
+
+    setGamemode(gamemode){
+        this.gamemode = gamemode;
+    }
+
+    getGamemode(){
+        return this.gamemode;
     }
 
     setSoundManager(soundManager){

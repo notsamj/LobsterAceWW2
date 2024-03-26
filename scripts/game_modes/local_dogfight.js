@@ -12,6 +12,7 @@ class LocalDogfight extends Dogfight {
     */
     constructor(dogfightJSON){
         super(scene);
+        this.scene.setGamemode(this);
         this.scene.setBulletPhysicsEnabled(PROGRAM_DATA["settings"]["use_physics_bullets"]);
         this.planes = [];
         this.setup(dogfightJSON);

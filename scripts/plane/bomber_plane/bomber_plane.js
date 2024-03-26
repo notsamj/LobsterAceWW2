@@ -68,7 +68,7 @@ class BomberPlane extends Plane {
     */
     dropBomb(){
         this.scene.getSoundManager().play("bomb", this.x, this.y);
-        this.scene.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.scene, this.getXVelocity(), this.getYVelocity()));
+        this.scene.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.scene.getGamemode().getNumTicks()));
     }
 
     /*
@@ -104,7 +104,7 @@ class BomberPlane extends Plane {
                 // Display flash
                 let rotateX = this.scene.getDisplayX(gun.getInterpolatedX(), 0, lX);
                 let rotateY = this.scene.getDisplayY(gun.getInterpolatedY(), 0, bY);
-                let interpolatedAngle = this.getIntpolatedAngle();
+                let interpolatedAngle = this.getInterpolatedAngle();
                 let flashImageWidth = getImage("flash").width;
                 let flashImageHeight = getImage("flash").height;
 

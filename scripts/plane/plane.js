@@ -611,23 +611,27 @@ class Plane extends Entity {
     // TODO: Comments
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (activeGameMode.isPaused() || !activeGameMode.isRunning() || this.isDead()){
+        if (activeGamemode.isPaused() || !activeGamemode.isRunning() || this.isDead()){
             return;
         }
         /*this.interpolatedX = this.x;
         this.interpolatedY = this.y;
         return;*/
-        //let extraTime = (currentTime - (activeGameMode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
-        let extraTime = currentTime - activeGameMode.getLastTickTime();
+        //let extraTime = (currentTime - (activeGamemode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGamemode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+        let extraTime = currentTime - activeGamemode.getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
-        this.interpolatedAngle = fixDegrees(this.getAngle() + (this.isFacingRight() ? 1 : -1) * Math.floor(extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"])); 
+        if (this.throttle > 0){
+            this.interpolatedAngle = fixDegrees(this.getAngle() + (this.isFacingRight() ? 1 : -1) * Math.floor(extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"])); 
+        }else{
+            this.interpolatedAngle = fixDegrees(this.getAngle());
+        }
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
         //console.log(this.interpolatedX, extraTime)
         // This sort of works its a tiny bit shakey for a straight line
-        //this.interpolatedX = this.x + this.speed * (currentTime - (activeGameMode.tickScheduler.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGameMode.getNumTicks)) / 1000;
+        //this.interpolatedX = this.x + this.speed * (currentTime - (activeGamemode.tickScheduler.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGamemode.getNumTicks)) / 1000;
         // This works for smooth performance when going in a straight line
-        // this.interpolatedX = 50e3 + 594 * (currentTime - activeGameMode.tickScheduler.startTime) / 1000; 
+        // this.interpolatedX = 50e3 + 594 * (currentTime - activeGamemode.tickScheduler.startTime) / 1000; 
     }
 
 

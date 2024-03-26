@@ -53,7 +53,6 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
         this.startingHealth = this.health;
-        this.rotationCD = new TickLock(this.biases["rotation_time"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.autonomous = autonomous;
     }
 
@@ -66,7 +65,6 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Return: void
     */
     tick(timeDiffMS){
-        this.rotationCD.tick();
         this.updateEnemyLock.tick();
         super.tick(timeDiffMS);
     }
@@ -101,8 +99,8 @@ class BiasedBotFighterPlane extends FighterPlane {
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            //console.log("Gonna shoot", this.shootLock.isReady() , !this.scene.isLocal() , activeGameMode.runsLocally())
-            if (this.shootLock.isReady() && (!this.scene.isLocal() || activeGameMode.runsLocally())){
+            //console.log("Gonna shoot", this.shootLock.isReady() , !this.scene.isLocal() , activeGamemode.runsLocally())
+            if (this.shootLock.isReady() && (!this.scene.isLocal() || activeGamemode.runsLocally())){
                 this.shootLock.lock();
                 this.shoot();
             }
@@ -115,10 +113,7 @@ class BiasedBotFighterPlane extends FighterPlane {
 
         // Adjust angle
         if (this.decisions["angle"] != 0){
-            if (this.rotationCD.isReady()){
-                this.rotationCD.lock();
-                this.adjustAngle(this.decisions["angle"]);
-            }
+            this.adjustAngle(this.decisions["angle"]);
         }
 
         // Adjust throttle
@@ -169,7 +164,6 @@ class BiasedBotFighterPlane extends FighterPlane {
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
             this.movementModCount = rep["movement_mod_count"];
-            this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
             
             // Approximate plane positions in current tick based on position in server tick
             if (tickDifference > 0){
@@ -201,7 +195,6 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.dead = rep["basic"]["dead"];
         this.decisions = rep["decisions"];
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
-        this.rotationCD.setTicksLeft(rep["locks"]["rotation_cd"]);
     }
 
     // TODO: Comments
@@ -357,7 +350,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         if (this.turningDirection == null){
             this.turningDirection = this.comeUpWithEvasiveTurningDirection();
         }
-        this.decisions["angle"] = this.turningDirection * PROGRAM_DATA["controls"]["max_angle_change_per_tick"];
+        this.decisions["angle"] = this.turningDirection * PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"];
     }
 
     /*
@@ -415,23 +408,23 @@ class BiasedBotFighterPlane extends FighterPlane {
 
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleDiff));
         }
         // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
         else if (dCW < dCCW && !this.facingRight){
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleDiff));
         }
         // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
         else if (dCCW < dCW && this.facingRight){
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleDiff));
         }
         // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
         else if (dCCW < dCW && !this.facingRight){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleDiff));
         }
         // Otherwise just turn clockwise (Shouldn't actually be possible?)
         else{
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleDiff));
         }
 
     }

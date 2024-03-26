@@ -465,23 +465,23 @@ class BiasedBotBomberPlane extends BomberPlane {
         }
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCW < dCCW && this.facingRight){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
         }
         // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
         else if (dCW < dCCW && !this.facingRight){
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
         }
         // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
         else if (dCCW < dCW && this.facingRight){
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
         }
         // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
         else if (dCCW < dCW && !this.facingRight){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
         }
         // Otherwise just turn clockwise (Shouldn't actually be possible?)
         else{
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], Math.floor(angleDiff));
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
         }
     }
 

@@ -5,6 +5,7 @@ if (typeof window === "undefined"){
 /*
     Class Name: Bullet
     Description: Bullet shot from a plane
+    TODO: Comments
 */
 class Bullet extends Entity {
     /*
@@ -31,15 +32,53 @@ class Bullet extends Entity {
     */
     constructor(x, y, scene, xVelocity, yVelocity, angle, shooterID, shooterClass){
         super(scene);
-        this.x = x;
-        this.y = y;
+        this.startX = x;
+        this.startY = y;
         angle = toRadians(angle); // Convert the angle to radians so it can be used in calculations
-        this.yVelocity = yVelocity + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
+        this.spawnedTick = this.scene.getGamemode().getNumTicks();
+        this.yVI = yVelocity + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.xVelocity = xVelocity + Math.cos(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bullet_data"]["radius"]);
         this.shooterClass = shooterClass;
         this.shooterID = shooterID;
         this.index = null;
+    }
+
+    getX(){
+        return this.getXAtTick(this.scene.getGamemode().getNumTicks());
+    }
+
+    getXAtTick(tick){
+        return this.startX + this.xVelocity * ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
+    }
+
+    getGameDisplayX(tick, currentTime){
+        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+    }
+
+    getY(){
+        return this.getYAtTick(this.scene.getGamemode().getNumTicks());
+    }
+
+    getYAtTick(tick){
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
+        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+    }
+
+    getYVelocity(){
+        let tick = this.scene.getGamemode().getNumTicks();
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
+        return this.vYI - PROGRAM_DATA["constants"]["gravity"] * seconds;
+    }
+
+    getGameDisplayY(tick, currentTime){
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+    }
+
+    calculateInterpolatedCoordinates(currentTime){
+        this.interpolatedX = this.getGameDisplayX(this.scene.getGamemode().getNumTicks(), currentTime);
+        this.interpolatedY = this.getGameDisplayY(this.scene.getGamemode().getNumTicks(), currentTime);
     }
 
     /*
@@ -63,14 +102,6 @@ class Bullet extends Entity {
         Method Return: void
     */
     tick(timePassed){
-        let timeProportion = timePassed / 1000; // Proportion of a second
-        let yAcceleration = PROGRAM_DATA["constants"]["gravity"] * timeProportion;
-
-        // Apply acceleration
-        this.yVelocity = this.yVelocity - yAcceleration;
-        this.x += this.xVelocity * timeProportion;
-        this.y += this.yVelocity * timeProportion;
-
         // If below ground or too fast or too far away from planes to matter
         if (this.expectedToDie()){
             this.die();
@@ -158,17 +189,6 @@ class Bullet extends Entity {
     getXVelocity(){
         return this.xVelocity;
     }
-
-    /*
-        Method Name: getYVelocity
-        Method Parameters: None
-        Method Description: Provide the current y velocity of the bullet
-        Method Return: float
-    */
-    getYVelocity(){
-        return this.yVelocity;
-    }
-
     /*
         Method Name: expectedToDie
         Method Parameters: None
@@ -176,9 +196,16 @@ class Bullet extends Entity {
         Method Return: boolean, true if expected to die, false otherwise
     */
     expectedToDie(){
-        let belowGround = this.y < 0;
-        let movingDownTooFast = this.yVelocity < 0 && Math.abs(this.yVelocity) > PROGRAM_DATA["settings"]["expected_canvas_height"] * PROGRAM_DATA["settings"]["max_bullet_y_velocity_multiplier"] * PROGRAM_DATA["bullet_data"]["speed"];
+        // TODO: Fix this
+        return false;
+        let belowGround = this.getY() < 0;
+        // TODO: Change this!!! (yVelocity no longer exists)
+        let yVelocity = this.getYVelocity();
+        let movingDownTooFast = yVelocity < 0 && Math.abs(yVelocity) > PROGRAM_DATA["settings"]["expected_canvas_height"] * PROGRAM_DATA["settings"]["max_bullet_y_velocity_multiplier"] * PROGRAM_DATA["bullet_data"]["speed"];
         if (movingDownTooFast || belowGround){ return true; }
+        return false;
+        // TODO: Do this elsewhere because this is wasteful to do for each bullet
+        /*
         let maxX = null;
         let maxY = null;
         let minX = null;
@@ -199,9 +226,11 @@ class Bullet extends Entity {
             maxY = Math.max(maxY, y);
             minY = Math.min(minY, y);
         }
+        
         let tooFarToTheLeftOrRight = maxX != null && (this.x + PROGRAM_DATA["settings"]["expected_canvas_width"] < minX || this.x - PROGRAM_DATA["settings"]["expected_canvas_width"] > maxX);
         let tooFarToUpOrDown = maxY != null && (this.y + PROGRAM_DATA["settings"]["expected_canvas_height"] < minY || this.y - PROGRAM_DATA["settings"]["expected_canvas_height"] > maxY);
         return tooFarToTheLeftOrRight || tooFarToUpOrDown;
+        */
     }
 
     /*
@@ -215,27 +244,9 @@ class Bullet extends Entity {
         Method Return: boolean, true if collides, false otherwise
     */
     collidesWith(otherEntity, timeDiff){
+        // TODO: Change this!!!
+        return false;
         return Bullet.hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), otherEntity.getHitbox(), otherEntity.getX(), otherEntity.getY(), otherEntity.getXVelocity(), otherEntity.getYVelocity(), timeDiff/1000);
-    }
-
-    /*
-        Method Name: getX2BeforeTick
-        Method Parameters: None
-        Method Description: Determines the x location of the bullet prior to it's latest movement
-        Method Return: float
-    */
-    getX2BeforeTick(){
-        return this.x - this.getXVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
-    }
-
-    /*
-        Method Name: getY2BeforeTick
-        Method Parameters: None
-        Method Description: Determines the y location of the bullet prior to it's latest movement
-        Method Return: float
-    */
-    getY2BeforeTick(){
-        return this.y - this.getYVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
     }
 
     /*
@@ -436,11 +447,12 @@ class Bullet extends Entity {
     */
     toJSON(){
         return {
-            "x": this.x,
-            "y": this.y,
+            "start_x": this.startX,
+            "start_y": this.startY,
             "dead": this.isDead(),
             "x_velocity": this.xVelocity,
-            "y_velocity": this.yVelocity,
+            "initial_y_velocity": this.yVI,
+            "spawned_tick": this.spawnedTick,
             "shooter_class": this.shooterClass,
             "shooter_id": this.shooterID,
             "index": this.index
@@ -460,18 +472,6 @@ class Bullet extends Entity {
     }
 
     /*
-        Method Name: setYVelocity
-        Method Parameters:
-            yVelocity:
-                A y velocity float
-        Method Description: Setter
-        Method Return: void
-    */
-    setYVelocity(yVelocity){
-        this.yVelocity = yVelocity;
-    }
-
-    /*
         Method Name: fromJSON
         Method Parameters:
             bulletJSONObject:
@@ -479,19 +479,20 @@ class Bullet extends Entity {
         Method Description: Sets the attributes of a bullet from a json representation
         Method Return: void
     */
-    fromJSON(bulletJSONObject){
+    fromJSON(bulletJSONObject, force=false){
         // Don't overwrite a living bullet
         // TODO: Local still kills bullets even without collision right?
-        if (!this.isDead()){ 
+        if (!this.isDead() && !force){ 
             return; 
         }
         // No need to taken info from a dead bullet
         if (bulletJSONObject["dead"]){ return; }
         this.dead = false;
-        this.x = bulletJSONObject["x"];
-        this.y = bulletJSONObject["y"];
-        this.xVelocity = bulletJSONObject["x_velocity"];
-        this.yVelocity = bulletJSONObject["y_velocity"];
+        this.startX = jsonRepresentation["start_x"];
+        this.startY = jsonRepresentation["start_y"];
+        this.spawnedTick = jsonRepresentation["spawned_tick"];
+        this.yVI = jsonRepresentation["initial_y_velocity"];
+        this.xVelocity = jsonRepresentation["x_velocity"];
         this.shooterClass = bulletJSONObject["shooter_class"];
         this.shooterID = bulletJSONObject["shooter_id"];
         this.index = bulletJSONObject["index"];
@@ -508,12 +509,11 @@ class Bullet extends Entity {
         Method Return: JSON Object
     */
     static fromJSON(bulletJSONObject, scene){
-        let x = bulletJSONObject["x"];
-        let y = bulletJSONObject["y"];
+        let x = bulletJSONObject["start_x"];
+        let y = bulletJSONObject["start_y"];
         let bullet = new Bullet(x, y, scene, 0, 0, 0, bulletJSONObject["shooter_id"], bulletJSONObject["shooter_class"]);
         bullet.setDead(bulletJSONObject["dead"]);
-        bullet.setXVelocity(bulletJSONObject["x_velocity"]);
-        bullet.setYVelocity(bulletJSONObject["y_velocity"]);
+        bullet.fromJSON(bulletJSONObject, true);
         return bullet;
     }
     /*
@@ -656,6 +656,14 @@ class Bullet extends Entity {
         }
 
         return false;
+    }
+
+    static checkForProjectileStaticCollision(){
+
+    }
+
+    static checkForProjectileLinearCollision(){
+
     }
 }
 // If using Node JS Export the class

@@ -35,6 +35,7 @@ class ServerDogfight {
         this.stats = new AfterMatchStats();
 
         this.scene = new PlaneGameScene(this.soundManager);
+        this.scene.setGamemode(this);
         this.scene.enableTicks();
         this.scene.setBulletPhysicsEnabled(this.bulletPhysicsEnabled);
         this.scene.setStatsManager(this.stats);

@@ -6,7 +6,7 @@ if (typeof window === "undefined"){
     BiasedCampaignDefenderBotFighterPlane = require("../plane/fighter_plane/biased_campaign_defender_bot_fighter_plane.js");
     HumanFighterPlane = require("../plane/fighter_plane/human_fighter_plane.js");
     HumanBomberPlane = require("../plane/bomber_plane/human_bomber_plane.js");
-    GameMode = require("./game_mode.js");
+    Gamemode = require("./game_mode.js");
     Building = require("../building.js");
     helperFunctions = require("../general/helper_functions.js");
     mergeCopyObjects = helperFunctions.mergeCopyObjects;
@@ -19,7 +19,7 @@ if (typeof window === "undefined"){
     Note: TODO: Comments
     TODO: Make a remote mission and an abstract mission
 */
-class Mission extends GameMode {
+class Mission extends Gamemode {
     /*
         Method Name: constructor
         Method Parameters:
@@ -37,6 +37,7 @@ class Mission extends GameMode {
 		this.missionObject = missionObject;
         this.stats = new AfterMatchStats();
         this.scene = scene;
+        this.scene.setGamemode(this);
         this.scene.getTeamCombatManager().setStatsManager(this.stats);
         this.allyDifficulty = missionSetupJSON["ally_difficulty"];
         this.axisDifficulty = missionSetupJSON["axis_difficulty"];

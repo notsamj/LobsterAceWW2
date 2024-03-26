@@ -5,7 +5,7 @@ var menuManager;
 var setupDone = false;
 var programOver = false;
 var FRAME_COUNTER = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);
-var activeGameMode = null;
+var activeGamemode = null;
 var loadedPercent = 0;
 var debug = false;
 var mainTickLock = new Lock();
@@ -41,7 +41,7 @@ async function tick(forced=false){
     if (programOver){ return; }
     USER_INPUT_MANAGER.tick();
     // Fix num ticks if running a huge defecit
-    if (activeGameMode != null && activeGameMode.getNumTicks() < activeGameMode.getExpectedTicks() - PROGRAM_DATA["settings"]["max_tick_deficit"]){ activeGameMode.correctTicks(); }
+    if (activeGamemode != null && activeGamemode.getNumTicks() < activeGamemode.getExpectedTicks() - PROGRAM_DATA["settings"]["max_tick_deficit"]){ activeGamemode.correctTicks(); }
     if (mainTickLock.notReady()){
         runningTicksBehind++;
         console.log("Main tick loop is running %d ticks behind.", runningTicksBehind)
@@ -54,10 +54,10 @@ async function tick(forced=false){
         menuManager.lostFocus();
     }
     // Play game
-    if (activeGameMode != null){
-        //console.log(activeGameMode.getExpectedTicks() - activeGameMode.getNumTicks)
-        await activeGameMode.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        await activeGameMode.getTickInProgressLock().awaitUnlock(true); // TODO: Clean up with getter
+    if (activeGamemode != null){
+        //console.log(activeGamemode.getExpectedTicks() - activeGamemode.getNumTicks)
+        await activeGamemode.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        await activeGamemode.getTickInProgressLock().awaitUnlock(true); // TODO: Clean up with getter
     }
 
     // Draw frame
@@ -65,8 +65,8 @@ async function tick(forced=false){
         FRAME_COUNTER.countFrame();
         draw();
     }
-    if (activeGameMode != null){
-        activeGameMode.getTickInProgressLock().unlock(); // TODO: Clean up with getter
+    if (activeGamemode != null){
+        activeGamemode.getTickInProgressLock().unlock(); // TODO: Clean up with getter
     }
     mainTickLock.unlock();
     // Try and tick immediately (incase need to catch up if it doesn't need it catch up then no problem)
@@ -164,8 +164,8 @@ function draw() {
         return;
     }
     scene.display();
-    if (activeGameMode != null){
-        activeGameMode.display();
+    if (activeGamemode != null){
+        activeGamemode.display();
     }
     menuManager.display();
 }

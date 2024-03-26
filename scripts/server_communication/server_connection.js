@@ -121,10 +121,10 @@ class ServerConnection {
         if (dataJSON["message"] == "game_started"){
             if (dataJSON["game_type"] == "dogfight"){
                 let translator = new DogfightRemoteTranslator();
-                activeGameMode = new RemoteDogfightClient(translator);
+                activeGamemode = new RemoteDogfightClient(translator);
             }else{ // Mission
                 let translator = new MissionRemoteTranslator();
-                activeGameMode = new RemoteMissionClient(translator);
+                activeGamemode = new RemoteMissionClient(translator);
             }
             menuManager.switchTo("game");
         }

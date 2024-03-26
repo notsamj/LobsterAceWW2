@@ -684,7 +684,7 @@ class GameHandler {
         Method Return: void
     */
     async startGame(){
-        this.game = this.lobby.getGameModeSetup().create(this.lobby.dissolve(), this);
+        this.game = this.lobby.getGamemodeSetup().create(this.lobby.dissolve(), this);
         this.lobby = null;
     }
 
@@ -837,12 +837,12 @@ class Lobby {
         this.host = host;
         this.participants = new NotSamLinkedList();
         this.participants.add(host);
-        this.gameModeSetup = new DogfightSetup();
+        this.gamemodeSetup = new DogfightSetup();
         this.running = true;
     }
 
-    getGameModeSetup(){
-        return this.gameModeSetup;
+    getGamemodeSetup(){
+        return this.gamemodeSetup;
     }
 
     async sendAllUsers(messageJSON){
@@ -869,7 +869,7 @@ class Lobby {
         Method Return: String
     */
     getType(){
-        return this.gameModeSetup.getType();
+        return this.gamemodeSetup.getType();
     }
 
     /*
@@ -907,7 +907,7 @@ class Lobby {
         for (let [playerName, playerIndex] of this.participants){
             SERVER.sendToGame(playerName, this.getType());
         }
-        let details = this.gameModeSetup.getDetails(this.participants); // TODO
+        let details = this.gamemodeSetup.getDetails(this.participants); // TODO
         this.running = false;
         return details;
     }
@@ -918,12 +918,12 @@ class Lobby {
         Method Description: Changes the game mode of lobby
         Method Return: void
     */
-    switchGamemode(newGameModeName){
-        if (newGameModeName == "mission"){
-            this.gameModeSetup = new MissionSetup(this);
-            this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "mission", "new_mission_id": this.gameModeSetup.getMission()["id"]}));
+    switchGamemode(newGamemodeName){
+        if (newGamemodeName == "mission"){
+            this.gamemodeSetup = new MissionSetup(this);
+            this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "mission", "new_mission_id": this.gamemodeSetup.getMission()["id"]}));
         }else{ // Dogfight
-            this.gameModeSetup = new DogfightSetup();
+            this.gamemodeSetup = new DogfightSetup();
             this.sendAllButHost(({"mail_box": "reset_participant_type", "type": "dogfight"}));
         }
     }
@@ -935,7 +935,7 @@ class Lobby {
         Method Return: void
     */
     switchMission(newMissionID){
-        this.gameModeSetup.switchMission(newMissionID);
+        this.gamemodeSetup.switchMission(newMissionID);
     }
 
     /*
@@ -949,7 +949,7 @@ class Lobby {
         Method Return: void
     */
     updatePreference(username, entityType){
-        this.gameModeSetup.updatePreference(username, entityType);
+        this.gamemodeSetup.updatePreference(username, entityType);
     }
 
     /*
@@ -969,7 +969,7 @@ class Lobby {
         this.participants.deleteWithCondition((participantName) => { return participantName == username; })
 
         // Remove them from user types
-        this.gameModeSetup.updatePreference(username, "freecam");
+        this.gamemodeSetup.updatePreference(username, "freecam");
     }
 
     /*
@@ -982,7 +982,7 @@ class Lobby {
     */
     updateSettings(newSettingsJSON){
         // TODO: Something here dogfight -> mission, mission1 -> mission2, mission2 -> mission1
-        this.gameModeSetup.updateSettings(newSettingsJSON);
+        this.gamemodeSetup.updateSettings(newSettingsJSON);
     }
 
     /*

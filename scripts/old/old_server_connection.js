@@ -34,7 +34,7 @@ class ServerConnection {
             if (this.mailBox.isAwaiting()){
                 this.mailBox.deliver(event.data);
             }else{
-                activeGameMode.updateFromServer(event.data);
+                activeGamemode.updateFromServer(event.data);
             }
         });
     }

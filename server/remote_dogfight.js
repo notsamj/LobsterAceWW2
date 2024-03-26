@@ -20,7 +20,7 @@ class RemoteDogfight extends Dogfight {
     constructor(serverConnection, startingEntities, startTime, numTicks){
         super(scene);
         for (let entity of startingEntities){
-            entity.setGameMode(this);
+            entity.setGamemode(this);
         }
         this.scene.setEntities(startingEntities, true);
         this.gameTickLock = new Lock();
@@ -205,7 +205,7 @@ class RemoteDogfight extends Dogfight {
         Method Return: MultiplayerRemoteFighterPlane
     */
     static createNewRemotePlane(planeObj){
-        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, activeGameMode, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
+        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, activeGamemode, planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
         plane.setID(planeObj["id"]);
         plane.update(planeObj);
         return plane;

@@ -1,9 +1,9 @@
 /*
-    Class Name: GameMode
+    Class Name: Gamemode
     Description: Abstract class for a game mode
     TODO: Comments
 */
-class GameMode {
+class Gamemode {
     constructor(){
         this.running = false;
         this.numTicks = 0;
@@ -82,5 +82,5 @@ class GameMode {
 }
 // If using NodeJS then export the class
 if (typeof window === "undefined"){
-    module.exports = GameMode;
+    module.exports = Gamemode;
 }

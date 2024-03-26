@@ -3,12 +3,13 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../data/data_json.js");
     Entity = require("./entity.js");
     Bullet = require("./bullet.js");
-    CircleHitbox = require("./general/hitboxes.js").CircleHitbox;
+    CircleHitbox = require("./settings/hitboxes.js").CircleHitbox;
 }
 /*
     Class Name: Bomber
     Description: Bomb dropped from a plane
     Note: Requires bullet class to function (because of hitInTime function) (But it's not like they'd even be apart anyway...)
+    TODO: Comments
 */
 class Bomb extends Entity {
     /*
@@ -24,20 +25,54 @@ class Bomb extends Entity {
                 The starting x velocity of the bomb
             yVelocity:
                 The starting y velocity of the bomb
+            TODO
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, scene, xVelocity, yVelocity){
+    constructor(x, y, scene, xVelocity, yVelocity, currentTick){
         super(scene);
-        this.x = x;
-        this.y = y;
+        this.startX = x;
+        this.startY = y;
         this.interpolatedX = 0;
         this.interpolatedY = 0;
-        this.yVelocity = yVelocity + PROGRAM_DATA["bomb_data"]["initial_y_velocity"];
+        this.spawnedTick = currentTick;
+        this.yVI = yVelocity + PROGRAM_DATA["bomb_data"]["initial_y_velocity"];
         this.xVelocity = xVelocity;
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bomb_data"]["radius"]);
         this.index = null;
     }
+
+    getX(){
+        return this.getXAtTick(this.scene.getGamemode().getNumTicks());
+    }
+
+    getXAtTick(tick){
+        return this.startX + this.xVelocity * ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
+    }
+
+    getGameDisplayX(tick, currentTime){
+        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+    }
+
+    getY(){
+        return this.getYAtTick(this.scene.getGamemode().getNumTicks());
+    }
+
+    getYAtTick(tick){
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
+        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+    }
+
+    getGameDisplayY(tick, currentTime){
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+    }
+
+    calculateInterpolatedCoordinates(currentTime){
+        this.interpolatedX = this.getGameDisplayX(this.scene.getGamemode().getNumTicks(), currentTime);
+        this.interpolatedY = this.getGameDisplayY(this.scene.getGamemode().getNumTicks(), currentTime);
+    }
+
 
     /*
         Method Name: setIndex
@@ -52,30 +87,6 @@ class Bomb extends Entity {
     }
 
     /*
-        Method Name: setXVelocity
-        Method Parameters:
-            xVelocity:
-                A float x velocity
-        Method Description: Setter
-        Method Return: void
-    */
-    setXVelocity(xVelocity){
-        this.xVelocity = xVelocity;
-    }
-
-    /*
-        Method Name: setYVelocity
-        Method Parameters:
-            yVelocity:
-                A float y velocity
-        Method Description: Setter
-        Method Return: void
-    */
-    setYVelocity(yVelocity){
-        this.yVelocity = yVelocity;
-    }
-
-    /*
         Method Name: tick
         Method Parameters:
             timePassed:
@@ -84,15 +95,6 @@ class Bomb extends Entity {
         Method Return: void
     */
     tick(timePassed){
-        let timeProportion = timePassed / 1000; // Proportion of a second
-        let yAcceleration = PROGRAM_DATA["constants"]["gravity"] * timeProportion;
-
-        // Apply acceleration
-        this.yVelocity = this.yVelocity - yAcceleration;
-        
-        this.x += this.xVelocity * timeProportion;
-        this.y += this.yVelocity * timeProportion;
-
         // If below ground then die
         if (this.isBelowGround()){
             this.explode();
@@ -179,23 +181,13 @@ class Bomb extends Entity {
     }
 
     /*
-        Method Name: getYVelocity
-        Method Parameters: None
-        Method Description: Provide the current y velocity of the bomb
-        Method Return: float
-    */
-    getYVelocity(){
-        return this.yVelocity;
-    }
-
-    /*
         Method Name: isBelowGround
         Method Parameters: None
         Method Description: Determine if the bomb is below ground
         Method Return: boolean, true if the bomb is below ground, false otherwise
     */
     isBelowGround(){
-        let belowGround = this.y < 0;
+        let belowGround = this.getY() < 0;
         return belowGround;
     }
 
@@ -210,6 +202,8 @@ class Bomb extends Entity {
         Method Return: boolean, true if collides, false otherwise
     */
     collidesWith(building, timeDiff){
+        // TODO CHange
+        return false;
         let result = Bullet.hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), building.getHitbox(), building.getCenterX(), building.getCenterY(), 0, 0, timeDiff/1000);
         return result;
     }
@@ -249,12 +243,24 @@ class Bomb extends Entity {
     */
     toJSON(){
         return {
-            "x": this.x,
-            "y": this.y,
+            "start_x": this.startX,
+            "start_y": this.startX,
             "x_velocity": this.xVelocity,
-            "y_velocity": this.yVelocity,
-            "dead": this.isDead()
+            "initial_y_velocity": this.yVI,
+            "spawned_tick": this.spawnedTick,
+            "dead": this.isDead(),
+            "index": this.index
         }
+    }
+
+    fromJSON(jsonRepresentation){
+        this.startX = jsonRepresentation["start_x"];
+        this.startY = jsonRepresentation["start_y"];
+        this.spawnedTick = jsonRepresentation["spawned_tick"];
+        this.dead = jsonRepresentation["dead"];
+        this.yVI = jsonRepresentation["initial_y_velocity"];
+        this.xVelocity = jsonRepresentation["x_velocity"];
+        this.index = jsonRepresentation["index"];
     }
 
     /*
@@ -266,10 +272,8 @@ class Bomb extends Entity {
         Method Return: Bomb
     */
     static fromJSON(scene, rep){
-        let bomb = new Bomb(rep["x"], rep["y"], scene, 0, 0);
-        bomb.setXVelocity(rep["x_velocity"]);
-        bomb.setYVelocity(rep["y_velocity"]);
-        bomb.setDead(rep["dead"]);
+        let bomb = new Bomb(0, 0, scene, 0, 0, 0);
+        bomb.fromJSON(rep);
         return bomb;
     }
 }

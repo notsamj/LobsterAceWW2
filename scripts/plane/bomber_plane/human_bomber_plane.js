@@ -340,9 +340,9 @@ class HumanBomberPlane extends BomberPlane {
             return;
         }
         if (wKeyCount > 0){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], wKeyCount);
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], wKeyCount);
         }else if (sKeyCount > 0){
-            this.decisions["angle"] = Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick"], sKeyCount);
+            this.decisions["angle"] = Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], sKeyCount);
         }
     }
 

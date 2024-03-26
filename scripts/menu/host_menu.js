@@ -14,7 +14,7 @@ class HostMenu extends Menu {
         super();
 
         // Locks
-        this.switchGameModeLock = new Lock();
+        this.switchGamemodeLock = new Lock();
 
         // Dogfight & Mission
         this.userPlanes = this.createUserPlaneSelection();
@@ -42,10 +42,10 @@ class HostMenu extends Menu {
     }
 
     async switchToDogfight(){
-        if (this.switchGameModeLock.isLocked()){ return; }
-        this.switchGameModeLock.lock();
+        if (this.switchGamemodeLock.isLocked()){ return; }
+        this.switchGamemodeLock.lock();
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "dogfight"}, "switch_game_mode");
-        this.switchGameModeLock.unlock();
+        this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
             menuManager.addTemporaryMessage("Failed to switch to a dogfight.", "red", 5000);
             return;
@@ -99,10 +99,10 @@ class HostMenu extends Menu {
     }
 
     async switchToMission(){
-        if (this.switchGameModeLock.isLocked()){ return; }
-        this.switchGameModeLock.lock();
+        if (this.switchGamemodeLock.isLocked()){ return; }
+        this.switchGamemodeLock.lock();
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "mission"}, "switch_game_mode");
-        this.switchGameModeLock.unlock();
+        this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
             menuManager.addTemporaryMessage("Failed to switch to a mission.", "red", 5000);
             return;
@@ -421,12 +421,12 @@ class HostMenu extends Menu {
     */
     async next(){
         if (PROGRAM_DATA["missions"].length < 2){ return; }
-        if (this.switchGameModeLock.isLocked()){ return; }
-        this.switchGameModeLock.lock();
+        if (this.switchGamemodeLock.isLocked()){ return; }
+        this.switchGamemodeLock.lock();
         let newMission = PROGRAM_DATA["missions"][this.mission["id"]+1 % PROGRAM_DATA["missions"].length];
         let permission = true; // TODO
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
-        this.switchGameModeLock.unlock();
+        this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
             menuManager.addTemporaryMessage("Failed to switch to next mission.", "red", 5000);
             return;
@@ -443,12 +443,12 @@ class HostMenu extends Menu {
     */
     async previous(){
         if (PROGRAM_DATA["missions"].length < 2){ return; }
-        if (this.switchGameModeLock.isLocked()){ return; }
-        this.switchGameModeLock.lock();
+        if (this.switchGamemodeLock.isLocked()){ return; }
+        this.switchGamemodeLock.lock();
         let newMission = this.mission["id"] == 0 ? PROGRAM_DATA["missions"][PROGRAM_DATA["missions"].length - 1] : PROGRAM_DATA["missions"][this.mission["id"] - 1];
         let permission = true; // TODO
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
-        this.switchGameModeLock.unlock();
+        this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
             menuManager.addTemporaryMessage("Failed to switch to previous mission.", "red", 5000);
             return;

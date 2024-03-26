@@ -15,7 +15,9 @@ class RemoteDogfightClient {
         this.paused = false;
         this.inputLock = new Lock();
         this.startTime = Date.now();
-        scene.enableTicks();
+        this.scene = scene;
+        this.scene.setGamemode(this);
+        this.scene.enableTicks();
         this.running = false;
         this.gameOver = false;
         this.startUp();

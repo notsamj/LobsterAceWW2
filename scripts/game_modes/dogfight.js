@@ -3,7 +3,7 @@
     Description: The state of a dogfight
 */
 // TODO: Comment this file
-class Dogfight extends GameMode {
+class Dogfight extends Gamemode {
     /*
         Method Name: constructor
         Method Parameters:
