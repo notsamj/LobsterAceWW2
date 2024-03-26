@@ -124,7 +124,6 @@ class Building extends Entity {
         Method Return: void
     */
     display(lX, bY){
-        debugger; // I have no idea where building is being display from????
         // Do not display if dead
         if (this.isDead()){ return; }
         let rX = lX + getScreenWidth() - 1;

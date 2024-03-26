@@ -30,7 +30,6 @@ class HumanBomberPlane extends BomberPlane {
     */
     constructor(planeClass, scene, angle=0, facingRight=true, autonomous=true){
         super(planeClass, scene, angle, facingRight);
-        this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.lrLock = new Lock();
         this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
@@ -50,7 +49,6 @@ class HumanBomberPlane extends BomberPlane {
         rep["decisions"] = this.decisions;
         rep["locks"] = {
             "bomb_lock": this.bombLock.getTicksLeft(),
-            "ud_lock": this.udLock.getTicksLeft()
         } 
         rep["basic"] = {
             "id": this.id,
@@ -110,7 +108,6 @@ class HumanBomberPlane extends BomberPlane {
             this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
-            this.udLock.setTicksLeft(rep["locks"]["ud_lock"]);
             // Approximate plane positions in current tick based on position in server tick
             if (tickDifference > 0){
                 this.rollForward(tickDifference);
@@ -202,12 +199,12 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     tick(timeDiffMS){
-        this.udLock.tick();
         this.radarLock.tick();
         this.bombLock.tick();
         for (let gun of this.guns){
             gun.tick();
         }
+        //console.log(this.isFacingRight(), this.angle)
         this.updateRadar();
         super.tick(timeDiffMS);
     }
@@ -243,10 +240,7 @@ class HumanBomberPlane extends BomberPlane {
 
         // Adjust angle
         if (this.decisions["angle"] != 0){
-            if (this.udLock.isReady()){
-                this.udLock.lock();
-                this.adjustAngle(this.decisions["angle"]);
-            }
+            this.adjustAngle(this.decisions["angle"]);
         }
 
         // Increase / decrease throttle

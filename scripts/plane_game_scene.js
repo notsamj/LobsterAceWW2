@@ -578,10 +578,6 @@ class PlaneGameScene extends Scene {
         for (let [entity, eI] of this.entities){
             entity.display(lX, bY, displayTime);
         }
-
-        for (let [entity, eI] of this.teamCombatManager.getBombs()){
-            entity.display(lX, bY, displayTime);
-        }
         
         // Display the currently focused entity
         if (this.hasEntityFocused()){

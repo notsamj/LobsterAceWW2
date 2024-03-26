@@ -484,7 +484,7 @@ class TeamCombatManager {
         }
 
         for (let [bomb, bombIndex] of this.bombs){
-            //bomb.display(lX, bY, displayTime);
+            bomb.display(lX, bY, displayTime);
         }
     }
 
