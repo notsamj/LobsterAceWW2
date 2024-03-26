@@ -60,17 +60,27 @@ class Bomb extends Entity {
 
     getYAtTick(tick){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
-        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+        return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
     getGameDisplayY(tick, currentTime){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
-        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+        return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
     calculateInterpolatedCoordinates(currentTime){
         this.interpolatedX = this.getGameDisplayX(this.scene.getGamemode().getNumTicks(), currentTime);
         this.interpolatedY = this.getGameDisplayY(this.scene.getGamemode().getNumTicks(), currentTime);
+    }
+
+    getYVelocity(){
+        let tick = this.scene.getGamemode().getNumTicks();
+        return this.getYVelocityAtTick(tick);
+    }
+
+    getYVelocityAtTick(tick){
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
+        return this.vYI - PROGRAM_DATA["constants"]["gravity"] * seconds;
     }
 
 
@@ -202,8 +212,7 @@ class Bomb extends Entity {
         Method Return: boolean, true if collides, false otherwise
     */
     collidesWith(building, timeDiff){
-        // TODO CHange
-        return false;
+        // TODO: Remove
         let result = Bullet.hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), building.getHitbox(), building.getCenterX(), building.getCenterY(), 0, 0, timeDiff/1000);
         return result;
     }
@@ -225,11 +234,11 @@ class Bomb extends Entity {
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 
+        this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        this.calculateInterpolatedCoordinates(displayTime);
         let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
         let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 

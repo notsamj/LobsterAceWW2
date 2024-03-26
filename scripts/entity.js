@@ -269,13 +269,13 @@ class Entity {
         Method Return: boolean, true -> touches, false -> does not touch
     */
     touchesRegion(lX, rX, bY, tY){
-        let x = this.getX();
+        let x = this.getInterpolatedX();
         let width = this.getWidth();
         let lowerX = x - width / 2;
         let higherX = x + width / 2;
         let withinX = (lowerX >= lX && lowerX <= rX) || (higherX >= lX && higherX <= rX);
         
-        let y = this.getY();
+        let y = this.getInterpolatedY();
         let height = this.getHeight();
         let lowerY = y - height / 2;
         let higherY = y + height / 2;

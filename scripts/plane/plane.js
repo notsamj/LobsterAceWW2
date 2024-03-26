@@ -54,6 +54,8 @@ class Plane extends Entity {
         this.movementModCount = 0;
     }
 
+
+
     // TODO: Comments
     increaseModCount(){
         this.movementModCount += 1;
@@ -65,12 +67,12 @@ class Plane extends Entity {
     }
 
     // TODO: Comment these two
-    getX2BeforeTick(){
-        return this.x - this.getXVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
+    getXAtStartOfTick(){
+        return this.getNewPositionValues(-1 * PROGRAM_DATA["settings"]["ms_between_ticks"])["x"];
     }
 
-    getY2BeforeTick(){
-        return this.y - this.getYVelocity() / PROGRAM_DATA["settings"]["ms_between_ticks"];
+    getYAtStartOfTick(){
+        return this.getNewPositionValues(-1 * PROGRAM_DATA["settings"]["ms_between_ticks"])["y"];
     }
 
     // Abstract
@@ -420,6 +422,7 @@ class Plane extends Entity {
         // If hit the ground
         if (this.y - this.hitBox.getRadiusEquivalentY() <= 0){
             this.die();
+            return;
         }
         this.executeDecisions();
         let newPositionValues = this.getNewPositionValues(timeDiffMS);
@@ -651,11 +654,11 @@ class Plane extends Entity {
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
 
+        this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        this.calculateInterpolatedCoordinates(displayTime);
         let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
         let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
 

@@ -244,7 +244,7 @@ class TeamCombatManager {
         }
         for (let [bomb, bombIndex] of this.bombs){
             if (bomb.isDead()){ continue; }
-            bomb.tick(timeDiff);
+            await bomb.tick(timeDiff);
         }
         this.checkCollisions(timeDiff);
     }
@@ -258,8 +258,11 @@ class TeamCombatManager {
         Method Return: void
     */
     checkCollisions(timeDiff){
+        let previousTick = this.scene.getGamemode().getNumTicks()-1;
+        // No collisions on tick 0
+        if (previousTick < 0){ return; }
         // No collisions in testing
-        //if (activeGamemode.isRunningATestSession()){ return; }
+        this.checkBulletCollisionsWithWorldBorder();
 
         // Check ally and axis bullet hits
         for (let team of this.teams){
@@ -274,13 +277,46 @@ class TeamCombatManager {
             if (bomb.isDead()){ continue; }
             for (let [building, buildingIndex] of this.buildings){
                 if (building.isDead()){ continue; }
-                if (bomb.collidesWith(building, timeDiff)){
+                if (Bullet.checkForProjectileLinearCollision(bomb, building, previousTick)){
                     building.damage(1);
                     bomb.die();
                     break;
                 }
             }
         }
+    }
+
+    checkBulletCollisionsWithWorldBorder(){
+        let planesLeftX = Number.MAX_SAFE_INTEGER;
+        let planesRightX = Number.MIN_SAFE_INTEGER;
+        let planesTopY = Number.MIN_SAFE_INTEGER;
+        let planesBottomY = Number.MAX_SAFE_INTEGER;
+
+        // Check all planes
+        for (let team of this.teams){
+            for (let [plane, pIndex] of this.planes[team]){
+                if (plane.isDead()){ continue; }
+                planesLeftX = Math.min(plane.getX(), planesLeftX);
+                planesRightX = Math.max(plane.getX(), planesRightX);
+                planesTopY = Math.max(plane.getY(), planesTopY);
+                planesBottomY = Math.min(plane.getY(), planesBottomY);
+            }
+        }
+
+        // Check all bullets
+        for (let team of this.teams){
+            for (let [bullet, bIndex] of this.bullets[team]){
+                if (bullet.isDead()){ continue; }
+                let bX = bullet.getX();
+                let bY = bullet.getY();
+                let tooFarToTheLeftOrRight = bX + PROGRAM_DATA["settings"]["expected_canvas_width"] < planesLeftX || bX - PROGRAM_DATA["settings"]["expected_canvas_width"] > planesRightX;
+                let tooFarToUpOrDown = bY + PROGRAM_DATA["settings"]["expected_canvas_height"] < planesBottomY || bY - PROGRAM_DATA["settings"]["expected_canvas_height"] > planesTopY;
+                if (tooFarToUpOrDown || tooFarToTheLeftOrRight){
+                    bullet.die();
+                }
+            }
+        }
+
     }
 
     /*
@@ -339,16 +375,18 @@ class TeamCombatManager {
                 continue;
             }
         }
-        
+
+        let currentTick = this.scene.getGamemode().getNumTicks();
+        let previousTick = currentTick - 1;
 
         // Make simple bullet data
         let simpleBulletData = [];
         for (let [bullet, bIndex] of this.bullets[team]){
             if (bullet.isDead() || ignoreBulletsCheck1[bIndex]){ simpleBulletData.push({}); continue; }
-            let x1 = bullet.getX();
-            let x2 = bullet.getX2BeforeTick();
-            let y1 = bullet.getY();
-            let y2 = bullet.getY2BeforeTick();
+            let x1 = bullet.getXAtTick(previousTick);
+            let x2 = bullet.getXAtTick(currentTick);
+            let y1 = bullet.getYAtTick(previousTick);
+            let y2 = bullet.getYAtTick(currentTick);
             let leftX = Math.min(x1, x2);
             let rightX = Math.max(x1, x2);
             let topY = Math.max(y1, y2);
@@ -359,10 +397,10 @@ class TeamCombatManager {
         // Loop through planes to look for collision
         for (let [plane, pIndex] of this.planes[otherTeam]){
             if (plane.isDead()){ continue; }
-            let x1 = plane.getX();
-            let x2 = plane.getX2BeforeTick();
-            let y1 = plane.getY();
-            let y2 = plane.getY2BeforeTick();
+            let x1 = plane.getXAtStartOfTick();
+            let x2 = plane.getX();
+            let y1 = plane.getYAtStartOfTick();
+            let y2 = plane.getY();
             let leftX = Math.min(x1, x2);
             let rightX = Math.max(x1, x2);
             let topY = Math.max(y1, y2);
@@ -426,6 +464,7 @@ class TeamCombatManager {
         for (let team of this.teams){
             for (let [plane, pIndex] of this.planes[team]){
                 //if (!plane.isDead() && plane.getID() != excludeID){
+                //console.log("Going to display", plane.getID() != excludeID, plane.getID())
                 if (plane.getID() != excludeID){
                     plane.display(lX, bY, displayTime);
                 }

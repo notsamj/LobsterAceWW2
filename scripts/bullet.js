@@ -44,6 +44,14 @@ class Bullet extends Entity {
         this.index = null;
     }
 
+    getInterpolatedX(){
+        return this.interpolatedX;
+    }
+
+    getInterpolatedY(){
+        return this.interpolatedY;
+    }
+
     getX(){
         return this.getXAtTick(this.scene.getGamemode().getNumTicks());
     }
@@ -62,18 +70,26 @@ class Bullet extends Entity {
 
     getYAtTick(tick){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
-        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+        return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
     getYVelocity(){
         let tick = this.scene.getGamemode().getNumTicks();
+        return this.getYVelocityAtTick(tick);
+    }
+
+    getYVelocityAtTick(tick){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
         return this.vYI - PROGRAM_DATA["constants"]["gravity"] * seconds;
     }
 
     getGameDisplayY(tick, currentTime){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
-        return this.startY + this.yVI * seconds - 2 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+        return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
+    }
+
+    getYVelocityAtTick(){
+
     }
 
     calculateInterpolatedCoordinates(currentTime){
@@ -196,14 +212,13 @@ class Bullet extends Entity {
         Method Return: boolean, true if expected to die, false otherwise
     */
     expectedToDie(){
-        // TODO: Fix this
-        return false;
         let belowGround = this.getY() < 0;
         // TODO: Change this!!! (yVelocity no longer exists)
         let yVelocity = this.getYVelocity();
         let movingDownTooFast = yVelocity < 0 && Math.abs(yVelocity) > PROGRAM_DATA["settings"]["expected_canvas_height"] * PROGRAM_DATA["settings"]["max_bullet_y_velocity_multiplier"] * PROGRAM_DATA["bullet_data"]["speed"];
         if (movingDownTooFast || belowGround){ return true; }
         return false;
+        
         // TODO: Do this elsewhere because this is wasteful to do for each bullet
         /*
         let maxX = null;
@@ -244,8 +259,8 @@ class Bullet extends Entity {
         Method Return: boolean, true if collides, false otherwise
     */
     collidesWith(otherEntity, timeDiff){
-        // TODO: Change this!!!
-        return false;
+        // Shouldn't happen?
+        debugger;
         return Bullet.hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), otherEntity.getHitbox(), otherEntity.getX(), otherEntity.getY(), otherEntity.getXVelocity(), otherEntity.getYVelocity(), timeDiff/1000);
     }
 
@@ -289,6 +304,11 @@ class Bullet extends Entity {
             return false;
         }
 
+        // Need further checking
+        return Bullet.checkForProjectileLinearCollision(this, plane, this.scene.getGamemode().getNumTicks()-1);
+
+        /*
+        TODO: This is the old code
         let timeProportion = timeDiff / 1000;
         let h1X = this.x;
         let h1Y = this.y;
@@ -336,22 +356,22 @@ class Bullet extends Entity {
                 rightDetails = h1Details;
             }
 
-            /* Calculations
+            * Calculations
                 leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
                 rightObjectLeftEnd = rightObject.getCenterX() - leftObject.getRadiusEquivalentX();
                 leftObjectRightEnd + leftObjectVX * time = rightObjectLeftEnd + rightObjectVX * time
                 leftObjectRightEnd - rightObjectLeftEnd = (rightObjectVX - leftObjectVX) * time
                 time = (leftObjectRightEnd - rightObjectLeftEnd) / (rightObjectVX - leftObjectVX)
-            */
+            *
             let leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
             let rightObjectLeftEnd = rightObject.getCenterX() - rightObject.getRadiusEquivalentX();
             let time = safeDivide(leftObjectRightEnd - rightObjectLeftEnd, rightDetails["x_velocity"] - leftDetails["x_velocity"], 0.0000001, null);
-            /* Expected values for time:
+            * Expected values for time:
                 null - Denominator close to zero
                 < 0 - Never collide in x
                 > 0 <= timeProportion - Collide in x at a reasonable time
                 > 0 > timeProportion - Collide later on (assuming 0 acceleration)
-            */
+            *
             // If time is reasonable then compute their locations and see if they collide
             if (time != null && time >= 0 && time <= timeProportion){
                 let leftObjectX = leftDetails["start_x"] + leftDetails["x_velocity"] * time + 1; // + 1 to make sure is enough to the right
@@ -379,22 +399,22 @@ class Bullet extends Entity {
                 topDetails = h1Details;
             }
 
-            /* Calculations
+            * Calculations
                 bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
                 topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
                 bottomObjectTopEnd + bottomObjectVY * time = topObjectBottomEnd + topObjectVY * time
                 bottomObjectTopEnd - topObjectBottomEnd = (topObjectVY - bottomObjectVY) * time
                 time = (bottomObjectTopEnd - topObjectBottomEnd) / (topObjectVY - bottomObjectVY)
-            */
+            *
             let bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
             let topObjectBottomEnd = topObject.getCenterY() - topObject.getRadiusEquivalentY();
             let time = safeDivide(bottomObjectTopEnd - topObjectBottomEnd, topDetails["y_velocity"] - bottomObject["y_velocity"], 0.0000001, null);
-            /* Eypected values for time:
+            * Eypected values for time:
                 null - Denominator close to zero
                 < 0 - Never collide in y
                 > 0 <= timeProportion - Collide in y at a reasonable time
                 > 0 > timeProportion - Collide later on (assuming 0 acceleration)
-            */
+            *
             // If time is reasonable then compute their locations and see if they collide
             if (time != null && time >= 0 && time <= timeProportion){
                 let bottomObjectY = bottomDetails["start_y"] + bottomDetails["y_velocity"] * time + 1; // + 1 to make sure is enough to the top
@@ -410,6 +430,7 @@ class Bullet extends Entity {
         }
 
         return false;
+        */
     }
 
     /*
@@ -430,10 +451,10 @@ class Bullet extends Entity {
 
         // If not on screen then return
         // Note: For this and bomb this code isn't perfect because it doesn't consider interpolated location
+        this.calculateInterpolatedCoordinates(displayTime);
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        this.calculateInterpolatedCoordinates(displayTime);
         let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
         let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
@@ -547,7 +568,7 @@ class Bullet extends Entity {
         - May expand hitboxes by up to 1 pixel.
         - Doesn't seem to be performing better experimentally than the old function but it should be better in theory
     */
-    static hitInTime(h1, h1X, h1Y, h1VX, h1VY, h2, h2X, h2Y, h2VX, h2VY, timeProportion){
+    /*static hitInTime(h1, h1X, h1Y, h1VX, h1VY, h2, h2X, h2Y, h2VX, h2VY, timeProportion){
         let h1Details = {
             "start_x": h1X,
             "start_y": h1Y,
@@ -563,6 +584,121 @@ class Bullet extends Entity {
         // Update the hitboxes to the starting locations
         h1.update(h1X, h1Y);
         h2.update(h2X, h2Y);
+
+        // If they immediately collide
+        if (h1.collidesWith(h2)){
+            return true;
+        }
+        // Separating code into two separate sequential blocks to try out the feature and to redeclare the time variable
+        {
+            // Try the l/r collision
+            let leftObject = h1;
+            let leftDetails = h1Details;
+            let rightObject = h2;
+            let rightDetails = h2Details;
+            if (h2X - h2.getRadiusEquivalentX() < h1X - h1.getRadiusEquivalentX()){
+                leftObject = h2;
+                leftDetails = h2Details;
+                rightObject = h1;
+                rightDetails = h1Details;
+            }
+
+            * Calculations
+                leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
+                rightObjectLeftEnd = rightObject.getCenterX() - leftObject.getRadiusEquivalentX();
+                leftObjectRightEnd + leftObjectVX * time = rightObjectLeftEnd + rightObjectVX * time
+                leftObjectRightEnd - rightObjectLeftEnd = (rightObjectVX - leftObjectVX) * time
+                time = (leftObjectRightEnd - rightObjectLeftEnd) / (rightObjectVX - leftObjectVX)
+            *
+            let leftObjectRightEnd = leftObject.getCenterX() + leftObject.getRadiusEquivalentX();
+            let rightObjectLeftEnd = rightObject.getCenterX() - rightObject.getRadiusEquivalentX();
+            let time = safeDivide(leftObjectRightEnd - rightObjectLeftEnd, rightDetails["x_velocity"] - leftDetails["x_velocity"], 0.0000001, null);
+            * Expected values for time:
+                null - Denominator close to zero
+                < 0 - Never collide in x
+                > 0 <= timeProportion - Collide in x at a reasonable time
+                > 0 > timeProportion - Collide later on (assuming 0 acceleration)
+            *
+            // If time is reasonable then compute their locations and see if they collide
+            if (time != null && time >= 0 && time <= timeProportion){
+                let leftObjectX = leftDetails["start_x"] + leftDetails["x_velocity"] * time + 1; // + 1 to make sure is enough to the right
+                let leftObjectY = leftDetails["start_y"] + leftDetails["y_velocity"] * time;
+                let rightObjectX = rightDetails["start_x"] + rightDetails["x_velocity"] * time;
+                let rightObjectY = rightDetails["start_y"] + rightDetails["y_velocity"] * time;
+                leftObject.update(leftObjectX, leftObjectY);
+                rightObject.update(rightObjectX, rightObjectY);
+                if (leftObject.collidesWith(rightObject)){
+                    return true;
+                }
+            }
+        }
+        // This one isn't necessary but it just looks right to me
+        {
+            // Try the top/bottom collision
+            let bottomObject = h1;
+            let bottomDetails = h1Details;
+            let topObject = h2;
+            let topDetails = h2Details;
+            if (h2Y - h2.getRadiusEquivalentY() < h1Y - h1.getRadiusEquivalentY()){
+                bottomObject = h2;
+                bottomDetails = h2Details;
+                topObject = h1;
+                topDetails = h1Details;
+            }
+
+            * Calculations
+                bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
+                topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
+                bottomObjectTopEnd + bottomObjectVY * time = topObjectBottomEnd + topObjectVY * time
+                bottomObjectTopEnd - topObjectBottomEnd = (topObjectVY - bottomObjectVY) * time
+                time = (bottomObjectTopEnd - topObjectBottomEnd) / (topObjectVY - bottomObjectVY)
+            *
+            let bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
+            let topObjectBottomEnd = topObject.getCenterY() - topObject.getRadiusEquivalentY();
+            let time = safeDivide(bottomObjectTopEnd - topObjectBottomEnd, topDetails["y_velocity"] - bottomObject["y_velocity"], 0.0000001, null);
+            * Eypected values for time:
+                null - Denominator close to zero
+                < 0 - Never collide in y
+                > 0 <= timeProportion - Collide in y at a reasonable time
+                > 0 > timeProportion - Collide later on (assuming 0 acceleration)
+            *
+            // If time is reasonable then compute their locations and see if they collide
+            if (time != null && time >= 0 && time <= timeProportion){
+                let bottomObjectY = bottomDetails["start_y"] + bottomDetails["y_velocity"] * time + 1; // + 1 to make sure is enough to the top
+                let bottomObjectX = bottomDetails["start_x"] + bottomDetails["x_velocity"] * time;
+                let topObjectX = topDetails["start_x"] + topDetails["x_velocity"] * time;
+                let topObjectY = topDetails["start_y"] + topDetails["y_velocity"] * time;
+                bottomObject.update(bottomObjectX, bottomObjectY);
+                topObject.update(topObjectX, topObjectY);
+                if (bottomObject.collidesWith(topObject)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }*/
+
+    static checkForProjectileLinearCollision(projectile, linearMovingObject, previousTick){
+       let h1 = projectile.getHitbox();
+       let h2 = linearMovingObject.getHitbox();
+       let h1Details = {
+            "start_x": projectile.getXAtTick(previousTick),
+            "start_y": projectile.getYAtTick(previousTick),
+            "x_velocity": projectile.getXVelocity(),
+            "y_velocity": projectile.getYVelocityAtTick(previousTick),
+            "y_acceleration": -1 * PROGRAM_DATA["constants"]["gravity"]
+        }
+        let h2Details = {
+            "start_x": linearMovingObject.getXAtStartOfTick(),
+            "start_y": linearMovingObject.getYAtStartOfTick(),
+            "x_velocity": linearMovingObject.getXVelocity(),
+            "y_velocity": linearMovingObject.getYVelocity(),
+            "y_acceleration": 0
+        }
+        // Update the hitboxes to the starting locations
+        h1.update(h1Details["start_x"], h1Details["start_y"]);
+        h2.update(h1Details["start_x"], h1Details["start_y"]);
 
         // If they immediately collide
         if (h1.collidesWith(h2)){
@@ -601,9 +737,9 @@ class Bullet extends Entity {
             // If time is reasonable then compute their locations and see if they collide
             if (time != null && time >= 0 && time <= timeProportion){
                 let leftObjectX = leftDetails["start_x"] + leftDetails["x_velocity"] * time + 1; // + 1 to make sure is enough to the right
-                let leftObjectY = leftDetails["start_y"] + leftDetails["y_velocity"] * time;
+                let leftObjectY = leftDetails["start_y"] + leftDetails["y_velocity"] * time + 0.5 * Math.pow(leftDetails["y_acceleration"], 2);
                 let rightObjectX = rightDetails["start_x"] + rightDetails["x_velocity"] * time;
-                let rightObjectY = rightDetails["start_y"] + rightDetails["y_velocity"] * time;
+                let rightObjectY = rightDetails["start_y"] + rightDetails["y_velocity"] * time + 0.5 * Math.pow(rightDetails["y_acceleration"], 2);
                 leftObject.update(leftObjectX, leftObjectY);
                 rightObject.update(rightObjectX, rightObjectY);
                 if (leftObject.collidesWith(rightObject)){
@@ -628,13 +764,24 @@ class Bullet extends Entity {
             /* Calculations
                 bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
                 topObjectBottomEnd = topObject.getCenterY() - bottomObject.getRadiusEquivalentY();
-                bottomObjectTopEnd + bottomObjectVY * time = topObjectBottomEnd + topObjectVY * time
-                bottomObjectTopEnd - topObjectBottomEnd = (topObjectVY - bottomObjectVY) * time
-                time = (bottomObjectTopEnd - topObjectBottomEnd) / (topObjectVY - bottomObjectVY)
+                bottomObjectTopEnd + bottomObjectVY * time + 0.5 * bottomObjectAcceleration * time^2 = topObjectBottomEnd + topObjectVY * time + 0.5 * topObjectAcceleration * time^2 
+                0 = topObjectBottomEnd - bottomObjectTopEnd +  + 0.5 * topObjectAcceleration * time^2 - 0.5 * bottomObjectAcceleration * time^2
+                0 = (topObjectAcceleration - bottomObjectAcceleration) * time^2 + (topObjectVY- bottomObjectVY) * time + (topObjectBottomEnd - bottomObjectTopEnd)
+                0 = ax^2 + bx + c where:
+                    a = (topObjectAcceleration - bottomObjectAcceleration)
+                    b = (topObjectVY- bottomObjectVY)
+                    c = (topObjectBottomEnd - bottomObjectTopEnd)
+                    x = time
+                Enter quadratic equation (use plus because future?)
+                time = -1 * b + sqrt(b^2 - 4 * a * c) / (2 * a)
             */
             let bottomObjectTopEnd = bottomObject.getCenterY() + bottomObject.getRadiusEquivalentY();
             let topObjectBottomEnd = topObject.getCenterY() - topObject.getRadiusEquivalentY();
-            let time = safeDivide(bottomObjectTopEnd - topObjectBottomEnd, topDetails["y_velocity"] - bottomObject["y_velocity"], 0.0000001, null);
+            let a = topDetails["y_acceleration"] - bottomDetails["y_acceleration"];
+            let b = topDetails["y_velocity"] - bottomDetails["y_velocity"];
+            let c = topObjectBottomEnd - bottomObjectTopEnd;
+            let x = safeDivide(-1 * (b) + Math.sqrt(Math.pow(b,2) - 4 * a * c), 2 * a, 0.0000001, null);
+            let time = x;
             /* Eypected values for time:
                 null - Denominator close to zero
                 < 0 - Never collide in y
@@ -644,9 +791,9 @@ class Bullet extends Entity {
             // If time is reasonable then compute their locations and see if they collide
             if (time != null && time >= 0 && time <= timeProportion){
                 let bottomObjectY = bottomDetails["start_y"] + bottomDetails["y_velocity"] * time + 1; // + 1 to make sure is enough to the top
-                let bottomObjectX = bottomDetails["start_x"] + bottomDetails["x_velocity"] * time;
+                let bottomObjectX = bottomDetails["start_x"] + bottomDetails["x_velocity"] * time + bottomDetails["y_velocity"] * time + 0.5 * Math.pow(bottomDetails["y_acceleration"], 2);
                 let topObjectX = topDetails["start_x"] + topDetails["x_velocity"] * time;
-                let topObjectY = topDetails["start_y"] + topDetails["y_velocity"] * time;
+                let topObjectY = topDetails["start_y"] + topDetails["y_velocity"] * time + topDetails["y_velocity"] * time + 0.5 * Math.pow(topDetails["y_acceleration"], 2);
                 bottomObject.update(bottomObjectX, bottomObjectY);
                 topObject.update(topObjectX, topObjectY);
                 if (bottomObject.collidesWith(topObject)){
@@ -656,14 +803,6 @@ class Bullet extends Entity {
         }
 
         return false;
-    }
-
-    static checkForProjectileStaticCollision(){
-
-    }
-
-    static checkForProjectileLinearCollision(){
-
     }
 }
 // If using Node JS Export the class

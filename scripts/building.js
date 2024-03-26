@@ -32,6 +32,22 @@ class Building extends Entity {
         this.health = health;
     }
 
+    getXAtStartOfTick(){
+        return this.x + this.width/2;
+    }
+
+    getYAtStartOfTick(){
+        return this.height/2;
+    }
+
+    getXVelocity(){
+        return 0;
+    }
+
+    getYVelocity(){
+        return 0;
+    }
+
     /*
         Method Name: damage
         Method Parameters: 
@@ -108,6 +124,7 @@ class Building extends Entity {
         Method Return: void
     */
     display(lX, bY){
+        debugger; // I have no idea where building is being display from????
         // Do not display if dead
         if (this.isDead()){ return; }
         let rX = lX + getScreenWidth() - 1;
