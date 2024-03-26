@@ -318,9 +318,8 @@ class SpectatorCamera extends Entity {
         this.xLock.lock();
 
         // Else 1 key down and ready to move
-        this.xVelocity = 10 * getTickMultiplier();
-        this.xVelocity *= leftKey ? -1 : 1; 
-        this.x += this.xVelocity;
+        this.xVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"];
+        this.xVelocity *= leftKey ? -1 : 1;
     }
 
     /*
@@ -342,9 +341,8 @@ class SpectatorCamera extends Entity {
         this.yLock.lock();
 
         // Else 1 key down and ready to move
-        this.yVelocity = 10 * getTickMultiplier();
+        this.yVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"];
         this.yVelocity *= downKey ? -1 : 1; 
-        this.y += this.yVelocity;
     }
 
     /*
@@ -380,8 +378,8 @@ class SpectatorCamera extends Entity {
             this.interpolatedX = this.followingEntity.getInterpolatedX();
             this.interpolatedY = this.followingEntity.getInterpolatedY();
         }else{
-            this.interpolatedX = this.x;
-            this.interpolatedY = this.y;
+            this.interpolatedX = this.x + this.xVelocity * (currentTime - activeGamemode.getLastTickTime()) / 1000;
+            this.interpolatedY = this.y + this.yVelocity * (currentTime - activeGamemode.getLastTickTime()) / 1000;
         }
     }
 
@@ -407,6 +405,8 @@ class SpectatorCamera extends Entity {
             return;
         }
         // else
+        this.x += this.xVelocity / PROGRAM_DATA["settings"]["tick_rate"];
+        this.y += this.yVelocity / PROGRAM_DATA["settings"]["tick_rate"];
         this.checkMoveX();
         this.checkMoveY();
     }

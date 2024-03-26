@@ -1,7 +1,8 @@
 const PROGRAM_DATA = {
     "controls": {
         "max_angle_change_per_tick_fighter_plane": 5,
-        "max_angle_change_per_tick_bomber_plane": 2
+        "max_angle_change_per_tick_bomber_plane": 2,
+        "spectator_cam_speed": 1000
     },
     "plane_data": {
         "spitfire": {

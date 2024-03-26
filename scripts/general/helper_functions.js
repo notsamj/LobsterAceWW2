@@ -14,8 +14,7 @@ function getImage(imageName){
 
 // TODO: Comments
 function getTickMultiplier(){
-    return 1; // TODO: Remove this function?
-    // return PROGRAM_DATA["settings"]["assumed_tick_rate"] / PROGRAM_DATA["settings"]["tick_rate"];
+    return 100 / PROGRAM_DATA["settings"]["tick_rate"];
 }
 
 // TODO: Comments
