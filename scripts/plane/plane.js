@@ -816,7 +816,7 @@ class Plane extends Entity {
         bestPlane.damage(1);
         if (bestPlane.isDead()){
             // Make a fake bullet just because that's how the handlekill function works
-            let fauxBullet = new Bullet(null, null, null, null, null, null, this.getID(), null);
+            let fauxBullet = new Bullet(null, null, this.scene, null, null, null, this.getID(), null);
             this.scene.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
         }
     }

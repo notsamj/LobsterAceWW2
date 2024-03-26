@@ -514,8 +514,8 @@ const PROGRAM_DATA = {
                     "b24": 4
                 },
                 "defender_plane_counts": {
-                    "a6m_zero": 12,
-                    "kawasaki_ki_45": 12
+                    "a6m_zero": 5, // was working with 12 for a while but too op suddenly
+                    "kawasaki_ki_45": 5 // was working with 12 for a while but too op suddenly
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
@@ -523,8 +523,8 @@ const PROGRAM_DATA = {
                     "max_health": 6 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 30e3 // 30e3?
+                    "attackers": 50e3, // 70e3?
+                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
                 },
                 "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },

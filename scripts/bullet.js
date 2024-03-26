@@ -680,6 +680,7 @@ class Bullet extends Entity {
     }*/
 
     static checkForProjectileLinearCollision(projectile, linearMovingObject, previousTick){
+       let timeProportion = PROGRAM_DATA["settings"]["ms_between_ticks"];
        let h1 = projectile.getHitbox();
        let h2 = linearMovingObject.getHitbox();
        let h1Details = {
@@ -698,7 +699,7 @@ class Bullet extends Entity {
         }
         // Update the hitboxes to the starting locations
         h1.update(h1Details["start_x"], h1Details["start_y"]);
-        h2.update(h1Details["start_x"], h1Details["start_y"]);
+        h2.update(h2Details["start_x"], h2Details["start_y"]);
 
         // If they immediately collide
         if (h1.collidesWith(h2)){
@@ -711,7 +712,7 @@ class Bullet extends Entity {
             let leftDetails = h1Details;
             let rightObject = h2;
             let rightDetails = h2Details;
-            if (h2X - h2.getRadiusEquivalentX() < h1X - h1.getRadiusEquivalentX()){
+            if (h2Details["start_x"] - h2.getRadiusEquivalentX() < h1Details["start_x"] - h1.getRadiusEquivalentX()){
                 leftObject = h2;
                 leftDetails = h2Details;
                 rightObject = h1;
@@ -754,7 +755,7 @@ class Bullet extends Entity {
             let bottomDetails = h1Details;
             let topObject = h2;
             let topDetails = h2Details;
-            if (h2Y - h2.getRadiusEquivalentY() < h1Y - h1.getRadiusEquivalentY()){
+            if (h2Details["start_y"] - h2.getRadiusEquivalentY() < h1Details["start_y"] - h1.getRadiusEquivalentY()){
                 bottomObject = h2;
                 bottomDetails = h2Details;
                 topObject = h1;

@@ -42,6 +42,14 @@ class Bomb extends Entity {
         this.index = null;
     }
 
+    getInterpolatedX(){
+        return this.interpolatedX;
+    }
+
+    getInterpolatedY(){
+        return this.interpolatedY;
+    }
+
     getX(){
         return this.getXAtTick(this.scene.getGamemode().getNumTicks());
     }
@@ -233,7 +241,6 @@ class Bomb extends Entity {
         if (this.isDead()){ return; }
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
-
         this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
