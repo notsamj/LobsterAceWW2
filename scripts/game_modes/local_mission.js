@@ -39,6 +39,7 @@ class LocalMission extends Mission {
     */
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
+        this.lastTickTime = Date.now();
         this.updateCamera();
         await super.tick(); // TODO: If don't await then non-focused planes shake, why!?
     }
