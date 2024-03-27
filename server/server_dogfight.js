@@ -55,6 +55,10 @@ class ServerDogfight {
         this.lastState = this.generateState();
     }
 
+    getNumTicks(){
+        return this.numTicks;
+    }
+
     isPaused(){
         return false;
     }

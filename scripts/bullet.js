@@ -495,28 +495,28 @@ class Bullet extends Entity {
     /*
         Method Name: fromJSON
         Method Parameters:
-            bulletJSONObject:
+            jsonRepresentation:
                 Information about a bullet
         Method Description: Sets the attributes of a bullet from a json representation
         Method Return: void
     */
-    fromJSON(bulletJSONObject, force=false){
+    fromJSON(jsonRepresentation, force=false){
         // Don't overwrite a living bullet
         // TODO: Local still kills bullets even without collision right?
         if (!this.isDead() && !force){ 
             return; 
         }
         // No need to taken info from a dead bullet
-        if (bulletJSONObject["dead"]){ return; }
+        if (jsonRepresentation["dead"]){ return; }
         this.dead = false;
         this.startX = jsonRepresentation["start_x"];
         this.startY = jsonRepresentation["start_y"];
         this.spawnedTick = jsonRepresentation["spawned_tick"];
         this.yVI = jsonRepresentation["initial_y_velocity"];
         this.xVelocity = jsonRepresentation["x_velocity"];
-        this.shooterClass = bulletJSONObject["shooter_class"];
-        this.shooterID = bulletJSONObject["shooter_id"];
-        this.index = bulletJSONObject["index"];
+        this.shooterClass = jsonRepresentation["shooter_class"];
+        this.shooterID = jsonRepresentation["shooter_id"];
+        this.index = jsonRepresentation["index"];
     }
 
     /*

@@ -20,8 +20,11 @@ class RemoteDogfightClient {
         this.scene.enableTicks();
         this.running = false;
         this.gameOver = false;
+        this.lastTickTime = Date.now();
         this.startUp();
     }
+    getLastTickTime(){ return this.lastTickTime; }
+    getTickInProgressLock(){ return this.tickInProgressLock; }
 
     correctTicks(){ return; }
     getNumTicks(){
@@ -66,8 +69,10 @@ class RemoteDogfightClient {
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
         this.inputLock.unlock(); // TODO: Remove inputlock
+        this.lastTickTime = Date.now();
 
         // Load state from server
+        await this.requestStateFromServer();
         await this.loadStateFromServer();
 
         // Update camera
@@ -82,7 +87,6 @@ class RemoteDogfightClient {
         await this.sendPlanePosition();
 
         // Request state from server
-        this.requestStateFromServer();
         this.tickInProgressLock.unlock();
     }
 

@@ -778,7 +778,9 @@ class GameHandler {
         Method Description: Updates the game with information from a user about their plane
         Method Return: void
     */
-    updateFromUser(planeUpdate){ 
+    updateFromUser(planeUpdate){
+        // This is expected to happen occasionally
+        if (this.game == null){ return; }
         this.game.newPlaneJSON(planeUpdate);
     }
 

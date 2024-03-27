@@ -22,8 +22,10 @@ class RemoteMissionClient {
         this.gameOver = false;
         this.attackerSpawnLock = new TickLock(0, false);
         this.defenderSpawnLock = new TickLock(0, false);
+        this.lastTickTime = Date.now();
         this.startUp();
     }
+    getTickInProgressLock(){ return this.tickInProgressLock; }
 
     correctTicks(){ return; }
     getNumTicks(){
@@ -68,6 +70,7 @@ class RemoteMissionClient {
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
         this.inputLock.unlock(); // TODO: Remove inputlock
+        this.lastTickTime = Date.now();
 
         // Load state from server
         await this.loadStateFromServer();

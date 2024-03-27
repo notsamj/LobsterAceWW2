@@ -3,7 +3,7 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../data/data_json.js");
     Entity = require("./entity.js");
     Bullet = require("./bullet.js");
-    CircleHitbox = require("./settings/hitboxes.js").CircleHitbox;
+    CircleHitbox = require("./general/hitboxes.js").CircleHitbox;
 }
 /*
     Class Name: Bomber

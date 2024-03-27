@@ -127,8 +127,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         let rep = {};
         rep["decisions"] = this.decisions;
         rep["locks"] = {
-            "shoot_lock": this.shootLock.getTicksLeft(),
-            "rotation_cd": this.rotationCD.getTicksLeft()
+            "shoot_lock": this.shootLock.getTicksLeft()
         }
         rep["biases"] = this.biases;
         rep["basic"] = {
