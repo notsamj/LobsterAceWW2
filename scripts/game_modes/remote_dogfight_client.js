@@ -21,7 +21,29 @@ class RemoteDogfightClient {
         this.running = false;
         this.gameOver = false;
         this.lastTickTime = Date.now();
+        this.lastSentModCount = -1;
         this.startUp();
+    }
+
+    handlePlaneMovementUpdate(messageJSON){
+        //if (this.tickInProgressLock.isLocked()){ return; }
+        this.tickInProgressLock.awaitUnlock(true);
+
+        // Only take this information if numTicks match. It should be fine though if this info is from tick 0 but sent after numTicks++ but will be for both
+        if (messageJSON["num_ticks"] != this.numTicks){ 
+            console.log(messageJSON["num_ticks"], this.numTicks, typeof messageJSON)
+            return;
+        }
+        for (let planeObject of messageJSON["planes"]){
+            if (planeObject["basic"]["id"] == this.userEntity.getID()){ continue; }
+            let plane = scene.getPlane(planeObject["basic"]["id"]);
+            // If plane not found -> ignore
+            if (plane == null){
+                continue;
+            }
+            plane.updateJustMovement(planeObject);
+        }
+        this.tickInProgressLock.unlock();
     }
     getLastTickTime(){ return this.lastTickTime; }
     getTickInProgressLock(){ return this.tickInProgressLock; }
@@ -72,7 +94,6 @@ class RemoteDogfightClient {
         this.lastTickTime = Date.now();
 
         // Load state from server
-        await this.requestStateFromServer();
         await this.loadStateFromServer();
 
         // Update camera
@@ -84,8 +105,10 @@ class RemoteDogfightClient {
         this.numTicks++;
 
         // Send the current position
-        await this.sendPlanePosition();
+        await this.sendLocalPlaneData(); // Awaited because have to convert userEntity to json
 
+        // Request state for the next time
+        this.requestStateFromServer();
         // Request state from server
         this.tickInProgressLock.unlock();
     }
@@ -120,12 +143,20 @@ class RemoteDogfightClient {
         this.stateLock.unlock();
     }
 
-    async sendPlanePosition(){
+    async sendLocalPlaneData(){
         // Check if the client is a freecam or a plane, if a plane then send its current position JSON to server
         if (this.userEntity instanceof SpectatorCamera || this.userEntity.isDead()){
             return;
         }
-        await this.translator.sendPlanePosition(this.userEntity.toJSON());
+        let userEntityJSON = this.userEntity.toJSON();
+        /*let currentModCount = userEntityJSON["movement_mod_count"];
+        if (this.lastSentModCount <= currentModCount){
+            return;
+        }
+        this.lastSentModCount = currentModCount;
+        // TODO: Change or remote this last sent mod count thing because the plane might shoot so send position
+        */
+        await this.translator.sendLocalPlaneData(userEntityJSON);
     }
 
     async loadStateFromServer(){
@@ -160,10 +191,6 @@ class RemoteDogfightClient {
 
         // TODO: If tickdifference is great enough then take from server!
         let tickDifference = state["num_ticks"] - this.numTicks;
-        // TODO: Put this in settings
-        if (tickDifference > 10){
-            this.numTicks = state["num_ticks"];
-        }
 
         // Update planes
         
@@ -176,7 +203,7 @@ class RemoteDogfightClient {
                 this.addNewPlane(planeObject);
                 continue;
             }
-            plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks, tickDifference > 10);
+            plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks);
         }
 
         // Update bullets

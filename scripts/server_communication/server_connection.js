@@ -25,8 +25,14 @@ class ServerConnection {
         MAIL_SERVICE.addMonitor("error", (errorMessage) => {this.handleError(errorMessage);});
         MAIL_SERVICE.addMonitor("lobby_end", (message) => {this.handleLobbyEnd(message)});
         MAIL_SERVICE.addMonitor("game_start", (message) => {this.handleGameStart(message)});
+        MAIL_SERVICE.addMonitor("plane_movement_update", (message) => {this.handlePlaneMovementUpdate(message)});
         MAIL_SERVICE.addMonitor("heart_beat_receive", (message) => {this.handleHeartbeat(message)});
         MAIL_SERVICE.addMonitor("reset_participant_type", (message) => {this.handleResetParticipantType(message)});
+    }
+
+    handlePlaneMovementUpdate(messageJSON){
+        // TODO: Incase activagmemode is null or not a client?
+        activeGamemode.handlePlaneMovementUpdate(JSON.parse(messageJSON));
     }
 
     handleResetParticipantType(messageJSON){

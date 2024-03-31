@@ -156,6 +156,7 @@ class BiasedBotFighterPlane extends FighterPlane {
             //console.log(rep["movement_mod_count"], rep["decisions"]["throttle"], this.movementModCount, this.decisions["throttle"], rep["basic"]["throttle"], this.throttle);
         }
         if (takePosition){
+            return;
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
             this.facingRight = rep["basic"]["facing_right"];

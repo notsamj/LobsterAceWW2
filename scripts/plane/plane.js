@@ -55,6 +55,17 @@ class Plane extends Entity {
     }
 
 
+    updateJustMovement(planeInformationJSON){
+        if (planeInformationJSON["movement_mod_count"] <= this.movementModCount){ return; }
+        this.x = planeInformationJSON["basic"]["x"];
+        this.y = planeInformationJSON["basic"]["y"];
+        this.facingRight = planeInformationJSON["basic"]["facing_right"];
+        this.angle = planeInformationJSON["basic"]["angle"];
+        this.throttle = planeInformationJSON["basic"]["throttle"];
+        this.speed = planeInformationJSON["basic"]["speed"];
+        this.decisions = planeInformationJSON["decisions"];
+        this.movementModCount = planeInformationJSON["movement_mod_count"];
+    }
 
     // TODO: Comments
     increaseModCount(){
@@ -624,6 +635,7 @@ class Plane extends Entity {
         let extraTime = currentTime - activeGamemode.getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
         if (this.throttle > 0){
+            //this.interpolatedAngle = fixDegrees(this.getAngle());
             this.interpolatedAngle = fixDegrees(this.getAngle() + (this.isFacingRight() ? 1 : -1) * Math.floor(extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"])); 
         }else{
             this.interpolatedAngle = fixDegrees(this.getAngle());

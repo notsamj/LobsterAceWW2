@@ -14,7 +14,7 @@ class DogfightRemoteTranslator {
         return this.lastState; 
     }
 
-    async sendPlanePosition(planeJSON){
+    async sendLocalPlaneData(planeJSON){
         SERVER_CONNECTION.sendJSON({"action": "plane_update", "plane_update": planeJSON, "password": USER_DATA["password"]});
     }
 

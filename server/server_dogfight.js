@@ -25,7 +25,8 @@ class ServerDogfight {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(dogfightJSON, gameHandler){
+    constructor(dogfightJSON, gameHandler, serverObject){
+        this.serverObject = serverObject;
         this.gameHandler = gameHandler;
         this.winner = null;
         this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
@@ -270,6 +271,10 @@ class ServerDogfight {
             // Add after match stats
             stateRep["stats"] = this.stats.toJSON();
         }
+        // Send out specicially the positions
+        this.serverObject.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": stateRep["planes"], "num_ticks": this.numTicks}, (client) => {
+            return client.getState() == PROGRAM_DATA["client_states"]["in_game"];
+        });
         return stateRep;
     }
 
@@ -369,7 +374,7 @@ class ServerDogfight {
                 }
             }
         }
-
+        this.sendAll
         // Add new instance to the queue
         this.userInputQueue.add(planeJSON);
         this.userInputLock.unlock();

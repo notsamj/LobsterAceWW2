@@ -99,6 +99,7 @@ class HumanFighterPlane extends FighterPlane {
 
         // If this is not the one controlling the plane and the local inputs are out of date
         if (takePosition){
+            return;
             this.movementModCount = rep["movement_mod_count"];
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];

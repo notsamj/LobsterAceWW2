@@ -37,6 +37,14 @@ class WW2PGServer {
         });
     }
 
+    async sendAllWithCondition(data, conditionFunction){
+        for (let [client, clientIndex] of this.clients){
+            if (conditionFunction(client)){
+                client.sendJSON(data);
+            }
+        }
+    }
+
     /*
         Method Name: usernameTaken
         Method Parameters: username
@@ -426,6 +434,9 @@ class Client {
             SERVER.handleDisconnect(this.username);
         }else if (dataJSON["action"] == "plane_update"){ // Updating with plane data
             SERVER.getGameHandler().updateFromUser(dataJSON["plane_update"]);
+            SERVER.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": dataJSON["plane_update"]}, (client) => {
+                return client.getUsername() != this.username && client.getState() == PROGRAM_DATA["client_states"]["in_game"];
+            });
         }else{ // Get state
             let state = SERVER.getGameHandler().getState();
             state["mail_box"] = dataJSON["mail_box"];
@@ -1105,7 +1116,7 @@ class DogfightSetup extends GamemodeSetup {
     }
 
     create(gameDetails, gameHandler){
-        return new ServerDogFight(gameDetails, gameHandler);
+        return new ServerDogFight(gameDetails, gameHandler, SERVER);
     }
 
     /*
