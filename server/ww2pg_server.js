@@ -302,6 +302,7 @@ class Client {
         Method Return: Boolean, true -> is a heart beat, false -> is not a heart beat
     */
     handleHeartbeat(dataJSON){
+        console.log("Message", dataJSON)
         if (dataJSON["action"] == "ping"){
             this.sendJSON({"action": "pong", "mail_box": "heart_beat"});
             return true;
