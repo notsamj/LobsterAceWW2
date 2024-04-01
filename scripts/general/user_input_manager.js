@@ -115,6 +115,7 @@ class TickedAggregator {
         this.alias = alias;
         this.ticksEnabled = false;
         this.ticks = 0;
+        this.lastPressTime = null;
     }
 
     disableTicks(){
@@ -123,6 +124,7 @@ class TickedAggregator {
 
     enableTicks(){
         this.ticksEnabled = true;
+        this.lastPressTime = Date.now();
     }
 
     isTicking(){
@@ -142,6 +144,13 @@ class TickedAggregator {
         let ticks = this.getTicks();
         this.ticks = 0;
         return ticks;
+    }
+
+    getPressTime(){
+        if (this.isTicking()){
+            return Date.now() - this.lastPressTime;
+        }
+        return 0;
     }
 
     getAlias(){

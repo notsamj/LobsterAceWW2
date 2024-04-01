@@ -210,8 +210,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkUpDown(){
-        let wKeyCount = USER_INPUT_MANAGER.getTickedAggregator("w").clear();
-        let sKeyCount = USER_INPUT_MANAGER.getTickedAggregator("s").clear();
+        let wKeyCount = Math.floor(USER_INPUT_MANAGER.getPressTime("w") / PROGRAM_DATA["controls"]["angle_change_ms"]);
+        let sKeyCount = Math.floor(USER_INPUT_MANAGER.getPressTime("s") / PROGRAM_DATA["controls"]["angle_change_ms"]);
         let numKeysDown = 0;
         numKeysDown += wKeyCount > 0 ? 1 : 0;
         numKeysDown += sKeyCount > 0 ? 1 : 0;
