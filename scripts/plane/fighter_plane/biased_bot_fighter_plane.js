@@ -148,34 +148,6 @@ class BiasedBotFighterPlane extends FighterPlane {
     }
 
     // TODO: Comments
-    loadImportantData(rep){
-        // This is always local being received from the server
-        this.health = rep["basic"]["health"];
-        this.dead = rep["basic"]["dead"];
-        // Pretty sure don't need this TODO this.decisions = rep["decisions"];
-        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
-    }
-
-    loadMovementIfNew(rep, rollForwardAmount=0){
-        let takePosition = rep["decisions"]["last_movement_mod_tick"] > this.decisions["last_movement_mod_tick"];
-        if (takePosition){
-            this.x = rep["basic"]["x"];
-            this.y = rep["basic"]["y"];
-            this.facingRight = rep["basic"]["facing_right"];
-            this.angle = rep["basic"]["angle"];
-            this.throttle = rep["basic"]["throttle"];
-            this.speed = rep["basic"]["speed"];
-            this.decisions = rep["decisions"];
-            let shouldRollForward = rollForwardAmount > 0;
-            // Approximate plane positions in current tick based on position in server tick
-            if (shouldRollForward > 0){
-                this.rollForward(rollForwardAmount);
-            }
-            
-        }
-    }
-
-    // TODO: Comments
     initFromJSON(rep){
         this.id = rep["basic"]["id"];
         this.health = rep["basic"]["health"];

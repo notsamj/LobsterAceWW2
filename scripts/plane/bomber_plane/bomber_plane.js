@@ -30,6 +30,21 @@ class BomberPlane extends Plane {
         this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
+    // TODO: Comments
+    loadImportantData(rep){
+        // This is always local being received from the server
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);
+        for (let i = 0; i < this.guns.length; i++){
+            this.guns[i].loadImportantData(rep["guns"][i]); // TODO: I need 1 function to load shoot lock tick timer and another function to load the deicison to shoot
+        }
+    }
+
+    loadImportantDecisions(rep){
+        this.decisions["bombing"] = rep["decisions"]["bombing"];
+    }
+
     /*
         Method Name: getBombBayX
         Method Parameters: None

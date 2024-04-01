@@ -30,13 +30,11 @@ USER_INPUT_MANAGER.registerTickedAggregator("s", "keydown", (event) => { return 
 
 /*
     Method Name: tick
-    Method Parameters:
-        forced:
-            True if not called by requestAnimationFrame
+    Method Parameters: None
     Method Description: Makes things happen within a tick
     Method Return: void
 */
-async function tick(forced=false){
+async function tick(){
     // Safety incase an error occurs stop running
     if (programOver){ return; }
     USER_INPUT_MANAGER.tick();
@@ -57,7 +55,7 @@ async function tick(forced=false){
     if (activeGamemode != null){
         //console.log(activeGamemode.getExpectedTicks() - activeGamemode.getNumTicks)
         await activeGamemode.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        await activeGamemode.getTickInProgressLock().awaitUnlock(true); // TODO: Clean up with getter
+        await activeGamemode.getTickInProgressLock().awaitUnlock(true);
     }
 
     // Draw frame
@@ -70,11 +68,7 @@ async function tick(forced=false){
     }
     mainTickLock.unlock();
     // Try and tick immediately (incase need to catch up if it doesn't need it catch up then no problem)
-    if (!forced){
-        tick(true);
-    }else{
-        requestAnimationFrame(tick);
-    }
+    requestAnimationFrame(tick);
 }
 
 /*

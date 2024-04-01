@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    NotSamLinkedList = require("../scripts/notsam_linked_list");
+    NotSamLinkedList = require("./notsam_linked_list");
 }
 /*
     Class Name: AsyncUpdateManager
@@ -174,7 +174,7 @@ class AsyncUpdateManager {
     */
     async deletionProcedure(currentTicks){
         await this.syncLock.awaitUnlock(true);
-        this.data.removeWithCondition((node) => {
+        this.data.deleteWithCondition((node) => {
         	return node.getNumTicks() < currentTicks;
         });
         this.syncLock.unlock();

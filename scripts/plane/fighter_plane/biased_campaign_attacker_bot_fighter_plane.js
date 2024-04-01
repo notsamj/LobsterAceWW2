@@ -69,7 +69,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
 
         // Check if decisions have been modified
         if (FighterPlane.areMovementDecisionsChanged(startingDecisions, this.decisions)){
-            this.movementModCount++;
+            this.decisions["last_movement_mod_tick"] = this.getCurrentTicks();
         }
     }
 
@@ -127,7 +127,6 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             "starting_throttle": this.startingThrottle,
             "dead": this.isDead()
         }
-        rep["movement_mod_count"] = this.movementModCount;
         return rep;
     }
 

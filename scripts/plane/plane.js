@@ -45,6 +45,8 @@ class Plane extends Entity {
         this.throttleConstant = Math.sqrt(this.maxSpeed) / PROGRAM_DATA["settings"]["max_throttle"];
         this.interpolatedX = 0;
         this.interpolatedY = 0;
+        this.x = 0;
+        this.y = 0;
         this.decisions = {
             "face": 0, // 1 -> right, -1 -> left, 0 -> no change
             "angle": 0, // 1 -> ccw by 1 deg, -1 -> cw by 1 deg, 0 -> no change
@@ -54,7 +56,24 @@ class Plane extends Entity {
         }
     }
 
-    getCurrentTick(){
+    loadMovementIfNew(rep, rollForwardAmount=0){
+        let takePosition = rep["decisions"]["last_movement_mod_tick"] > this.decisions["last_movement_mod_tick"];
+        if (!takePosition){ return; }
+        this.x = rep["basic"]["x"];
+        this.y = rep["basic"]["y"];
+        this.facingRight = rep["basic"]["facing_right"];
+        this.angle = rep["basic"]["angle"];
+        this.throttle = rep["basic"]["throttle"];
+        this.speed = rep["basic"]["speed"];
+        this.decisions = rep["decisions"];
+        let shouldRollForward = rollForwardAmount > 0;
+        // Approximate plane positions in current tick based on position in server tick
+        if (shouldRollForward){
+            this.rollForward(rollForwardAmount);
+        }
+    }
+
+    getCurrentTicks(){
         return this.scene.getGamemode().getNumTicks();
     }
 

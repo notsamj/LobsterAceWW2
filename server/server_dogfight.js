@@ -11,6 +11,8 @@ const HumanBomberPlane = require("../scripts/plane/bomber_plane/human_bomber_pla
 const BiasedBotBomberPlane = require("../scripts/plane/bomber_plane/biased_bot_bomber_plane.js");
 const BiasedBotFighterPlane = require("../scripts/plane/fighter_plane/biased_bot_fighter_plane.js");
 
+const AsyncUpdateManager = require("../scripts/general/async_update_manager.js");
+
 /*
     Class Name: ServerDogfight
     Description: A dogfight that is run by a server with connected clients.
@@ -341,12 +343,13 @@ class ServerDogfight {
         // Update all planes based on user input
         for (let plane of this.scene.getPlanes()){
             let planeID = plane.getID();
-            let latestPlaneUpdate = await this.asyncUpdateManager.getLastUpTo(this.numTicks);
+            let latestPlaneUpdate = await this.asyncUpdateManager.getLastUpTo(planeID, this.numTicks);
             if (latestPlaneUpdate == null){ continue; }
             let tickDifference = this.numTicks - latestPlaneUpdate["num_ticks"];
             // Note: tickDifference MUST be >= 0 because of how the update was obtained
-            plane.loadImportantData(planeObject);
-            plane.loadMovementIfNew(planeObject, tickDifference);
+            plane.loadImportantData(latestPlaneUpdate);
+            plane.loadImportantDecisions(latestPlaneUpdate);
+            plane.loadMovementIfNew(latestPlaneUpdate, tickDifference);
         }
         await this.asyncUpdateManager.deletionProcedure(this.numTicks);
         this.userInputLock.unlock();
@@ -361,7 +364,7 @@ class ServerDogfight {
     async newPlaneJSON(planeJSON){
         await this.userInputLock.awaitUnlock(true);
         let numTicks = planeJSON["num_ticks"];
-        let id = planeJSON["id"];
+        let id = planeJSON["basic"]["id"];
         await this.asyncUpdateManager.put(id, numTicks, planeJSON);
         // TODO: this.sendAll
         this.userInputLock.unlock();

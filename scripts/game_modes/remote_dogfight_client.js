@@ -27,22 +27,23 @@ class RemoteDogfightClient {
     }
 
     handlePlaneMovementUpdate(messageJSON){
+        if (objectHasKey(messageJSON, "game_over") && messageJSON["game_over"]){ return; }
         // Only interested if a tick is NOT in progress
         if (this.tickInProgressLock.isLocked()){ return; }
         this.tickInProgressLock.lock();
 
         // Only take this information if numTicks match. It should be fine though if this info is from tick 0 but sent after numTicks++ but will be for both
-        if (messageJSON["num_ticks"] != this.numTicks){ 
-            return;
-        }
-        for (let planeObject of messageJSON["planes"]){
-            if (planeObject["basic"]["id"] == this.userEntity.getID()){ continue; }
-            let plane = scene.getPlane(planeObject["basic"]["id"]);
-            // If plane not found -> ignore
-            if (plane == null){
-                continue;
+        if (messageJSON["num_ticks"] == this.numTicks){ 
+            for (let planeObject of messageJSON["planes"]){
+                if (planeObject["basic"]["id"] == this.userEntity.getID()){ continue; }
+                let plane = scene.getPlane(planeObject["basic"]["id"]);
+                // If plane not found -> ignore
+                if (plane == null){
+                    continue;
+                }
+                plane.loadMovementIfNew(planeObject);
+                //plane.updateJustDecisions(planeObject["decisions"]);
             }
-            plane.updateJustDecisions(planeObject["decisions"]);
         }
         this.tickInProgressLock.unlock();
     }
@@ -93,10 +94,8 @@ class RemoteDogfightClient {
         await this.tickInProgressLock.awaitUnlock(true);
         this.inputLock.unlock(); // TODO: Remove inputlock
         this.lastTickTime = Date.now();
-
         // Load state from server
         await this.loadStateFromServer();
-
         // Update camera
         this.updateCamera();
 
@@ -107,7 +106,6 @@ class RemoteDogfightClient {
 
         // Send the current position
         await this.sendLocalPlaneData(); // Awaited because have to convert userEntity to json
-
         // Request state for the next time
         this.requestStateFromServer();
         // Request state from server
@@ -272,13 +270,11 @@ class RemoteDogfightClient {
                 let plane;
                 if (planeModelToType([planeObject["basic"]["plane_class"]]) == "Fighter"){
                     plane = HumanFighterPlane.fromJSON(planeObject, scene, planeIsMe);
-                    console.log("New human", planeIsMe)
                 }else{
                     plane = HumanBomberPlane.fromJSON(planeObject, scene, planeIsMe);
                 }
                 if (planeIsMe){
                     this.userEntity = plane;
-                    console.log("USER ENTITY SET", this.userEntity)
                 }
                 this.planes.push(plane);
             }else{
@@ -298,7 +294,6 @@ class RemoteDogfightClient {
         // If no user then add a freecam
         //console.log("Is user entity null?", this.userEntity)
         if (this.userEntity == null){
-            console.log("Apparently a camera")
             let allyX = PROGRAM_DATA["dogfight_settings"]["ally_spawn_x"];
             let allyY = PROGRAM_DATA["dogfight_settings"]["ally_spawn_y"];
             let axisX = PROGRAM_DATA["dogfight_settings"]["axis_spawn_x"];
@@ -311,10 +306,8 @@ class RemoteDogfightClient {
             scene.addEntity(this.userEntity);
         }
         scene.setFocusedEntity(this.userEntity);
-        console.log("Set focused entity to", this.userEntity)
         this.startTime = state["start_time"];
         this.numTicks = state["num_ticks"];
         this.running = true;
-        console.log("Start up done")
     }
 }

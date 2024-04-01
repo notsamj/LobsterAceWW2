@@ -30,6 +30,19 @@ class FighterPlane extends Plane {
         this.shootLock = new TickLock(PROGRAM_DATA["settings"]["plane_shoot_gap_ms"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
+    // TODO: Comments
+    loadImportantData(rep){
+        // This is always local being received from the server
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        // Pretty sure don't need this TODO this.decisions = rep["decisions"];
+        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+    }
+
+    loadImportantDecisions(rep){
+        this.decisions["shoot"] = rep["decisions"]["shoot"];
+    }
+
     /*
         Method Name: tick
         Method Parameters:
