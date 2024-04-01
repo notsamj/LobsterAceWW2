@@ -91,7 +91,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         
         // Check if decisions have been modified
         if (FighterPlane.areMovementDecisionsChanged(startingDecisions, this.decisions)){
-            this.movementModCount++;
+            this.decisions["last_movement_mod_tick"] = this.getCurrentTicks();
         }
     }
 
@@ -144,39 +144,35 @@ class BiasedBotFighterPlane extends FighterPlane {
             "starting_health": this.startingHealth,
             "dead": this.isDead()
         }
-        rep["movement_mod_count"] = this.movementModCount;
         return rep;
     }
 
     // TODO: Comments
-    fromJSON(rep, tickDifference=0){
+    loadImportantData(rep){
         // This is always local being received from the server
-        let takePosition = rep["movement_mod_count"] > this.movementModCount;
-        if (this.getModel() == "p51_mustang"){
-            //console.log(rep["movement_mod_count"], rep["decisions"]["throttle"], this.movementModCount, this.decisions["throttle"], rep["basic"]["throttle"], this.throttle);
-        }
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        // Pretty sure don't need this TODO this.decisions = rep["decisions"];
+        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+    }
+
+    loadMovementIfNew(rep, rollForwardAmount=0){
+        let takePosition = rep["decisions"]["last_movement_mod_tick"] > this.decisions["last_movement_mod_tick"];
         if (takePosition){
-            return;
             this.x = rep["basic"]["x"];
             this.y = rep["basic"]["y"];
             this.facingRight = rep["basic"]["facing_right"];
             this.angle = rep["basic"]["angle"];
             this.throttle = rep["basic"]["throttle"];
             this.speed = rep["basic"]["speed"];
-            this.movementModCount = rep["movement_mod_count"];
-            
+            this.decisions = rep["decisions"];
+            let shouldRollForward = rollForwardAmount > 0;
             // Approximate plane positions in current tick based on position in server tick
-            if (tickDifference > 0){
-                this.rollForward(tickDifference);
-            }else if (tickDifference < 0){
-                this.rollBackward(tickDifference);
+            if (shouldRollForward > 0){
+                this.rollForward(rollForwardAmount);
             }
             
         }
-        this.health = rep["basic"]["health"];
-        this.dead = rep["basic"]["dead"];
-        this.decisions = rep["decisions"];
-        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
     }
 
     // TODO: Comments

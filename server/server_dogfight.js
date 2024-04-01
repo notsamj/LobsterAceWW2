@@ -45,7 +45,7 @@ class ServerDogfight {
         this.createPlanes(dogfightJSON);
         this.scene.setEntities(this.planes);
 
-        this.tickScheduler = new TickScheduler(async () => { await this.tick(); await this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
+        this.tickScheduler = new TickScheduler(async () => { await this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
@@ -54,6 +54,8 @@ class ServerDogfight {
         this.paused = false;
         this.gameOver = false;
         this.lastState = this.generateState();
+
+        this.asyncUpdateManager = new AsyncUpdateManager();
     }
 
     getNumTicks(){
@@ -337,14 +339,16 @@ class ServerDogfight {
         if (this.isPaused()){ return; }
         await this.userInputLock.awaitUnlock(true);
         // Update all planes based on user input
-        for (let [planeObject, planeIndex] of this.userInputQueue){
-            for (let plane of this.scene.getPlanes()){
-                if (plane.getID() == planeObject["basic"]["id"]){
-                    plane.fromJSON(planeObject);
-                    break;
-                }
-            }
+        for (let plane of this.scene.getPlanes()){
+            let planeID = plane.getID();
+            let latestPlaneUpdate = await this.asyncUpdateManager.getLastUpTo(this.numTicks);
+            if (latestPlaneUpdate == null){ continue; }
+            let tickDifference = this.numTicks - latestPlaneUpdate["num_ticks"];
+            // Note: tickDifference MUST be >= 0 because of how the update was obtained
+            plane.loadImportantData(planeObject);
+            plane.loadMovementIfNew(planeObject, tickDifference);
         }
+        await this.asyncUpdateManager.deletionProcedure(this.numTicks);
         this.userInputLock.unlock();
     }
 
@@ -356,27 +360,10 @@ class ServerDogfight {
     */
     async newPlaneJSON(planeJSON){
         await this.userInputLock.awaitUnlock(true);
-        // Remove a previous instance if present (assume only 1)
-        let previousInput = null;
-        for (let [planeObject, planeIndex] of this.userInputQueue){
-            if (planeJSON["id"] == planeObject["id"]){
-                previousInput = this.userInputQueue.pop(planeIndex);
-                break;
-            }
-        }
-
-        // If a previous input exists, merge it
-        if (previousInput != null){
-            for (let key of Object.keys(planeJSON)){
-                // Merge all 0 values with non-zero values of previous input so that changes aren't overridden
-                if (planeJSON[key] == 0 && previousInput[key] != 0){
-                    planeJSON[key] = previousInput[key];
-                }
-            }
-        }
-        this.sendAll
-        // Add new instance to the queue
-        this.userInputQueue.add(planeJSON);
+        let numTicks = planeJSON["num_ticks"];
+        let id = planeJSON["id"];
+        await this.asyncUpdateManager.put(id, numTicks, planeJSON);
+        // TODO: this.sendAll
         this.userInputLock.unlock();
     }
 }

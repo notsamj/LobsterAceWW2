@@ -22,16 +22,17 @@ class RemoteDogfightClient {
         this.gameOver = false;
         this.lastTickTime = Date.now();
         this.lastSentModCount = -1;
+        this.asyncUpdateManager = new AsyncUpdateManager();
         this.startUp();
     }
 
     handlePlaneMovementUpdate(messageJSON){
-        //if (this.tickInProgressLock.isLocked()){ return; }
-        this.tickInProgressLock.awaitUnlock(true);
+        // Only interested if a tick is NOT in progress
+        if (this.tickInProgressLock.isLocked()){ return; }
+        this.tickInProgressLock.lock();
 
         // Only take this information if numTicks match. It should be fine though if this info is from tick 0 but sent after numTicks++ but will be for both
         if (messageJSON["num_ticks"] != this.numTicks){ 
-            console.log(messageJSON["num_ticks"], this.numTicks, typeof messageJSON)
             return;
         }
         for (let planeObject of messageJSON["planes"]){
@@ -41,7 +42,7 @@ class RemoteDogfightClient {
             if (plane == null){
                 continue;
             }
-            plane.updateJustMovement(planeObject);
+            plane.updateJustDecisions(planeObject["decisions"]);
         }
         this.tickInProgressLock.unlock();
     }
@@ -156,6 +157,8 @@ class RemoteDogfightClient {
         this.lastSentModCount = currentModCount;
         // TODO: Change or remote this last sent mod count thing because the plane might shoot so send position
         */
+        let messageJSON = userEntityJSON;
+        messageJSON["num_ticks"] = this.numTicks;
         await this.translator.sendLocalPlaneData(userEntityJSON);
     }
 
@@ -165,7 +168,7 @@ class RemoteDogfightClient {
         // Only update if the new state is really new
         if (this.newServerState == null){ return; }
         if (this.lastServerState == null || this.lastServerState["num_ticks"] < this.newServerState["num_ticks"]){
-            this.loadState(this.newServerState);
+            await this.loadState(this.newServerState);
             this.lastServerState = this.newServerState;
         }
         this.stateLock.unlock();
@@ -175,7 +178,7 @@ class RemoteDogfightClient {
         return this.gameOver;
     }
 
-    loadState(state){
+    async loadState(state){
         if (state == null){ return; }
         // Check game end
         this.gameOver = state["game_over"];
@@ -190,11 +193,14 @@ class RemoteDogfightClient {
         SOUND_MANAGER.fromSoundRequestList(state["sound_list"]);
 
         // TODO: If tickdifference is great enough then take from server!
-        let tickDifference = state["num_ticks"] - this.numTicks;
+        let tickDifference = this.numTicks - state["num_ticks"];
+        let planeData = state["planes"];
+        if (tickDifference < 0){
 
-        // Update planes
-        
-        for (let planeObject of state["planes"]){
+        }
+
+        // Update plane general information
+        for (let planeObject of planeData){
             let plane = scene.getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
@@ -203,11 +209,32 @@ class RemoteDogfightClient {
                 this.addNewPlane(planeObject);
                 continue;
             }
-            plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks);
+            plane.loadImportantData(planeObject);
+        }
+
+        // Check if update is super future save and try to load if we have one
+        if (tickDifference < 0){
+            // Tick differnece < 0
+            await this.asyncUpdateManager.put("plane_movement_data", this.numTicks, planeData);
+            if (await this.asyncUpdateManager.has("plane_movement_data", this.numTicks)){
+                planeData = await this.asyncUpdateManager.getValue("plane_movement_data", this.numTicks);
+                await this.asyncUpdateManager.deletionProcedure(this.numTicks);
+                tickDifference = 0;
+            }
+        }
+
+        // Update plane movement
+        if (tickDifference >= 0){
+            for (let planeObject of planeData){
+                let plane = scene.getPlane(planeObject["basic"]["id"]);
+                if (plane == null){
+                    continue;
+                }
+                plane.loadMovementIfNew(planeObject, tickDifference);
+            }
         }
 
         // Update bullets
-        //console.log("Received bullets from server", state["bullets"])
         scene.getTeamCombatManager().fromBulletJSON(state["bullets"]);
     }
 

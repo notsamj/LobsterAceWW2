@@ -50,21 +50,17 @@ class Plane extends Entity {
             "angle": 0, // 1 -> ccw by 1 deg, -1 -> cw by 1 deg, 0 -> no change
             "throttle": 0, // 1 -> up by 1 deg, -1 -> down by 1 deg, 0 -> no change
             "shoot": false, // true -> shoot, false -> don't shoot
+            "last_movement_mod_tick": -1, // Used to determine if its worth updating the planes position when provided with a JSON representation 
         }
-        this.movementModCount = 0;
+    }
+
+    getCurrentTick(){
+        return this.scene.getGamemode().getNumTicks();
     }
 
 
-    updateJustMovement(planeInformationJSON){
-        if (planeInformationJSON["movement_mod_count"] <= this.movementModCount){ return; }
-        this.x = planeInformationJSON["basic"]["x"];
-        this.y = planeInformationJSON["basic"]["y"];
-        this.facingRight = planeInformationJSON["basic"]["facing_right"];
-        this.angle = planeInformationJSON["basic"]["angle"];
-        this.throttle = planeInformationJSON["basic"]["throttle"];
-        this.speed = planeInformationJSON["basic"]["speed"];
-        this.decisions = planeInformationJSON["decisions"];
-        this.movementModCount = planeInformationJSON["movement_mod_count"];
+    updateJustDecisions(planeDecisions){
+        this.decisions = planeDecisions;
     }
 
     // TODO: Comments
