@@ -73,6 +73,14 @@ class Plane extends Entity {
         }
     }
 
+    getX(){
+        return this.getXAtTick(this.getCurrentTicks());
+    }
+
+    getXAtTick(tick){
+        return this.x + ...; // TODO don't do fancy math just simulate drag force
+    }
+
     getCurrentTicks(){
         return this.scene.getGamemode().getNumTicks();
     }
