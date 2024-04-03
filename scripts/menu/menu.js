@@ -171,7 +171,12 @@ class Menu {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: addComponent
+        Method Parameters: None
+        Method Description: Adds a component to the menu
+        Method Return: void
+    */
     addComponent(component){
         this.components.push(component);
     }

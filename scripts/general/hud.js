@@ -61,7 +61,12 @@ class HUD {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: clearAll
+        Method Parameters: None
+        Method Description: Clears all elements from the screen
+        Method Return: void
+    */
     clearAll(){
         for (let element of this.hudElements){
             element.clear();
@@ -84,7 +89,7 @@ class HUDElement {
         this.name = name;
         this.readyToDisplay = true;
         this.value = null;
-        this.extraTimeLock = new CooldownLock(1000); // TODO: Test if this works so no flashing
+        this.extraTimeLock = new CooldownLock(1000);
     }
 
     /*
@@ -151,7 +156,12 @@ class HUDElement {
         return this.readyToDisplay || this.extraTimeLock.notReady();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: clear
+        Method Parameters: None
+        Method Description: Removes an element from the screen. Requires it to be requested again to be displayed
+        Method Return: void
+    */
     clear(){
         this.extraTimeLock.unlock();
     }

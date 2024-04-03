@@ -19,7 +19,8 @@ class Building extends Entity {
                 The height of the building
             health:
                 The health of the building
-            TODO
+            scene:
+                A Scene object
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -32,18 +33,42 @@ class Building extends Entity {
         this.health = health;
     }
 
+    /*
+        Method Name: getXAtStartOfTick
+        Method Parameters: None
+        Method Description: Get the center x value at the start of the tick
+        Method Return: Number
+    */
     getXAtStartOfTick(){
-        return this.x + this.width/2;
+        return this.getCenterX();
     }
 
+    /*
+        Method Name: getYAtStartOfTick
+        Method Parameters: None
+        Method Description: Get the center y value at the start of the tick
+        Method Return: Number
+    */
     getYAtStartOfTick(){
-        return this.height/2;
+        return this.getCenterY();
     }
 
+    /*
+        Method Name: getXVelocity
+        Method Parameters: None
+        Method Description: The building does not move so it provides 0 x velocity
+        Method Return: integer
+    */
     getXVelocity(){
         return 0;
     }
 
+    /*
+        Method Name: getYVelocity
+        Method Parameters: None
+        Method Description: The building does not move so it provides 0 y velocity
+        Method Return: integer
+    */
     getYVelocity(){
         return 0;
     }
@@ -140,7 +165,20 @@ class Building extends Entity {
         rect(displayX, displayY, this.width, this.height);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: touchesRegion
+        Method Parameters: None
+        Method Description:
+            lX:
+                Left x of screen in game coordinates
+            rX:
+                Right x of screen in game coordinates
+            bY:
+                Bottom y of screen in game coordinates
+            tY:
+                Top y of screen in game coordinates
+        Method Return: TODO
+    */
     touchesRegion(lX, rX, bY, tY){
         if (this.x + this.getWidth() < lX){ return false; }
         if (this.x > rX){ return false; }
@@ -165,7 +203,14 @@ class Building extends Entity {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a building
+        Method Description: Modifies the building based on a JSON representation
+        Method Return: void
+    */
     fromJSON(rep){
         this.health = rep["health"];
         this.setDead(rep["dead"]);

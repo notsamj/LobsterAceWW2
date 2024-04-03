@@ -23,7 +23,7 @@ class SpectatorRadar extends Radar {
     */
     update(){
         this.radarData = this.resetRadar();
-        for (let plane of scene.getPlanes()){
+        for (let plane of scene.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane){
                 this.placeOnRadar(plane.getX(), plane.getY(), PROGRAM_DATA["team_to_colour"]["fighter_plane"][planeModelToAlliance(plane.getPlaneClass())]);
             }else if (plane instanceof BomberPlane){

@@ -30,7 +30,14 @@ class BomberPlane extends Plane {
         this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: loadImportantData
+        Method Parameters:
+            rep:
+                A Json representation of the plane sent by the server
+        Method Description: Loads important data received from the server
+        Method Return: void
+    */
     loadImportantData(rep){
         // This is always local being received from the server
         this.health = rep["basic"]["health"];
@@ -41,6 +48,14 @@ class BomberPlane extends Plane {
         }
     }
 
+    /*
+        Method Name: loadImportantDecisions
+        Method Parameters:
+            rep:
+                A Json representation of the plane sent by the server
+        Method Description: Loads important decisions received from the server
+        Method Return: void
+    */
     loadImportantDecisions(rep){
         this.decisions["bombing"] = rep["decisions"]["bombing"];
     }

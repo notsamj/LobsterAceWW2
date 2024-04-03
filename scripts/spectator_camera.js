@@ -357,17 +357,37 @@ class SpectatorCamera extends Entity {
         this.radar.update();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedX
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
+
     getInterpolatedX(){
         return this.interpolatedX;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedY
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
+
     getInterpolatedY(){
         return this.interpolatedY;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: calculateInterpolatedCoordinates
+        Method Parameters:
+            currentTime:
+                The current time in miliseconds
+        Method Description: Calculates the interpolated coordinates of the camera
+        Method Return: void
+    */
+
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
         if (activeGamemode.isPaused() || !activeGamemode.isRunning()){

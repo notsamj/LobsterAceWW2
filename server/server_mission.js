@@ -193,7 +193,7 @@ class ServerMisson extends Mission {
         await this.userInputLock.awaitUnlock(true);
         // Update all planes based on user input
         for (let [planeObject, planeIndex] of this.userInputQueue){
-            for (let plane of this.scene.getPlanes()){
+            for (let plane of this.scene.getTeamCombatManager().getLivingPlanes()){
                 if (plane.getID() == planeObject["basic"]["id"]){
                     plane.fromJSON(planeObject);
                     break;

@@ -38,12 +38,22 @@ class HumanBomberPlane extends BomberPlane {
         this.autonomous = autonomous;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setAutonomous
+        Method Parameters: None
+        Method Description: Setter
+        Method Return: void
+    */
     setAutonomous(value){
         this.autonomous = value;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the human bomber plane
+        Method Return: JSON Object
+    */
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;
@@ -74,11 +84,29 @@ class HumanBomberPlane extends BomberPlane {
         return rep;
     }
 
+    /*
+        Method Name: loadMovementIfNew
+        Method Parameters:
+            rep:
+                A json representation of the plane
+            rollForwardAmount:
+                The number of ticks behind that this information is
+        Method Description: Loads the movement information about the plane if the source has a newer set of values
+        Method Return: void
+    */
     loadMovementIfNew(rep, rollForwardAmount=0){
         if (this.autonomous){ return; }
         super.loadMovementIfNew(rep, rollForwardAmount);
     }
 
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of a human bomber plane
+        Method Description: Sets attributes of a human bomber plane from a JSON representation
+        Method Return: void
+    */
     initFromJSON(rep){
         this.id = rep["basic"]["id"];
         this.health = rep["basic"]["health"];
@@ -98,7 +126,18 @@ class HumanBomberPlane extends BomberPlane {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a human bomber plane
+            scene:
+                A Scene object
+            autonomous:
+                Whether or not the new plane can make its own decisions (Boolean)
+        Method Description: Creates a new Human Bomber Plane
+        Method Return: HumanBomberPlane
+    */
     static fromJSON(rep, scene, autonomous){
         let planeClass = rep["basic"]["plane_class"];
         let hBP = new HumanBomberPlane(planeClass, scene, rep["angle"], rep["facing_right"], autonomous);
@@ -171,7 +210,12 @@ class HumanBomberPlane extends BomberPlane {
         super.tick(timeDiffMS);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: makeDecisions
+        Method Parameters: None
+        Method Description: Makes decisions for the plane for the next tick
+        Method Return: void
+    */
     makeDecisions(){
         // Do not make decisions if not autonomous
         if (!this.autonomous){ return; }
@@ -190,7 +234,12 @@ class HumanBomberPlane extends BomberPlane {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: resetDecisions
+        Method Parameters: None
+        Method Description: Resets the decisions so the planes actions can be chosen to reflect what it current wants to do rather than previously
+        Method Return: void
+    */
     resetDecisions(){
         this.decisions["face"] = 0;
         this.decisions["angle"] = 0;
@@ -198,6 +247,12 @@ class HumanBomberPlane extends BomberPlane {
         this.decisions["throttle"] = 0;
     }
 
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Take actions based on saved decisions
+        Method Return: void
+    */
     executeDecisions(){
         // Change facing direction
         if (this.decisions["face"] != 0){
@@ -287,8 +342,8 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     checkUpDown(){
-        let wKeyCount = USER_INPUT_MANAGER.getTickedAggregator("w").clear();
-        let sKeyCount = USER_INPUT_MANAGER.getTickedAggregator("s").clear();
+        let wKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("w").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
+        let sKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("s").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
         let numKeysDown = 0;
         numKeysDown += wKeyCount > 0 ? 1 : 0;
         numKeysDown += sKeyCount > 0 ? 1 : 0;

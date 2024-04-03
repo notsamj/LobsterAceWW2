@@ -34,7 +34,12 @@ class NotSamArrayList {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: clear
+        Method Parameters: None
+        Method Description: Effectively clear the array of elements (not in terms of actual storage use)
+        Method Return: void
+    */
     clear(){
         this.length = 0;
     }
@@ -107,7 +112,14 @@ class NotSamArrayList {
         this.add(value);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: push
+        Method Parameters:
+            value:
+                Value to add
+        Method Description: Add a value to the end of the array list
+        Method Return: void
+    */
     push(value){
         this.add(value);
     }

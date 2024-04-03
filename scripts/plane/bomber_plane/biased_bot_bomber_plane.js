@@ -51,7 +51,12 @@ class BiasedBotBomberPlane extends BomberPlane {
         this.enemyList = [];
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the biased bot bomber plane
+        Method Return: JSON Object
+    */
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;
@@ -83,7 +88,18 @@ class BiasedBotBomberPlane extends BomberPlane {
         return rep;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a biased bot bomber plane
+            scene:
+                A Scene object
+            autonomous:
+                Whether or not the new plane can make its own decisions (Boolean)
+        Method Description: Creates a new Biased Bot Bomber Plane
+        Method Return: BiasedBotBomberPlane
+    */
     static fromJSON(rep, scene, autonomous){
         let planeClass = rep["basic"]["plane_class"];
         let bp = new BiasedBotBomberPlane(planeClass, scene, 0, true, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
@@ -91,6 +107,14 @@ class BiasedBotBomberPlane extends BomberPlane {
         return bp;
     }
 
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of a biased bot bomber plane
+        Method Description: Sets attributes of a biased bot bomber plane from a JSON representation
+        Method Return: void
+    */
     initFromJSON(rep){
         this.id = rep["basic"]["id"];
         this.health = rep["basic"]["health"];
@@ -117,7 +141,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Return: List of planes
     */
     getFriendlyList(){
-        let planes = this.scene.getPlanes();
+        let planes = this.scene.getTeamCombatManager().getLivingPlanes();
         let friendlies = [];
         for (let plane of planes){
             if (plane instanceof Plane && this.onSameTeam(plane) && plane.isAlive()){
@@ -145,7 +169,12 @@ class BiasedBotBomberPlane extends BomberPlane {
         super.tick(timeDiffMS);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: makeDecisions
+        Method Parameters: None
+        Method Description: Makes decisions for the plane for the next tick
+        Method Return: void
+    */
     makeDecisions(){
         // If not allowed to make decisions -> not make any
         this.resetDecisions();
@@ -182,13 +211,23 @@ class BiasedBotBomberPlane extends BomberPlane {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: resetDecisions
+        Method Parameters: None
+        Method Description: Resets the decisions so the planes actions can be chosen to reflect what it current wants to do rather than previously
+        Method Return: void
+    */
     resetDecisions(){
         this.decisions["face"] = 0;
         this.decisions["angle"] = 0;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Take actions based on saved decisions
+        Method Return: void
+    */
     executeDecisions(){
         // Change facing direction
         if (this.decisions["face"] != 0){
@@ -448,7 +487,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Return: List
     */
     getEnemyList(){
-        let entities = this.scene.getPlanes();
+        let entities = this.scene.getTeamCombatManager().getLivingPlanes();
         let enemies = [];
         for (let entity of entities){
             if (entity instanceof Plane && !this.onSameTeam(entity) && entity.isAlive()){

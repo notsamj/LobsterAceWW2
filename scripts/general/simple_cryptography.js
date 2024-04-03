@@ -1,13 +1,32 @@
 if (typeof window === "undefined"){
     SeededRandomizer = require("./seeded_randomizer.js");
 }
-// TODO: Class needs comments
+/*
+    Class Name: SimpleCryptography
+    Description: Employs a simple method to encrypt and decrypt strings
+*/
 class SimpleCryptography {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            secretSeed:
+                The seed used for encryption and decryption
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(secretSeed){
         this.secretSeed = secretSeed;
         this.disabled = false;
     }
 
+    /*
+        Method Name: encrypt
+        Method Parameters:
+            data:
+                Data to encrypt (String)
+        Method Description: Encrypts some data as a string
+        Method Return: String
+    */
     encrypt(data){
         if (this.disabled){
             return data;
@@ -30,6 +49,14 @@ class SimpleCryptography {
         return JSON.stringify(encryptedData);
     }
 
+    /*
+        Method Name: decrypt
+        Method Parameters:
+            encryptedData:
+                Data to decrypt (String)
+        Method Description: Decrypts a string to a string
+        Method Return: String
+    */
     decrypt(encryptedData){
         if (this.disabled){
             return encryptedData;
@@ -56,6 +83,14 @@ class SimpleCryptography {
         return decryptedString.join("");
     }
 
+    /*
+        Method Name: matchesEncryptedFormat
+        Method Parameters:
+            data:
+                A supposedly encrypted string
+        Method Description: Checks if an encrypted string is in the right format
+        Method Return: Boolean
+    */
     matchesEncryptedFormat(data){
         if (this.disabled){
             return true;

@@ -184,7 +184,12 @@ class SoundManager {
         return sound.getVolume();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getSoundRequestList
+        Method Parameters: None
+        Method Description: Creates a list of JSON representations of sound requests
+        Method Return: List of JSON Objects
+    */
     getSoundRequestList(){
         let soundRequestList = [];
         for (let [soundRequest, sRI] of this.soundQueue){
@@ -193,12 +198,24 @@ class SoundManager {
         return soundRequestList;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: clearRequests
+        Method Parameters: None
+        Method Description: Removes all queued sound requests
+        Method Return: void
+    */
     clearRequests(){
         this.soundQueue.clear();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromSoundRequestList
+        Method Parameters:
+            soundRequestList:
+                A list of JSON representions of sound requests
+        Method Description: Creates many sound requests from a list of JSON representations
+        Method Return: void
+    */
     fromSoundRequestList(soundRequestList){
         for (let requestObject of soundRequestList){
             this.soundQueue.push(SoundRequest.fromJSON(this, requestObject));
@@ -249,12 +266,26 @@ class SoundRequest {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a json representation of a sound request
+        Method Return: JSON Object
+    */
     toJSON(){
         return {"x": this.x, "y": this.y, "sound": this.sound.getName()}
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            soundManager:
+                A SoundManager instance
+            jsonObject:
+                A JSON representation of a sound request
+        Method Description: Creates a JSON representation 
+        Method Return: SoundRequest
+    */
     static fromJSON(soundManager, jsonObject){
         return new SoundRequest(soundManager.findSound(jsonObject["sound"]), jsonObject["x"], jsonObject["y"]);
     }
@@ -376,7 +407,12 @@ class Sound {
         return this.volume;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: prepareToPause
+        Method Parameters: None
+        Method Description: Prepares the sound to pause unless otherwise told not to pause. This is so that continous sounds can be played without pause but stopped when they are no longer needed.
+        Method Return: void
+    */
     prepareToPause(){
         if (!this.ongoing){ return; }
         // Check if its been 1s since last played then ready to dismiss
@@ -386,6 +422,12 @@ class Sound {
         this.preparedToPause = true;
     }
 
+    /*
+        Method Name: pauseIfPrepared
+        Method Parameters: None
+        Method Description: Pauses a sound if it is not needed at the moment
+        Method Return: void
+    */
     pauseIfPrepared(){
         if (!this.ongoing){ return; }
         // Pause if prepared to

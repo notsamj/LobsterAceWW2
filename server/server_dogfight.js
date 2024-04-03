@@ -41,7 +41,7 @@ class ServerDogfight {
         this.scene.setGamemode(this);
         this.scene.enableTicks();
         this.scene.setBulletPhysicsEnabled(this.bulletPhysicsEnabled);
-        this.scene.setStatsManager(this.stats);
+        this.scene.getTeamCombatManager().setStatsManager(this.stats);
 
         this.planes = [];
         this.createPlanes(dogfightJSON);
@@ -270,7 +270,7 @@ class ServerDogfight {
             // Add planes
             stateRep["planes"] = this.scene.getTeamCombatManager().getPlaneJSON();
             // Add bullets
-            stateRep["bullets"] = this.scene.getBulletJSON();
+            stateRep["bullets"] = this.scene.getTeamCombatManager().getBulletJSON();
         }else{
             // Add after match stats
             stateRep["stats"] = this.stats.toJSON();
@@ -341,7 +341,7 @@ class ServerDogfight {
         if (this.isPaused()){ return; }
         await this.userInputLock.awaitUnlock(true);
         // Update all planes based on user input
-        for (let plane of this.scene.getPlanes()){
+        for (let plane of this.scene.getTeamCombatManager().getLivingPlanes()){
             let planeID = plane.getID();
             let latestPlaneUpdate = await this.asyncUpdateManager.getLastUpTo(planeID, this.numTicks);
             if (latestPlaneUpdate == null){ continue; }

@@ -56,6 +56,16 @@ class Plane extends Entity {
         }
     }
 
+    /*
+        Method Name: loadMovementIfNew
+        Method Parameters:
+            rep:
+                A json representation of the plane
+            rollForwardAmount:
+                The number of ticks behind that this information is
+        Method Description: Loads the movement information about the plane if the source has a newer set of values
+        Method Return: void
+    */
     loadMovementIfNew(rep, rollForwardAmount=0){
         let takePosition = rep["decisions"]["last_movement_mod_tick"] > this.decisions["last_movement_mod_tick"];
         if (!takePosition){ return; }
@@ -73,38 +83,44 @@ class Plane extends Entity {
         }
     }
 
-    getX(){
-        return this.getXAtTick(this.getCurrentTicks());
-    }
-
-    getXAtTick(tick){
-        return this.x + ...; // TODO don't do fancy math just simulate drag force
-    }
-
+    /*
+        Method Name: getCurrentTicks
+        Method Parameters: None
+        Method Description: Get the current tick count of the game mode
+        Method Return: integer
+    */
     getCurrentTicks(){
         return this.scene.getGamemode().getNumTicks();
     }
 
-
-    updateJustDecisions(planeDecisions){
-        this.decisions = planeDecisions;
-    }
-
-    // TODO: Comments
-    increaseModCount(){
-        this.movementModCount += 1;
-    }
-
-    // TODO: Comments
+    /*
+        Method Name: setAlive
+        Method Parameters:  
+            alive:
+                Boolean, alive or not
+        Method Description: Setter
+        Method Return: void
+    */
     setAlive(alive){
         this.dead = !alive;
     }
 
-    // TODO: Comment these two
+    /*
+        Method Name: getXAtStartOfTick
+        Method Parameters: None
+        Method Description: Calculates the x at the start of the tick
+        Method Return: Number
+    */
     getXAtStartOfTick(){
         return this.getNewPositionValues(-1 * PROGRAM_DATA["settings"]["ms_between_ticks"])["x"];
     }
 
+    /*
+        Method Name: getYAtStartOfTick
+        Method Parameters: None
+        Method Description: Calculates the y at the start of the tick
+        Method Return: Number
+    */
     getYAtStartOfTick(){
         return this.getNewPositionValues(-1 * PROGRAM_DATA["settings"]["ms_between_ticks"])["y"];
     }
@@ -467,7 +483,14 @@ class Plane extends Entity {
         this.makeDecisions();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getNewPositionValues
+        Method Parameters:
+            timeDiffMS:
+                The amount of time passed since last tick
+        Method Description: Determines new x, y, speed values for a tick
+        Method Return: JSON Object
+    */
     getNewPositionValues(timeDiffMS){
         let timeProportion = (timeDiffMS / 1000);
 
@@ -496,21 +519,17 @@ class Plane extends Entity {
         return {"x": x, "y": y, "speed": speed}
     }
 
-    // TODO: Comments
+    /*
+        Method Name: rollForward
+        Method Parameters:
+            amount:
+                The number of ticks foward to move the plane
+        Method Description: Simulates multiple ticks moving the plane forward
+        Method Return: void
+    */
     rollForward(amount){
         for (let i = 0; i < amount; i++){
             let values = this.getNewPositionValues(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-            this.x = values["x"];
-            this.y = values["y"];
-            this.speed = values["speed"];
-        }
-    }
-
-    // TODO: Comments
-    rollBackward(amount){
-        amount = Math.abs(amount);
-        for (let i = 0; i < amount; i++){
-            let values = this.getNewPositionValues(-1 * PROGRAM_DATA["settings"]["ms_between_ticks"]);
             this.x = values["x"];
             this.y = values["y"];
             this.speed = values["speed"];
@@ -630,31 +649,49 @@ class Plane extends Entity {
         return false;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedX
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
     getInterpolatedX(){
         return this.interpolatedX;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedY
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
     getInterpolatedY(){
         return this.interpolatedY;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedAngle
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: integer in range [0,359]
+    */
     getInterpolatedAngle(){
         return this.interpolatedAngle;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: calculateInterpolatedCoordinates
+        Method Parameters:
+            currentTime:
+                The time at which the plane's position is being interpolated
+        Method Description: Sets the interpolated variables for the plane's position
+        Method Return: void
+    */
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
         if (activeGamemode.isPaused() || !activeGamemode.isRunning() || this.isDead()){
             return;
         }
-        /*this.interpolatedX = this.x;
-        this.interpolatedY = this.y;
-        return;*/
-        //let extraTime = (currentTime - (activeGamemode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGamemode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
         let extraTime = currentTime - activeGamemode.getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
         if (this.throttle > 0){
@@ -665,11 +702,6 @@ class Plane extends Entity {
         }
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
-        //console.log(this.interpolatedX, extraTime)
-        // This sort of works its a tiny bit shakey for a straight line
-        //this.interpolatedX = this.x + this.speed * (currentTime - (activeGamemode.tickScheduler.startTime + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGamemode.getNumTicks)) / 1000;
-        // This works for smooth performance when going in a straight line
-        // this.interpolatedX = 50e3 + 594 * (currentTime - activeGamemode.tickScheduler.startTime) / 1000; 
     }
 
 
@@ -736,25 +768,11 @@ class Plane extends Entity {
             rotate(-1 * toRadians(interpolatedAngle));
             // If facing left then turn around the display
             if (!this.isFacingRight()){
-                try{
-                    scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
-                }catch(e){
-                    console.log(this.getSmokeNumber())
-                    console.log(e);
-                    console.log(this);
-                    debugger;
-                }
+                scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
             }
 
             // Display smoke
-            try {
-                drawingContext.drawImage(this.getSmokeImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
-            }catch(e){
-                console.log(this.getSmokeNumber())
-                console.log(e);
-                console.log(this);
-                debugger;
-            }
+            drawingContext.drawImage(this.getSmokeImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){
@@ -791,7 +809,7 @@ class Plane extends Entity {
         let bestPlane = null;
         let bestDistance = null;
         // Find the best plane to shoot at
-        for (let plane of this.scene.getPlanes()){
+        for (let plane of this.scene.getTeamCombatManager().getLivingPlanes()){
             // Check 1 - If the planes are on the same team then the shot won't hit this plane
             if (this.onSameTeam(plane)){ continue; }
             // Check 2 - If the plane located is in the correct x direction

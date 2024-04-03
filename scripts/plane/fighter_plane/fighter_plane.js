@@ -30,7 +30,14 @@ class FighterPlane extends Plane {
         this.shootLock = new TickLock(PROGRAM_DATA["settings"]["plane_shoot_gap_ms"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: loadImportantData
+        Method Parameters:
+            rep:
+                A Json representation of the plane sent by the server
+        Method Description: Loads important data received from the server
+        Method Return: void
+    */
     loadImportantData(rep){
         // This is always local being received from the server
         this.health = rep["basic"]["health"];
@@ -39,6 +46,14 @@ class FighterPlane extends Plane {
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
     }
 
+    /*
+        Method Name: loadImportantDecisions
+        Method Parameters:
+            rep:
+                A Json representation of the plane sent by the server
+        Method Description: Loads important decisions received from the server
+        Method Return: void
+    */
     loadImportantDecisions(rep){
         this.decisions["shoot"] = rep["decisions"]["shoot"];
     }
@@ -56,7 +71,12 @@ class FighterPlane extends Plane {
         super.tick(timeDiffMS);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: resetDecisions
+        Method Parameters: None
+        Method Description: Resets the decisions so the planes actions can be chosen to reflect what it current wants to do rather than previously
+        Method Return: void
+    */
     resetDecisions(){
         this.decisions["face"] = 0;
         this.decisions["angle"] = 0;
@@ -64,7 +84,16 @@ class FighterPlane extends Plane {
         this.decisions["throttle"] = 0;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: areMovementDecisionsChanged
+        Method Parameters:
+            decisions1:
+                A decisions object
+            decisions2:
+                A decisions object
+        Method Description: Determines if the two decisions objects have different decisions
+        Method Return: Boolean
+    */
     static areMovementDecisionsChanged(decisions1, decisions2){
         let c1 = decisions1["face"] != decisions2["face"];
         if (c1){ return true; }
@@ -74,7 +103,12 @@ class FighterPlane extends Plane {
         return c3;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Take actions based on saved decisions
+        Method Return: void
+    */
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
@@ -147,7 +181,12 @@ class FighterPlane extends Plane {
         return rotatedY;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedGunX
+        Method Parameters: None
+        Method Description: Determine the x location of a gun, interpolated between ticks
+        Method Return: Number
+    */
     getInterpolatedGunX(){
         let planeAngleRAD = toRadians(this.getNoseAngle());
         if (!this.isFacingRight()){
@@ -157,7 +196,12 @@ class FighterPlane extends Plane {
         return rotatedX;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedGunY
+        Method Parameters: None
+        Method Description: Determine the y location of a gun, interpolated between ticks
+        Method Return: Number
+    */
     getInterpolatedGunY(){
         let planeAngleRAD = toRadians(this.getNoseAngle());
         if (!this.isFacingRight()){

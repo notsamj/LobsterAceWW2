@@ -6,7 +6,8 @@ class LocalDogfight extends Dogfight {
     /*
         Method Name: constructor
         Method Parameters:
-            TODO: COMMENTS
+            dogfightJSON:
+                A JSON object with information about a dogfight
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -38,33 +39,31 @@ class LocalDogfight extends Dogfight {
         this.checkForEnd();
         this.tickInProgressLock.unlock();
     }
-
-    // TODO: Comments
-    updateCamera(){
-        // No need to update if user is meant to be a camera
-        if (this.userEntity instanceof SpectatorCamera){
-            return;
-        }else if (this.userEntity.isAlive() && this.deadCamera == null){ // No need to do anything if following user
-            return;
-        }
-
-        // if the user is dead then switch to dead camera
-        if (this.userEntity.isDead() && this.deadCamera == null){
-            this.deadCamera = new SpectatorCamera(scene, this.userEntity.getX(), this.userEntity.getY());
-            scene.addEntity(this.deadCamera);
-            scene.setFocusedEntity(this.deadCamera);
-        }else if (this.userEntity.isAlive() && this.deadCamera != null){ // More appropriate for campaign (resurrection) but whatever
-            this.deadCamera.die(); // Kill so automatically deleted by scene
-            this.deadCamera = null;
-            // TODO: SCene is removing these dead entities right?
-            scene.setFocusedEntity(this.userEntity);
-        }
-    }
     
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Provides information that this game mode runs locally.
+        Method Return: Boolean
+    */
     runsLocally(){ return true; }
+
+    /*
+        Method Name: inputAllowed
+        Method Parameters: None
+        Method Description: Provides information that this game mode allows input from the user.
+        Method Return: Boolean
+    */
     inputAllowed(){ return true; }
 
-    // TODO: COmments
+    /*
+        Method Name: setup
+        Method Parameters:
+            dogfightJSON:
+                Provides details about a dogfight in the JSON format
+        Method Description: Adds planes to a dogfight at the start
+        Method Return: void
+    */
     setup(dogfightJSON){
         let allyX = PROGRAM_DATA["dogfight_settings"]["ally_spawn_x"];
         let allyY = PROGRAM_DATA["dogfight_settings"]["ally_spawn_y"];

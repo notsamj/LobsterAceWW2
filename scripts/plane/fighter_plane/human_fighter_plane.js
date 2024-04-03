@@ -36,12 +36,22 @@ class HumanFighterPlane extends FighterPlane {
         this.autonomous = autonomous;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setAutonomous
+        Method Parameters: None
+        Method Description: Setter
+        Method Return: void
+    */
     setAutonomous(value){
         this.autonomous = value;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the human fighter plane
+        Method Return: JSON Object
+    */
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;
@@ -65,12 +75,29 @@ class HumanFighterPlane extends FighterPlane {
         return rep;
     }
 
+    /*
+        Method Name: loadMovementIfNew
+        Method Parameters:
+            rep:
+                A json representation of the plane
+            rollForwardAmount:
+                The number of ticks behind that this information is
+        Method Description: Loads the movement information about the plane if the source has a newer set of values
+        Method Return: void
+    */
     loadMovementIfNew(rep, rollForwardAmount=0){
         if (this.autonomous){ return; }
         super.loadMovementIfNew(rep, rollForwardAmount);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of a plane
+        Method Description: Sets attributes of a plane from a JSON representation
+        Method Return: void
+    */
     initFromJSON(rep){
         this.id = rep["basic"]["id"];
         this.health = rep["basic"]["health"];
@@ -87,14 +114,21 @@ class HumanFighterPlane extends FighterPlane {
         this.decisions = rep["decisions"];
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a human fighter plane
+            scene:
+                A Scene object
+            autonomous:
+                Whether or not the new plane can make its own decisions (Boolean)
+        Method Description: Creates a new Human Fighter Plane
+        Method Return: HumanFighterPlane
+    */
     static fromJSON(rep, scene, autonomous){
         let planeClass = rep["basic"]["plane_class"];
         let hFP = new HumanFighterPlane(planeClass, scene, rep["angle"], rep["facing_right"], autonomous);
-        // For the first time even if autonomous need to set x
-        // TODO: DO this for other things maybe just human bomber
-        hFP.setX(rep["basic"]["x"]);
-        hFP.setY(rep["basic"]["y"]);
         hFP.initFromJSON(rep);
         return hFP;
     }
@@ -133,7 +167,12 @@ class HumanFighterPlane extends FighterPlane {
         super.tick(timeDiffMS);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: makeDecisions
+        Method Parameters: None
+        Method Description: Makes decisions for the plane for the next tick
+        Method Return: void
+    */
     makeDecisions(){
         // Sometimes the human will be controlled by the external input so don't make decisions
         if (!this.autonomous || !activeGamemode.inputAllowed()){
@@ -210,8 +249,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkUpDown(){
-        let wKeyCount = Math.floor(USER_INPUT_MANAGER.getPressTime("w") / PROGRAM_DATA["controls"]["angle_change_ms"]);
-        let sKeyCount = Math.floor(USER_INPUT_MANAGER.getPressTime("s") / PROGRAM_DATA["controls"]["angle_change_ms"]);
+        let wKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("w").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
+        let sKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("s").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
         let numKeysDown = 0;
         numKeysDown += wKeyCount > 0 ? 1 : 0;
         numKeysDown += sKeyCount > 0 ? 1 : 0;

@@ -31,7 +31,16 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         super(planeClass, scene, biases, angle, facingRight, autonomous);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a biased bot fighter plane
+            scene:
+                A Scene object
+        Method Description: Creates a new Fighter Plane
+        Method Return: BiasedCampaignDefenderBotFighterPlane
+    */
     static fromJSON(rep, scene){
         let planeClass = rep["basic"]["plane_class"];
         let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);

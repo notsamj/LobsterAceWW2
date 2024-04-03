@@ -1,8 +1,7 @@
 /*
     Class Name: Dogfight
-    Description: The state of a dogfight
+    Description: A class that runs a Dogfight
 */
-// TODO: Comment this file
 class Dogfight extends Gamemode {
     /*
         Method Name: constructor
@@ -26,6 +25,12 @@ class Dogfight extends Gamemode {
         this.paused = false;
     }
 
+    /*
+        Method Name: isRunningATestSession
+        Method Parameters: None
+        Method Description: Provides information about whether the dogfight is just a test
+        Method Return: Boolean
+    */
     isRunningATestSession(){
         return this.isATestSession;
     }

@@ -34,7 +34,16 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         this.startingThrottle = this.throttle;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a Biased Campaign Attacker Bot Fighter Plane
+            scene:
+                A Scene object
+        Method Description: Creates a new Biased Campaign Attacker Bot Fighter Plane
+        Method Return: BiasedCampaignAttackerBotFighterPlane
+    */
     static fromJSON(rep, scene){
         let planeClass = rep["basic"]["plane_class"];
         let fp = new BiasedCampaignAttackerBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
@@ -42,7 +51,12 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         return fp;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: makeDecisions
+        Method Parameters: None
+        Method Description: Makes decisions for the plane for the next tick
+        Method Return: void
+    */
     makeDecisions(){
         // Only make decisions if autonomous
         if (!this.autonomous){ return; }
@@ -85,7 +99,14 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         this.throttle = Math.min(Math.max(1, this.throttle + amt), this.startingThrottle);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of a fighter plane
+        Method Description: Sets attributes of a fighter plane from a JSON representation
+        Method Return: void
+    */
     initFromJSON(rep){
         this.id = rep["basic"]["id"];
         this.health = rep["basic"]["health"];
@@ -104,7 +125,12 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the fighter plane
+        Method Return: JSON Object
+    */
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;
@@ -148,7 +174,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     */
     findMyBomber(){
         let furthestBomber = null;
-        let planes = this.scene.getPlanes();
+        let planes = this.scene.getTeamCombatManager().getLivingPlanes();
         for (let plane of planes){
             if (!(plane instanceof BomberPlane) || plane.isDead()){ continue; }
             if (furthestBomber == null || plane.getX() > furthestBomber.getX()){
@@ -222,7 +248,14 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: calculateThrottleToMatchSpeed
+        Method Parameters:
+            bomberSpeed:
+                The speed of the friendly bomber
+        Method Description: Determines what throttle this plane should use to match the speed of a bomber
+        Method Return: Number
+    */
     calculateThrottleToMatchSpeed(bomberSpeed){
         let dragAtBomberSpeed = Math.sqrt(Math.abs(bomberSpeed));
         return dragAtBomberSpeed / this.throttleConstant;

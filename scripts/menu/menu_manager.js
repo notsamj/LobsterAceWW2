@@ -228,14 +228,34 @@ class MenuManager {
         return null;
     }
 
-    // TODO: Needs comments
+    /*
+        Method Name: addTemporaryMessage
+        Method Parameters:
+            message:
+                A message to show on the screen
+            colour:
+                Colour of the temporary message
+            timeMS:
+                The time that the message appears on screen
+        Method Description: Adds a temporary message onto the screen
+        Method Return: void
+    */
     addTemporaryMessage(message, colour, timeMS=Infinity){
         this.temporaryMessages.add(new TemporaryMessage(message, colour, timeMS));
     }
 }
 
-// TODO: Class needs comments
+/*
+    Class Name: TemporaryMessage
+    Description: A temporary message that pops up on the screen
+*/
 class TemporaryMessage {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(message, colour, timeMS){
         this.message = message;
         this.colour = colour;
@@ -243,10 +263,22 @@ class TemporaryMessage {
         this.expiryLock.lock();
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays the message on the screen
+        Method Return: void
+    */
     display(){
         Menu.makeText(this.message, this.colour, 0, getScreenHeight(), getScreenWidth(), getScreenHeight(), CENTER, CENTER);
     }
 
+    /*
+        Method Name: isExpired
+        Method Parameters: None
+        Method Description: Checks if the message is expired
+        Method Return: Boolean
+    */
     isExpired(){
         return this.expiryLock.isReady();
     }

@@ -6,7 +6,7 @@ if (typeof window === "undefined"){
     Class Name: TickLock
     Description: Subclass of Lock, unlocks after a given number of ticks
 */
-class TickLock extends Lock{
+class TickLock extends Lock {
     /*
         Method Name: constructor
         Method Parameters:

@@ -2,7 +2,6 @@
     Class Name: ParticipantMenu
     Description: A subclass of Menu specific to being a participant in a lobby
 */
-// TODO: File needs comments
 class ParticipantMenu extends Menu {
     /*
         Method Name: constructor
@@ -18,6 +17,12 @@ class ParticipantMenu extends Menu {
         this.setup();
     }
 
+    /*
+        Method Name: resetSettings
+        Method Parameters: None
+        Method Description: Resets the settings of the menu so they user can choose a new plane
+        Method Return: void
+    */
     resetSettings(){
         this.userPlaneIndex = 0;
 
@@ -25,6 +30,14 @@ class ParticipantMenu extends Menu {
         this.userPlaneStaticImage.setImage(images[this.userPlanes[this.userPlaneIndex]]);
     }
 
+    /*
+        Method Name: resetParticipantType
+        Method Parameters:
+            mission:
+                A Json object with details about a mission
+        Method Description: Resets settings and the plane selection based on the game mode
+        Method Return: void
+    */
     resetParticipantType(mission=null){
         let dogfightNotMission = mission == null;
         if (dogfightNotMission){
@@ -35,6 +48,14 @@ class ParticipantMenu extends Menu {
         this.resetSettings();
     }
 
+    /*
+        Method Name: createMissionPlanes
+        Method Parameters:
+            mission:
+                A Json object with details about a mission
+        Method Description: Creates list of plane models for the user to choose from
+        Method Return: List of plane models
+    */
     createMissionPlanes(mission){
         let userPlanes = ["freecam"];
         for (let planeName of mission["user_planes"]){

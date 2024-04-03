@@ -34,40 +34,76 @@ class Component {
         this.enabled = false;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: isDisabled
+        Method Parameters: None
+        Method Description: Reports whether the component is disabled
+        Method Return: Boolean
+    */
     isDisabled(){
         return !this.enabled;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: isEnabled
+        Method Parameters: None
+        Method Description: Reports whether the component is enabled
+        Method Return: Boolean
+    */
     isEnabled(){
         return this.enabled;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: isDisplayEnabled
+        Method Parameters: None
+        Method Description: Reports whether the component has its display enabled
+        Method Return: Boolean
+    */
     isDisplayEnabled(){
         return this.displayEnabled;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: enableDisplay
+        Method Parameters: None
+        Method Description: Enables the display of the component
+        Method Return: void
+    */
     enableDisplay(){
         this.displayEnabled = true;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: disableDisplay
+        Method Parameters: None
+        Method Description: Disables the display of the component
+        Method Return: void
+    */
     disableDisplay(){
         this.displayEnabled = false;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fullDisable
+        Method Parameters: None
+        Method Description: Disables the component, including display
+        Method Return: void
+    */
     fullDisable(){
-        this.displayEnabled = false;
-        this.enabled = false;
+        this.disableDisplay();
+        this.disable();
     }
 
+    /*
+        Method Name: fullEnable
+        Method Parameters: None
+        Method Description: Enables the component, including display
+        Method Return: void
+    */
     fullEnable(){
-        this.displayEnabled = true;
-        this.enabled = true;
+        this.enableDisplay();
+        this.enable();
     }
 
 

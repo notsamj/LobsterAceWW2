@@ -168,7 +168,14 @@ class RectangleButton extends Component {
         this.callBack(instance);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setColour
+        Method Parameters:
+            colour:
+                A string representing a colour
+        Method Description: Setter
+        Method Return: void
+    */
     setColour(colour){
         this.colour = colour; 
     }

@@ -2,7 +2,6 @@
     Class Name: HostMenu
     Description: A subclass of Menu specific for hosting a dogfight or mission
 */
-// TODO: file needs comments
 class HostMenu extends Menu {
     /*
         Method Name: constructor
@@ -41,6 +40,12 @@ class HostMenu extends Menu {
         this.updateBotDetails();
     }
 
+    /*
+        Method Name: switchToDogfight
+        Method Parameters: None
+        Method Description: Attempts to switch the current game mode to Dogfight by contacting the server
+        Method Return: void
+    */
     async switchToDogfight(){
         if (this.switchGamemodeLock.isLocked()){ return; }
         this.switchGamemodeLock.lock();
@@ -90,6 +95,15 @@ class HostMenu extends Menu {
         this.resetSettings();
     }
 
+
+    /*
+        Method Name: createUserMissionPlaneSelection
+        Method Parameters:
+            mission:
+                A mission object
+        Method Description: Creates a list of possible planes for a user to fly in a mission
+        Method Return: List of plane models
+    */
     createUserMissionPlaneSelection(mission){
         let userPlanes = ["freecam"];
         for (let planeName of mission["user_planes"]){
@@ -98,6 +112,13 @@ class HostMenu extends Menu {
         return userPlanes;
     }
 
+
+    /*
+        Method Name: switchToMission
+        Method Parameters: None
+        Method Description: Tries to switch the game mode to mission by contacting the server
+        Method Return: void
+    */
     async switchToMission(){
         if (this.switchGamemodeLock.isLocked()){ return; }
         this.switchGamemodeLock.lock();
@@ -148,6 +169,12 @@ class HostMenu extends Menu {
     }
 
 
+    /*
+        Method Name: resetSettings
+        Method Parameters: None
+        Method Description: Resets the settings of the menu
+        Method Return: void
+    */
     resetSettings(){
         // Reset the settings
         this.userPlaneIndex = 0;
@@ -424,7 +451,6 @@ class HostMenu extends Menu {
         if (this.switchGamemodeLock.isLocked()){ return; }
         this.switchGamemodeLock.lock();
         let newMission = PROGRAM_DATA["missions"][this.mission["id"]+1 % PROGRAM_DATA["missions"].length];
-        let permission = true; // TODO
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
@@ -446,7 +472,6 @@ class HostMenu extends Menu {
         if (this.switchGamemodeLock.isLocked()){ return; }
         this.switchGamemodeLock.lock();
         let newMission = this.mission["id"] == 0 ? PROGRAM_DATA["missions"][PROGRAM_DATA["missions"].length - 1] : PROGRAM_DATA["missions"][this.mission["id"] - 1];
-        let permission = true; // TODO
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
@@ -689,6 +714,13 @@ class HostMenu extends Menu {
         return this.axisDifficulty;
     }
 
+
+    /*
+        Method Name: sendSettingUpdateToServer
+        Method Parameters: None
+        Method Description: Sends a JSON object of settings to the server
+        Method Return: void
+    */
     sendSettingUpdateToServer(){
         let settings = {
             "bot_counts": this.planeCounts,

@@ -61,14 +61,36 @@ class PlaneGameScene extends Scene {
         this.gamemode = null;
     }
 
+    /*
+        Method Name: setGamemode
+        Method Parameters:
+            gamemode:
+                A gamemode instance
+        Method Description: Setter
+        Method Return: void
+    */
     setGamemode(gamemode){
         this.gamemode = gamemode;
     }
 
+    /*
+        Method Name: getGamemode
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Gamemode
+    */
     getGamemode(){
         return this.gamemode;
     }
 
+    /*
+        Method Name: setSoundManager
+        Method Parameters:
+            soundManage:
+                A sound manager instance
+        Method Description: Sets the sound manager for the scene
+        Method Return: void
+    */
     setSoundManager(soundManager){
         this.soundManager = soundManager;
     }
@@ -84,30 +106,32 @@ class PlaneGameScene extends Scene {
     }
 
     /*
-        Method Name: TODO
+        Method Name: getSoundManager
         Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
+        Method Description: Getter
+        Method Return: SoundManager
     */
     getSoundManager(){
         return this.soundManager;
     }
 
     /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
+        Method Name: setBulletPhysicsEnabled
+        Method Parameters:
+            bulletPhysicsEnabled:
+                A boolean specifying if bullet physics are enabled
+        Method Description: Setter
+        Method Return: void
     */
     setBulletPhysicsEnabled(bulletPhysicsEnabled){
         this.bulletPhysicsEnabled = bulletPhysicsEnabled;
     }
 
     /*
-        Method Name: TODO
+        Method Name: areBulletPhysicsEnabled
         Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
+        Method Description: Checks if bullet physics are enabled
+        Method Return: void
     */
     areBulletPhysicsEnabled(){
         return this.bulletPhysicsEnabled;
@@ -178,116 +202,6 @@ class PlaneGameScene extends Scene {
     }
 
     /*
-        Method Name: getPlanes
-        Method Parameters: None
-        Method Description: Gets all the planes and returns them
-        Method Return: Array of planes
-    */
-    getPlanes(){
-        return this.teamCombatManager.getLivingPlanes();
-    }
-
-    /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
-    */
-    getAllPlanes(){
-        return this.teamCombatManager.getAllPlanes();
-    }
-
-    /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
-    */
-    getPlane(id){
-        return this.teamCombatManager.getPlane(id); 
-    }
-
-    /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
-    */
-    getPlaneJSON(){
-        return this.teamCombatManager.getPlaneJSON();
-    }
-    
-    /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
-    */
-    getBulletJSON(){
-        return this.teamCombatManager.getBulletJSON();
-    }
-
-    /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
-    */
-    setStatsManager(statsManager){
-        this.teamCombatManager.setStatsManager(statsManager);
-    }
-
-    /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
-    */
-    getBuildingJSON(){
-        let buildingJSON = [];
-        for (let building of this.getBuildings()){
-            buildingJSON.push(building.toJSON());
-        }
-        return buildingJSON;
-    }
-
-    /*
-        Method Name: TODO
-        Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
-    */
-    getBombJSON(){
-        let bombJSON = [];
-        for (let entity of this.entities){
-            if (!(entity instanceof Bomb)){ continue; }
-            let bomb = entity;
-            bombJSON.push(bomb.toJSON());
-        }
-        return bombJSON;
-    }
-
-    /*
-        Method Name: getDeadPlanes
-        Method Parameters: None
-        Method Description: Gets all the dead planes and returns them
-        Method Return: Array of planes
-    */
-    getDeadPlanes(){
-        return this.teamCombatManager.getDeadPlanes();
-    }
-
-    /*
-        Method Name: getBullets
-        Method Parameters: None
-        Method Description: Gets all the bullets and returns them
-        Method Return: Array of bullets
-    */
-    getBullets(){
-        return this.teamCombatManager.getAllBullets(); 
-    }
-
-    /*
         Method Name: setEntities
         Method Parameters:
             entities:
@@ -307,12 +221,7 @@ class PlaneGameScene extends Scene {
             }
         }
     }
-
-    // TODO: Comments
-    clearBullets(){
-        this.teamCombatManager.clearBullets();
-    }
-
+    
     /*
         Method Name: hasEntity
         Method Parameters:

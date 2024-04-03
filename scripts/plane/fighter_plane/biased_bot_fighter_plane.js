@@ -69,7 +69,12 @@ class BiasedBotFighterPlane extends FighterPlane {
         super.tick(timeDiffMS);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: makeDecisions
+        Method Parameters: None
+        Method Description: Makes decisions for the plane for the next tick
+        Method Return: void
+    */
     makeDecisions(){
         // Sometimes the bot is controlled externally so doesn't need to make its own decisions
         if (!this.autonomous){
@@ -95,7 +100,12 @@ class BiasedBotFighterPlane extends FighterPlane {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Take actions based on saved decisions
+        Method Return: void
+    */
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
@@ -122,7 +132,12 @@ class BiasedBotFighterPlane extends FighterPlane {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the biased bot fighter plane
+        Method Return: JSON Object
+    */
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;
@@ -147,7 +162,14 @@ class BiasedBotFighterPlane extends FighterPlane {
         return rep;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of a biased bot fighter plane
+        Method Description: Sets attributes of a biased bot fighter plane from a JSON representation
+        Method Return: void
+    */
     initFromJSON(rep){
         this.id = rep["basic"]["id"];
         this.health = rep["basic"]["health"];
@@ -165,7 +187,18 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a biased bot fighter plane
+            scene:
+                A Scene object
+            autonomous:
+                Whether or not the new plane can make its own decisions (Boolean)
+        Method Description: Creates a new Biased Bot Fighter Plane
+        Method Return: BiasedBotFighterPlane
+    */
     static fromJSON(rep, scene){
         let planeClass = rep["basic"]["plane_class"];
         let fp = new BiasedBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
@@ -426,7 +459,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Return: List
     */
     getEnemyList(){
-        let entities = this.scene.getPlanes();
+        let entities = this.scene.getTeamCombatManager().getLivingPlanes();
         let enemies = [];
         for (let entity of entities){
             if (entity instanceof Plane && !this.onSameTeam(entity) && entity.isAlive()){
@@ -574,7 +607,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     */
     static focusedCount(scene, enemyID, myID){
         let count = 0;
-        for (let plane of scene.getPlanes()){
+        for (let plane of scene.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof BiasedBotFighterPlane && plane.getID() != myID && plane.getCurrentEnemy() != null && plane.getCurrentEnemy().getID() == enemyID){
                 count += 1;
             }
@@ -582,7 +615,16 @@ class BiasedBotFighterPlane extends FighterPlane {
         return count;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: calculateEnemyScore
+        Method Parameters:
+            distance:
+                The distance between a plane and an enemy
+            focusedCount:
+                The number of planes focused on this enemy
+        Method Description: Comes up with a score for how valuable this enemy is to attack
+        Method Return: Number
+    */
     static calculateEnemyScore(distance, focusedCount){
         return distance + focusedCount * PROGRAM_DATA["settings"]["focused_count_distance_equivalent"];
     }

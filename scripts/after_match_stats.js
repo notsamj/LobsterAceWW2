@@ -160,6 +160,12 @@ class AfterMatchStats {
         return PROGRAM_DATA["team_to_colour"][team];
     }
 
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Create a JSON representation of the current stats
+        Method Return: JSON Object
+    */
     toJSON(){
         return {
             "winner": this.winner,
@@ -168,6 +174,14 @@ class AfterMatchStats {
         }
     }
 
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            statsObject:
+                A Json representation of an aftermatchstats instance
+        Method Description: Load instance details from a JSON object
+        Method Return: void
+    */
     fromJSON(statsObject){
         this.winner = statsObject["winner"];
         this.playerKillCounts = statsObject["player_kills"];

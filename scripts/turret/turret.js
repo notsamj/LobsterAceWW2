@@ -51,15 +51,20 @@ class Turret {
     */
     tick(){
         this.shootCD.tick();
-        /*this.makeDecisions();
-        this.executeDecisions();*/
+        this.makeDecisions();
+        this.executeDecisions();
     }
 
     // Abstract
     makeDecisions(){}
     executeDecisions(){}
 
-    // TODO: Comments
+    /*
+        Method Name: resetDecisions
+        Method Parameters: None
+        Method Description: Clear decisions so new decisions reflect current priorities
+        Method Return: void
+    */
     resetDecisions(){
         this.decisions["shooting"] = false;
     }

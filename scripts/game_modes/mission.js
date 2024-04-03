@@ -1,3 +1,4 @@
+// If using NodeJS -> Do imports
 if (typeof window === "undefined"){
     AfterMatchStats = require("../after_match_stats.js");
     BomberPlane = require("../plane/bomber_plane/bomber_plane.js");
@@ -16,8 +17,6 @@ if (typeof window === "undefined"){
 /*
     Class Name: Mission
     Description: An abstract game mode with attackers and defenders. Attackers must destroy all buildings, defenders destroy the attacker bomber plane.
-    Note: TODO: Comments
-    TODO: Make a remote mission and an abstract mission
 */
 class Mission extends Gamemode {
     /*
@@ -136,37 +135,13 @@ class Mission extends Gamemode {
         Method Return: FighterPlane
     */
     findDeadUserFighterPlane(){
-        for (let plane of scene.getDeadPlanes()){
+        for (let plane of scene.getTeamCombatManager().getDeadPlanes()){
             if (plane instanceof HumanFighterPlane){
                 return plane;
             }
         }
         return null;
     }
-
-    /*
-    spawnPlanes(side){
-        let planes = this.createBotPlanes(side); // TODO: Instead of new planes recycle as many planes as you can from the list of dead ones
-        let userPlane = this.findDeadUserFighterPlane();
-        
-           //Respawn the user if they are a dead FIGHTER plane on the team that is currently being respawned (bombers can't respawn)
-           //Also a null check instead of a dead check because "findDeadUserFighterPlane"
-           //There are too many checks here but I like it personally I feel its more clear of what I'm looking for rather than what is strictly needed
-        
-        if (userPlane != null && this.userEntityType != "freecam" && planeModelToType(this.userEntityType) != "bomber" && planeModelToAlliance(this.userEntityType) == this.missionObject[side] && userPlane.isDead()){
-            userPlane.setHealth(userPlane.getStartingHealth());
-            userPlane.setDead(false);
-            this.setupPlanes([userPlane]);
-            // User must be currently a freecam (and focused)
-            let tempCamera = this.scene.getFocusedEntity();
-            this.scene.setFocusedEntity(userPlane);
-            tempCamera.die();
-        }
-        this.setupPlanes(planes);
-        for (let plane of planes){
-            this.scene.addPlane(plane);
-        }
-    }*/
 
     /*
         Method Name: spawnPlanes
@@ -219,14 +194,11 @@ class Mission extends Gamemode {
 
         // If we are creating new planes
         let newlyCreatedPlanesToAdd = [];
-        //console.log(side, createNewPlanes)
         if (createNewPlanes){
             let freshNewPlanes = this.createBotPlanes(side); // Planes to add if not respawning
             let i = 0;
-            //console.log(i , freshNewPlanes.length , newlyCreatedPlanesToAdd.length + numPlanesCurrentlyExisting , maxPlanes)
             while (i < freshNewPlanes.length && newlyCreatedPlanesToAdd.length + numPlanesCurrentlyExisting < maxPlanes){
                 let planeModel = freshNewPlanes[i].getModel();
-                //console.log(planeModel, countsToSpawn[planeModel])
                 // If we need this plane thne add to the list
                 if (countsToSpawn[planeModel] > 0){
                     newlyCreatedPlanesToAdd.push(freshNewPlanes[i]);
@@ -242,7 +214,6 @@ class Mission extends Gamemode {
 
         // Add newly created planes to the scene
         for (let plane of newlyCreatedPlanesToAdd){
-            //console.log("adding", plane)
             this.scene.addPlane(plane);
         }
     }
@@ -332,43 +303,6 @@ class Mission extends Gamemode {
         }
         return planes;
     }
-
-    /*
-        Method Name: setupPlanes
-        Method Parameters:
-            planes:
-                List of planes to "set up"
-        Method Description: Sets up attributes for a list of planes
-        Method Return: void
-    */
-    /*
-    setupPlanes(planes){
-        // Planes need to be placed at this point
-        for (let entity of planes){
-            // If not a plane, but a specator camera then spawn in between spawns
-            if (entity instanceof SpectatorCamera){
-                let cam = entity;
-                cam.setX((this.missionObject["start_zone"]["attackers"]["x"] + this.missionObject["start_zone"]["defenders"]["x"])/2);
-                cam.setY((this.missionObject["start_zone"]["attackers"]["y"] + this.missionObject["start_zone"]["defenders"]["y"])/2);
-                continue;
-            }
-            let plane = entity;
-            let alliance = planeModelToAlliance(plane.getModel());
-            let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
-            let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
-            let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
-            let facingRight = side == "attackers" ? true : false;
-            plane.setAngle(0);
-            plane.setFacingRight(facingRight);
-            plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
-            plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
-            // Give bomber extra hp
-            if (plane instanceof BomberPlane){
-                plane.setStartingHealth(plane.getHealth() * this.missionObject[this.getAttackerDifficulty()]["bomber_hp_multiplier"]);
-                plane.setHealth(plane.getStartingHealth());
-            }
-        }
-    }*/
 
     /*
         Method Name: setupPlanes
@@ -468,6 +402,7 @@ class Mission extends Gamemode {
         return buildings;
     }
 }
+// If using NodeJS -> Export the class
 if (typeof window === "undefined"){
     module.exports=Mission;
 }

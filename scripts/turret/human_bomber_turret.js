@@ -37,7 +37,12 @@ class HumanBomberTurret extends BomberTurret {
         this.autonomous = autonomous;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: makeDecisions
+        Method Parameters: None
+        Method Description: Makes decisions for what to do in the next tick
+        Method Return: void
+    */
     makeDecisions(){
         if (!this.autonomous){ return; }
         this.resetDecisions();
@@ -71,7 +76,12 @@ class HumanBomberTurret extends BomberTurret {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Take actions based on decisions
+        Method Return: void
+    */
     executeDecisions(){
         // If decided to shoot
         if (this.decisions["shooting"]){

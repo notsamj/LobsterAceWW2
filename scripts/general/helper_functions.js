@@ -3,7 +3,14 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../data/data_json.js");
 }
 
-// TODO: Comments
+/*
+    Method Name: getImage
+    Method Parameters:
+        imageName:
+            Name of the image to retrive from the global images variable
+    Method Description: Attempts to retrive an image from storage. *Does not work with nodeJS, returns null
+    Method Return: Image
+*/
 function getImage(imageName){
     // If using Node JS return null
     if (typeof window === "undefined"){
@@ -12,12 +19,26 @@ function getImage(imageName){
     return images[imageName];
 }
 
-// TODO: Comments
+/*
+    Method Name: getTickMultiplier
+    Method Parameters: None
+    Method Description: Returns how many times slower the tick rate is than a tickrate of 100 (previously the standard tickrate)
+    Method Return: Number
+*/
 function getTickMultiplier(){
     return 100 / PROGRAM_DATA["settings"]["tick_rate"];
 }
 
-// TODO: Comments
+/*
+    Method Name: objectHasKey
+    Method Parameters:
+        obj:
+            A json object
+        key:
+            A key
+    Method Description: Determines if a JSON object has a given key
+    Method Return: Boolean
+*/
 function objectHasKey(obj, key){
     for (let foundKey of Object.keys(obj)){
         if (foundKey == key){ return true; }

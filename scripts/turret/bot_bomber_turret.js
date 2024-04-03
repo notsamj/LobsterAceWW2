@@ -57,7 +57,14 @@ class BotBomberTurret extends BomberTurret {
         this.shootCD.tick();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: makeDecisions
+        Method Parameters:
+            enemyList:
+                A list of enemy planes
+        Method Description: Makes decisions for what to do in the next tick
+        Method Return: void
+    */
     makeDecisions(enemyList){
         // If it can't make its own decisions then skip this
         if (!this.autonomous){ return; }
@@ -104,7 +111,12 @@ class BotBomberTurret extends BomberTurret {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Takes actions based on decisions
+        Method Return: void
+    */
     executeDecisions(){
         // If decided to shoot
         if (this.decisions["shooting"]){

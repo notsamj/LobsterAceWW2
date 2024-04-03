@@ -34,12 +34,26 @@ class TeamCombatManager {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getAllPlanesFromAlliance
+        Method Parameters: 
+            allianceName:
+                The name of the alliance that the planes belong to
+        Method Description: Finds all planes from an alliance
+        Method Return: NotSamLinkedList of planes
+    */
     getAllPlanesFromAlliance(allianceName){
         return this.planes[allianceName];
     }
 
-    // TODO: Comments
+    /*
+        Method Name: setStatsManager
+        Method Parameters:
+            statsManager:
+                An after match stats manager object
+        Method Description: Setter
+        Method Return: void
+    */
     setStatsManager(statsManager){
         this.stats = statsManager;
     }
@@ -155,13 +169,25 @@ class TeamCombatManager {
         planeLL.push(plane);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: addBuilding
+        Method Parameters:
+            building:
+                A building object
+        Method Description: Adds a building to the game
+        Method Return: void
+    */
     addBuilding(building){
         building.setID("building_" + this.buildings.getLength());
         this.buildings.push(building);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getBuildings
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: A linked list of buildings
+    */
     getBuildings(){
         return this.buildings;
     }
@@ -286,6 +312,12 @@ class TeamCombatManager {
         }
     }
 
+    /*
+        Method Name: addBuilding
+        Method Parameters: None
+        Method Description: Checks each bullet to see if it collides with the world border
+        Method Return: void
+    */
     checkBulletCollisionsWithWorldBorder(){
         let planesLeftX = Number.MAX_SAFE_INTEGER;
         let planesRightX = Number.MIN_SAFE_INTEGER;
@@ -558,7 +590,12 @@ class TeamCombatManager {
         return bullets;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getBombs
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: LinkedList of Bombs
+    */
     getBombs(){
         return this.bombs;
     }
@@ -601,7 +638,14 @@ class TeamCombatManager {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getPlane
+        Method Parameters:
+            id:
+                Id of the plane being looked for
+        Method Description: Finds a plane with a given ID
+        Method Return: Plane Object
+    */
     getPlane(id){
         for (let plane of this.getAllPlanes()){
             if (plane.getID() == id){
@@ -611,7 +655,12 @@ class TeamCombatManager {
         return null;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getPlaneJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of every plane
+        Method Return: List of JSON Objects
+    */
     getPlaneJSON(){
         let planeJSON = [];
         for (let team of this.teams){
@@ -622,7 +671,12 @@ class TeamCombatManager {
         return planeJSON;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getBulletJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of every bullet
+        Method Return: List of JSON Objects
+    */
     getBulletJSON(){
         let bulletJSON = [];
         for (let bullet of this.getAllBullets()){
@@ -631,7 +685,12 @@ class TeamCombatManager {
         return bulletJSON;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getBombJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of every bomb
+        Method Return: List of JSON Objects
+    */
     getBombJSON(){
         let bombJSON = [];
         for (let [bomb, bombIndex] of this.bombs){
@@ -640,7 +699,12 @@ class TeamCombatManager {
         return bombJSON;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getBuildingJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of every building
+        Method Return: List of JSON Objects
+    */
     getBuildingJSON(){
         let buildingJSON = [];
         for (let [building, buildingIndex] of this.buildings){
@@ -649,7 +713,14 @@ class TeamCombatManager {
         return buildingJSON;
     }
     
-    // TODO: Comments
+    /*
+        Method Name: fromBuildingJSON
+        Method Parameters:
+            buildingsJSON:
+                A list of json representations of buildings
+        Method Description: Loads new buildings into the game
+        Method Return: void
+    */
     fromBuildingJSON(buildingsJSON){
         let index = 0;
         for (let buildingJSON of buildingsJSON){
@@ -665,7 +736,14 @@ class TeamCombatManager {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromBombJSON
+        Method Parameters:
+            bombsJSON:
+                A list of json representations of bombs
+        Method Description: Loads new bombs into the game
+        Method Return: void
+    */
     fromBombJSON(bombsJSON){
         for (let bombJSON of bombsJSON){
             let index = bombJSON["index"];
@@ -684,7 +762,14 @@ class TeamCombatManager {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromBuildingJSON
+        Method Parameters:
+            bulletsJSON:
+                A list of json representations of bullets
+        Method Description: Loads new bullets into the game
+        Method Return: void
+    */
     fromBulletJSON(bulletsJSON){
         for (let bulletJSON of bulletsJSON){
             let allianceName = planeModelToAlliance(bulletJSON["shooter_class"]);
@@ -692,14 +777,10 @@ class TeamCombatManager {
             // Add bullet 
             if (index >= this.bullets[allianceName].getLength()){
                 this.bullets[allianceName].push(Bullet.fromJSON(bulletJSON, this.scene));
-                //c++;
             }else{
-                //console.log(index, this.bullets[allianceName].getLength(), this.bullets[allianceName].get(index))
                 this.bullets[allianceName].get(index).fromJSON(bulletJSON, this.scene);
-                //c2++;
             }
         }
-        //console.log(c, c2);
     }
 }
 // If using NodeJS -> export the class

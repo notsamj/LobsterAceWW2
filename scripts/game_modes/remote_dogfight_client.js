@@ -1,8 +1,17 @@
-// TODO: Comment class
-// TODO: Extend game mode?
+/*
+    Class Name: RemoteDogfightClient
+    Description: A client for participating in a Dogfight run by a server.
+    TODO: Extend gamemode?
+*/
 class RemoteDogfightClient {
-    constructor(dogfightTranslator){
-        this.translator = dogfightTranslator;
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
+    constructor(){
+        this.translator = new GamemodeRemoteTranslator();
         this.stats = new AfterMatchStats();
         this.tickInProgressLock = new Lock();
         this.stateLock = new Lock();
@@ -12,7 +21,6 @@ class RemoteDogfightClient {
         this.userEntity = null;
         this.deadCamera = null;
         this.planes = [];
-        this.paused = false;
         this.inputLock = new Lock();
         this.startTime = Date.now();
         this.scene = scene;
@@ -26,6 +34,14 @@ class RemoteDogfightClient {
         this.startUp();
     }
 
+    /*
+        Method Name: handlePlaneMovementUpdate
+        Method Parameters:
+            messageJSON:
+                A message object containg information about a plane's movement
+        Method Description: Updates plane's positions if the information provided is very recent. This makes the game less choppy.
+        Method Return: void
+    */
     handlePlaneMovementUpdate(messageJSON){
         if (objectHasKey(messageJSON, "game_over") && messageJSON["game_over"]){ return; }
         if (typeof messageJSON["planes"] != typeof []){
@@ -39,59 +55,141 @@ class RemoteDogfightClient {
         if (messageJSON["num_ticks"] == this.numTicks){ 
             for (let planeObject of messageJSON["planes"]){
                 if (planeObject["basic"]["id"] == this.userEntity.getID()){ continue; }
-                let plane = scene.getPlane(planeObject["basic"]["id"]);
+                let plane = scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
                 // If plane not found -> ignore
                 if (plane == null){
                     continue;
                 }
                 plane.loadMovementIfNew(planeObject);
-                //plane.updateJustDecisions(planeObject["decisions"]);
             }
         }
         this.tickInProgressLock.unlock();
     }
+
+    /*
+        Method Name: getLastTickTime
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: integer
+    */
     getLastTickTime(){ return this.lastTickTime; }
+
+    /*
+        Method Name: getTickInProgressLock
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Lock
+    */
     getTickInProgressLock(){ return this.tickInProgressLock; }
 
-    correctTicks(){ return; }
+    /*
+        Method Name: correctTicks
+        Method Parameters: None
+        Method Description: A disabled method. 
+        Method Return: void
+    */
+    correctTicks(){}
+
+    /*
+        Method Name: getNumTicks
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: integer
+    */
     getNumTicks(){
         return this.numTicks;
     }
 
+    /*
+        Method Name: getStartTime
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: integer
+    */
     getStartTime(){
         return this.startTime;
     }
 
+    /*
+        Method Name: isPaused
+        Method Parameters: None
+        Method Description: Provides information that the game is not paused. This type of game cannot pause.
+        Method Return: Boolean
+    */
     isPaused(){ return false; }
+
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Provides information that the game is not running locally. This game is run by a server and the client is subservient to the server.
+        Method Return: Boolean
+    */
     runsLocally(){ return false; }
 
-    /// Note: Used to make sure only 1 input per real tick (not per game tick)
+    /*
+        Method Name: inputAllowed
+        Method Parameters: None
+        Method Description: Provides infromation as to whether the game is currently allowing input
+        Method Return: Boolean
+    */
     inputAllowed(){
         return this.inputLock.isUnlocked();
     }
 
-    pause(){
-        this.paused = true;
-        this.translator.pause();
-    }
+    /*
+        Method Name: pause
+        Method Parameters: None
+        Method Description: Placeholder. No use.
+        Method Return: void
+    */
+    pause(){}
 
-    unpause(){
-        this.paused = false;
-        this.translator.unpause();
-    }
+    /*
+        Method Name: unpause
+        Method Parameters: None
+        Method Description: Placeholder. No use.
+        Method Return: void
+    */
+    unpause(){}
 
+    /*
+        Method Name: isRunning
+        Method Parameters: None
+        Method Description: Determines if the game is running
+        Method Return: Boolean
+    */
     isRunning(){
         return this.running && !this.isGameOver();
     }
 
+    /*
+        Method Name: end
+        Method Parameters: None
+        Method Description: Communicates to the server that the user is exiting
+        Method Return: void
+    */
     end(){
         this.translator.end();
     }
 
+    /*
+        Method Name: getExpectedTicks
+        Method Parameters: None
+        Method Description: Determines the expected number of ticks that have occured
+        Method Return: integer
+    */
     getExpectedTicks(){
         return Math.floor((Date.now() - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeGapMS:
+                The amount of time elasped during a tick
+        Method Description: Handles all operations that happen every tick
+        Method Return: void
+    */
     async tick(timeGapMS){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
@@ -115,10 +213,14 @@ class RemoteDogfightClient {
         this.tickInProgressLock.unlock();
     }
 
+    /*
+        Method Name: updateCamera
+        Method Parameters: None
+        Method Description: Ensures the scene is focused on either a camera or a living user plane
+        Method Return: void
+        TODO: Merge with other update Camera methods
+    */
     updateCamera(){
-        if (this.userEntity == null){
-            debugger;
-        }
         // No need to update if user is meant to be a camera
         if (this.userEntity instanceof SpectatorCamera){
             return;
@@ -138,6 +240,12 @@ class RemoteDogfightClient {
         }
     }
 
+    /*
+        Method Name: requestStateFromServer
+        Method Parameters: None
+        Method Description: Requests a state from the server
+        Method Return: void
+    */
     async requestStateFromServer(){
         await this.stateLock.awaitUnlock(true);
         // Send a request and when received then update the last state from server
@@ -145,24 +253,29 @@ class RemoteDogfightClient {
         this.stateLock.unlock();
     }
 
+    /*
+        Method Name: sendLocalPlaneData
+        Method Parameters: None
+        Method Description: Sends information about the user's plane to the server
+        Method Return: void
+    */
     async sendLocalPlaneData(){
         // Check if the client is a freecam or a plane, if a plane then send its current position JSON to server
         if (this.userEntity instanceof SpectatorCamera || this.userEntity.isDead()){
             return;
         }
         let userEntityJSON = this.userEntity.toJSON();
-        /*let currentModCount = userEntityJSON["movement_mod_count"];
-        if (this.lastSentModCount <= currentModCount){
-            return;
-        }
-        this.lastSentModCount = currentModCount;
-        // TODO: Change or remote this last sent mod count thing because the plane might shoot so send position
-        */
         let messageJSON = userEntityJSON;
         messageJSON["num_ticks"] = this.numTicks;
         await this.translator.sendLocalPlaneData(userEntityJSON);
     }
 
+    /*
+        Method Name: loadStateFromServer
+        Method Parameters: None
+        Method Description: Loads the last received state from the server
+        Method Return: void
+    */
     async loadStateFromServer(){
         // Update the scene based on the server's last state
         await this.stateLock.awaitUnlock(true);
@@ -175,10 +288,22 @@ class RemoteDogfightClient {
         this.stateLock.unlock();
     }
 
+    /*
+        Method Name: isGameOver
+        Method Parameters: None
+        Method Description: Determines if the game is over
+        Method Return: Boolean
+    */
     isGameOver(){
         return this.gameOver;
     }
 
+    /*
+        Method Name: loadState
+        Method Parameters: None
+        Method Description: Loads a state
+        Method Return: void
+    */
     async loadState(state){
         if (state == null){ return; }
         // Check game end
@@ -202,7 +327,7 @@ class RemoteDogfightClient {
 
         // Update plane general information
         for (let planeObject of planeData){
-            let plane = scene.getPlane(planeObject["basic"]["id"]);
+            let plane = scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
                 console.log(planeObject["basic"]["id"])
@@ -227,7 +352,7 @@ class RemoteDogfightClient {
         // Update plane movement
         if (tickDifference >= 0){
             for (let planeObject of planeData){
-                let plane = scene.getPlane(planeObject["basic"]["id"]);
+                let plane = scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
                 if (plane == null){
                     continue;
                 }
@@ -239,6 +364,14 @@ class RemoteDogfightClient {
         scene.getTeamCombatManager().fromBulletJSON(state["bullets"]);
     }
 
+    /*
+        Method Name: addNewPlane
+        Method Parameters:
+            planeObject:
+                A json object with information about a plane
+        Method Description: Adds a new plane to the game
+        Method Return: void
+    */
     addNewPlane(planeObject){
         let isFighter = planeModelToType(planeObject["basic"]["plane_class"]) == "Fighter";
         let isHuman = planeObject["human"];
@@ -255,17 +388,28 @@ class RemoteDogfightClient {
         this.scene.addPlane(plane);
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays relevant information to the user
+        Method Return: void
+    */
     display(){
         if (this.isGameOver()){
             this.stats.display();
         }
     }
 
+    /*
+        Method Name: startUp
+        Method Parameters: None
+        Method Description: Prepares the game mode from a state
+        Method Return: void
+    */
     async startUp(){
         // Get a state from the server and await it then set start time then set up based on the server state
         let state = await this.translator.getState();
         let myID = USER_DATA["name"];
-        //console.log(state["planes"])
         // Add planes
         for (let planeObject of state["planes"]){
             if (planeObject["basic"]["human"]){

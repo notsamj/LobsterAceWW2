@@ -1,10 +1,19 @@
-// TODO: Comment class
-// TODO: Extend RemoteClient (abstaract class?)
+/*
+    Class Name: RemoteMissionClient
+    Description: A client for participating in a Mission run by a server.
+    TODO: Extend gamemode?
+*/
 class RemoteMissionClient {
-    constructor(missionTranslator){
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
+    constructor(){
         this.scene = scene;
         this.scene.setGamemode(this);
-        this.translator = missionTranslator;
+        this.translator = new GamemodeRemoteTranslator();
         this.stats = new AfterMatchStats();
         this.tickInProgressLock = new Lock();
         this.stateLock = new Lock();
@@ -14,7 +23,6 @@ class RemoteMissionClient {
         this.userEntity = null;
         this.deadCamera = null;
         this.planes = [];
-        this.paused = false;
         this.inputLock = new Lock();
         this.startTime = Date.now();
         this.scene.enableTicks();
@@ -25,47 +33,123 @@ class RemoteMissionClient {
         this.lastTickTime = Date.now();
         this.startUp();
     }
+
+    /*
+        Method Name: getTickInProgressLock
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Lock
+    */
     getTickInProgressLock(){ return this.tickInProgressLock; }
 
-    correctTicks(){ return; }
+    /*
+        Method Name: correctTicks
+        Method Parameters: None
+        Method Description: A disabled method. 
+        Method Return: void
+    */
+    correctTicks(){}
+
+    /*
+        Method Name: getNumTicks
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: integer
+    */
     getNumTicks(){
         return this.numTicks;
     }
 
+    /*
+        Method Name: getStartTime
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: integer
+    */
     getStartTime(){
         return this.startTime;
     }
 
+    /*
+        Method Name: isPaused
+        Method Parameters: None
+        Method Description: Provides information that the game is not paused. This type of game cannot pause.
+        Method Return: Boolean
+    */
     isPaused(){ return false; }
+
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Provides information that the game is not running locally. This game is run by a server and the client is subservient to the server.
+        Method Return: TODO
+    */
     runsLocally(){ return false; }
 
-    /// Note: Used to make sure only 1 input per real tick (not per game tick)
+    /*
+        Method Name: inputAllowed
+        Method Parameters: None
+        Method Description: Provides infromation as to whether the game is currently allowing input
+        Method Return: TODO
+    */
     inputAllowed(){
         return this.inputLock.isUnlocked();
     }
 
-    pause(){
-        this.paused = true;
-        this.translator.pause();
-    }
+    /*
+        Method Name: pause
+        Method Parameters: None
+        Method Description: Placeholder. No use.
+        Method Return: void
+    */
+    pause(){}
 
-    unpause(){
-        this.paused = false;
-        this.translator.unpause();
-    }
+    /*
+        Method Name: unpause
+        Method Parameters: None
+        Method Description: Placeholder. No use.
+        Method Return: void
+    */
+    unpause(){}
 
+    /*
+        Method Name: isRunning
+        Method Parameters: None
+        Method Description: Determines if the game is running
+        Method Return: Boolean
+    */
     isRunning(){
         return this.running && !this.isGameOver();
     }
 
+    /*
+        Method Name: end
+        Method Parameters: None
+        Method Description: Communicates to the server that the user is exiting
+        Method Return: void
+    */
     end(){
         this.translator.end();
     }
 
+    /*
+        Method Name: getExpectedTicks
+        Method Parameters: None
+        Method Description: Determines the expected number of ticks that have occured
+        Method Return: integer
+    */
     getExpectedTicks(){
         return Math.floor((Date.now() - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
+    /*
+        Method Name: tick
+        Method Parameters:
+            timeGapMS:
+                The amount of time elasped during a tick
+        Method Description: Handles all operations that happen every tick
+        Method Return: void
+    */
     async tick(timeGapMS){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
@@ -114,6 +198,13 @@ class RemoteMissionClient {
         }
     }
 
+    /*
+        Method Name: updateCamera
+        Method Parameters: None
+        Method Description: Ensures the scene is focused on either a camera or a living user plane
+        Method Return: void
+        TODO: Merge with other update Camera methods
+    */
     async requestStateFromServer(){
         await this.stateLock.awaitUnlock(true);
         // Send a request and when received then update the last state from server
@@ -121,14 +212,26 @@ class RemoteMissionClient {
         this.stateLock.unlock();
     }
 
+    /*
+        Method Name: requestStateFromServer
+        Method Parameters: None
+        Method Description: Requests a state from the server
+        Method Return: void
+    */
     async sendPlanePosition(){
         // Check if the client is a freecam or a plane, if a plane then send its current position JSON to server
         if (this.userEntity instanceof SpectatorCamera || this.userEntity.isDead()){
             return;
         }
-        await this.translator.sendPlanePosition(this.userEntity.toJSON());
+        await this.translator.sendLocalPlaneData(this.userEntity.toJSON());
     }
 
+    /*
+        Method Name: loadStateFromServer
+        Method Parameters: None
+        Method Description: Loads the last received state from the server
+        Method Return: void
+    */
     async loadStateFromServer(){
         // Update the scene based on the server's last state
         await this.stateLock.awaitUnlock(true);
@@ -141,10 +244,22 @@ class RemoteMissionClient {
         this.stateLock.unlock();
     }
 
+    /*
+        Method Name: isGameOver
+        Method Parameters: None
+        Method Description: Determines if the game is over
+        Method Return: Boolean
+    */
     isGameOver(){
         return this.gameOver;
     }
 
+    /*
+        Method Name: loadState
+        Method Parameters: None
+        Method Description: Loads a state
+        Method Return: void
+    */
     loadState(state){
         if (state == null){ return; }
         // Check game end
@@ -172,7 +287,7 @@ class RemoteMissionClient {
 
         // Update planes
         for (let planeObject of state["planes"]){
-            let plane = scene.getPlane(planeObject["basic"]["id"]);
+            let plane = scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
                 this.addNewPlane(planeObject);
@@ -187,12 +302,19 @@ class RemoteMissionClient {
         scene.getTeamCombatManager().fromBombJSON(state["bombs"]);
     }
 
+    /*
+        Method Name: addNewPlane
+        Method Parameters:
+            planeObject:
+                A json object with information about a plane
+        Method Description: Adds a new plane to the game
+        Method Return: void
+    */
     addNewPlane(planeObject){
         let isFighter = planeModelToType(planeObject["basic"]["plane_class"]) == "Fighter";
         let attackerAlliance = this.missionObject["attackers"];
         let isHuman = planeObject["human"];
         let plane;
-        // Hahahhaa remember attacker defender bullshit TODO
         if (isHuman && isFighter){
             plane = HumanFighterPlane.fromJSON(planeObject, scene, planeIsMe);
         }else if (isHuman){
@@ -207,6 +329,12 @@ class RemoteMissionClient {
         this.scene.addPlane(plane);
     }
 
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays relevant information to the user
+        Method Return: void
+    */
     display(){
         if (this.isGameOver()){
             this.stats.display();
@@ -249,6 +377,12 @@ class RemoteMissionClient {
         HEADS_UP_DISPLAY.updateElement("Remaining Bombers", livingBombers);
     }
 
+    /*
+        Method Name: startUp
+        Method Parameters: None
+        Method Description: Prepares the game mode from a state
+        Method Return: void
+    */
     async startUp(){
         // Get a state from the server and await it then set start time then set up based on the server state
         let state = await this.translator.getState();

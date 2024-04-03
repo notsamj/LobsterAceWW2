@@ -1,7 +1,6 @@
 /*
     Class Name: MultiplayerMenu
     Description: A subclass of Menu that is an interface for multiplayer.
-    Note: TODO: Comment this class
 */
 class MultiplayerMenu extends Menu {
     /*
@@ -76,6 +75,12 @@ class MultiplayerMenu extends Menu {
         this.joinWindow = new JoinWindow(this);
     }
 
+    /*
+        Method Name: refresh
+        Method Parameters: None
+        Method Description: Finds out about active games from the server
+        Method Return: void
+    */
     async refresh(){
         // Disable the button so it can't be clicked until refresh is complete. And show it as grey
         this.refreshButton.disable();
@@ -89,14 +94,20 @@ class MultiplayerMenu extends Menu {
         // If a response has been received
         if (response){
             this.updateScreen(response);
-        }else{
-            //console.log("Failed to refresh:", response);
         }
         // Enable the button so it can be clicked now that the refresh is complete. And show it as green again.
         this.refreshButton.setColour("#3bc44b");
         this.refreshButton.enable();
     }
 
+    /*
+        Method Name: updateScreen
+        Method Parameters:
+            response:
+                Server response to refresh request
+        Method Description: Updates the screen repeting on the server's response to a refresh request 
+        Method Return: void
+    */
     updateScreen(response){
         this.joinWindow.hide();
         let availableToHost = response["server_free"];
@@ -110,6 +121,12 @@ class MultiplayerMenu extends Menu {
         this.joinWindow.show(response);
     }
 
+    /*
+        Method Name: join
+        Method Parameters: None
+        Method Description: Tries to join the game
+        Method Return: void
+    */
     async join(){
         console.log(this.hostLock.isLocked(), this.joinLock.isLocked())
         if (this.hostLock.isLocked() || this.joinLock.isLocked()){
@@ -131,12 +148,29 @@ class MultiplayerMenu extends Menu {
     }
 }
 
-// TODO: Comment class
+/*
+    Class Name: JoinWindow
+    Description: A window that pops up allowing the user to join a game mode
+*/
 class JoinWindow {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(menuInstance){
         this.setup(menuInstance);
     }
 
+    /*
+        Method Name: setup
+        Method Parameters:
+            menuInstance:
+                The instance of the multiplayer menu
+        Method Description: Sets up a join window
+        Method Return: void
+    */
     setup(menuInstance){
         let windowSizeX = 600;
         let windowX = (innerWidth) => { return (innerWidth - windowSizeX) / 2; }
@@ -159,11 +193,25 @@ class JoinWindow {
         this.hide();
     }
 
+    /*
+        Method Name: hide
+        Method Parameters: None
+        Method Description: Hides the join window
+        Method Return: void
+    */
     hide(){
         this.joinButton.disableDisplay();
         this.serverDetails.disableDisplay();
     }
 
+    /*
+        Method Name: show
+        Method Parameters:
+            serverResponse:
+                Response from the server to refresh request
+        Method Description: Enables the display of the join window
+        Method Return: void
+    */
     show(serverResponse){
         if (!serverResponse["game_in_progress"]){
             this.joinButton.enableDisplay();

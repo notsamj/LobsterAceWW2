@@ -11,7 +11,7 @@ class LocalMission extends Mission {
             missionSetupJSON:
                 Information about the setup of the mission. Difficulty, users
             scene:
-                TODO
+                A Scene object which will be used for the mission
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -41,41 +41,25 @@ class LocalMission extends Mission {
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
         this.lastTickTime = Date.now();
         this.updateCamera();
-        await super.tick(); // TODO: If don't await then non-focused planes shake, why!?
+        await super.tick();
     }
 
-    // TODO: Comments
-    updateCamera(){
-        // No need to update if user is meant to be a camera
-        if (this.userEntity instanceof SpectatorCamera){
-            return;
-        }else if (this.userEntity.isAlive() && this.deadCamera == null){ // No need to do anything if following user
-            return;
-        }
-
-        // if the user is dead then switch to dead camera
-        if (this.userEntity.isDead() && this.deadCamera == null){
-            this.deadCamera = new SpectatorCamera(scene, this.userEntity.getX(), this.userEntity.getY());
-            scene.addEntity(this.deadCamera);
-            scene.setFocusedEntity(this.deadCamera);
-        }else if (this.userEntity.isAlive() && this.deadCamera != null){ // More appropriate for campaign (resurrection) but whatever
-            this.deadCamera.die(); // Kill so automatically deleted by scene
-            this.deadCamera = null;
-            scene.setFocusedEntity(this.userEntity);
-        }
-    }
-
-    // TODO: Comments
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Provides information that this game mode is running locally
+        Method Return: Boolean
+    */
     runsLocally(){
         return true;
     }
 
-    // TODO: Bring this to local client
     /*
         Method Name: updateHUD
         Method Parameters: None
         Method Description: Updates the HUD with information from the game
         Method Return: void
+        TODO: Merge this is one in remote mission client
     */
     updateHUD(){
         let allyLock = this.attackerSpawnLock;

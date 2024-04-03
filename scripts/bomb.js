@@ -25,7 +25,8 @@ class Bomb extends Entity {
                 The starting x velocity of the bomb
             yVelocity:
                 The starting y velocity of the bomb
-            TODO
+            currentTick:
+                The tick at which the bomb is created
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -42,50 +43,132 @@ class Bomb extends Entity {
         this.index = null;
     }
 
+    /*
+        Method Name: getInterpolatedX
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
     getInterpolatedX(){
         return this.interpolatedX;
     }
 
+    /*
+        Method Name: getInterpolatedY
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
     getInterpolatedY(){
         return this.interpolatedY;
     }
 
+    /*
+        Method Name: getX
+        Method Parameters: None
+        Method Description: Calculate x at the current tick
+        Method Return: Number
+    */
     getX(){
         return this.getXAtTick(this.scene.getGamemode().getNumTicks());
     }
 
+    /*
+        Method Name: getXAtTick
+        Method Parameters:
+            tick:
+                Tick to determine the x at
+        Method Description: Determine the x position of the bomb at a given tick
+        Method Return: Number
+    */
     getXAtTick(tick){
         return this.startX + this.xVelocity * ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
     }
 
+    /*
+        Method Name: getGameDisplayX
+        Method Parameters:
+            tick:
+                The tick at which to calculate the x position
+            currentTime:
+                The current time in milliseconds
+        Method Description: Calculate the positition of the bomb at the given time and tick
+        Method Return: Number
+    */
     getGameDisplayX(tick, currentTime){
         return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
     }
 
+    /*
+        Method Name: getY
+        Method Parameters: None
+        Method Description: Calculate y at the current tick
+        Method Return: Number
+    */
     getY(){
         return this.getYAtTick(this.scene.getGamemode().getNumTicks());
     }
 
+    /*
+        Method Name: getYAtTick
+        Method Parameters:
+            tick:
+                Tick to determine the y at
+        Method Description: Determine the y position of the bomb at a given tick
+        Method Return: Number
+    */
     getYAtTick(tick){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
         return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
+    /*
+        Method Name: getGameDisplayX
+        Method Parameters:
+            tick:
+                The tick at which to calculate the y position
+            currentTime:
+                The current time in milliseconds
+        Method Description: Calculate the positition of the bomb at the given time and tick
+        Method Return: Number
+    */
     getGameDisplayY(tick, currentTime){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
         return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
+    /*
+        Method Name: calculateInterpolatedCoordinates
+        Method Parameters:
+            currentTime:
+                The current time in milliseconds
+        Method Description: Calculate the interpolated x and y
+        Method Return: void
+    */
     calculateInterpolatedCoordinates(currentTime){
         this.interpolatedX = this.getGameDisplayX(this.scene.getGamemode().getNumTicks(), currentTime);
         this.interpolatedY = this.getGameDisplayY(this.scene.getGamemode().getNumTicks(), currentTime);
     }
 
+    /*
+        Method Name: getYVelocity
+        Method Parameters: None
+        Method Description: Calculate the y velocity at the current tick
+        Method Return: Number
+    */
     getYVelocity(){
         let tick = this.scene.getGamemode().getNumTicks();
         return this.getYVelocityAtTick(tick);
     }
 
+    /*
+        Method Name: getYVelocity
+        Method Parameters:
+            tick:
+                A tick number
+        Method Description: Calculate the y velocity at the given tick
+        Method Return: Number
+    */
     getYVelocityAtTick(tick){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
         return this.vYI - PROGRAM_DATA["constants"]["gravity"] * seconds;
@@ -220,7 +303,6 @@ class Bomb extends Entity {
         Method Return: boolean, true if collides, false otherwise
     */
     collidesWith(building, timeDiff){
-        // TODO: Remove
         let result = Bullet.hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), building.getHitbox(), building.getCenterX(), building.getCenterY(), 0, 0, timeDiff/1000);
         return result;
     }
@@ -269,6 +351,14 @@ class Bomb extends Entity {
         }
     }
 
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            jsonRepresentation:
+                A json representation of a bomb
+        Method Description: Set up a bullet based on a json representation
+        Method Return: void
+    */
     fromJSON(jsonRepresentation){
         this.startX = jsonRepresentation["start_x"];
         this.startY = jsonRepresentation["start_y"];

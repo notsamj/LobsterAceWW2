@@ -36,12 +36,24 @@ class BomberTurret extends Turret {
         this.model = plane.getPlaneClass();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a turret
+        Method Description: Updates attributes based on a JSON representation
+        Method Return: void
+    */
     fromJSON(rep){
         this.shootCD.setTicksLeft(rep["shoot_cd"]);
     }
 
-    // TODO: Comments
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the turret
+        Method Return: JSON Object
+    */
     toJSON(){
         let rep = {};
         rep["shoot_cd"] = this.shootCD.getTicksLeft();
@@ -52,7 +64,7 @@ class BomberTurret extends Turret {
         Method Name: shoot
         Method Parameters:
             shootingAngle:
-                // TODO
+                The angle at which to shoot
         Method Description: Shoots the turret, if it is ready and the angle is in an allowed range.
         Method Return: void
     */
@@ -100,7 +112,12 @@ class BomberTurret extends Turret {
         return rotatedY;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedX
+        Method Parameters: None
+        Method Description: Calculates the interpolated x of the turret
+        Method Return: Number
+    */
     getInterpolatedX(){
         let planeAngleRAD = toRadians(this.plane.getNoseAngle());
         if (!this.isFacingRight()){
@@ -110,7 +127,12 @@ class BomberTurret extends Turret {
         return rotatedX;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getInterpolatedY
+        Method Parameters: None
+        Method Description: Calculates the interpolated y of the turret
+        Method Return: Number
+    */
     getInterpolatedY(){
         let planeAngleRAD = toRadians(this.plane.getNoseAngle());
         if (!this.isFacingRight()){

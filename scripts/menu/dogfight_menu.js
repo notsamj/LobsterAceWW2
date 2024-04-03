@@ -193,7 +193,12 @@ class DogfightMenu extends Menu {
         
     }
 
-    // TODO: Comments
+    /*
+        Method Name: createJSONRep
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the dogfight customized by the user
+        Method Return: JSON Object
+    */
     createJSONRep(){
         let jsonRep = {};
         jsonRep["users"] = [];
