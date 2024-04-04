@@ -109,8 +109,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            //console.log("Gonna shoot", this.shootLock.isReady() , !this.scene.isLocal() , activeGamemode.runsLocally())
-            if (this.shootLock.isReady() && (!this.scene.isLocal() || activeGamemode.runsLocally())){
+            if (this.shootLock.isReady() && (!this.scene.isLocal() || GAMEMODE_MANAGER.getActiveGamemode().runsLocally())){
                 this.shootLock.lock();
                 this.shoot();
             }

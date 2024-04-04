@@ -40,10 +40,10 @@ class Entity {
     */
     calculateInterpolatedCoordinates(displayTime){
         // TODO: Clean this up
-        if (activeGamemode.isPaused() || !activeGamemode.isRunning() || this.isDead()){
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead()){
             return;
         }
-        let extraTime = (displayTime - (activeGamemode.getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * activeGamemode.getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+        let extraTime = (displayTime - (GAMEMODE_MANAGER.getActiveGamemode().getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * GAMEMODE_MANAGER.getActiveGamemode().getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
         this.interpolatedX = this.x + this.xVelocity * extraTime / 1000;
         this.interpolatedY = this.y + this.yVelocity * extraTime / 1000;
     }

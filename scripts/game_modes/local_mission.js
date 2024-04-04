@@ -21,11 +21,11 @@ class LocalMission extends Mission {
         if (missionSetupJSON["users"].length == 0){
             let cam = new SpectatorCamera(scene, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);
             this.userEntity = cam;
-            scene.addEntity(cam);
-            scene.setFocusedEntity(cam);
+            this.scene.addEntity(cam);
+            this.scene.setFocusedEntity(cam);
         }else{
             this.userEntity = scene.getEntity(USER_DATA["name"]);
-            scene.setFocusedEntity(this.userEntity);
+            this.scene.setFocusedEntity(this.userEntity);
             this.userEntity.setAutonomous(true);
         }
     }
@@ -38,19 +38,8 @@ class LocalMission extends Mission {
     */
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
-        this.lastTickTime = Date.now();
         this.updateCamera();
         await super.tick();
-    }
-
-    /*
-        Method Name: runsLocally
-        Method Parameters: None
-        Method Description: Provides information that this game mode is running locally
-        Method Return: Boolean
-    */
-    runsLocally(){
-        return true;
     }
 
     /*

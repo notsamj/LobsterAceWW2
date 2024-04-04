@@ -1,23 +1,25 @@
 // Global Variables & Constants
-const MAX_RUNNING_LATE = 500;
-var scene;
-var menuManager;
 var setupDone = false;
 var programOver = false;
-var FRAME_COUNTER = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);
-var activeGamemode = null;
-var loadedPercent = 0;
 var debug = false;
-var mainTickLock = new Lock();
 var runningTicksBehind = 0;
+
+const MAX_RUNNING_LATE = 500;
+
+const FRAME_COUNTER = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);
+const MAIN_TICK_LOCK = new Lock();
+const MENU_MANAGER = new MenuManager();
 const USER_INPUT_MANAGER = new UserInputManager();
 const SOUND_MANAGER = new SoundManager();
-var performanceTimer = new PerformanceTimer();
+const PERFORMANCE_TIMER = new PerformanceTimer();
 const CLOUD_MANAGER = new CloudManager();
 const HEADS_UP_DISPLAY = new HUD();
 const MAIL_SERVICE = new MailService();
 const SERVER_CONNECTION = new ServerConnection();
 const PROGRAM_TESTER = new ProgramTester();
+const GAMEMODE_MANAGER = new GamemodeManager();
+
+// Register inputs
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
@@ -37,36 +39,36 @@ USER_INPUT_MANAGER.registerTickedAggregator("s", "keydown", (event) => { return 
 async function tick(){
     // Safety incase an error occurs stop running
     if (programOver){ return; }
+
+    // Tick user input manager
     USER_INPUT_MANAGER.tick();
-    // Fix num ticks if running a huge defecit
-    if (activeGamemode != null && activeGamemode.getNumTicks() < activeGamemode.getExpectedTicks() - PROGRAM_DATA["settings"]["max_tick_deficit"]){ activeGamemode.correctTicks(); }
-    if (mainTickLock.notReady()){
+
+    // Check for issues with main tick lock
+    if (MAIN_TICK_LOCK.notReady()){
         runningTicksBehind++;
         console.log("Main tick loop is running %d ticks behind.", runningTicksBehind)
         if (runningTicksBehind > MAX_RUNNING_LATE){
+            programOver = true;
+            return;
         }
-        return;
     }
-    mainTickLock.lock();
+    MAIN_TICK_LOCK.lock();
     if (document.hidden){
-        menuManager.lostFocus();
+        MENU_MANAGER.lostFocus();
     }
     // Play game
-    if (activeGamemode != null){
-        //console.log(activeGamemode.getExpectedTicks() - activeGamemode.getNumTicks)
-        await activeGamemode.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        await activeGamemode.getTickInProgressLock().awaitUnlock(true);
-    }
-
+    await GAMEMODE_MANAGER.tick();
+    
     // Draw frame
     if (FRAME_COUNTER.ready()){
+        await GAMEMODE_MANAGER.requestFrameBreak();
+
         FRAME_COUNTER.countFrame();
         draw();
+
+        GAMEMODE_MANAGER.endFrameBreak();
     }
-    if (activeGamemode != null){
-        activeGamemode.getTickInProgressLock().unlock(); // TODO: Clean up with getter
-    }
-    mainTickLock.unlock();
+    MAIN_TICK_LOCK.unlock();
     // Try and tick immediately (incase need to catch up if it doesn't need it catch up then no problem)
     requestAnimationFrame(tick);
 }
@@ -137,7 +139,7 @@ async function setup() {
     // Set up scene & menus
     scene = new PlaneGameScene(SOUND_MANAGER, true);
     scene.enableDisplay()
-    menuManager = new MenuManager(getScreenWidth(), getScreenHeight());
+    MENU_MANAGER = new MenuManager(getScreenWidth(), getScreenHeight());
     MenuManager.setupClickListener();
 
     setupDone = true;
@@ -154,12 +156,12 @@ function draw() {
     if (!setupDone){
         textSize(200);
         fill("green");
-        text(`Loading: ${loadedPercent}%`, 200, 200);
+        text(`Loading`, 200, 200);
         return;
     }
     scene.display();
-    if (activeGamemode != null){
-        activeGamemode.display();
+    if (GAMEMODE_MANAGER.hasActiveGamemode()){
+        GAMEMODE_MANAGER.getActiveGamemode().display();
     }
-    menuManager.display();
+    MENU_MANAGER.display();
 }

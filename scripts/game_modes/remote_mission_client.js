@@ -2,7 +2,7 @@
     Class Name: RemoteMissionClient
     Description: A client for participating in a Mission run by a server.
 */
-class RemoteMissionClient extends RemoteGamemode {
+class RemoteMissionClient extends RemoteClient {
     /*
         Method Name: constructor
         Method Parameters: None
@@ -19,7 +19,6 @@ class RemoteMissionClient extends RemoteGamemode {
         this.planes = [];
         this.startTime = Date.now();
         this.scene.enableTicks();
-        this.running = false;
         this.gameOver = false;
         this.attackerSpawnLock = new TickLock(0, false);
         this.defenderSpawnLock = new TickLock(0, false);

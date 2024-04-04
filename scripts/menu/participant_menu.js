@@ -137,7 +137,7 @@ class ParticipantMenu extends Menu {
         Method Return: void
     */
     goToGame(){
-        menuManager.switchTo("game");
+        MENU_MANAGER.switchTo("game");
     }
 
     /*
@@ -148,6 +148,6 @@ class ParticipantMenu extends Menu {
     */
     goToMainMenu(){
         SERVER_CONNECTION.sendJSON({"action": "leave_game"});
-        menuManager.switchTo("main");
+        MENU_MANAGER.switchTo("main");
     }
 }

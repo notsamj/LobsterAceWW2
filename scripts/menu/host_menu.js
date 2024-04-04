@@ -52,7 +52,7 @@ class HostMenu extends Menu {
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "dogfight"}, "switch_game_mode");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
-            menuManager.addTemporaryMessage("Failed to switch to a dogfight.", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to switch to a dogfight.", "red", 5000);
             return;
         }
         this.userPlanes = this.createUserPlaneSelection();
@@ -125,7 +125,7 @@ class HostMenu extends Menu {
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "mission"}, "switch_game_mode");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
-            menuManager.addTemporaryMessage("Failed to switch to a mission.", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to switch to a mission.", "red", 5000);
             return;
         }
         // Create planes from mission object
@@ -225,7 +225,7 @@ class HostMenu extends Menu {
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, async (menuInstance) => {
             let response = await SERVER_CONNECTION.sendMail({"action": "host_start_game"}, "host");
             if (!response || !response["success"]){
-                menuManager.addTemporaryMessage("Failed to start game.", "red", 50000);
+                MENU_MANAGER.addTemporaryMessage("Failed to start game.", "red", 50000);
                 return;
             }
             menuInstance.resetSettings();
@@ -454,7 +454,7 @@ class HostMenu extends Menu {
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
-            menuManager.addTemporaryMessage("Failed to switch to next mission.", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to switch to next mission.", "red", 5000);
             return;
         }
         this.mission = newMission;
@@ -475,7 +475,7 @@ class HostMenu extends Menu {
         let response = await SERVER_CONNECTION.sendMail({"action": "switch_mission", "new_mission_id": newMission["id"]}, "switch_mission");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
-            menuManager.addTemporaryMessage("Failed to switch to previous mission.", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to switch to previous mission.", "red", 5000);
             return;
         }
         this.mission = newMission;
@@ -649,7 +649,7 @@ class HostMenu extends Menu {
     */
     goToMainMenu(){
         SERVER_CONNECTION.sendJSON({"action": "leave_game"});
-        //menuManager.switchTo("main");
+        //MENU_MANAGER.switchTo("main");
     }
 
     /*

@@ -175,7 +175,7 @@ class HumanFighterPlane extends FighterPlane {
     */
     makeDecisions(){
         // Sometimes the human will be controlled by the external input so don't make decisions
-        if (!this.autonomous || !activeGamemode.inputAllowed()){
+        if (!this.autonomous || !GAMEMODE_MANAGER.getActiveGamemode().inputAllowed()){
             return;
         }
         let startingDecisions = copyObject(this.decisions);

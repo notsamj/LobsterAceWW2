@@ -47,7 +47,6 @@ class Mission extends Gamemode {
         this.startTime = Date.now();
         this.numTicks = 0;
 		this.scene.setEntities(appendLists(this.planes, this.buildings));
-        this.running = true;
         this.gameOver = false;
         this.scene.setBulletPhysicsEnabled(PROGRAM_DATA["settings"]["use_physics_bullets"]);
         this.scene.enableTicks();
@@ -102,6 +101,7 @@ class Mission extends Gamemode {
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
+        this.lastTickTime = Date.now();
         this.attackerSpawnLock.tick();
         this.defenderSpawnLock.tick();
         await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);

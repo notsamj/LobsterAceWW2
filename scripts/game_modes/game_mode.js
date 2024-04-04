@@ -11,7 +11,7 @@ class Gamemode {
         Method Return: Constructor
     */    
     constructor(){
-        this.running = false;
+        this.running = true;
         this.numTicks = 0;
         this.startTime = Date.now();
         this.lastTickTime = Date.now();

@@ -2,7 +2,7 @@
     Class Name: RemoteDogfightClient
     Description: A client for participating in a Dogfight run by a server.
 */
-class RemoteDogfightClient extends RemoteGamemode {
+class RemoteDogfightClient extends RemoteClient {
     /*
         Method Name: constructor
         Method Parameters: None
@@ -19,7 +19,6 @@ class RemoteDogfightClient extends RemoteGamemode {
         this.scene = scene;
         this.scene.setGamemode(this);
         this.scene.enableTicks();
-        this.running = false;
         this.gameOver = false;
         this.lastTickTime = Date.now();
         this.startUp();

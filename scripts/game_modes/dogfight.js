@@ -14,7 +14,6 @@ class Dogfight extends Gamemode {
     constructor(scene){
         super();
         this.scene = scene;
-        this.running = false;
         this.winner = null;
         this.isATestSession = false;
         this.stats = new AfterMatchStats();
@@ -23,6 +22,24 @@ class Dogfight extends Gamemode {
         this.numTicks = 0;
         this.userEntity = null;
         this.paused = false;
+    }
+
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Run the actions that take place during a tick
+        Method Return: void
+    */
+    async tick(){
+        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
+        this.lastTickTime = Date.now();
+        // Update camera
+        this.updateCamera();
+        await this.tickInProgressLock.awaitUnlock(true);
+        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.numTicks++;
+        this.checkForEnd();
+        this.tickInProgressLock.unlock();
     }
 
     /*

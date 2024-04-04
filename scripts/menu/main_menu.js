@@ -32,7 +32,7 @@ class MainMenu extends Menu {
         // Dog Fight
         let dogFightButtonY = (innerHeight) => { return 927 - gapSize; };
         this.components.push(new RectangleButton("Dogfight", "#3bc44b", "#e6f5f4", buttonX, dogFightButtonY, buttonSizeX, buttonSizeY, (menuInstance) => {
-            menuManager.switchTo("dogfight");
+            MENU_MANAGER.switchTo("dogfight");
         }));
 
         // Information
@@ -44,13 +44,13 @@ class MainMenu extends Menu {
         // Campaign
         let campaignButtonY = dogFightButtonY() - buttonSizeY - gapSize;
         this.components.push(new RectangleButton("Campaign", "#3bc44b", "#e6f5f4", buttonX, campaignButtonY, buttonSizeX, buttonSizeY, (menuInstance) => {
-            menuManager.switchTo("campaign");
+            MENU_MANAGER.switchTo("campaign");
         }));
 
         // Multiplayer
         let multiplayerButtonY = campaignButtonY - buttonSizeY - gapSize;
         let multiplayerButton = new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
-            menuManager.switchTo("multiplayer");
+            MENU_MANAGER.switchTo("multiplayer");
         });
         this.components.push(multiplayerButton);
         // If multiplayer is disabled
@@ -62,13 +62,13 @@ class MainMenu extends Menu {
         // Sound
         let soundButtonY = multiplayerButtonY - buttonSizeY - gapSize;
         this.components.push(new RectangleButton("Sound", "#3bc44b", "#e6f5f4", buttonX, soundButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
-            menuManager.switchTo("sound");
+            MENU_MANAGER.switchTo("sound");
         }));
 
         // Extra Settings
         let extraSettingsY = soundButtonY - buttonSizeY - gapSize;
         this.components.push(new RectangleButton("Settings", "#3bc44b", "#e6f5f4", buttonX, extraSettingsY, buttonSizeX, buttonSizeY, async (menuInstance) => {
-            menuManager.switchTo("extraSettings");
+            MENU_MANAGER.switchTo("extraSettings");
         }));
     }
 

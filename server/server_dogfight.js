@@ -52,7 +52,6 @@ class ServerDogfight extends Dogfight {
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
         this.isATestSession = this.isThisATestSession(dogfightJSON);
-        this.running = true;
         this.paused = false;
         this.gameOver = false;
         this.lastState = this.generateState();

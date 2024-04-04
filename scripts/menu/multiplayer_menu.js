@@ -54,8 +54,8 @@ class MultiplayerMenu extends Menu {
             if (!response["success"]){
                 return;
             }
-            menuManager.getMenuByName("host").resetSettings();
-            menuManager.switchTo("host");
+            MENU_MANAGER.getMenuByName("host").resetSettings();
+            MENU_MANAGER.switchTo("host");
             this.hostLock.unlock();
         });
         hostButton.disable();
@@ -68,7 +68,7 @@ class MultiplayerMenu extends Menu {
         let backButtonXSize = 200;
         let backButtonYSize = 76;
         this.components.push(new RectangleButton("Main Menu", "#3bc44b", "#e6f5f4", backButtonX, backButtonY, backButtonXSize, backButtonYSize, (instance) => {
-            menuManager.switchTo("main");
+            MENU_MANAGER.switchTo("main");
         }));
 
         // Create join window
@@ -138,12 +138,12 @@ class MultiplayerMenu extends Menu {
         this.joinLock.unlock();
         console.log("Join request response....", response)
         if (response && response["success"]){
-            menuManager.getMenuByName("participant").resetSettings();
-            menuManager.switchTo("participant");
+            MENU_MANAGER.getMenuByName("participant").resetSettings();
+            MENU_MANAGER.switchTo("participant");
         }else if (response){
-            menuManager.addTemporaryMessage("Failed to join: " + response["reason"], "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to join: " + response["reason"], "red", 5000);
         }else{
-            menuManager.addTemporaryMessage("Failed to get join response", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to get join response", "red", 5000);
         }
     }
 }

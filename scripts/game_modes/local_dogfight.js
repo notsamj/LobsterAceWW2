@@ -19,7 +19,6 @@ class LocalDogfight extends Dogfight {
         this.setup(dogfightJSON);
         this.scene.enable();
         this.isATestSession = this.isThisATestSession();
-        this.running = true;
     }
 
     /*
@@ -33,28 +32,9 @@ class LocalDogfight extends Dogfight {
         this.lastTickTime = Date.now();
         // Update camera
         this.updateCamera();
-        await this.tickInProgressLock.awaitUnlock(true);
-        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.numTicks++;
-        this.checkForEnd();
-        this.tickInProgressLock.unlock();
+        super.tick();
     }
-    
-    /*
-        Method Name: runsLocally
-        Method Parameters: None
-        Method Description: Provides information that this game mode runs locally.
-        Method Return: Boolean
-    */
-    runsLocally(){ return true; }
 
-    /*
-        Method Name: inputAllowed
-        Method Parameters: None
-        Method Description: Provides information that this game mode allows input from the user.
-        Method Return: Boolean
-    */
-    inputAllowed(){ return true; }
 
     /*
         Method Name: setup

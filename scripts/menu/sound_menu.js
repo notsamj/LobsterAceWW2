@@ -131,6 +131,6 @@ class SoundMenu extends Menu {
         Method Return: void
     */
     goToMainMenu(){
-        menuManager.switchTo("main");
+        MENU_MANAGER.switchTo("main");
     }
 }

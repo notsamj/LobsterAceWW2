@@ -119,12 +119,12 @@ class MenuManager {
     */
     static setupClickListener(){
         document.getElementById("defaultCanvas0").addEventListener("click", (event) => {
-            menuManager.click(event.clientX, event.clientY);
+            MENU_MANAGER.click(event.clientX, event.clientY);
         });
 
         document.onkeydown = (event) => {
             if (event.key === "Escape"){
-                menuManager.escapeKey();
+                MENU_MANAGER.escapeKey();
             }
         };
     }
@@ -169,10 +169,10 @@ class MenuManager {
         }else if (newMenu == "dogfight"){
             this.activeMenu = this.dogfightMenu;
         }else if (newMenu == "pauseMenu"){
-            activeGamemode.pause();
+            GAMEMODE_MANAGER.getActiveGamemode().pause();
             this.activeMenu = this.pauseMenu;
         }else if (newMenu == "game"){
-            activeGamemode.unpause();
+            GAMEMODE_MANAGER.getActiveGamemode().unpause();
             scene.enableDisplay();
             this.activeMenu = null;
         }else if (newMenu == "multiplayer"){

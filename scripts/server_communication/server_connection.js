@@ -37,9 +37,9 @@ class ServerConnection {
         Method Return: void
     */
     handlePlaneMovementUpdate(messageJSON){
-        if (activeGamemode == null){ return; }
+        if (GAMEMODE_MANAGER.getActiveGamemode() == null){ return; }
         // TODO: Incase activagmemode is null or not a client?
-        activeGamemode.handlePlaneMovementUpdate(JSON.parse(messageJSON));
+        GAMEMODE_MANAGER.getActiveGamemode().handlePlaneMovementUpdate(JSON.parse(messageJSON));
     }
 
     /*
@@ -52,9 +52,9 @@ class ServerConnection {
     */
     handleResetParticipantType(messageJSON){
         if (messageJSON["type"] == "mission"){
-            menuManager.getMenuByName("participant").resetParticipantType(PROGRAM_DATA["missions"][messageJSON["new_mission_id"]]);
+            MENU_MANAGER.getMenuByName("participant").resetParticipantType(PROGRAM_DATA["missions"][messageJSON["new_mission_id"]]);
         }else{ // Dogfight
-            menuManager.getMenuByName("participant").resetParticipantType();
+            MENU_MANAGER.getMenuByName("participant").resetParticipantType();
         }
     }
 
@@ -127,7 +127,7 @@ class ServerConnection {
             console.error("Received unknown data:", decryptedData);
         });
         this.socket.addEventListener("error", (event) => {
-            menuManager.addTemporaryMessage("Connection to server failed.", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Connection to server failed.", "red", 5000);
             this.openedLock.unlock();
             this.loggedIn = false;
             this.connected = false;
@@ -144,9 +144,9 @@ class ServerConnection {
             let response = await MAIL_SERVICE.sendJSON("setup", { "username": USER_DATA["name"] });
             // If null -> no response
             if (response == null){
-                menuManager.addTemporaryMessage("No response from the server.", "red", 5000);
+                MENU_MANAGER.addTemporaryMessage("No response from the server.", "red", 5000);
             }else if (response["success"] == false){
-                menuManager.addTemporaryMessage("Failed to connect: " + response["reason"], "red", 5000);
+                MENU_MANAGER.addTemporaryMessage("Failed to connect: " + response["reason"], "red", 5000);
             }else{
                 // Else working
                 this.loggedIn = true;
@@ -173,11 +173,11 @@ class ServerConnection {
         }
         if (dataJSON["message"] == "game_started"){
             if (dataJSON["game_type"] == "dogfight"){
-                activeGamemode = new RemoteDogfightClient();
+                GAMEMODE_MANAGER.getActiveGamemode() = new RemoteDogfightClient();
             }else{ // Mission
-                activeGamemode = new RemoteMissionClient();
+                GAMEMODE_MANAGER.getActiveGamemode() = new RemoteMissionClient();
             }
-            menuManager.switchTo("game");
+            MENU_MANAGER.switchTo("game");
         }
     }
 
@@ -258,7 +258,7 @@ class ServerConnection {
         await this.heartBeatLock.awaitUnlock(true);
         let response = await MAIL_SERVICE.sendJSON("heart_beat", { "action": "ping" });
         if (!response){
-            menuManager.addTemporaryMessage("Heartbeat failed.", "red", 10000);
+            MENU_MANAGER.addTemporaryMessage("Heartbeat failed.", "red", 10000);
             clearInterval(this.heartBeatInterval);
             this.setup = false;
         }
@@ -325,7 +325,7 @@ class ServerConnection {
         Method Return: TODO
     */
     handleError(message){
-        menuManager.addTemporaryMessage(message, "red", 10000);
+        MENU_MANAGER.addTemporaryMessage(message, "red", 10000);
     }
 
     /*
@@ -335,7 +335,7 @@ class ServerConnection {
         Method Return: void
     */
     handleLobbyEnd(){
-        menuManager.addTemporaryMessage("Lobby ended", "yellow", 5000);
-        menuManager.switchTo("main");
+        MENU_MANAGER.addTemporaryMessage("Lobby ended", "yellow", 5000);
+        MENU_MANAGER.switchTo("main");
     }
 }

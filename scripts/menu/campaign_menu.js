@@ -30,7 +30,7 @@ class CampaignMenu extends Menu {
         let backButtonXSize = 200;
         let backButtonYSize = 76;
         this.components.push(new RectangleButton("Main Menu", "#3bc44b", "#e6f5f4", backButtonX, backButtonY, backButtonXSize, backButtonYSize, (menuInstance) => {
-            menuManager.switchTo("main");
+            MENU_MANAGER.switchTo("main");
         }));
 
         // Current mission being examined
@@ -55,8 +55,8 @@ class CampaignMenu extends Menu {
         let startMissionButtonX = (innerWidth) => { return innerWidth / 2 - startMissionButtonXSize /2; }
         let startMissionButtonY = startMissionButtonYSize;
         this.components.push(new RectangleButton("Select Mission", "#3bc44b", "#e6f5f4", startMissionButtonX, startMissionButtonY, startMissionButtonXSize, startMissionButtonYSize, (menuInstance) => {
-            menuManager.getMenuByName("missionStart").loadMission(this.missionIndex);
-            menuManager.switchTo("missionStart");
+            MENU_MANAGER.getMenuByName("missionStart").loadMission(this.missionIndex);
+            MENU_MANAGER.switchTo("missionStart");
         }));
 
         // Mission Details

@@ -390,7 +390,7 @@ class SpectatorCamera extends Entity {
 
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (activeGamemode.isPaused() || !activeGamemode.isRunning()){
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning()){
             return;
         }
         if (this.isFollowing()){
@@ -398,8 +398,8 @@ class SpectatorCamera extends Entity {
             this.interpolatedX = this.followingEntity.getInterpolatedX();
             this.interpolatedY = this.followingEntity.getInterpolatedY();
         }else{
-            this.interpolatedX = this.x + this.xVelocity * (currentTime - activeGamemode.getLastTickTime()) / 1000;
-            this.interpolatedY = this.y + this.yVelocity * (currentTime - activeGamemode.getLastTickTime()) / 1000;
+            this.interpolatedX = this.x + this.xVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
+            this.interpolatedY = this.y + this.yVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
         }
     }
 

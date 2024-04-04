@@ -689,10 +689,10 @@ class Plane extends Entity {
     */
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (activeGamemode.isPaused() || !activeGamemode.isRunning() || this.isDead()){
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead()){
             return;
         }
-        let extraTime = currentTime - activeGamemode.getLastTickTime();
+        let extraTime = currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
         if (this.throttle > 0){
             //this.interpolatedAngle = fixDegrees(this.getAngle());

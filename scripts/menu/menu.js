@@ -57,7 +57,7 @@ class Menu {
     */
     static makeRectangleWithText(textStr, colour, textColour, x, y, width, height){
         let screenX = x;
-        let screenY = menuManager.changeToScreenY(y);
+        let screenY = MENU_MANAGER.changeToScreenY(y);
 
         // Make the rectangle
         rectMode(CORNER);
@@ -124,7 +124,7 @@ class Menu {
         let splitByLine = textStr.split("\n");
         let numLines = splitByLine.length;
         let screenX = x;
-        let screenY = menuManager.changeToScreenY(y);
+        let screenY = MENU_MANAGER.changeToScreenY(y);
         let maxTextSizeW = Menu.determineMaxTextSizeByWidth(splitByLine, boxWidth);
         let maxTextSizeH = Math.floor((boxHeight - PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxHeight) / numLines);
         let calculatedTextSize = Math.min(maxTextSizeW, maxTextSizeH);
