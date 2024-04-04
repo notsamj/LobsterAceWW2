@@ -33,7 +33,6 @@ class ServerDogfight extends Dogfight {
         this.gameHandler = gameHandler;
         this.winner = null;
         this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
-        this.numTicks = 0;
 
         this.soundManager = new SoundManager();
         this.stats = new AfterMatchStats();
@@ -61,6 +60,7 @@ class ServerDogfight extends Dogfight {
         this.asyncUpdateManager = new AsyncUpdateManager();
     }
 
+    // TODO: Comments
     isPaused(){
         return false;
     }

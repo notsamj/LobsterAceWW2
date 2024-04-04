@@ -1,9 +1,29 @@
 class RemoteClient extends ClientGamemode {
     constructor(){
         super();
+        this.asyncUpdateManager = new AsyncUpdateManager();
+        this.lastServerState = null;
+        this.newServerState = null;
+        this.userEntity = null;
+        this.deadCamera = null;
     }
 
-    
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Provides information that the game is not running locally. This game is run by a server and the client is subservient to the server.
+        Method Return: Boolean
+    */
+    runsLocally(){ return false; }
+
+    /*
+        Method Name: isPaused
+        Method Parameters: None
+        Method Description: Provides information that the game is not paused. This type of game cannot pause.
+        Method Return: Boolean
+    */
+    isPaused(){ return false; }
+
     /*
         Method Name: handlePlaneMovementUpdate
         Method Parameters:

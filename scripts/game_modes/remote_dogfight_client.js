@@ -14,13 +14,7 @@ class RemoteDogfightClient extends RemoteGamemode {
         this.translator = new GamemodeRemoteTranslator();
         this.stats = new AfterMatchStats();
         this.stateLock = new Lock();
-        this.numTicks = 0;
-        this.lastServerState = null;
-        this.newServerState = null;
-        this.userEntity = null;
-        this.deadCamera = null;
         this.planes = [];
-        this.inputLock = new Lock();
         this.startTime = Date.now();
         this.scene = scene;
         this.scene.setGamemode(this);
@@ -28,45 +22,7 @@ class RemoteDogfightClient extends RemoteGamemode {
         this.running = false;
         this.gameOver = false;
         this.lastTickTime = Date.now();
-        this.lastSentModCount = -1;
-        this.asyncUpdateManager = new AsyncUpdateManager();
         this.startUp();
-    }
-
-    /*
-        Method Name: getStartTime
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: integer
-    */
-    getStartTime(){
-        return this.startTime;
-    }
-
-    /*
-        Method Name: isPaused
-        Method Parameters: None
-        Method Description: Provides information that the game is not paused. This type of game cannot pause.
-        Method Return: Boolean
-    */
-    isPaused(){ return false; }
-
-    /*
-        Method Name: runsLocally
-        Method Parameters: None
-        Method Description: Provides information that the game is not running locally. This game is run by a server and the client is subservient to the server.
-        Method Return: Boolean
-    */
-    runsLocally(){ return false; }
-
-    /*
-        Method Name: inputAllowed
-        Method Parameters: None
-        Method Description: Provides infromation as to whether the game is currently allowing input
-        Method Return: Boolean
-    */
-    inputAllowed(){
-        return this.inputLock.isUnlocked();
     }
 
     /*
@@ -126,7 +82,6 @@ class RemoteDogfightClient extends RemoteGamemode {
     async tick(timeGapMS){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
-        this.inputLock.unlock(); // TODO: Remove inputlock
         this.lastTickTime = Date.now();
         // Load state from server
         await this.loadStateFromServer();
@@ -135,7 +90,6 @@ class RemoteDogfightClient extends RemoteGamemode {
 
         // Tick the scene
         await scene.tick(timeGapMS);
-        this.inputLock.lock();
         this.correctTicks();
 
         // Send the current position

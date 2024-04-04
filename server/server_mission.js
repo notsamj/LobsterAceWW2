@@ -33,6 +33,10 @@ class ServerMisson extends Mission {
         this.lastState = this.generateState();
     }
 
+    isPaused(){
+        return false;
+    }
+
     /*
         Method Name: playerDisconnected
         Method Parameters:
@@ -52,22 +56,18 @@ class ServerMisson extends Mission {
     /*
         Method Name: pause
         Method Parameters: None
-        Method Description: Pauses the game
+        Method Description: Dud. Server gamemodes cannot pause.
         Method Return: void
     */
-    pause(){
-        this.paused = true;
-    }
+    pause(){}
 
     /*
         Method Name: unpause
         Method Parameters: None
-        Method Description: Resumes the game
+        Method Description: Dud. Server gamemodes cannot pause.
         Method Return: void
     */
-    unpause(){
-        this.paused = false;
-    }
+    unpause(){}
 
     /*
         Method Name: isRunning

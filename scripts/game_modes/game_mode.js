@@ -14,6 +14,7 @@ class Gamemode {
         this.running = false;
         this.numTicks = 0;
         this.startTime = Date.now();
+        this.lastTickTime = Date.now();
         this.tickInProgressLock = new Lock();
         this.lastTickTime = this.startTime;
     }
