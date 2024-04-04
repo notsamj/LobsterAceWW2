@@ -17,7 +17,7 @@ const AsyncUpdateManager = require("../scripts/general/async_update_manager.js")
     Class Name: ServerDogfight
     Description: A dogfight that is run by a server with connected clients.
 */
-class ServerDogfight {
+class ServerDogfight extends Dogfight {
     /*
         Method Name: constructor
         Method Parameters:
@@ -28,6 +28,7 @@ class ServerDogfight {
         Method Return: Constructor
     */
     constructor(dogfightJSON, gameHandler, serverObject){
+        super();
         this.serverObject = serverObject;
         this.gameHandler = gameHandler;
         this.winner = null;
@@ -58,10 +59,6 @@ class ServerDogfight {
         this.lastState = this.generateState();
 
         this.asyncUpdateManager = new AsyncUpdateManager();
-    }
-
-    getNumTicks(){
-        return this.numTicks;
     }
 
     isPaused(){

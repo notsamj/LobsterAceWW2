@@ -1,9 +1,8 @@
 /*
     Class Name: RemoteDogfightClient
     Description: A client for participating in a Dogfight run by a server.
-    TODO: Extend gamemode?
 */
-class RemoteDogfightClient {
+class RemoteDogfightClient extends RemoteGamemode {
     /*
         Method Name: constructor
         Method Parameters: None
@@ -11,9 +10,9 @@ class RemoteDogfightClient {
         Method Return: Constructor
     */
     constructor(){
+        super();
         this.translator = new GamemodeRemoteTranslator();
         this.stats = new AfterMatchStats();
-        this.tickInProgressLock = new Lock();
         this.stateLock = new Lock();
         this.numTicks = 0;
         this.lastServerState = null;
@@ -32,72 +31,6 @@ class RemoteDogfightClient {
         this.lastSentModCount = -1;
         this.asyncUpdateManager = new AsyncUpdateManager();
         this.startUp();
-    }
-
-    /*
-        Method Name: handlePlaneMovementUpdate
-        Method Parameters:
-            messageJSON:
-                A message object containg information about a plane's movement
-        Method Description: Updates plane's positions if the information provided is very recent. This makes the game less choppy.
-        Method Return: void
-    */
-    handlePlaneMovementUpdate(messageJSON){
-        if (objectHasKey(messageJSON, "game_over") && messageJSON["game_over"]){ return; }
-        if (typeof messageJSON["planes"] != typeof []){
-            console.log("Broken", messageJSON);
-        }
-        // Only interested if a tick is NOT in progress
-        if (this.tickInProgressLock.isLocked()){ return; }
-        this.tickInProgressLock.lock();
-
-        // Only take this information if numTicks match. It should be fine though if this info is from tick 0 but sent after numTicks++ but will be for both
-        if (messageJSON["num_ticks"] == this.numTicks){ 
-            for (let planeObject of messageJSON["planes"]){
-                if (planeObject["basic"]["id"] == this.userEntity.getID()){ continue; }
-                let plane = scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
-                // If plane not found -> ignore
-                if (plane == null){
-                    continue;
-                }
-                plane.loadMovementIfNew(planeObject);
-            }
-        }
-        this.tickInProgressLock.unlock();
-    }
-
-    /*
-        Method Name: getLastTickTime
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: integer
-    */
-    getLastTickTime(){ return this.lastTickTime; }
-
-    /*
-        Method Name: getTickInProgressLock
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: Lock
-    */
-    getTickInProgressLock(){ return this.tickInProgressLock; }
-
-    /*
-        Method Name: correctTicks
-        Method Parameters: None
-        Method Description: A disabled method. 
-        Method Return: void
-    */
-    correctTicks(){}
-
-    /*
-        Method Name: getNumTicks
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: integer
-    */
-    getNumTicks(){
-        return this.numTicks;
     }
 
     /*
@@ -203,7 +136,7 @@ class RemoteDogfightClient {
         // Tick the scene
         await scene.tick(timeGapMS);
         this.inputLock.lock();
-        this.numTicks++;
+        this.correctTicks();
 
         // Send the current position
         await this.sendLocalPlaneData(); // Awaited because have to convert userEntity to json

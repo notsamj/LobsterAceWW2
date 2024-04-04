@@ -1,9 +1,8 @@
 /*
     Class Name: RemoteMissionClient
     Description: A client for participating in a Mission run by a server.
-    TODO: Extend gamemode?
 */
-class RemoteMissionClient {
+class RemoteMissionClient extends RemoteGamemode {
     /*
         Method Name: constructor
         Method Parameters: None
@@ -11,11 +10,11 @@ class RemoteMissionClient {
         Method Return: Constructor
     */
     constructor(){
-        this.scene = scene;
+        super();
+        this.scene = sc1ne;
         this.scene.setGamemode(this);
         this.translator = new GamemodeRemoteTranslator();
         this.stats = new AfterMatchStats();
-        this.tickInProgressLock = new Lock();
         this.stateLock = new Lock();
         this.numTicks = 0;
         this.lastServerState = null;
@@ -32,32 +31,6 @@ class RemoteMissionClient {
         this.defenderSpawnLock = new TickLock(0, false);
         this.lastTickTime = Date.now();
         this.startUp();
-    }
-
-    /*
-        Method Name: getTickInProgressLock
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: Lock
-    */
-    getTickInProgressLock(){ return this.tickInProgressLock; }
-
-    /*
-        Method Name: correctTicks
-        Method Parameters: None
-        Method Description: A disabled method. 
-        Method Return: void
-    */
-    correctTicks(){}
-
-    /*
-        Method Name: getNumTicks
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: integer
-    */
-    getNumTicks(){
-        return this.numTicks;
     }
 
     /*
@@ -165,7 +138,7 @@ class RemoteMissionClient {
         // Tick the scene
         await scene.tick(timeGapMS);
         this.inputLock.lock();
-        this.numTicks++;
+        this.correctTicks();
 
         // Send the current position
         await this.sendPlanePosition();
