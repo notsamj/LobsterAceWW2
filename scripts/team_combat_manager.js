@@ -15,19 +15,19 @@ class TeamCombatManager {
         Method Parameters:
             teams:
                 The names of the alliances
-            scene:
-                A plane game scene
+            game:
+                A plane game game
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(teams, scene){
+    constructor(teams, game){
         this.planes = {};
         this.bullets = {};
         this.buildings = new NotSamLinkedList();
         this.bombs = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bombs"]);
         this.teams = teams;
         this.stats = new AfterMatchStats();
-        this.scene = scene;
+        this.game = game;
         for (let team of teams){
             this.planes[team] = new NotSamLinkedList();
             this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets"]);
@@ -284,7 +284,7 @@ class TeamCombatManager {
         Method Return: void
     */
     checkCollisions(timeDiff){
-        let previousTick = this.scene.getGamemode().getNumTicks()-1;
+        let previousTick = this.game.getNumTicks()-1;
         // No collisions on tick 0
         if (previousTick < 0){ return; }
         // No collisions in testing
@@ -408,7 +408,7 @@ class TeamCombatManager {
             }
         }
 
-        let currentTick = this.scene.getGamemode().getNumTicks();
+        let currentTick = this.game.getNumTicks();
         let previousTick = currentTick - 1;
 
         // Make simple bullet data
@@ -479,8 +479,6 @@ class TeamCombatManager {
     /*
         Method Name: displayAll
         Method Parameters:
-            scene:
-                Scene on which to display entities
             lX:
                 Lower x bound of the displayed area
             bY:
@@ -492,11 +490,9 @@ class TeamCombatManager {
         Method Description: Displays all entities that aren't excluded
         Method Return: void
     */
-    displayAll(scene, lX, bY, excludeID, displayTime){
+    displayAll(lX, bY, excludeID, displayTime){
         for (let team of this.teams){
             for (let [plane, pIndex] of this.planes[team]){
-                //if (!plane.isDead() && plane.getID() != excludeID){
-                //console.log("Going to display", plane.getID() != excludeID, plane.getID())
                 if (plane.getID() != excludeID){
                     plane.display(lX, bY, displayTime);
                 }
@@ -726,11 +722,9 @@ class TeamCombatManager {
         for (let buildingJSON of buildingsJSON){
             // Add building or set stats from JSON 
             if (index >= this.buildings.getLength()){
-                //console.log("Push", index, this.buildings.getLength())
-                this.buildings.push(Building.fromJSON(buildingJSON, this.scene));
+                this.buildings.push(Building.fromJSON(buildingJSON, this.game));
             }else{
-                //console.log(this.buildings.getLength(), index, this.buildings.get(index));
-                this.buildings.get(index).fromJSON(buildingJSON, this.scene);
+                this.buildings.get(index).fromJSON(buildingJSON, this.game);
             }
             index++;
         }
@@ -749,15 +743,10 @@ class TeamCombatManager {
             let index = bombJSON["index"];
             // Add bomb 
             if (index >= this.bombs.getLength()){
-                this.bombs.push(Bomb.fromJSON(bombJSON, this.scene));
+                this.bombs.push(Bomb.fromJSON(bombJSON, this.game));
             }else{
-                let test = this.bombs;
                 let bomb = this.bombs.get(index);
-                if (bomb == null){
-                    debugger;
-                }
-                console.log("bomb", bomb, bomb == null, bomb === null)
-                bomb.fromJSON(bombJSON, this.scene);
+                bomb.fromJSON(bombJSON, this.game);
             }
         }
     }
@@ -776,9 +765,9 @@ class TeamCombatManager {
             let index = bulletJSON["index"];
             // Add bullet 
             if (index >= this.bullets[allianceName].getLength()){
-                this.bullets[allianceName].push(Bullet.fromJSON(bulletJSON, this.scene));
+                this.bullets[allianceName].push(Bullet.fromJSON(bulletJSON, this.game));
             }else{
-                this.bullets[allianceName].get(index).fromJSON(bulletJSON, this.scene);
+                this.bullets[allianceName].get(index).fromJSON(bulletJSON, this.game);
             }
         }
     }

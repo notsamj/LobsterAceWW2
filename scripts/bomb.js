@@ -19,8 +19,8 @@ class Bomb extends Entity {
                 The starting x position of the bomb
             y:
                 The starting y position of the bomb
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                The game that the bomb is a part of
             xVelocity:
                 The starting x velocity of the bomb
             yVelocity:
@@ -30,8 +30,8 @@ class Bomb extends Entity {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, scene, xVelocity, yVelocity, currentTick){
-        super(scene);
+    constructor(x, y, game, xVelocity, yVelocity, currentTick){
+        super(game);
         this.startX = x;
         this.startY = y;
         this.interpolatedX = 0;
@@ -70,7 +70,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getX(){
-        return this.getXAtTick(this.scene.getGamemode().getNumTicks());
+        return this.getXAtTick(this.game.getNumTicks());
     }
 
     /*
@@ -96,7 +96,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getGameDisplayX(tick, currentTime){
-        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.game.getLastTickTime()) / 1000;
     }
 
     /*
@@ -106,7 +106,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getY(){
-        return this.getYAtTick(this.scene.getGamemode().getNumTicks());
+        return this.getYAtTick(this.game.getNumTicks());
     }
 
     /*
@@ -133,7 +133,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getGameDisplayY(tick, currentTime){
-        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.game.getLastTickTime()) / 1000;
         return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
@@ -146,8 +146,8 @@ class Bomb extends Entity {
         Method Return: void
     */
     calculateInterpolatedCoordinates(currentTime){
-        this.interpolatedX = this.getGameDisplayX(this.scene.getGamemode().getNumTicks(), currentTime);
-        this.interpolatedY = this.getGameDisplayY(this.scene.getGamemode().getNumTicks(), currentTime);
+        this.interpolatedX = this.getGameDisplayX(this.game.getNumTicks(), currentTime);
+        this.interpolatedY = this.getGameDisplayY(this.game.getNumTicks(), currentTime);
     }
 
     /*
@@ -157,7 +157,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getYVelocity(){
-        let tick = this.scene.getGamemode().getNumTicks();
+        let tick = this.game.getNumTicks();
         return this.getYVelocityAtTick(tick);
     }
 
@@ -211,7 +211,7 @@ class Bomb extends Entity {
     */
     explode(){
         // Loop through and damage all nearby buildings
-        for (let [building, bI] of this.scene.getTeamCombatManager().getBuildings()){
+        for (let [building, bI] of this.game.getTeamCombatManager().getBuildings()){
             if (building.distance(this) < PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]){
                 building.damage(1);
             }
@@ -226,7 +226,7 @@ class Bomb extends Entity {
         Method Return: void
     */
     die(){
-        this.scene.getSoundManager().play("explode", this.x, this.y);
+        this.game.getSoundManager().play("explode", this.x, this.y);
         super.die();
     }
 
@@ -328,8 +328,8 @@ class Bomb extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
-        let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
+        let displayX = this.game.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.game.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 
@@ -372,13 +372,13 @@ class Bomb extends Entity {
     /*
         Method Name: fromJSON
         Method Parameters:
-            scene:
-                A Scene reference that includes the bomb
+            game:
+                A Game reference that includes the bomb
         Method Description: Creates a Bomb object from a JSON representation
         Method Return: Bomb
     */
-    static fromJSON(scene, rep){
-        let bomb = new Bomb(0, 0, scene, 0, 0, 0);
+    static fromJSON(game, rep){
+        let bomb = new Bomb(0, 0, game, 0, 0, 0);
         bomb.fromJSON(rep);
         return bomb;
     }

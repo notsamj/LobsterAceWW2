@@ -26,16 +26,13 @@ class Mission extends Gamemode {
                 A JSON object with information about the mission
             missionSetupJSON:
                 Information about the setup of the mission. Difficulty, users
-            scene:
-                TODO
         Method Description: Constructor
         Method Return: Constructor
     */
-	constructor(missionObject, missionSetupJSON, scene){
+	constructor(missionObject, missionSetupJSON){
 		super();
 		this.missionObject = missionObject;
         this.stats = new AfterMatchStats();
-        this.scene = scene;
         this.scene.setGamemode(this);
         this.scene.getTeamCombatManager().setStatsManager(this.stats);
         this.allyDifficulty = missionSetupJSON["ally_difficulty"];
@@ -89,7 +86,7 @@ class Mission extends Gamemode {
         Method Return: boolean, true -> mission is running, false -> mission is not running
     */
 	isRunning(){
-		return this.running;
+		return this.running && !this.isGameOver();
 	}
 
 	/*
@@ -293,11 +290,11 @@ class Mission extends Gamemode {
             let difficulty = alliance == "Allies" ? allyDifficulty : axisDifficulty;
             for (let i = 0; i < count; i++){
                 if (PROGRAM_DATA["plane_data"][planeModel]["type"] == "Bomber"){
-                    planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, this.scene, difficulty));
+                    planes.push(BiasedCampaignBotBomberPlane.createBiasedPlane(planeModel, this, difficulty));
                 }else if (side == "attackers"){
-                    planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, this.scene, difficulty));
+                    planes.push(BiasedCampaignAttackerBotFighterPlane.createBiasedPlane(planeModel, this, difficulty));
                 }else { // Defender Fighter plane
-                    planes.push(BiasedCampaignDefenderBotFighterPlane.createBiasedPlane(planeModel, this.scene, difficulty));
+                    planes.push(BiasedCampaignDefenderBotFighterPlane.createBiasedPlane(planeModel, this, difficulty));
                 }
             }
         }
@@ -354,7 +351,7 @@ class Mission extends Gamemode {
         // Add users
         for (let user of userList){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
-            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this.scene, 0, true, false) : new HumanBomberPlane(userEntityModel, this.scene, 0, true, false);
+            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, 0, true, false) : new HumanBomberPlane(userEntityModel, this, 0, true, false);
             userPlane.setID(user["id"]);
             planes.push(userPlane);
             this.scene.addPlane(userPlane);
@@ -395,7 +392,7 @@ class Mission extends Gamemode {
             let hp = randomNumberInclusive(difficultyBuildingRules["min_health"], difficultyBuildingRules["max_health"]);
             let width = randomNumberInclusive(buildingRules["min_width"], buildingRules["max_width"]);
             let height = randomNumberInclusive(buildingRules["min_height"], buildingRules["max_height"]);
-            let building = new Building(nextX, width, height, hp, this.scene);
+            let building = new Building(nextX, width, height, hp, this);
             buildings.push(building);
             nextX += width + randomNumberInclusive(buildingRules["min_gap"], buildingRules["max_gap"]);
         }

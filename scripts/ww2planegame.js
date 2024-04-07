@@ -1,5 +1,4 @@
 // Global Variables & Constants
-var setupDone = false;
 var programOver = false;
 var debug = false;
 var runningTicksBehind = 0;
@@ -12,7 +11,6 @@ const MENU_MANAGER = new MenuManager();
 const USER_INPUT_MANAGER = new UserInputManager();
 const SOUND_MANAGER = new SoundManager();
 const PERFORMANCE_TIMER = new PerformanceTimer();
-const CLOUD_MANAGER = new CloudManager();
 const HEADS_UP_DISPLAY = new HUD();
 const MAIL_SERVICE = new MailService();
 const SERVER_CONNECTION = new ServerConnection();
@@ -61,12 +59,8 @@ async function tick(){
     
     // Draw frame
     if (FRAME_COUNTER.ready()){
-        await GAMEMODE_MANAGER.requestFrameBreak();
-
         FRAME_COUNTER.countFrame();
         draw();
-
-        GAMEMODE_MANAGER.endFrameBreak();
     }
     MAIN_TICK_LOCK.unlock();
     // Try and tick immediately (incase need to catch up if it doesn't need it catch up then no problem)
@@ -116,10 +110,6 @@ async function setup() {
         }
     });
 
-    // Prepare to start running
-    startTime = Date.now();
-    requestAnimationFrame(tick);
-
     await loadPlanes();
     await loadExtraImages();
 
@@ -135,14 +125,12 @@ async function setup() {
     HEADS_UP_DISPLAY.updateElement("Allied Planes", 0);
     HEADS_UP_DISPLAY.updateElement("Axis Planes", 0);
 
-
-    // Set up scene & menus
-    scene = new PlaneGameScene(SOUND_MANAGER, true);
-    scene.enableDisplay()
-    MENU_MANAGER = new MenuManager(getScreenWidth(), getScreenHeight());
+    // Set up menu manager
+    MENU_MANAGER.setup();
     MenuManager.setupClickListener();
 
-    setupDone = true;
+    // Prepare to start running
+    requestAnimationFrame(tick);
 }
 
 /*
@@ -153,13 +141,6 @@ async function setup() {
 */
 function draw() {
     clear();
-    if (!setupDone){
-        textSize(200);
-        fill("green");
-        text(`Loading`, 200, 200);
-        return;
-    }
-    scene.display();
     if (GAMEMODE_MANAGER.hasActiveGamemode()){
         GAMEMODE_MANAGER.getActiveGamemode().display();
     }

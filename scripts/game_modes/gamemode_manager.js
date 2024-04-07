@@ -2,10 +2,10 @@ class GamemodeManager {
     constructor(){
         this.gamemode = null;
     }
-    // TODO: Wait for main tick lock BEFORE allowing this.gamemode = 
+    // TODO: Put sound manager, everything here and provide to each gamemode a list?
 
     hasActiveGamemode(){
-        return this.gamemode == null;
+        return this.gamemode != null;
     }
 
     getActiveGamemode(){
@@ -27,12 +27,7 @@ class GamemodeManager {
         await this.gamemode.tick();
     }
 
-    async requestFrameBreak(){
-        return await this.gamemode.getTickInProgressLock().awaitUnlock(true);
-    }
-
-    endFrameBreak(){
-        if (!this.hasActiveGamemode()){ return; }
-        this.gamemode.getTickInProgressLock().unlock();
+    display(){
+        this.gamemode.display();
     }
 }

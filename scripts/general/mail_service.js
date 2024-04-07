@@ -296,7 +296,7 @@ class MailMonitor {
         this.mailbox = mailbox;
         this.mailbox.setAwaiting(true);
         this.callback = callback;
-        mailbox.addResponder(this);
+        mailbox.addReceiver(this);
     }
 
     /*

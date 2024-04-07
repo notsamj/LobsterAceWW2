@@ -5,19 +5,14 @@
 class Dogfight extends Gamemode {
     /*
         Method Name: constructor
-        Method Parameters:
-            scene:
-                A Scene object related to the game mode
+        Method Parameters: None
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(scene){
+    constructor(){
         super();
-        this.scene = scene;
         this.winner = null;
         this.isATestSession = false;
-        this.stats = new AfterMatchStats();
-        this.scene.getTeamCombatManager().setStatsManager(this.stats);
         this.startTime = Date.now();
         this.numTicks = 0;
         this.userEntity = null;

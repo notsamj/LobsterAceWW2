@@ -44,21 +44,34 @@ class PlaneGameScene extends Scene {
     /*
         Method Name: constructor
         Method Parameters:
-            soundManager:
-                A sound manager
+            gamemode:
+                The gamemode using the scene
             local:
                 Whether the scene is being run in a browser and being displayed
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(soundManager=null, local=false){
+    constructor(gamemode=null, local=false){
         super();
+        this.cloudManager = new CloudManager(this);
         this.local = local;
         this.collisionsEnabled = true;
-        this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
-        this.soundManager = soundManager;
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
-        this.gamemode = null;
+        this.gamemode = gamemode;
+        // Expected that these are set if need to be used
+        this.soundManager = null;
+        this.teamCombatManager = null;
+    }
+
+    // TODO: Comments
+    setExternalManagers(soundManager, teamCombatManager){
+        this.soundManager = soundManager;
+        this.teamCombatManager = teamCombatManager;
+    }
+
+    // TODO: Comments
+    getCloudManager(){
+        return this.cloudManager;
     }
 
     /*
@@ -106,16 +119,6 @@ class PlaneGameScene extends Scene {
     }
 
     /*
-        Method Name: getSoundManager
-        Method Parameters: None
-        Method Description: Getter
-        Method Return: SoundManager
-    */
-    getSoundManager(){
-        return this.soundManager;
-    }
-
-    /*
         Method Name: setBulletPhysicsEnabled
         Method Parameters:
             bulletPhysicsEnabled:
@@ -144,7 +147,7 @@ class PlaneGameScene extends Scene {
         Method Return: TeamCombatManager
     */
     getTeamCombatManager(){
-        return this.teamCombatManager;
+        return this.game.getTeamCombatManager();
     }
 
     /*
@@ -395,7 +398,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     displayBackground(lX, bY){
-        CLOUD_MANAGER.display(lX, bY);
+        this.cloudManager.display(lX, bY);
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
         let groundImage = images[PROGRAM_DATA["background"]["ground"]["picture"]];

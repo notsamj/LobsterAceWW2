@@ -5,12 +5,15 @@
 class CloudManager {
     /*
         Method Name: constructor
-        Method Parameters: None
+        Method Parameters:
+            scene:
+                A scene to manage the clouds for
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(){
+    constructor(scene){
         this.cloudClusters = new NotSamLinkedList();
+        this.scene = scene;
     }
 
     /*
@@ -77,7 +80,7 @@ class CloudManager {
         }
         // If Cloud Cluster do not exist, create it
         if (cC == null){
-            cC = new CloudCluster(quadrantX, quadrantY);
+            cC = new CloudCluster(quadrantX, quadrantY, this.scene);
             this.cloudClusters.append(cC);
         }
         return cC;
@@ -121,14 +124,16 @@ class CloudCluster {
                 The quadrant identifier with respect to the x axis
             quadrantY:
                 The quadrant identifier with respect to the y axis
+            scene:
+                A scene object for the clouds
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(quadrantX, quadrantY){
+    constructor(quadrantX, quadrantY, scene){
         this.quadrantX = quadrantX;
         this.quadrantY = quadrantY;
         this.clouds = [];
-        this.createClouds();
+        this.createClouds(scene);
     }
 
     /*
@@ -153,11 +158,13 @@ class CloudCluster {
 
     /*
         Method Name: createClouds
-        Method Parameters: None
+        Method Parameters:
+            scene:
+                A scene to put the cloud sin
         Method Description: Creates many cloud objects
         Method Return: void
     */
-    createClouds(){
+    createClouds(scene){
         let leftX = this.quadrantX * PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"];
         let bottomY = this.quadrantY * PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"];
         let seed = this.quadrantX + 2 * this.quadrantY; // TODO: Come up with something better?
@@ -168,7 +175,7 @@ class CloudCluster {
         for (let i = 0; i < numClouds; i++){
             let newCloudX = random.getIntInRangeExclusive(leftX + PROGRAM_DATA["cloud_generation"]["max_radius"] * 2, leftX + PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"] - PROGRAM_DATA["cloud_generation"]["max_radius"] * 2);
             let newCloudY = random.getIntInRangeExclusive(bottomY + PROGRAM_DATA["cloud_generation"]["max_radius"] * 2, bottomY + PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"] - PROGRAM_DATA["cloud_generation"]["max_radius"] * 2);
-            this.clouds.push(Cloud.create(newCloudX, newCloudY, random))
+            this.clouds.push(Cloud.create(newCloudX, newCloudY, random, scene))
         }
     }
 
@@ -196,12 +203,17 @@ class CloudCluster {
 class Cloud {
     /*
         Method Name: constructor
-        Method Parameters: None
+        Method Parameters:
+            circles:
+                A list of JSON object representing circles
+            scene:
+                A scene object for the clouds
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(circles){
+    constructor(circles, scene){
         this.circles = circles;
+        this.scene = scene;
     }
 
     /*
@@ -216,8 +228,8 @@ class Cloud {
     */
     display(lX, bY){
         for (let circleObject of this.circles){
-            let screenX = scene.getDisplayX(circleObject["x"], 0, lX, false);
-            let screenY = scene.getDisplayY(circleObject["y"], 0, bY, false);
+            let screenX = this.scene.getDisplayX(circleObject["x"], 0, lX, false);
+            let screenY = this.scene.getDisplayY(circleObject["y"], 0, bY, false);
             strokeWeight(0);
             fill(PROGRAM_DATA["cloud_generation"]["cloud_colour"]);
             circle(screenX, screenY, circleObject["radius"]*2);
@@ -234,10 +246,12 @@ class Cloud {
                 Center y of the circle
             random:
                 The random number generator instance
+            scene:
+                The scene that the clouds are apart of
         Method Description: Creates a cirlce object given x, y, random number generator
         Method Return: Cloud
     */
-    static create(x, y, random){
+    static create(x, y, random, scene){
         let circles = [];
         let numCircles = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_circles_per_cloud"], PROGRAM_DATA["cloud_generation"]["max_circles_per_cloud"]);
         let mainRadius = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_radius"], PROGRAM_DATA["cloud_generation"]["max_radius"]);
@@ -248,6 +262,6 @@ class Cloud {
             let circleRadius = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_radius"], PROGRAM_DATA["cloud_generation"]["max_radius"]);
             circles.push({"x": circleX, "y": circleY, "radius": circleRadius});
         }
-        return new Cloud(circles);
+        return new Cloud(circles, scene);
     }
 }

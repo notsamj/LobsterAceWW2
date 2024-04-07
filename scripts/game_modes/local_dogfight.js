@@ -12,8 +12,7 @@ class LocalDogfight extends Dogfight {
         Method Return: Constructor
     */
     constructor(dogfightJSON){
-        super(scene);
-        this.scene.setGamemode(this);
+        super();
         this.scene.setBulletPhysicsEnabled(PROGRAM_DATA["settings"]["use_physics_bullets"]);
         this.planes = [];
         this.setup(dogfightJSON);
@@ -63,9 +62,9 @@ class LocalDogfight extends Dogfight {
                 let aY = y + randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
                 let botPlane;
                 if (planeModelToType(planeName) == "Fighter"){
-                    botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this.scene, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
+                    botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }else{
-                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this.scene, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
+                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }
                 botPlane.setCenterX(aX);
                 botPlane.setCenterY(aY);
@@ -78,7 +77,7 @@ class LocalDogfight extends Dogfight {
         // Add user if plane otherwise freecam
         if (userIsAPlane){
             let userEntityModel = dogfightJSON["users"][0]["model"]; // Note: Expected NOT freecam
-            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this.scene, 0, true, true) : new HumanBomberPlane(userEntityModel, this.scene, 0, true, true);
+            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, 0, true, true) : new HumanBomberPlane(userEntityModel, this, 0, true, true);
             userPlane.setCenterX(planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
             userPlane.setCenterY(planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY);
             userPlane.setFacingRight((planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);
@@ -88,19 +87,19 @@ class LocalDogfight extends Dogfight {
         }else{
             let middleX = (allyX + axisX) / 2;
             let middleY = (allyY + axisY) / 2;
-            this.userEntity = new SpectatorCamera(scene);
+            this.userEntity = new SpectatorCamera(this);
             this.userEntity.setCenterX(middleX);
             this.userEntity.setCenterY(middleY);
         }
         //scene.addPlane(this.userEntity);
-        scene.setFocusedEntity(this.userEntity);
+        this.scene.setFocusedEntity(this.userEntity);
 
         // Add planes to the scene
-        scene.setEntities(this.planes);
+        this.scene.setEntities(this.planes);
 
         // Add user entity to scene entities if its a camera
         if (this.userEntity instanceof SpectatorCamera){
-            scene.addEntity(this.userEntity);
+            this.scene.addEntity(this.userEntity);
         }
     }
 

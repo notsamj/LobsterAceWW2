@@ -1,25 +1,29 @@
 /*
     Class Name: Entity
-    Description: An entity in a scene
+    Description: An entity in a game
 */
 class Entity {
 
     /*
         Method Name: constructor
         Method Parameters:
-            scene:
-                A Scene object related to the entity
+            game:
+                A Game object related to the entity
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(scene){
+    constructor(game){
         this.id = null;
         this.x = null;
         this.y = null;
-        this.scene = scene;
+        this.game = game;
         this.dead = false;
         this.interpolatedX = 0;
         this.interpolatedY = 0;
+    }
+
+    getGamemode(){
+        return this.game;
     }
 
     /*
@@ -29,7 +33,7 @@ class Entity {
         Method Return: Boolean, true -> In a browser, false -> not in a browser (on a server)
     */
     isLocal(){
-        return this.scene.isLocal();
+        return this.game.isLocal();
     }
 
     /*
@@ -116,13 +120,13 @@ class Entity {
     }
 
     /*
-        Method Name: getScene
+        Method Name: getGame
         Method Parameters: None
         Method Description: Getter
         Method Return: Scene
     */
-    getScene(){
-        return this.scene;
+    getGame(){
+        return this.game;
     }
 
     /*
@@ -290,7 +294,7 @@ class Entity {
         Method Return: void
     */
     delete(){
-        this.scene.delete(this.id);
+        this.game.getScene().delete(this.id);
     }
 
     // These methods will likely be overridden

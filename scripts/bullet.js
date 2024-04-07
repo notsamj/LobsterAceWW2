@@ -14,8 +14,8 @@ class Bullet extends Entity {
                 The starting x position of the bullet
             y:
                 The starting y position of the bullet
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A Game object related to the bullet
             xVelocity:
                 The starting x velocity of the bullet
             yVelocity:
@@ -29,12 +29,12 @@ class Bullet extends Entity {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, scene, xVelocity, yVelocity, angle, shooterID, shooterClass){
-        super(scene);
+    constructor(x, y, game, xVelocity, yVelocity, angle, shooterID, shooterClass){
+        super(game);
         this.startX = x;
         this.startY = y;
         angle = toRadians(angle); // Convert the angle to radians so it can be used in calculations
-        this.spawnedTick = this.scene.getGamemode().getNumTicks();
+        this.spawnedTick = this.game.getNumTicks();
         this.yVI = yVelocity + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.xVelocity = xVelocity + Math.cos(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bullet_data"]["radius"]);
@@ -70,7 +70,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getX(){
-        return this.getXAtTick(this.scene.getGamemode().getNumTicks());
+        return this.getXAtTick(this.game.getNumTicks());
     }
 
     /*
@@ -96,7 +96,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getGameDisplayX(tick, currentTime){
-        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.game.getLastTickTime()) / 1000;
     }
 
     /*
@@ -106,7 +106,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getY(){
-        return this.getYAtTick(this.scene.getGamemode().getNumTicks());
+        return this.getYAtTick(this.game.getNumTicks());
     }
 
     /*
@@ -129,7 +129,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getYVelocity(){
-        let tick = this.scene.getGamemode().getNumTicks();
+        let tick = this.game.getNumTicks();
         return this.getYVelocityAtTick(tick);
     }
 
@@ -157,7 +157,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getGameDisplayY(tick, currentTime){
-        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.scene.getGamemode().getLastTickTime()) / 1000;
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.game.getLastTickTime()) / 1000;
         return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
@@ -169,8 +169,8 @@ class Bullet extends Entity {
         Method Description: Calculate the interpolated x and y
         Method Return: void
     */    calculateInterpolatedCoordinates(currentTime){
-        this.interpolatedX = this.getGameDisplayX(this.scene.getGamemode().getNumTicks(), currentTime);
-        this.interpolatedY = this.getGameDisplayY(this.scene.getGamemode().getNumTicks(), currentTime);
+        this.interpolatedX = this.getGameDisplayX(this.game.getNumTicks(), currentTime);
+        this.interpolatedY = this.getGameDisplayY(this.game.getNumTicks(), currentTime);
     }
 
     /*
@@ -352,7 +352,7 @@ class Bullet extends Entity {
         }
 
         // Need further checking
-        return Bullet.checkForProjectileLinearCollision(this, plane, this.scene.getGamemode().getNumTicks()-1);
+        return Bullet.checkForProjectileLinearCollision(this, plane, this.game.getNumTicks()-1);
     }
 
     /*
@@ -376,8 +376,8 @@ class Bullet extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
-        let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
+        let displayX = this.game.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.game.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 
@@ -445,15 +445,15 @@ class Bullet extends Entity {
         Method Parameters:
             bulletJSONObject:
                 Information about a bullet
-            scene:
-                The scene that the bullet is a part of
+            game:
+                The Game that the bullet is a part of
         Method Description: Creates a bullet from a representation
         Method Return: JSON Object
     */
-    static fromJSON(bulletJSONObject, scene){
+    static fromJSON(bulletJSONObject, game){
         let x = bulletJSONObject["start_x"];
         let y = bulletJSONObject["start_y"];
-        let bullet = new Bullet(x, y, scene, 0, 0, 0, bulletJSONObject["shooter_id"], bulletJSONObject["shooter_class"]);
+        let bullet = new Bullet(x, y, game, 0, 0, 0, bulletJSONObject["shooter_id"], bulletJSONObject["shooter_class"]);
         bullet.setDead(bulletJSONObject["dead"]);
         bullet.fromJSON(bulletJSONObject, true);
         return bullet;

@@ -22,8 +22,8 @@ class HumanBomberTurret extends BomberTurret {
                 An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A Game object that the human bomber turret is a part of
             plane:
                 The bomber plane which the turret is attached to
             autonomous:
@@ -32,8 +32,8 @@ class HumanBomberTurret extends BomberTurret {
         Method Return: Constructor
     */
 
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane, autonomous=true){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, game, plane, autonomous=true){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, game, plane);
         this.autonomous = autonomous;
     }
 
@@ -57,7 +57,7 @@ class HumanBomberTurret extends BomberTurret {
     */
     getShootingAngle(){
         let x = window.mouseX - getScreenWidth() / 2;
-        let y = this.scene.changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
+        let y = this.game.getScene().changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
         let x0 = 0;
         let y0 = 0;
         return getDegreesFromDisplacement(x - x0, y - y0);
@@ -96,8 +96,8 @@ class HumanBomberTurret extends BomberTurret {
         Method Parameters:
             gunObject:
                 A JSON object with details about the gun
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A Game object related to the turret
             plane:
                 The bomber plane which the turret is attached to
             autonomous:
@@ -105,8 +105,8 @@ class HumanBomberTurret extends BomberTurret {
         Method Description: Create a bot bomber turret
         Method Return: HumanBomberTurret
     */
-    static create(gunObject, scene, plane, autonomous){
-        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], scene, plane, autonomous);
+    static create(gunObject, game, plane, autonomous){
+        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], game, plane, autonomous);
     }
 }
 // If using NodeJS -> Export the class

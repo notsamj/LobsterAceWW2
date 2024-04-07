@@ -17,6 +17,11 @@ class Gamemode {
         this.lastTickTime = Date.now();
         this.tickInProgressLock = new Lock();
         this.lastTickTime = this.startTime;
+
+        this.scene = new PlaneGameScene(this);
+        this.soundManager = new SoundManager(this);
+        this.stats = new AfterMatchStats(this);
+        this.teamCombatManager = new TeamCombatManager();
     }
 
     /*

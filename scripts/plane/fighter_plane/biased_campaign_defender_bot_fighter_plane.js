@@ -14,8 +14,8 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             biases:
                 An object containing keys and bias values
             angle:
@@ -27,8 +27,8 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, biases, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, scene, biases, angle, facingRight, autonomous);
+    constructor(planeClass, game, biases, angle=0, facingRight=true, autonomous=true){
+        super(planeClass, game, biases, angle, facingRight, autonomous);
     }
 
     /*
@@ -36,14 +36,14 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters:
             rep:
                 A json representation of a biased bot fighter plane
-            scene:
+            game:
                 A Scene object
         Method Description: Creates a new Fighter Plane
         Method Return: BiasedCampaignDefenderBotFighterPlane
     */
-    static fromJSON(rep, scene){
+    static fromJSON(rep, game){
         let planeClass = rep["basic"]["plane_class"];
-        let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
+        let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, game, rep["biases"], rep["angle"], rep["facing_right"], false);
         fp.initFromJSON(rep)
         return fp;
     }
@@ -84,16 +84,16 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
-            scene:
-                A scene objet related to the plane
+            game:
+                A game objet related to the plane
             difficulty:
                 The current difficulty setting
         Method Description: Return a new biased campaign defender plane
         Method Return: BiasedCampaignDefenderBotFighterPlane
     */
-    static createBiasedPlane(planeClass, scene, difficulty){
+    static createBiasedPlane(planeClass, game, difficulty){
         let biases = BiasedBotFighterPlane.createBiases(difficulty);
-        return new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, biases);
+        return new BiasedCampaignDefenderBotFighterPlane(planeClass, game, biases);
     }
 }
 // If using Node JS -> Export the class

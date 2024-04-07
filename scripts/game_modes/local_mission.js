@@ -10,13 +10,11 @@ class LocalMission extends Mission {
                 A JSON object with information about the mission
             missionSetupJSON:
                 Information about the setup of the mission. Difficulty, users
-            scene:
-                A Scene object which will be used for the mission
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(missionObject, missionSetupJSON, scene){
-        super(missionObject, missionSetupJSON, scene);
+    constructor(missionObject, missionSetupJSON){
+        super(missionObject, missionSetupJSON);
         this.deadCamera = null;
         if (missionSetupJSON["users"].length == 0){
             let cam = new SpectatorCamera(scene, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);

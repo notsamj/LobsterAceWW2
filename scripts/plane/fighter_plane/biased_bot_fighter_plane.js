@@ -28,8 +28,8 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A Game object related to the fighter plane
             biases:
                 An object containing keys and bias values
             angle:
@@ -41,8 +41,8 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, biases, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, scene, angle, facingRight);
+    constructor(planeClass, game, biases, angle=0, facingRight=true, autonomous=true){
+        super(planeClass, game, angle, facingRight);
         this.currentEnemy = null;
         this.turningDirection = null;
         this.ticksOnCourse = 0;
@@ -109,7 +109,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            if (this.shootLock.isReady() && (!this.scene.isLocal() || GAMEMODE_MANAGER.getActiveGamemode().runsLocally())){
+            if (this.shootLock.isReady() && this.game.runsLocally()){
                 this.shootLock.lock();
                 this.shoot();
             }
@@ -191,16 +191,16 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Parameters:
             rep:
                 A json representation of a biased bot fighter plane
-            scene:
-                A Scene object
+            game:
+                A Gamemode object
             autonomous:
                 Whether or not the new plane can make its own decisions (Boolean)
         Method Description: Creates a new Biased Bot Fighter Plane
         Method Return: BiasedBotFighterPlane
     */
-    static fromJSON(rep, scene){
+    static fromJSON(rep, game){
         let planeClass = rep["basic"]["plane_class"];
-        let fp = new BiasedBotFighterPlane(planeClass, scene, rep["biases"], rep["angle"], rep["facing_right"], false);
+        let fp = new BiasedBotFighterPlane(planeClass, game, rep["biases"], rep["angle"], rep["facing_right"], false);
         fp.initFromJSON(rep)
         return fp;
     }
@@ -458,7 +458,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Return: List
     */
     getEnemyList(){
-        let entities = this.scene.getTeamCombatManager().getLivingPlanes();
+        let entities = this.game.getTeamCombatManager().getLivingPlanes();
         let enemies = [];
         for (let entity of entities){
             if (entity instanceof Plane && !this.onSameTeam(entity) && entity.isAlive()){
@@ -486,7 +486,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         
         for (let enemy of enemies){
             let distance = this.distance(enemy);
-            let score = BiasedBotFighterPlane.calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
+            let score = BiasedBotFighterPlane.calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.game, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "enemy": enemy,
@@ -535,8 +535,8 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
-            scene:
-                A scene objet related to the plane
+            game:
+                A game objet related to the plane
             difficulty:
                 The current difficulty setting
             autonomous:
@@ -544,9 +544,9 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Description: Return a new biased plane
         Method Return: BiasedBotFighterPlane
     */
-    static createBiasedPlane(planeClass, scene, difficulty, autonomous=true){
+    static createBiasedPlane(planeClass, game, difficulty, autonomous=true){
         let biases = BiasedBotFighterPlane.createBiases(difficulty);
-        return new BiasedBotFighterPlane(planeClass, scene, biases, 0, true, autonomous);
+        return new BiasedBotFighterPlane(planeClass, game, biases, 0, true, autonomous);
     }
 
     /*
@@ -579,8 +579,8 @@ class BiasedBotFighterPlane extends FighterPlane {
     /*
         Method Name: isFocused
         Method Parameters:
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             enemyID:
                 A string ID of the enemy plane
             myID:
@@ -588,15 +588,15 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Description: Determines if another plane is focused on an enemy that "I" am thinking about focusing on
         Method Return: boolean, True if another plane has the enemyID as a current enemy, false otherwise
     */
-    static isFocused(scene, enemyID, myID){
-        return focusedCount(scene, enemyID, myID) == 0;
+    static isFocused(game, enemyID, myID){
+        return focusedCount(game, enemyID, myID) == 0;
     }
 
     /*
         Method Name: focusedCount
         Method Parameters:
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             enemyID:
                 A string ID of the enemy plane
             myID:
@@ -604,9 +604,9 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Description: Determines how many other planes are focused on an enemy that "I" am thinking about focusing on
         Method Return: int
     */
-    static focusedCount(scene, enemyID, myID){
+    static focusedCount(game, enemyID, myID){
         let count = 0;
-        for (let plane of scene.getTeamCombatManager().getLivingPlanes()){
+        for (let plane of game.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof BiasedBotFighterPlane && plane.getID() != myID && plane.getCurrentEnemy() != null && plane.getCurrentEnemy().getID() == enemyID){
                 count += 1;
             }

@@ -18,7 +18,7 @@ class RemoteDogfight extends Dogfight {
         Method Return: Constructor
     */
     constructor(serverConnection, startingEntities, startTime, numTicks){
-        super(scene);
+        super();
         for (let entity of startingEntities){
             entity.setGamemode(this);
         }
@@ -189,7 +189,7 @@ class RemoteDogfight extends Dogfight {
         if (state == null){ debugger; }
         let entities = RemoteDogfight.createNewEntities(state);
         if (planeType["planeClass"] == "freecam"){
-            entities.push(new SpectatorCamera(scene))
+            entities.push(new SpectatorCamera(this.scene))
             entities[entities.length-1].setID(USER_DATA["name"]);
         }
         return new RemoteDogfight(serverConnection, entities, state["startTime"], state["numTicks"]);
@@ -204,7 +204,7 @@ class RemoteDogfight extends Dogfight {
         Method Return: MultiplayerRemoteFighterPlane
     */
     static createNewRemotePlane(planeObj){
-        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], scene, GAMEMODE_MANAGER.getActiveGamemode(), planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
+        let plane = new MultiplayerRemoteFighterPlane(planeObj["plane_class"], this.scene, GAMEMODE_MANAGER.getActiveGamemode(), planeObj["rotation_time"], planeObj["speed"], planeObj["max_speed"], planeObj["throttle_constant"], planeObj["health"], planeObj["lastActions"], planeObj["angle"], planeObj["facing"]);
         plane.setID(planeObj["id"]);
         plane.update(planeObj);
         return plane;
@@ -218,12 +218,11 @@ class RemoteDogfight extends Dogfight {
         Method Description: Creates a new human plane, given an object describing it
         Method Return: MultiplayerHumanFighterPlane
     */
-    static createNewHumanPlane(planeObj){
+    createNewHumanPlane(planeObj){
         // planeClass, scene, angle=0, facingRight=true
-        let plane = new MultiplayerHumanFighterPlane(planeObj["plane_class"], scene);
+        let plane = new MultiplayerHumanFighterPlane(planeObj["plane_class"], this);
         plane.update(planeObj);
         plane.setID(planeObj["id"]);
-        console.log("New plane", plane.isFacingRight(), planeObj)
         return plane;
     }
 
@@ -235,13 +234,13 @@ class RemoteDogfight extends Dogfight {
         Method Description: Creates a list of entities based on information from the server state
         Method Return: List of entities
     */
-    static createNewEntities(state){
+    createNewEntities(state){
         let entities = []; 
         for (let planeObj of state["planes"]){
             if (USER_DATA["name"] == planeObj["id"]){
-                entities.push(RemoteDogfight.createNewHumanPlane(planeObj));
+                entities.push(this.createNewHumanPlane(planeObj));
             }else{
-                entities.push(RemoteDogfight.createNewRemotePlane(planeObj));
+                entities.push(this.createNewRemotePlane(planeObj));
             }
         }
         return entities;

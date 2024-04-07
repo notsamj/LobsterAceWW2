@@ -23,12 +23,12 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the bomber plane
             angle:
-                The starting angle of the fighter plane (integer)
+                The starting angle of the bomber plane (integer)
             facingRight:
-                The starting orientation of the fighter plane (boolean)
+                The starting orientation of the bomber plane (boolean)
             biases:
                 An object containing keys and bias values
             autonomous:
@@ -36,8 +36,8 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle, facingRight, biases, autonomous=true){
-        super(planeClass, scene, angle, facingRight, autonomous);
+    constructor(planeClass, game, angle, facingRight, biases, autonomous=true){
+        super(planeClass, game, angle, facingRight, autonomous);
         this.currentEnemy = null;
         this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
@@ -93,16 +93,16 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Parameters:
             rep:
                 A json representation of a biased bot bomber plane
-            scene:
+            game:
                 A Scene object
             autonomous:
                 Whether or not the new plane can make its own decisions (Boolean)
         Method Description: Creates a new Biased Bot Bomber Plane
         Method Return: BiasedBotBomberPlane
     */
-    static fromJSON(rep, scene, autonomous){
+    static fromJSON(rep, game, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let bp = new BiasedBotBomberPlane(planeClass, scene, 0, true, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
+        let bp = new BiasedBotBomberPlane(planeClass, game, 0, true, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
         bp.initFromJSON(rep)
         return bp;
     }
@@ -141,7 +141,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Return: List of planes
     */
     getFriendlyList(){
-        let planes = this.scene.getTeamCombatManager().getLivingPlanes();
+        let planes = this.game.getTeamCombatManager().getLivingPlanes();
         let friendlies = [];
         for (let plane of planes){
             if (plane instanceof Plane && this.onSameTeam(plane) && plane.isAlive()){
@@ -257,7 +257,7 @@ class BiasedBotBomberPlane extends BomberPlane {
     generateGuns(biases){
         this.guns = [];
         for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases, this.autonomous));
+            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.game, this, biases, this.autonomous));
         }
     }
 
@@ -266,8 +266,8 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
-            scene:
-                A scene objet related to the plane
+            game:
+                A game objet related to the plane
             difficulty:
                 The current difficulty setting
             autonomous:
@@ -275,7 +275,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Description: Return the max shooting distance of this biased plane
         Method Return: float
     */
-    static createBiasedPlane(planeClass, scene, difficulty, autonomous){
+    static createBiasedPlane(planeClass, game, difficulty, autonomous){
         let biases = {};
         for (let [key, bounds] of Object.entries(PROGRAM_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
             let upperBound = bounds["upper_range"]["upper_bound"];
@@ -290,7 +290,7 @@ class BiasedBotBomberPlane extends BomberPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedBotBomberPlane(planeClass, scene, true, 0, biases, autonomous); // Temporary values some will be changed
+        return new BiasedBotBomberPlane(planeClass, game, true, 0, biases, autonomous); // Temporary values some will be changed
     }
 
     /*
@@ -344,7 +344,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         // Loop through all enemies and determine a score for being good to attack
         for (let enemy of this.enemyList){
             let distance = this.distance(enemy);
-            let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.scene, enemy.getID(), this.getID()) * PROGRAM_DATA["settings"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"]);
+            let focusedCountMultiplier = (BiasedBotFighterPlane.focusedCount(this.game, enemy.getID(), this.getID()) * PROGRAM_DATA["settings"]["ENEMY_DISTANCE_SCORE_MULTIPLIER_BASE"]);
             if (focusedCountMultiplier < 1 ){ focusedCountMultiplier = 1; }
             let score = distance / focusedCountMultiplier; // Most focusing the better (from POV of bomber)
 
@@ -487,7 +487,7 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Return: List
     */
     getEnemyList(){
-        let entities = this.scene.getTeamCombatManager().getLivingPlanes();
+        let entities = this.game.getTeamCombatManager().getLivingPlanes();
         let enemies = [];
         for (let entity of entities){
             if (entity instanceof Plane && !this.onSameTeam(entity) && entity.isAlive()){

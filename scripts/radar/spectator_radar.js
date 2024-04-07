@@ -6,13 +6,13 @@ class SpectatorRadar extends Radar {
     /*
         Method Name: constructor
         Method Parameters:
-            entity:
+            spectatorCamera:
                 The spectator camera entity
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(entity){
-        super(entity);
+    constructor(spectatorCamera){
+        super(spectatorCamera);
     }
 
     /*
@@ -23,7 +23,7 @@ class SpectatorRadar extends Radar {
     */
     update(){
         this.radarData = this.resetRadar();
-        for (let plane of scene.getTeamCombatManager().getLivingPlanes()){
+        for (let plane of this.entity.getGamemode().getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane){
                 this.placeOnRadar(plane.getX(), plane.getY(), PROGRAM_DATA["team_to_colour"]["fighter_plane"][planeModelToAlliance(plane.getPlaneClass())]);
             }else if (plane instanceof BomberPlane){
@@ -32,7 +32,7 @@ class SpectatorRadar extends Radar {
         }
 
         // Add all buildings to radar
-        for (let [building, bI] of scene.getTeamCombatManager().getBuildings()){
+        for (let [building, bI] of this.entity.getGamemode().getBuildings()){
             if (building.isDead()){ continue; }
             this.placeOnRadar(building.getCenterX(), building.getCenterY(), "darkgrey");
         }

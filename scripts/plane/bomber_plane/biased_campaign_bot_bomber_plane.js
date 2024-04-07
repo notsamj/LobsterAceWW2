@@ -18,8 +18,8 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -31,8 +31,8 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle, facingRight, biases, autonomous=true){
-        super(planeClass, scene, angle, facingRight);
+    constructor(planeClass, game, angle, facingRight, biases, autonomous=true){
+        super(planeClass, game, angle, facingRight);
         this.biases = biases;
         this.generateGuns(biases);
         this.throttle += this.biases["throttle"];
@@ -129,16 +129,16 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Parameters:
             rep:
                 A json representation of a biased bot bomber plane
-            scene:
-                A Scene object
+            game:
+                A game object
             autonomous:
                 Whether or not the new plane can make its own decisions (Boolean)
         Method Description: Creates a new Biased Campaign Bot Bomber Plane
         Method Return: BiasedCampaignBotBomberPlane
     */
-    static fromJSON(rep, scene, autonomous){
+    static fromJSON(rep, game, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let bp = new BiasedCampaignBotBomberPlane(planeClass, scene, rep["angle"], rep["facing_right"], rep["biases"], autonomous);
+        let bp = new BiasedCampaignBotBomberPlane(planeClass, game, rep["angle"], rep["facing_right"], rep["biases"], autonomous);
         bp.initFromJSON(rep)
         return bp;
     }
@@ -214,7 +214,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     generateGuns(biases){
         this.guns = [];
         for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.scene, this, biases, this.autonomous));
+            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.game, this, biases, this.autonomous));
         }
     }
 
@@ -225,7 +225,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Return: List
     */
     getEnemyList(){
-        let entities = this.scene.getTeamCombatManager().getLivingPlanes();
+        let entities = this.game.getTeamCombatManager().getLivingPlanes();
         let enemies = [];
         for (let entity of entities){
             if (entity instanceof Plane && !this.onSameTeam(entity)){
@@ -279,14 +279,14 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
-            scene:
-                A scene objet related to the plane
+            game:
+                A game objet related to the plane
             difficulty:
                 The current difficulty setting
         Method Description: Return the max shooting distance of this biased plane
         Method Return: float
     */
-    static createBiasedPlane(planeClass, scene, difficulty){
+    static createBiasedPlane(planeClass, game, difficulty){
         let biases = {};
         for (let [key, bounds] of Object.entries(PROGRAM_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
             let upperBound = bounds["upper_range"]["upper_bound"];
@@ -301,7 +301,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedCampaignBotBomberPlane(planeClass, scene, true, 0, biases); // Temporary values some will be changed
+        return new BiasedCampaignBotBomberPlane(planeClass, game, true, 0, biases); // Temporary values some will be changed
     }
 
     /*
@@ -313,7 +313,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     getBuildingInfo(){
         let frontEnd = null;
         let backEnd = null;
-        for (let [building, bI] of this.scene.getTeamCombatManager().getBuildings()){
+        for (let [building, bI] of this.game.getTeamCombatManager().getBuildings()){
             if (building.isDead()){ continue; }
             if (frontEnd == null || building.getX() < frontEnd){
                 frontEnd = building.getX();

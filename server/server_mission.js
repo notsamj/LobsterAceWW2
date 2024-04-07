@@ -16,8 +16,8 @@ class ServerMisson extends Mission {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(missionSetupJSON, gameHandler, scene){
-        super(PROGRAM_DATA["missions"][missionSetupJSON["mission_id"]], missionSetupJSON, scene);
+    constructor(missionSetupJSON, gameHandler){
+        super(PROGRAM_DATA["missions"][missionSetupJSON["mission_id"]], missionSetupJSON);
         this.gameHandler = gameHandler;
         this.winner = null;
         this.bulletPhysicsEnabled = missionSetupJSON["bullet_physics_enabled"];
@@ -165,13 +165,13 @@ class ServerMisson extends Mission {
             stateRep["sound_list"] = this.soundManager.getSoundRequestList();
             this.soundManager.clearRequests();
             // Add planes
-            stateRep["planes"] = this.scene.getTeamCombatManager().getPlaneJSON();
+            stateRep["planes"] = this.teamCombatManager.getPlaneJSON();
             // Add bullets
-            stateRep["bullets"] = this.scene.getTeamCombatManager().getBulletJSON();
+            stateRep["bullets"] = this.teamCombatManager.getBulletJSON();
             // Add bombs
-            stateRep["bombs"] = this.scene.getTeamCombatManager().getBombJSON();
+            stateRep["bombs"] = this.teamCombatManager.getBombJSON();
             // Add buldings
-            stateRep["buildings"] = this.scene.getTeamCombatManager().getBuildingJSON();
+            stateRep["buildings"] = this.teamCombatManager.getBuildingJSON();
             // Lock timers
             stateRep["attacker_spawn_ticks_left"] = this.attackerSpawnLock.getTicksLeft();
             stateRep["defender_spawn_ticks_left"] = this.defenderSpawnLock.getTicksLeft();
@@ -193,7 +193,7 @@ class ServerMisson extends Mission {
         await this.userInputLock.awaitUnlock(true);
         // Update all planes based on user input
         for (let [planeObject, planeIndex] of this.userInputQueue){
-            for (let plane of this.scene.getTeamCombatManager().getLivingPlanes()){
+            for (let plane of this.teamCombatManager.getLivingPlanes()){
                 if (plane.getID() == planeObject["basic"]["id"]){
                     plane.fromJSON(planeObject);
                     break;

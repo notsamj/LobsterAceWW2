@@ -47,7 +47,6 @@ class PauseMenu extends Menu {
         Method Return: void
     */
     goToMainMenu(){
-        scene.disableDisplay();
         MENU_MANAGER.switchTo("main");
     }
 }

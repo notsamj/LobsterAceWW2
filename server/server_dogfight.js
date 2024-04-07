@@ -264,9 +264,9 @@ class ServerDogfight extends Dogfight {
             stateRep["sound_list"] = this.soundManager.getSoundRequestList();
             this.soundManager.clearRequests();
             // Add planes
-            stateRep["planes"] = this.scene.getTeamCombatManager().getPlaneJSON();
+            stateRep["planes"] = this.teamCombatManager.getPlaneJSON();
             // Add bullets
-            stateRep["bullets"] = this.scene.getTeamCombatManager().getBulletJSON();
+            stateRep["bullets"] = this.teamCombatManager.getBulletJSON();
         }else{
             // Add after match stats
             stateRep["stats"] = this.stats.toJSON();
@@ -296,7 +296,7 @@ class ServerDogfight extends Dogfight {
         // Add users
         for (let user of dogfightJSON["users"]){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
-            let userPlane = helperFunctions.planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this.scene, 0, true, false) : new HumanBomberPlane(userEntityModel, this.scene, 0, true, false);
+            let userPlane = helperFunctions.planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, 0, true, false) : new HumanBomberPlane(userEntityModel, this, 0, true, false);
             userPlane.setCenterX(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
             userPlane.setCenterY(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY);
             userPlane.setFacingRight((helperFunctions.planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);
@@ -315,9 +315,9 @@ class ServerDogfight extends Dogfight {
                 let aY = y + helperFunctions.randomFloatBetween(-1 * PROGRAM_DATA["dogfight_settings"]["spawn_offset"], PROGRAM_DATA["dogfight_settings"]["spawn_offset"]);
                 let botPlane;
                 if (helperFunctions.planeModelToType(planeName) == "Fighter"){
-                    botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this.scene, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
+                    botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }else{
-                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this.scene, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
+                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }
                 botPlane.setCenterX(aX);
                 botPlane.setCenterY(aY);
@@ -337,7 +337,7 @@ class ServerDogfight extends Dogfight {
         if (this.isPaused()){ return; }
         await this.userInputLock.awaitUnlock(true);
         // Update all planes based on user input
-        for (let plane of this.scene.getTeamCombatManager().getLivingPlanes()){
+        for (let plane of this.teamCombatManager.getLivingPlanes()){
             let planeID = plane.getID();
             let latestPlaneUpdate = await this.asyncUpdateManager.getLastUpTo(planeID, this.numTicks);
             if (latestPlaneUpdate == null){ continue; }

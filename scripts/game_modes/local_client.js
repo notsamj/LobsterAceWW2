@@ -1,4 +1,4 @@
-class LocalClient {
+class LocalClient extends ClientGamemode {
     constructor(){
         super();
     }

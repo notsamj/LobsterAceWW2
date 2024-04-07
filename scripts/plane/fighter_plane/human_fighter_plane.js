@@ -17,8 +17,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -28,8 +28,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, scene, angle, facingRight);
+    constructor(planeClass, game, angle=0, facingRight=true, autonomous=true){
+        super(planeClass, game, angle, facingRight);
         this.lrLock = new Lock();
         this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
@@ -119,16 +119,16 @@ class HumanFighterPlane extends FighterPlane {
         Method Parameters:
             rep:
                 A json representation of a human fighter plane
-            scene:
-                A Scene object
+            game:
+                A game object
             autonomous:
                 Whether or not the new plane can make its own decisions (Boolean)
         Method Description: Creates a new Human Fighter Plane
         Method Return: HumanFighterPlane
     */
-    static fromJSON(rep, scene, autonomous){
+    static fromJSON(rep, game, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let hFP = new HumanFighterPlane(planeClass, scene, rep["angle"], rep["facing_right"], autonomous);
+        let hFP = new HumanFighterPlane(planeClass, game, rep["angle"], rep["facing_right"], autonomous);
         hFP.initFromJSON(rep);
         return hFP;
     }

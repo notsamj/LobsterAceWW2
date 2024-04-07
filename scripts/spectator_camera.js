@@ -6,8 +6,8 @@ class SpectatorCamera extends Entity {
     /*
         Method Name: constructor
         Method Parameters:
-            scene:
-                Scene in which the spectator camera operates
+            game:
+                Game in which the spectator camera operates
             x:
                 Starting x of the spectator camera
             y:
@@ -15,8 +15,8 @@ class SpectatorCamera extends Entity {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(scene, x=0, y=0){
-        super(scene);
+    constructor(game, x=0, y=0){
+        super(game);
         this.x = x;
         this.y = y;
         this.followingEntity = null;
@@ -88,7 +88,7 @@ class SpectatorCamera extends Entity {
         if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
 
         // Otherwise determine the previous one and follow it
-        let followableEntities = this.scene.getGoodToFollowEntities();
+        let followableEntities = this.game.getScene().getGoodToFollowEntities();
         let found = false;
         let i = followableEntities.length - 1;
         while (i >= 0){
@@ -168,7 +168,7 @@ class SpectatorCamera extends Entity {
         if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
 
         // Otherwise determine the next one and follow it
-        let followableEntities = this.scene.getGoodToFollowEntities();
+        let followableEntities = this.game.getScene().getGoodToFollowEntities();
         let found = false;
         let i = 0;
         while (i < followableEntities.length){
@@ -195,7 +195,7 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     spectateFirstEntity(){
-        let followableEntities = this.scene.getGoodToFollowEntities();
+        let followableEntities = this.game.getScene().getGoodToFollowEntities();
         if (followableEntities.length > 0){
             let bestEntity = null;
             let bestDistance = null;
@@ -221,7 +221,7 @@ class SpectatorCamera extends Entity {
         if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
 
         // Otherwise determine the next one and follow it
-        let followableEntities = this.scene.getGoodToFollowEntities();
+        let followableEntities = this.game.getScene().getGoodToFollowEntities();
         let alliance = planeModelToAlliance(this.followingEntity.getModel());
         let found = false;
         let i = 0;

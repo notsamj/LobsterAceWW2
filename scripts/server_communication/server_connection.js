@@ -173,9 +173,9 @@ class ServerConnection {
         }
         if (dataJSON["message"] == "game_started"){
             if (dataJSON["game_type"] == "dogfight"){
-                GAMEMODE_MANAGER.getActiveGamemode() = new RemoteDogfightClient();
+                GAMEMODE_MANAGER.setActiveGamemode(new RemoteDogfightClient());
             }else{ // Mission
-                GAMEMODE_MANAGER.getActiveGamemode() = new RemoteMissionClient();
+                GAMEMODE_MANAGER.setActiveGamemode(new RemoteMissionClient());
             }
             MENU_MANAGER.switchTo("game");
         }

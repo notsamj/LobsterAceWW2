@@ -59,7 +59,7 @@ class MissionStartMenu extends Menu {
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            GAMEMODE_MANAGER.setActiveGamemode(new LocalMission(this.mission, this.createJSONRep(), scene));
+            GAMEMODE_MANAGER.setActiveGamemode(new LocalMission(this.mission, this.createJSONRep()));
             this.goToGame();
         }));
 

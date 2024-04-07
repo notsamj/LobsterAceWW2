@@ -22,17 +22,17 @@ class Plane extends Entity {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A Gamemode object related to the plane
             angle:
-                The starting angle of the fighter plane (integer)
+                The starting angle of the plane (integer)
             facingRight:
-                The starting orientation of the fighter plane (boolean)
+                The starting orientation of the plane (boolean)
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true){
-        super(scene);
+    constructor(planeClass, game, angle=0, facingRight=true){
+        super(game);
         this.planeClass = planeClass;
         this.facingRight = facingRight;
         this.angle = angle;
@@ -90,7 +90,7 @@ class Plane extends Entity {
         Method Return: integer
     */
     getCurrentTicks(){
-        return this.scene.getGamemode().getNumTicks();
+        return this.game.getNumTicks();
     }
 
     /*
@@ -320,10 +320,10 @@ class Plane extends Entity {
         Method Return: void
     */
     damage(amount){
-        this.scene.getSoundManager().play("damage", this.x, this.y);
+        this.game.getSoundManager().play("damage", this.x, this.y);
         this.health -= amount * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"];
         if (this.health <= 0){
-            this.scene.getSoundManager().play("explode", this.x, this.y);
+            this.game.getSoundManager().play("explode", this.x, this.y);
             this.die();
         }
     }
@@ -479,7 +479,7 @@ class Plane extends Entity {
         this.x = newPositionValues["x"];
         this.y = newPositionValues["y"];
         this.speed = newPositionValues["speed"];
-        this.scene.getSoundManager().play("engine", this.x, this.y);
+        this.game.getSoundManager().play("engine", this.x, this.y);
         this.makeDecisions();
     }
 
@@ -726,8 +726,8 @@ class Plane extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.scene.getDisplayX(this.interpolatedX, this.getWidth(), lX);
-        let displayY = this.scene.getDisplayY(this.interpolatedY, this.getHeight(), bY);
+        let displayX = this.game.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.game.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
 
         // If dead then draw the explosion instead
         if (this.isDead()){
@@ -809,7 +809,7 @@ class Plane extends Entity {
         let bestPlane = null;
         let bestDistance = null;
         // Find the best plane to shoot at
-        for (let plane of this.scene.getTeamCombatManager().getLivingPlanes()){
+        for (let plane of this.game.getTeamCombatManager().getLivingPlanes()){
             // Check 1 - If the planes are on the same team then the shot won't hit this plane
             if (this.onSameTeam(plane)){ continue; }
             // Check 2 - If the plane located is in the correct x direction
@@ -869,8 +869,8 @@ class Plane extends Entity {
         bestPlane.damage(1);
         if (bestPlane.isDead()){
             // Make a fake bullet just because that's how the handlekill function works
-            let fauxBullet = new Bullet(null, null, this.scene, null, null, null, this.getID(), null);
-            this.scene.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
+            let fauxBullet = new Bullet(null, null, this.game, null, null, null, this.getID(), null);
+            this.game.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
         }
     }
 }

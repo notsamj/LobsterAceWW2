@@ -24,18 +24,18 @@ class Turret {
                 An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A Game object related to the turret
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, fov1, fov2, rateOfFire, scene){
+    constructor(x, y, fov1, fov2, rateOfFire, game){
         this.x = x;
         this.y = y;
         this.shootCD = new TickLock(rateOfFire * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.fov1 = fov1;
         this.fov2 = fov2;
-        this.scene = scene;
+        this.game = game;
         this.model = "turret";
         this.decisions = {
             "shooting": false, // true -> shooting, false -> not shooting

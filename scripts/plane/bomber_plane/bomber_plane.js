@@ -15,8 +15,8 @@ class BomberPlane extends Plane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -24,8 +24,8 @@ class BomberPlane extends Plane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true){
-        super(planeClass, scene);
+    constructor(planeClass, game, angle=0, facingRight=true){
+        super(planeClass, game);
         this.decisions["bombing"] = false;
         this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
@@ -97,8 +97,8 @@ class BomberPlane extends Plane {
         Method Return: void
     */
     dropBomb(){
-        this.scene.getSoundManager().play("bomb", this.x, this.y);
-        this.scene.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.scene.getGamemode().getNumTicks()));
+        this.game.getSoundManager().play("bomb", this.x, this.y);
+        this.game.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.game, this.getXVelocity(), this.getYVelocity(), this.game.getNumTicks()));
     }
 
     /*
@@ -133,8 +133,8 @@ class BomberPlane extends Plane {
         for (let gun of this.guns){
             if (!gun.readyToShoot()){
                 // Display flash
-                let rotateX = this.scene.getDisplayX(gun.getInterpolatedX(), 0, lX);
-                let rotateY = this.scene.getDisplayY(gun.getInterpolatedY(), 0, bY);
+                let rotateX = this.game.getScene().getDisplayX(gun.getInterpolatedX(), 0, lX);
+                let rotateY = this.game.getScene().getDisplayY(gun.getInterpolatedY(), 0, bY);
                 let interpolatedAngle = this.getInterpolatedAngle();
                 let flashImageWidth = getImage("flash").width;
                 let flashImageHeight = getImage("flash").height;

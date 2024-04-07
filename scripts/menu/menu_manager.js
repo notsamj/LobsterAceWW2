@@ -10,6 +10,9 @@ class MenuManager {
         Method Return: Constructor
     */
     constructor(){
+    }
+
+    setup(){
         this.mainMenu = new MainMenu();
         this.multiplayerMenu = new MultiplayerMenu();
         this.pauseMenu = new PauseMenu();
@@ -173,7 +176,7 @@ class MenuManager {
             this.activeMenu = this.pauseMenu;
         }else if (newMenu == "game"){
             GAMEMODE_MANAGER.getActiveGamemode().unpause();
-            scene.enableDisplay();
+            GAMEMODE_MANAGER.getActiveGamemode().getScene().enableDisplay();
             this.activeMenu = null;
         }else if (newMenu == "multiplayer"){
             this.activeMenu = this.multiplayerMenu;

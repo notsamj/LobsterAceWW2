@@ -16,8 +16,8 @@ class FighterPlane extends Plane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -25,8 +25,8 @@ class FighterPlane extends Plane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true){
-        super(planeClass, scene);
+    constructor(planeClass, game, angle=0, facingRight=true){
+        super(planeClass, game);
         this.shootLock = new TickLock(PROGRAM_DATA["settings"]["plane_shoot_gap_ms"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
@@ -112,7 +112,7 @@ class FighterPlane extends Plane {
     executeDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            if (this.shootLock.isReady() && (!this.scene.isLocal() || GAMEMODE_MANAGER.getActiveGamemode().runsLocally())){
+            if (this.shootLock.isReady() && this.game.runsLocally()){
                 this.shootLock.lock();
                 this.shoot();
             }
@@ -141,11 +141,11 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     shoot(){
-        this.scene.getSoundManager().play("shoot", this.x, this.y);
+        this.game.getSoundManager().play("shoot", this.x, this.y);
         // If using physical bullets then do it this way
-        if (this.scene.areBulletPhysicsEnabled()){
+        if (this.game.areBulletPhysicsEnabled()){
             //console.log("add bullet")
-            this.scene.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
+            this.game.addBullet(new Bullet(this.getGunX(), this.getGunY(), this.game, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
         }else{ // Fake bullets
             this.instantShot(this.getGunX(), this.getGunY(), this.getNoseAngle());
         }
@@ -242,8 +242,8 @@ class FighterPlane extends Plane {
         // If you've previously shot then display a flash to indicate
         if (this.shootLock.notReady()){
             // Display flash
-            let rotateX = this.scene.getDisplayX(this.getInterpolatedGunX(), 0, lX);
-            let rotateY = this.scene.getDisplayY(this.getInterpolatedGunY(), 0, bY);
+            let rotateX = this.game.getScene().getDisplayX(this.getInterpolatedGunX(), 0, lX);
+            let rotateY = this.game.getScene().getDisplayY(this.getInterpolatedGunY(), 0, bY);
             let interpolatedAngle = this.getInterpolatedAngle();
             let flashImageWidth = getImage("flash").width;
             let flashImageHeight = getImage("flash").height;

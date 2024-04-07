@@ -21,15 +21,15 @@ class BomberTurret extends Turret {
                 An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A Game object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane){
-        super(null, null, fov1, fov2, rateOfFire, scene);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, game, plane){
+        super(null, null, fov1, fov2, rateOfFire, game);
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.plane = plane;
@@ -74,9 +74,9 @@ class BomberTurret extends Turret {
             return; 
         }
         this.shootCD.lock();
-        this.scene.getSoundManager().play("shoot", this.getX(), this.getY());
-        if (this.scene.areBulletPhysicsEnabled()){
-            this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
+        this.game.getSoundManager().play("shoot", this.getX(), this.getY());
+        if (this.game.areBulletPhysicsEnabled()){
+            this.game.addBullet(new Bullet(this.getX(), this.getY(), this.game, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
         }else{ // Fake bullets
             this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
         }
