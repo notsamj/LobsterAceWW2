@@ -58,32 +58,15 @@ class PlaneGameScene extends Scene {
         this.collisionsEnabled = true;
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
         this.gamemode = gamemode;
-        // Expected that these are set if need to be used
-        this.soundManager = null;
-        this.teamCombatManager = null;
     }
 
-    // TODO: Comments
-    setExternalManagers(soundManager, teamCombatManager){
-        this.soundManager = soundManager;
-        this.teamCombatManager = teamCombatManager;
+    getSoundManager(){
+        return this.gamemode.getSoundManager();
     }
 
     // TODO: Comments
     getCloudManager(){
         return this.cloudManager;
-    }
-
-    /*
-        Method Name: setGamemode
-        Method Parameters:
-            gamemode:
-                A gamemode instance
-        Method Description: Setter
-        Method Return: void
-    */
-    setGamemode(gamemode){
-        this.gamemode = gamemode;
     }
 
     /*
@@ -147,7 +130,7 @@ class PlaneGameScene extends Scene {
         Method Return: TeamCombatManager
     */
     getTeamCombatManager(){
-        return this.game.getTeamCombatManager();
+        return this.gamemode.getTeamCombatManager();
     }
 
     /*
@@ -159,7 +142,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     forceUpdatePlanes(listOfPlaneObjects){
-        this.teamCombatManager.forceUpdatePlanes(listOfPlaneObjects);
+        this.gamemode.getTeamCombatManager().forceUpdatePlanes(listOfPlaneObjects);
     }
 
     /*
@@ -198,7 +181,7 @@ class PlaneGameScene extends Scene {
                 followableEntities.push(entity);
             }
         }
-        for (let plane of this.teamCombatManager.getLivingPlanes()){
+        for (let plane of this.gamemode.getTeamCombatManager().getLivingPlanes()){
             followableEntities.push(plane);
         }
         return followableEntities;
@@ -214,11 +197,11 @@ class PlaneGameScene extends Scene {
     */
     setEntities(entities){
         this.entities.clear();
-        this.teamCombatManager.clear();
+        this.gamemode.getTeamCombatManager().clear();
         for (let entity of entities){
             // TODO: This is somewhat ugly
             if (entity instanceof Plane || entity instanceof Bullet || entity instanceof Bomb || entity instanceof Building){
-                this.teamCombatManager.addEntity(entity);
+                this.gamemode.getTeamCombatManager().addEntity(entity);
             }else{
                 this.entities.push(entity);
             }
@@ -253,7 +236,7 @@ class PlaneGameScene extends Scene {
             }
         }
 
-        for (let plane of this.getPlanes()){
+        for (let plane of this.getTeamCombatManager().getAllPlanes()){
             if (plane.getID() == entityID){
                 return plane;
             }
@@ -286,7 +269,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     addPlane(plane){
-        this.teamCombatManager.addPlane(plane);
+        this.gamemode.getTeamCombatManager().addPlane(plane);
     }
 
     /*
@@ -298,7 +281,7 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     addBullet(bullet){
-        this.teamCombatManager.addBullet(bullet);
+        this.gamemode.getTeamCombatManager().addBullet(bullet);
     }
 
     /*
@@ -328,7 +311,7 @@ class PlaneGameScene extends Scene {
         for (let [entity, entityIndex] of this.entities){
             await entity.tick(timeDiff);
         }
-        await this.teamCombatManager.tick(timeDiff);
+        await this.gamemode.getTeamCombatManager().tick(timeDiff);
         // Delete all dead buildings and bombs and other entities?
         this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
     }
@@ -341,7 +324,7 @@ class PlaneGameScene extends Scene {
         Note: May not count freecam and in the future may need modification
     */
     getNumberOfEntities(){
-        return this.teamCombatManager.getNumberOfEntities() + this.entities.getLength();
+        return this.gamemode.getTeamCombatManager().getNumberOfEntities() + this.entities.getLength();
     }
 
     /*
@@ -358,8 +341,8 @@ class PlaneGameScene extends Scene {
         let health = 0;
         let fps = FRAME_COUNTER.getFPS();
         let numberOfEntities = this.getNumberOfEntities();
-        let allyPlanes = this.teamCombatManager.countAlliance("Allies");
-        let axisPlanes = this.teamCombatManager.countAlliance("Axis");
+        let allyPlanes = this.gamemode.getTeamCombatManager().countAlliance("Allies");
+        let axisPlanes = this.gamemode.getTeamCombatManager().countAlliance("Axis");
         let entityID = 0;
         if (this.hasEntityFocused()){
             let focusedEntity = this.getFocusedEntity();
@@ -484,7 +467,7 @@ class PlaneGameScene extends Scene {
         this.displayBackground(lX, bY);
         
         // Display all planes associated with the team combat manager
-        this.teamCombatManager.displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1, displayTime);
+        this.gamemode.getTeamCombatManager().displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1, displayTime);
 
         // Display all extra entities
         for (let [entity, eI] of this.entities){

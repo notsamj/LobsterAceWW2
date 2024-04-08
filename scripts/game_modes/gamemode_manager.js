@@ -1,33 +1,32 @@
 class GamemodeManager {
     constructor(){
-        this.gamemode = null;
+        this.gamemodeClient = null;
     }
-    // TODO: Put sound manager, everything here and provide to each gamemode a list?
 
     hasActiveGamemode(){
-        return this.gamemode != null;
+        return this.gamemodeClient != null;
     }
 
     getActiveGamemode(){
-        return this.gamemode;
+        return this.gamemodeClient;
     }
 
-    setActiveGamemode(newGamemode){
-        this.gamemode = newGamemode;
+    setActiveGamemode(newGamemodeClient){
+        this.gamemodeClient = newGamemodeClient;
     }
 
     deleteGamemode(){
-        this.gamemode = null;
+        this.gamemodeClient = null;
     }
 
     async tick(){
         if (!this.hasActiveGamemode()){ return; }
         // Fix num ticks if running a huge defecit
-        if (this.gamemode.getNumTicks() < this.gamemode.getExpectedTicks() - PROGRAM_DATA["settings"]["max_tick_deficit"]){ this.gamemode.correctTicks(); }
-        await this.gamemode.tick();
+        if (this.gamemodeClient.getNumTicks() < this.gamemodeClient.getExpectedTicks() - PROGRAM_DATA["settings"]["max_tick_deficit"]){ this.gamemodeClient.correctTicks(); }
+        await this.gamemodeClient.tick();
     }
 
     display(){
-        this.gamemode.display();
+        this.gamemodeClient.display();
     }
 }

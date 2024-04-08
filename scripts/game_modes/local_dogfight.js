@@ -110,6 +110,7 @@ class LocalDogfight extends Dogfight {
         Method Return: void
     */
     display(){
+        this.scene.display();
         if (!this.isRunning()){
             this.stats.display();
         }

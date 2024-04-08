@@ -56,6 +56,14 @@ class Plane extends Entity {
         }
     }
 
+    getTeamCombatManager(){
+        return this.game.getTeamCombatManager();
+    }
+
+    getScene(){
+        return this.game.getScene();
+    }
+
     /*
         Method Name: loadMovementIfNew
         Method Parameters:

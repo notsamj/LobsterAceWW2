@@ -3,7 +3,7 @@ const PROGRAM_DATA = {
         "max_angle_change_per_tick_fighter_plane": 5,
         "max_angle_change_per_tick_bomber_plane": 2,
         "spectator_cam_speed": 1000,
-        "angle_change_ms": 200
+        "angle_change_ms": 10
     },
     "plane_data": {
         "spitfire": {

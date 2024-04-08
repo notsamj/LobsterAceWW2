@@ -20,8 +20,24 @@ class Gamemode {
 
         this.scene = new PlaneGameScene(this);
         this.soundManager = new SoundManager(this);
-        this.stats = new AfterMatchStats(this);
-        this.teamCombatManager = new TeamCombatManager();
+        this.statsManager = new AfterMatchStats(this);
+        this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
+    }
+
+    getScene(){
+        return this.scene;
+    }
+
+    getSoundManager(){
+        return this.soundManager;
+    }
+
+    getStatsManager(){
+        return this.statsManager;
+    }
+
+    getTeamCombatManager(){
+        return this.teamCombatManager;
     }
 
     /*

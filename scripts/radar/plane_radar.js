@@ -32,7 +32,7 @@ class PlaneRadar extends Radar {
     update(){
         this.radarData = this.resetRadar();
         // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
-        for (let plane of this.plane.getScene().getPlanes()){
+        for (let plane of this.plane.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
                 this.placeOnRadar(plane.getX(), plane.getY(), "#db655c");
             }else if (plane instanceof BomberPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){

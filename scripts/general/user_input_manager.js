@@ -174,6 +174,7 @@ class TickedAggregator {
         Method Return: void
     */
     enableTicks(){
+        if (this.ticksEnabled){ return; }
         this.ticksEnabled = true;
         this.lastPressTime = Date.now();
     }

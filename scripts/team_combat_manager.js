@@ -26,7 +26,6 @@ class TeamCombatManager {
         this.buildings = new NotSamLinkedList();
         this.bombs = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bombs"]);
         this.teams = teams;
-        this.stats = new AfterMatchStats();
         this.game = game;
         for (let team of teams){
             this.planes[team] = new NotSamLinkedList();
@@ -44,18 +43,6 @@ class TeamCombatManager {
     */
     getAllPlanesFromAlliance(allianceName){
         return this.planes[allianceName];
-    }
-
-    /*
-        Method Name: setStatsManager
-        Method Parameters:
-            statsManager:
-                An after match stats manager object
-        Method Description: Setter
-        Method Return: void
-    */
-    setStatsManager(statsManager){
-        this.stats = statsManager;
     }
 
     /*
@@ -628,9 +615,9 @@ class TeamCombatManager {
         let shooter = this.getEntity(bullet.getShooterID());
         // If human 
         if (shooter.isHuman()){
-            this.stats.addPlayerKill(shooter.getID(), planeModelToAlliance(shooter.getPlaneClass()));
+            this.game.getStatsManager().addPlayerKill(shooter.getID(), planeModelToAlliance(shooter.getPlaneClass()));
         }else{
-            this.stats.addBotKill(shooter.getPlaneClass());
+            this.game.getStatsManager().addBotKill(shooter.getPlaneClass());
         }
     }
 

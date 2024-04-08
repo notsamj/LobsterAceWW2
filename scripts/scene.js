@@ -59,8 +59,8 @@ class Scene {
         this.nextEntityID = 0;
         this.entities = new NotSamLinkedList();
         this.focusedEntity = null;
-        this.ticksEnabled = false;
-        this.displayEnabled = false;
+        this.ticksEnabled = true;
+        this.displayEnabled = true;
     }
 
     /*

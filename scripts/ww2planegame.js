@@ -98,8 +98,9 @@ async function setup() {
         resizeCanvas(getScreenWidth(), getScreenHeight());
     };
     frameRate(0);
-    window.addEventListener("error", (event) => {
+    document.addEventListener("error", (event) => {
         console.log(event);
+        console.log("program over")
         programOver = true;
     });
 

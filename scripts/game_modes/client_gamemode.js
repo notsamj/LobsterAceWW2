@@ -1,7 +1,12 @@
 class ClientGamemode {
-    constructor(){
+    constructor(game){
+        this.game = game;
         this.userEntity = null;
         this.deadCamera = null;
+    }
+
+    display(){
+        this.game.display();
     }
 
     /*
@@ -35,5 +40,42 @@ class ClientGamemode {
             deadCamera = null;
             scene.setFocusedEntity(this.userEntity);
         }
+    }
+
+    getScene(){
+        return this.game.getScene();
+    }
+
+    getSoundManager(){
+        return this.game.getSoundManager();
+    }
+
+    getStatsManager(){
+        return this.game.getStatsManager();
+    }
+
+    getTeamCombatManager(){
+        return this.game.getTeamCombatManager();
+    }
+
+    getNumTicks(){
+        return this.game.getNumTicks();
+    }
+
+    getExpectedTicks(){
+        return this.game.getExpectedTicks();
+    }
+
+    
+    getLastTickTime(){
+        return this.game.getLastTickTime();
+    }
+
+    isRunning(){
+        return this.game.isRunning();
+    }
+
+    correctTicks(){
+        this.game.correctTicks();
     }
 }
