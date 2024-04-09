@@ -1,7 +1,7 @@
 // If using NodeJS -> Do required imports
 if (typeof window === "undefined"){
     TickLock = require("../../general/tick_lock.js");
-    Bullet = require("../../bullet.js");
+    Bullet = require("../../other_entities/simple_projectiles/bullet.js");
     Plane = require("../plane.js");
     helperFunctions = require("../../general/helper_functions.js");
     toRadians = helperFunctions.toRadians;
@@ -60,15 +60,13 @@ class FighterPlane extends Plane {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         this.shootLock.tick();
-        super.tick(timeDiffMS);
+        super.tick();
     }
 
     /*

@@ -1,12 +1,52 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Scene = require("../scripts/scene.js");
-    TeamCombatManager = require("../scripts/team_combat_manager.js");
+    TeamCombatManager = require("../scripts/misc/team_combat_manager.js");
     PROGRAM_DATA = require("../data/data_json.js");
     SoundManager = require("./general/sound_manager.js");
-    Bomb = require("./bomb.js");
-    Building = require("./building.js");
+    Bomb = require("./other_entities/simple_projectiles/bomb.js");
+    Building = require("./other_entities/building.js");
+    NotSamLinkedList = require("./general/notsam_linked_list.js");
 }
+
+/*
+    Method Name: loadLocalImage
+    Method Parameters:
+        url:
+           Url of an image
+    Method Description: Loads an image an returns it
+    Method Return: Image
+*/
+async function loadLocalImage(url){
+    console.log("Loading image", url);
+    let newImage = null;
+    let wait = new Promise(function(resolve, reject){
+        newImage = new Image();
+        newImage.onload = function(){
+            resolve();
+        }
+        newImage.onerror = function(){
+            reject();
+        }
+        newImage.src = url;
+    });
+    await wait;
+    return newImage;
+}
+
+/*
+    Method Name: loadToImages
+    Method Parameters:
+        imageName:
+            Name of an image (String)
+        type:
+            File extension of an image
+    Method Description: Loads an image and saves it to a global variable
+    Method Return: void
+*/
+async function loadToImages(imageName, type=".png"){
+    IMAGES[imageName] = await loadLocalImage("images/" + imageName + type);
+}
+
 /*
     Method Name: loadRotatedImages
     Method Parameters:
@@ -17,7 +57,7 @@ if (typeof window === "undefined"){
     Note: This is a relic from when planes has 720 images. It should be redone.
 */
 async function loadRotatedImages(name){
-    images[name] = await loadLocalImage("images/" + name + "/" + name + ".png");
+    IMAGES[name] = await loadLocalImage("images/" + name + "/" + name + ".png");
 }
 
 /*
@@ -28,19 +68,15 @@ async function loadRotatedImages(name){
     Note: This is a relic from when planes has 720 images and took a long time to load. It should be redone.
 */
 async function loadPlanes(){
-    let numPlanes = Object.entries(PROGRAM_DATA["plane_data"]).length;
-    let i = 0;
     for (const [planeName, planeDetails] of Object.entries(PROGRAM_DATA["plane_data"])) {
-        loadedPercent = Math.round(i / numPlanes * 100);
         await loadRotatedImages(planeName);
-        i += 1;
     }
 }
 /*
     Class Name: PlaneGameScene
-    Description: A subclass of Scene. Specifically for the WW2 Plane Game.
+    Description: A scene to be used specifically for the WW2 Plane Game.
 */
-class PlaneGameScene extends Scene {
+class PlaneGameScene {
     /*
         Method Name: constructor
         Method Parameters:
@@ -52,10 +88,191 @@ class PlaneGameScene extends Scene {
         Method Return: Constructor
     */
     constructor(gamemode=null, local=false){
-        super();
         this.local = local;
         this.gamemode = gamemode;
         this.cloudManager = null;
+        this.entities = new NotSamLinkedList();
+        this.focusedEntity = null;
+        this.ticksEnabled = true;
+        this.displayEnabled = true;
+    }
+
+    /*
+        Method Name: hasEntityFocused
+        Method Parameters: None
+        Method Description: Determines whether there is currently a focused entity
+        Method Return: boolean, true -> there is an entity focused, false -> there is no entity focused
+    */
+    hasEntityFocused(){
+        return this.focusedEntity != null;
+    }
+
+    /*
+        Method Name: getDisplayX
+        Method Parameters:
+            centerX:
+                The x coordinate at the center of the screen
+            width:
+                The width of the entity
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            round:
+                If rounded down to nearest pixel
+        Method Description: Determines the top left corner where an image should be displayed
+        Method Return: int
+    */
+    getDisplayX(centerX, width, lX, round=false){
+        // Change coordinate system
+        let displayX = this.changeToScreenX(centerX);
+
+        // Find relative to bottom left corner
+        displayX = displayX - lX;
+
+        // Find top left corner
+        displayX = displayX - width / 2;
+
+        // Round down to nearest pixel
+        if (round){
+            displayX = Math.floor(displayX);
+        }
+        return displayX;
+    }
+
+    /*
+        Method Name: getDisplayY
+        Method Parameters:
+            centerY:
+                The y coordinate at the center of the screen
+            height:
+                The height of the entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+            round:
+                If rounded down to nearest pixel
+        Method Description: Determines the top left corner where an image should be displayed
+        Method Return: int
+    */
+    getDisplayY(centerY, height, bY, round=false){
+        // Change coordinate system
+        let displayY = this.changeToScreenY(centerY);
+
+        // Find relative to bottom left corner
+        displayY = displayY + bY;
+
+        // Find top left corner
+        displayY = displayY - height / 2;
+
+        // Round down to nearest pixel
+        if (round){
+            displayY = Math.floor(displayY);
+        }
+        return displayY;
+    }
+
+    /*
+        Method Name: entityID
+        Method Parameters: 
+            entityID:
+                The id of an entity to be deleted
+        Method Description: Removes an entity from the scene
+        Method Return: void
+    */
+    delete(entityID){
+        // No focused entity anmore 
+        if (entityID == this.focusedEntity.getID()){
+            this.setFocusedEntity(-1);
+        }
+        let foundIndex = -1;
+        for (let [entity, entityIndex] of this.entities){
+            if (entity.getID() == entityID){
+                foundIndex = entityIndex;
+                break;
+            }
+        }
+        if (foundIndex == -1){
+            console.error("Failed to find entity that should be deleted:", entityID);
+            debugger;
+            return; 
+        }
+        this.entities.remove(foundIndex);
+    }
+
+    /*
+        Method Name: setFocusedEntity
+        Method Parameters: 
+            entity:
+                An entity to focus on
+        Method Description: Set the focus of the scene to a particular entity
+        Method Return: void
+    */
+    setFocusedEntity(entity){
+        this.focusedEntity = entity;
+    }
+
+    /*
+        Method Name: changeToScreenX
+        Method Parameters: 
+            x:
+                An x coordinate in the game coordinate system
+        Method Description: Transforms an game x to a screen x
+        Method Return: float
+    */
+    changeToScreenX(x){
+        return x; // Doesn't need to be changed ATM
+    }
+
+    /*
+        Method Name: changeToScreenY
+        Method Parameters: 
+            y:
+                An y coordinate in the game coordinate system
+        Method Description: Transforms an game y to a screen y
+        Method Return: float
+    */
+    changeToScreenY(y){
+        return this.getHeight() - y;
+    }
+
+    /*
+        Method Name: changeFromScreenY
+        Method Parameters: 
+            y:
+                An y coordinate in the game coordinate system
+        Method Description: Transforms an screen y to a game y
+        Method Return: float
+    */
+    changeFromScreenY(y){
+        return this.changeToScreenY(y);
+    }
+
+    /*
+        Method Name: getEntities
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: NotSamLinkedList of entities
+    */
+    getEntities(){
+        return this.entities;
+    }
+
+    /*
+        Method Name: getWidth
+        Method Parameters: None
+        Method Description: Determine width of the screen
+        Method Return: Integer
+    */
+    getWidth(){
+        return getScreenWidth();
+    }
+
+    /*
+        Method Name: getHeight
+        Method Parameters: None
+        Method Description: Determine Height of the screen
+        Method Return: Integer
+    */
+    getHeight(){
+        return getScreenHeight();
     }
 
     getSoundManager(){
@@ -172,9 +389,21 @@ class PlaneGameScene extends Scene {
             if (entity instanceof Plane || entity instanceof Bullet || entity instanceof Bomb || entity instanceof Building){
                 this.gamemode.getTeamCombatManager().addEntity(entity);
             }else{
-                this.entities.push(entity);
+                this.addEntity(entity);
             }
         }
+    }
+
+    /*
+        Method Name: addEntity
+        Method Parameters: 
+            entity:
+                An entity to be added
+        Method Description: Adds an entity to the scene
+        Method Return: void
+    */
+    addEntity(entity){
+        this.entities.push(entity);
     }
     
     /*
@@ -267,20 +496,18 @@ class PlaneGameScene extends Scene {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiff:
-                Time between ticks
+        Method Parameters: None
         Method Description: Makes things happen within a tick
         Method Return: void
     */
-    async tick(timeDiff){
+    async tick(){
         if (!this.ticksEnabled){ return; }
         // Tick all entities
 
         for (let [entity, entityIndex] of this.entities){
-            await entity.tick(timeDiff);
+            await entity.tick();
         }
-        await this.gamemode.getTeamCombatManager().tick(timeDiff);
+        await this.gamemode.getTeamCombatManager().tick();
         // Delete all dead buildings and bombs and other entities?
         this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
     }
@@ -354,7 +581,7 @@ class PlaneGameScene extends Scene {
         cloudManager.display(lX, bY);
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
-        let groundImage = images[PROGRAM_DATA["background"]["ground"]["picture"]];
+        let groundImage = IMAGES[PROGRAM_DATA["background"]["ground"]["picture"]];
         let groundImageHeight = groundImage.height;
         let groundImageWidth = groundImage.width;
         // If displaying ground
@@ -385,7 +612,7 @@ class PlaneGameScene extends Scene {
             }
         }
         // Display above ground
-        let aboveGroundImage = images[PROGRAM_DATA["background"]["above_ground"]["picture"]];
+        let aboveGroundImage = IMAGES[PROGRAM_DATA["background"]["above_ground"]["picture"]];
         let aboveGroundHeight = aboveGroundImage.height;
         let aboveGroundWidth = aboveGroundImage.width;
         // If screen contains the above ground range
@@ -462,6 +689,67 @@ class PlaneGameScene extends Scene {
     enable(){
         this.enableTicks();
         this.enableDisplay();
+    }
+
+    /*
+        Method Name: disable
+        Method Parameters: None
+        Method Description: Disables every aspect of the scene
+        Method Return: void
+    */
+    disable(){
+        this.disableTicks();
+        this.disableDisplay();
+    }
+
+    /*
+        Method Name: enableTicks
+        Method Parameters: None
+        Method Description: Enables ticks for the scene
+        Method Return: void
+    */
+    enableTicks(){
+        this.ticksEnabled = true;
+    }
+
+    /*
+        Method Name: disableTicks
+        Method Parameters: None
+        Method Description: Disables ticks for the scene
+        Method Return: void
+    */
+    disableTicks(){
+        this.ticksEnabled = false;
+    }
+
+    /*
+        Method Name: hasTicksEnabled
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Boolean
+    */
+    hasTicksEnabled(){
+        return this.ticksEnabled;
+    }
+
+    /*
+        Method Name: enableDisplay
+        Method Parameters: None
+        Method Description: Enables display for the scene
+        Method Return: void
+    */
+    enableDisplay(){
+        this.displayEnabled = true;
+    }
+
+    /*
+        Method Name: disableDisplay
+        Method Parameters: None
+        Method Description: Disables display for the scene
+        Method Return: void
+    */
+    disableDisplay(){
+        this.displayEnabled = false;
     }
 }
 // If using NodeJS then export the class

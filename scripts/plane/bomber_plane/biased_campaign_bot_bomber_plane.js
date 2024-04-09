@@ -28,25 +28,23 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
         Method Return: Constructor
     */
     constructor(planeClass, gamemode, angle, facingRight, biases, autonomous=true){
-        super(planeClass, gamemode, angle, facingRight, autonomous);
+        super(planeClass, gamemode, angle, facingRight, biases, autonomous);
     }
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         this.bombLock.tick();
         for (let gun of this.guns){
             gun.tick();
         }
 
         // Bomber Plane Tick Call
-        super.tick(timeDiffMS);
+        super.tick();
     }
 
     /*

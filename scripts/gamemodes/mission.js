@@ -1,6 +1,6 @@
 // If using NodeJS -> Do imports
 if (typeof window === "undefined"){
-    AfterMatchStats = require("../after_match_stats.js");
+    AfterMatchStats = require("../misc/after_match_stats.js");
     BomberPlane = require("../plane/bomber_plane/bomber_plane.js");
     BiasedCampaignBotBomberPlane = require("../plane/bomber_plane/biased_campaign_bot_bomber_plane.js");
     BiasedCampaignAttackerBotFighterPlane = require("../plane/fighter_plane/biased_campaign_attacker_bot_fighter_plane.js");
@@ -8,7 +8,7 @@ if (typeof window === "undefined"){
     HumanFighterPlane = require("../plane/fighter_plane/human_fighter_plane.js");
     HumanBomberPlane = require("../plane/bomber_plane/human_bomber_plane.js");
     Gamemode = require("./gamemode.js");
-    Building = require("../building.js");
+    Building = require("../other_entities/building.js");
     helperFunctions = require("../general/helper_functions.js");
     mergeCopyObjects = helperFunctions.mergeCopyObjects;
     appendLists = helperFunctions.appendLists;
@@ -84,7 +84,7 @@ class Mission extends Gamemode {
         this.lastTickTime = Date.now();
         this.attackerSpawnLock.tick();
         this.defenderSpawnLock.tick();
-        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        await this.scene.tick();
         this.checkSpawn();
         this.checkForEnd();
         this.numTicks++;

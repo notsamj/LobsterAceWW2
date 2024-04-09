@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Entity = require("./entity.js");
+    Entity = require("./other_entities/entity.js");
     RectangleHitbox = require("./general/hitboxes.js").RectangleHitbox;
 }
 /*
@@ -19,13 +19,13 @@ class Building extends Entity {
                 The height of the building
             health:
                 The health of the building
-            game:
+            gamemode:
                 A Game object
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, width, height, health, game){
-        super(game);
+    constructor(x, width, height, health, gamemode){
+        super(gamemode);
         this.x = x;
         this.width = width;
         this.height = height;
@@ -158,8 +158,8 @@ class Building extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.game.getScene().getDisplayX(this.x, 0, lX);
-        let displayY = this.game.getScene().getDisplayY(this.height, 0, bY);
+        let displayX = this.gamemode.getScene().getDisplayX(this.x, 0, lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.height, 0, bY);
         // The building is grey
         fill("#c2c2c4");
         rect(displayX, displayY, this.width, this.height);
@@ -170,13 +170,13 @@ class Building extends Entity {
         Method Parameters: None
         Method Description:
             lX:
-                Left x of screen in game coordinates
+                Left x of screen in gamemode coordinates
             rX:
-                Right x of screen in game coordinates
+                Right x of screen in gamemode coordinates
             bY:
-                Bottom y of screen in game coordinates
+                Bottom y of screen in gamemode coordinates
             tY:
-                Top y of screen in game coordinates
+                Top y of screen in gamemode coordinates
         Method Return: TODO
     */
     touchesRegion(lX, rX, bY, tY){
@@ -221,13 +221,13 @@ class Building extends Entity {
         Method Parameters:
             rep:
                 JSON representation of a building
-            game:
-                The game that the building is a part of
+            gamemode:
+                The gamemode that the building is a part of
         Method Description: Creates a building from a json representation
         Method Return: Building
     */
-    static fromJSON(rep, game){
-        let building = new Building(rep["x"], rep["width"], rep["height"], rep["health"], game);
+    static fromJSON(rep, gamemode){
+        let building = new Building(rep["x"], rep["width"], rep["height"], rep["health"], gamemode);
         building.setDead(rep["dead"]);
         return building;
     }

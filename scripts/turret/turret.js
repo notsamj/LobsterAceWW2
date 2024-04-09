@@ -3,7 +3,7 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../data/data_json.js");
     helperFunctions = require("../general/helper_functions.js");
     angleBetweenCWDEG = helperFunctions.angleBetweenCWDEG;
-    Bullet = require("../bullet.js");
+    Bullet = require("../other_entities/simple_projectiles/bullet.js");
 }
 /*
     Class Name: Turret

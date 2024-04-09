@@ -7,7 +7,7 @@ const SimpleCryptography = require("../scripts/general/simple_cryptography.js");
 const SIMPLE_CRYPTOGRAPHY = new SimpleCryptography(SERVER_DATA["server_data"]["secret_seed"]);
 const ServerDogFight = require("./server_dogfight.js");
 const ServerMission = require("./server_mission.js");
-const PlaneGameScene = require("../scripts/plane_game_scene.js");
+const PlaneGameScene = require("../scripts/scene/plane_game_scene.js");
 /*
     Class Name: WW2PGServer
     Description: A server for hosting games involving World War 2 Plane Game

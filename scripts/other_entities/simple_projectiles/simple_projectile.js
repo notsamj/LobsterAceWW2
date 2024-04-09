@@ -1,50 +1,40 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Entity = require("./entity.js");
+    PROGRAM_DATA = require("../data/data_json.js");
+    SimpleProjectile = require("./simple_projectile.js");
+    CircleHitbox = require("./general/hitboxes.js").CircleHitbox;
 }
-/*
-    Class Name: Bullet
-    Description: Bullet shot from a plane
-*/
-class Bullet extends Entity {
+// TODO: Comments
+class SimpleProjectile extends Entity {
     /*
         Method Name: constructor
         Method Parameters:
             x:
-                The starting x position of the bullet
+                The starting x position of the projectile
             y:
-                The starting y position of the bullet
+                The starting y position of the projectile
             game:
-                A Game object related to the bullet
+                The game that the projectile is a part of
             xVelocity:
-                The starting x velocity of the bullet
+                The starting x velocity of the projectile
             yVelocity:
-                The starting y velocity of the bullet
-            angle:
-                The angle of the bullet's trajectory
-            shooterID:
-                The id of the plane that shot the bullet
-            shooterClass:
-                The type of plane that shot the bullet
+                The starting y velocity of the projectile
+            currentTick:
+                The tick at which the projectile is created
+            hitboxRadius:
+                The radius of the hitbox
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, game, xVelocity, yVelocity, angle, shooterID, shooterClass){
+    constructor(x, y, game, xVelocity, yVelocity, currentTick, hitboxRadius){
         super(game);
         this.startX = x;
         this.startY = y;
-        angle = toRadians(angle); // Convert the angle to radians so it can be used in calculations
-        this.spawnedTick = this.gamemode.getNumTicks();
-        this.yVI = yVelocity + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
-        this.xVelocity = xVelocity + Math.cos(angle) * PROGRAM_DATA["bullet_data"]["speed"];
-        this.hitBox = new CircleHitbox(PROGRAM_DATA["bullet_data"]["radius"]);
-        this.shooterClass = shooterClass;
-        this.shooterID = shooterID;
+        this.spawnedTick = currentTick;
+        this.yVI = yVelocity;
+        this.xVelocity = xVelocity;
+        this.hitBox = new CircleHitbox(hitboxRadius);
         this.index = null;
-    }
-
-    getDamage(){
-        return PROGRAM_DATA["plane_data"][this.shooterClass]["bullet_damage"];
     }
 
     /*
@@ -82,7 +72,7 @@ class Bullet extends Entity {
         Method Parameters:
             tick:
                 Tick to determine the x at
-        Method Description: Determine the x position of the bullet at a given tick
+        Method Description: Determine the x position of the projectile at a given tick
         Method Return: Number
     */
     getXAtTick(tick){
@@ -96,7 +86,7 @@ class Bullet extends Entity {
                 The tick at which to calculate the x position
             currentTime:
                 The current time in milliseconds
-        Method Description: Calculate the positition of the bullet at the given time and tick
+        Method Description: Calculate the positition of the projectile at the given time and tick
         Method Return: Number
     */
     getGameDisplayX(tick, currentTime){
@@ -118,7 +108,7 @@ class Bullet extends Entity {
         Method Parameters:
             tick:
                 Tick to determine the y at
-        Method Description: Determine the y position of the bullet at a given tick
+        Method Description: Determine the y position of the projectile at a given tick
         Method Return: Number
     */
     getYAtTick(tick){
@@ -138,7 +128,7 @@ class Bullet extends Entity {
     }
 
     /*
-        Method Name: getYVelocity
+        Method Name: getYVelocityAtTick
         Method Parameters:
             tick:
                 A tick number
@@ -178,7 +168,6 @@ class Bullet extends Entity {
         if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead() || this.lastInterpolatedFrame == currentFrameIndex){
             return;
         }
-        let seconds = ((this.gamemode.getNumTicks() - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.gamemode.getLastTickTime()) / 1000;
         this.lastInterpolatedFrame = currentFrameIndex;
         this.interpolatedX = this.getGameDisplayX(this.gamemode.getNumTicks(), currentTime);
         this.interpolatedY = this.getGameDisplayY(this.gamemode.getNumTicks(), currentTime);
@@ -188,7 +177,7 @@ class Bullet extends Entity {
         Method Name: setIndex
         Method Parameters:
             index:
-                Index of the bullet in the bullet array
+                Index of the projectile in the projectile array
         Method Description: Setter
         Method Return: void
     */
@@ -197,35 +186,9 @@ class Bullet extends Entity {
     }
 
     /*
-        Method Name: tick
-        Method Parameters:
-            timePassed:
-                The time between ticks (in MS)
-        Method Description: Determine movement and death each tick
-        Method Return: void
-    */
-    tick(timePassed){
-        // If below ground or too fast or too far away from planes to matter
-        if (this.expectedToDie()){
-            this.die();
-            return;
-        }
-    }
-
-    /*
-        Method Name: getAlliance
-        Method Parameters: None
-        Method Description: Determine movement and death each tick
-        Method Return: String, alliance name
-    */
-    getAlliance(){
-        return planeModelToAlliance(this.shooterClass);
-    }
-
-    /*
         Method Name: getWidth
         Method Parameters: None
-        Method Description: Provide the width of the bullet image
+        Method Description: Provide the width of the projectile image
         Method Return: Integer
     */
     getWidth(){
@@ -235,7 +198,7 @@ class Bullet extends Entity {
     /*
         Method Name: getHeight
         Method Parameters: None
-        Method Description: Provide the height of the bullet image
+        Method Description: Provide the height of the projectile image
         Method Return: Integer
     */
     getHeight(){
@@ -243,44 +206,14 @@ class Bullet extends Entity {
     }
 
     /*
-        Method Name: getImage
-        Method Parameters: None
-        Method Description: Provide the bullet image
-        Method Return: Image
-    */
-    getImage(){
-        return getImage("bullet");
-    }
-
-    /*
         Method Name: getHitbox
         Method Parameters: None
-        Method Description: Provide the hitbox (updated with the current bullet position)
+        Method Description: Provide the hitbox (updated with the current projectile position)
         Method Return: Hitbox
     */
     getHitbox(){
-        this.hitBox.update(this.x, this.y);
+        this.hitBox.update(this.getX(), this.getY());
         return this.hitBox;
-    }
-
-    /*
-        Method Name: getShooterID
-        Method Parameters: None
-        Method Description: Provide the ID of the bullet's shooter
-        Method Return: String
-    */
-    getShooterID(){
-        return this.shooterID;
-    }
-
-    /*
-        Method Name: getShooterClass
-        Method Parameters: None
-        Method Description: Provide the type of plane that shot the bullet
-        Method Return: Provide
-    */
-    getShooterClass(){
-        return this.shooterClass;
     }
 
     /*
@@ -291,124 +224,6 @@ class Bullet extends Entity {
     */
     getXVelocity(){
         return this.xVelocity;
-    }
-    /*
-        Method Name: expectedToDie
-        Method Parameters: None
-        Method Description: Determine if the bullet is too far away from the other planes that its effectively dead
-        Method Return: boolean, true if expected to die, false otherwise
-    */
-    expectedToDie(){
-        let belowGround = this.getY() < 0;
-        let yVelocity = this.getYVelocity();
-        let movingDownTooFast = yVelocity < 0 && Math.abs(yVelocity) > PROGRAM_DATA["settings"]["expected_canvas_height"] * PROGRAM_DATA["settings"]["max_bullet_y_velocity_multiplier"] * PROGRAM_DATA["bullet_data"]["speed"];
-        if (movingDownTooFast || belowGround){ return true; }
-        return false;
-    }
-
-    /*
-        Method Name: collidesWith
-        Method Parameters:
-            otherEntity:
-                An entity that the bullet might collide with
-            timeDiff:
-                The time passed between two ticks
-        Method Description: Checks if the bullet collides with another entity
-        Method Return: boolean, true if collides, false otherwise
-    */
-    collidesWith(otherEntity, timeDiff){
-        // Shouldn't happen?
-        debugger;
-        return Bullet.hitInTime(this.getHitbox(), this.x, this.y, this.getXVelocity(), this.getYVelocity(), otherEntity.getHitbox(), otherEntity.getX(), otherEntity.getY(), otherEntity.getXVelocity(), otherEntity.getYVelocity(), timeDiff/1000);
-    }
-
-    /*
-        Method Name: collidesWithPlane
-        Method Parameters:
-            plane:
-                A plane to check for a collision with
-            timeDiff:
-                The time length of a tick
-            simpleBulletData:
-                Some simple information about this bullet
-            simplePlaneData:
-                Some simple information about the plane
-        Method Description: Checks for a collision between this bullet and a plane
-        Method Return: Boolean, true -> collides, false -> does not collide
-    */
-    collidesWithPlane(plane, timeDiff, simpleBulletData, simplePlaneData){
-        let h1 = this.getHitbox();
-        let h2 = plane.getHitbox();
-
-        // Quick checks
-
-        // If plane right < bullet left
-        if (simplePlaneData["rX"] + h2.getRadiusEquivalentX() < simpleBulletData["lX"] - h1.getRadiusEquivalentX()){
-            return false;
-        }
-
-        // If plane left > bullet right
-        if (simplePlaneData["lX"] - h2.getRadiusEquivalentX() > simpleBulletData["rX"] + h1.getRadiusEquivalentX()){
-            return false;
-        }
-
-        // If plane top < bullet bottom
-        if (simplePlaneData["tY"] + h2.getRadiusEquivalentX() < simpleBulletData["bY"] - h1.getRadiusEquivalentX()){
-            return false;
-        }
-
-         // If plane bottom > bullet top
-        if (simplePlaneData["bY"] - h2.getRadiusEquivalentX() > simpleBulletData["tY"] + h1.getRadiusEquivalentX()){
-            return false;
-        }
-
-        // Need further checking
-        return Bullet.checkForProjectileLinearCollision(this, plane, this.gamemode.getNumTicks()-1);
-    }
-
-    /*
-        Method Name: display
-        Method Parameters:
-            lX:
-                The bottom left x displayed on the canvas relative to the focused entity
-            bY:
-                The bottom left y displayed on the canvas relative to the focused entity
-            displayTime:
-                The time that the frame is being displayed
-        Method Description: Displays a plane on the screen (if it is within the bounds)
-        Method Return: void
-    */
-    display(lX, bY, displayTime){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
-
-        // If not on screen then return
-        this.calculateInterpolatedCoordinates(displayTime);
-        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
-        // Determine the location it will be displayed at
-        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
-        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);
-        drawingContext.drawImage(this.getImage(), displayX, displayY); 
-    }
-
-    /*
-        Method Name: toJSON
-        Method Parameters: None
-        Method Description: Creates a JSON representation of the bullet
-        Method Return: JSON object
-    */
-    toJSON(){
-        return {
-            "start_x": this.startX,
-            "start_y": this.startY,
-            "dead": this.isDead(),
-            "x_velocity": this.xVelocity,
-            "initial_y_velocity": this.yVI,
-            "spawned_tick": this.spawnedTick,
-            "shooter_class": this.shooterClass,
-            "shooter_id": this.shooterID,
-            "index": this.index
-        }
     }
 
     /*
@@ -424,49 +239,29 @@ class Bullet extends Entity {
     }
 
     /*
-        Method Name: fromJSON
+        Method Name: display
         Method Parameters:
-            jsonRepresentation:
-                Information about a bullet
-        Method Description: Sets the attributes of a bullet from a json representation
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+            displayTime:
+                Time at which frame is displayed
+        Method Description: Displays a projectile on the screen (if it is within the bounds)
         Method Return: void
     */
-    fromJSON(jsonRepresentation, force=false){
-        // Don't overwrite a living bullet
-        // TODO: Local still kills bullets even without collision right?
-        if (!this.isDead() && !force){ 
-            return; 
-        }
-        // No need to taken info from a dead bullet
-        if (jsonRepresentation["dead"]){ return; }
-        this.dead = false;
-        this.startX = jsonRepresentation["start_x"];
-        this.startY = jsonRepresentation["start_y"];
-        this.spawnedTick = jsonRepresentation["spawned_tick"];
-        this.yVI = jsonRepresentation["initial_y_velocity"];
-        this.xVelocity = jsonRepresentation["x_velocity"];
-        this.shooterClass = jsonRepresentation["shooter_class"];
-        this.shooterID = jsonRepresentation["shooter_id"];
-        this.index = jsonRepresentation["index"];
-    }
+    display(lX, bY, displayTime){
+        if (this.isDead()){ return; }
+        let rX = lX + getScreenWidth() - 1;
+        let tY = bY + getScreenHeight() - 1;
+        this.calculateInterpolatedCoordinates(displayTime);
+        // If not on screen then return
+        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
-    /*
-        Method Name: fromJSON
-        Method Parameters:
-            bulletJSONObject:
-                Information about a bullet
-            game:
-                The Game that the bullet is a part of
-        Method Description: Creates a bullet from a representation
-        Method Return: JSON Object
-    */
-    static fromJSON(bulletJSONObject, game){
-        let x = bulletJSONObject["start_x"];
-        let y = bulletJSONObject["start_y"];
-        let bullet = new Bullet(x, y, game, 0, 0, 0, bulletJSONObject["shooter_id"], bulletJSONObject["shooter_class"]);
-        bullet.setDead(bulletJSONObject["dead"]);
-        bullet.fromJSON(bulletJSONObject, true);
-        return bullet;
+        // Determine the location it will be displayed at
+        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);
+        drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 
     /*
@@ -608,7 +403,8 @@ class Bullet extends Entity {
         return false;
     }
 }
-// If using Node JS Export the class
+
+// If using NodeJS -> Export the class
 if (typeof window === "undefined"){
-    module.exports = Bullet;
+    module.exports = SimpleProjectile;
 }

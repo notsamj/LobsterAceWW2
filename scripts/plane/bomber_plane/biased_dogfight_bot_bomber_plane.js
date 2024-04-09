@@ -37,7 +37,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         Method Return: Constructor
     */
     constructor(planeClass, gamemode, angle, facingRight, biases, autonomous=true){
-        super(planeClass, gamemode, angle, facingRight, autonomous);
+        super(planeClass, gamemode, angle, facingRight, biases, autonomous);
         this.currentEnemy = null;
         this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
@@ -147,19 +147,17 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         this.udLock.tick();
         this.updateEnemyLock.tick();
         for (let gun of this.guns){
             gun.tick();
         }
-        super.tick(timeDiffMS);
+        super.tick();
     }
 
     /*

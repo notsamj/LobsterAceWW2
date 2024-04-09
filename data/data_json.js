@@ -139,7 +139,7 @@ const PROGRAM_DATA = {
         "picture": "bomb",
         "radius": 8,
         "initial_y_velocity": -300,
-        "bomb_explosion_radius": 100
+        "bomb_explosion_radius": 200
     },
 
     "radar": {

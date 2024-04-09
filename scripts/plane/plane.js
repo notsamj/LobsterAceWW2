@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Entity = require("../../scripts/entity.js");
+    Entity = require("../../scripts/other_entities/entity.js");
     PROGRAM_DATA = require("../../data/data_json.js");
     CircleHitbox = require("../../scripts/general/hitboxes.js").CircleHitbox;
     helperFunctions = require("../../scripts/general/helper_functions.js");
@@ -238,7 +238,7 @@ class Plane extends Entity {
         Note: Assumes smoke number is in range [1,MAX_SMOKE_NUMBER]
     */
     getSmokeImage(){
-        return images["smoke_" + this.getSmokeNumber()];
+        return IMAGES["smoke_" + this.getSmokeNumber()];
     }
 
     /*
@@ -425,7 +425,7 @@ class Plane extends Entity {
         Method Return: Image
     */
     getCurrentImage(){
-        return images[this.getImageIdentifier()];
+        return IMAGES[this.getImageIdentifier()];
     }
 
     /*
@@ -470,20 +470,18 @@ class Plane extends Entity {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         // If hit the ground
         if (this.y - this.hitBox.getRadiusEquivalentY() <= 0){
             this.die();
             return;
         }
         this.executeDecisions();
-        let newPositionValues = this.getNewPositionValues(timeDiffMS);
+        let newPositionValues = this.getNewPositionValues(PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.x = newPositionValues["x"];
         this.y = newPositionValues["y"];
         this.speed = newPositionValues["speed"];
@@ -495,7 +493,7 @@ class Plane extends Entity {
         Method Name: getNewPositionValues
         Method Parameters:
             timeDiffMS:
-                The amount of time passed since last tick
+                The time difference for the new position values
             displayOnly:
                 Whether the new value are for display only, should use decisions to affect angle
         Method Description: Determines new x, y, speed values for a tick
@@ -509,7 +507,7 @@ class Plane extends Entity {
         if (displayOnly){
             throttle += this.decisions["throttle"];
         }
-        let throttleAcc = this.throttle * this.throttleConstant;
+        let throttleAcc = throttle * this.throttleConstant;
     
         // Drag
         let dragAcc = Math.sqrt(Math.abs(this.speed));
@@ -524,7 +522,7 @@ class Plane extends Entity {
 
         // Handle zero throttle
         let y;
-        if (this.throttle > 0){
+        if (throttle > 0){
             y = this.y + this.getYVelocity(speed, displayOnly) * timeProportion;
         }else{
             y = this.y - PROGRAM_DATA["settings"]["fall_speed"] * timeProportion;

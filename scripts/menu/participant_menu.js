@@ -27,7 +27,7 @@ class ParticipantMenu extends Menu {
         this.userPlaneIndex = 0;
 
         // Update the UI
-        this.userPlaneStaticImage.setImage(images[this.userPlanes[this.userPlaneIndex]]);
+        this.userPlaneStaticImage.setImage(IMAGES[this.userPlanes[this.userPlaneIndex]]);
     }
 
     /*
@@ -95,7 +95,7 @@ class ParticipantMenu extends Menu {
 
         let userPlaneX = () => { return 350; };
         let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        let userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
+        let userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
         userPlane.setOnClick(() => {
             userPlane.setImage(this.switchPlanes()); 
         });
@@ -113,7 +113,7 @@ class ParticipantMenu extends Menu {
         this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
         let planeName = this.userPlanes[this.userPlaneIndex];
         SERVER_CONNECTION.updateUserPreference(planeName);
-        return images[planeName];
+        return IMAGES[planeName];
     }
 
     /*

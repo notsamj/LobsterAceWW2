@@ -206,10 +206,15 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             let angleToBomberDEG = this.angleToOtherDEG(bomber);
             let dCW = calculateAngleDiffDEGCW(this.angle, angleToBomberDEG);
             let dCCW = calculateAngleDiffDEGCCW(this.angle, angleToBomberDEG);
-            if (dCW < dCCW){
-                this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleToBomberDEG));
+            let minDiff = Math.min(dCW, dCCW);
+
+            // Don't both changing the angle if the difference is very little
+            if (minDiff < 1){
+                // pass;
+            }else if (dCW < dCCW){
+                this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(dCW));
             }else if (dCCW < dCW){
-                this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleToBomberDEG));
+                this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(dCCW));
             }
             // Make sure you're at top speed heading to the bomber!
             this.decisions["throttle"] = 1;

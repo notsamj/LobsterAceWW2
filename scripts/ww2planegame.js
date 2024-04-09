@@ -3,6 +3,8 @@ var programOver = false;
 var debug = false;
 var runningTicksBehind = 0;
 
+const IMAGES = {};
+
 const MAX_RUNNING_LATE = 500;
 
 const FRAME_COUNTER = new FrameRateCounter(PROGRAM_DATA["settings"]["frame_rate"]);

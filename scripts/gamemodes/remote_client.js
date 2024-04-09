@@ -82,13 +82,11 @@ class RemoteClient extends ClientGamemode {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeGapMS:
-                The amount of time elasped during a tick
+        Method Parameters: None
         Method Description: Handles all operations that happen every tick
         Method Return: void
     */
-    async tick(timeGapMS){
+    async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
         this.lastTickTime = Date.now();
@@ -100,7 +98,7 @@ class RemoteClient extends ClientGamemode {
         this.client.updateCamera();
 
         // Tick the scene
-        await this.scene.tick(timeGapMS);
+        await this.scene.tick();
         this.correctTicks();
 
         // Send the current position

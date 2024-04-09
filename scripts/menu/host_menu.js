@@ -189,9 +189,9 @@ class HostMenu extends Menu {
         }
 
         // Update the UI
-        this.userPlaneStaticImage.setImage(images[this.userPlanes[this.userPlaneIndex]]);
-        this.axisPlaneImage.setImage(images[this.axisPlanes[this.axisPlaneIndex]]);
-        this.alliedPlaneImage.setImage(images[this.alliedPlanes[this.alliedPlaneIndex]]);
+        this.userPlaneStaticImage.setImage(IMAGES[this.userPlanes[this.userPlaneIndex]]);
+        this.axisPlaneImage.setImage(IMAGES[this.axisPlanes[this.axisPlaneIndex]]);
+        this.alliedPlaneImage.setImage(IMAGES[this.alliedPlanes[this.alliedPlaneIndex]]);
         this.currentAxisPlaneCountComponent.setText("0");
         this.currentAlliedPlaneCountComponent.setText("0");
     }
@@ -240,7 +240,7 @@ class HostMenu extends Menu {
 
         let userPlaneX = () => { return 350; };
         let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        let userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
+        let userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
         userPlane.setOnClick(() => {
             userPlane.setImage(this.switchPlanes()); 
         });
@@ -257,7 +257,7 @@ class HostMenu extends Menu {
 
         let alliedPlaneX = () => { return 650; }
         let alliedPlaneScreenY = (innerHeight) => { return innerHeight - 127; };
-        let alliedPlane = new StaticImage(images[this.alliedPlanes[0]], alliedPlaneX, alliedPlaneScreenY);
+        let alliedPlane = new StaticImage(IMAGES[this.alliedPlanes[0]], alliedPlaneX, alliedPlaneScreenY);
         alliedPlane.setOnClick(() => {
             alliedPlane.setImage(this.switchAlliedPlanes()); 
         });
@@ -316,7 +316,7 @@ class HostMenu extends Menu {
 
         let axisPlaneX = () => { return 950; }
         let axisPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        let axisPlane = new StaticImage(images[this.axisPlanes[0]], axisPlaneX, axisPlaneScreenY);
+        let axisPlane = new StaticImage(IMAGES[this.axisPlanes[0]], axisPlaneX, axisPlaneScreenY);
         axisPlane.setOnClick(() => {
             axisPlane.setImage(this.switchAxisPlanes()); 
         });
@@ -493,7 +493,7 @@ class HostMenu extends Menu {
         this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
         let planeName = this.userPlanes[this.userPlaneIndex];
         SERVER_CONNECTION.updateUserPreference(planeName);
-        return images[planeName];
+        return IMAGES[planeName];
     }
 
     /*
@@ -506,7 +506,7 @@ class HostMenu extends Menu {
         this.axisPlaneIndex = (this.axisPlaneIndex + 1) % this.axisPlanes.length;
         let planeName = this.axisPlanes[this.axisPlaneIndex];
         this.currentAxisPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        return images[planeName];
+        return IMAGES[planeName];
     }
 
     /*
@@ -519,7 +519,7 @@ class HostMenu extends Menu {
         this.alliedPlaneIndex = (this.alliedPlaneIndex + 1) % this.alliedPlanes.length;
         let planeName = this.alliedPlanes[this.alliedPlaneIndex];
         this.currentAlliedPlaneCountComponent.setText(this.planeCounts[planeName].toString());
-        return images[planeName];
+        return IMAGES[planeName];
     }
 
     /*

@@ -16,7 +16,7 @@ function getImage(imageName){
     if (typeof window === "undefined"){
         return null;
     }
-    return images[imageName];
+    return IMAGES[imageName];
 }
 
 /*

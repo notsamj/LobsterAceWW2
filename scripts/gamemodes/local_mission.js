@@ -22,7 +22,7 @@ class LocalMission extends Mission {
             this.scene.addEntity(cam);
             this.scene.setFocusedEntity(cam);
         }else{
-            this.userEntity = scene.getEntity(USER_DATA["name"]);
+            this.userEntity = this.scene.getEntity(USER_DATA["name"]);
             this.scene.setFocusedEntity(this.userEntity);
             this.userEntity.setAutonomous(true);
         }

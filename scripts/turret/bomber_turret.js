@@ -1,7 +1,7 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     Turret = require("./turret.js");
-    Bullet = require("../bullet.js");
+    Bullet = require("../other_entities/simple_projectiles/bullet.js");
 }
 /*
     Class Name: BomberTurret

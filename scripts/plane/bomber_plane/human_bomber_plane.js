@@ -193,13 +193,11 @@ class HumanBomberPlane extends BomberPlane {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         this.radarLock.tick();
         this.bombLock.tick();
         for (let gun of this.guns){
@@ -207,7 +205,7 @@ class HumanBomberPlane extends BomberPlane {
         }
         //console.log(this.isFacingRight(), this.angle)
         this.updateRadar();
-        super.tick(timeDiffMS);
+        super.tick();
     }
 
     /*
@@ -219,6 +217,7 @@ class HumanBomberPlane extends BomberPlane {
     makeDecisions(){
         // Do not make decisions if not autonomous
         if (!this.autonomous){ return; }
+        let startingDecisions = copyObject(this.decisions);
         this.resetDecisions();
         this.checkMoveLeftRight();
         this.checkUpDown();

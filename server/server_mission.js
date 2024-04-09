@@ -1,5 +1,5 @@
 const SoundManager = require("../scripts/general/sound_manager.js");
-const TickScheduler = require("../scripts/tick_scheduler.js");
+const TickScheduler = require("../scripts/misc/tick_scheduler.js");
 const Lock = require("../scripts/general/lock.js");
 const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
 const helperFunctions = require("../scripts/general/helper_functions.js");
@@ -115,7 +115,7 @@ class ServerMisson extends Mission {
         this.attackerSpawnLock.tick();
 
         // Tick the scene
-        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        await this.scene.tick();
         this.checkForEnd();
         this.checkSpawn();
         this.numTicks++;

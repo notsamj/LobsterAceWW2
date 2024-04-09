@@ -111,7 +111,7 @@ class SceneTickManager {
     */
     tickFromTo(fromNumTicks, toNumTicks){
         while (fromNumTicks < toNumTicks){
-            this.scene.tick(this.tickLength);
+            this.scene.tick();
             fromNumTicks += 1;
         }
     }

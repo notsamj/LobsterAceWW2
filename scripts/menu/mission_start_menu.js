@@ -31,7 +31,7 @@ class MissionStartMenu extends Menu {
         this.allyDifficulty = "easy";
         this.axisDifficulty = "easy";
         this.userPlaneIndex = 0;
-        this.userPlane.setImage(images[this.userPlanes[this.userPlaneIndex]]); 
+        this.userPlane.setImage(IMAGES[this.userPlanes[this.userPlaneIndex]]); 
     }
 
     /*
@@ -73,7 +73,7 @@ class MissionStartMenu extends Menu {
 
         let userPlaneX = () => { return 350; };
         let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        this.userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
+        this.userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
         let userPlaneImage = this.userPlane;
         this.userPlane.setOnClick(() => {
             userPlaneImage.setImage(this.switchPlanes()); 
@@ -140,7 +140,7 @@ class MissionStartMenu extends Menu {
     switchPlanes(){
         this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
         let planeName = this.userPlanes[this.userPlaneIndex];
-        return images[planeName];
+        return IMAGES[planeName];
     }
 
     /*

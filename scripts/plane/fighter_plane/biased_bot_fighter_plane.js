@@ -58,15 +58,13 @@ class BiasedBotFighterPlane extends FighterPlane {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         this.updateEnemyLock.tick();
-        super.tick(timeDiffMS);
+        super.tick();
     }
 
     /*

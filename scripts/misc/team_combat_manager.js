@@ -3,7 +3,7 @@ if (typeof window === "undefined"){
     NotSamLinkedList = require("./general/notsam_linked_list.js");
     NotSamArrayList = require("./general/notsam_array_list.js");
     planeModelToAlliance = require("./general/helper_functions.js").planeModelToAlliance;
-    AfterMatchStats = require("./after_match_stats.js");
+    AfterMatchStats = require("./misc/after_match_stats.js");
 }
 /*
     Class Name: TeamCombatManager
@@ -236,41 +236,37 @@ class TeamCombatManager {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiff:
-                Time between ticks
+        Method Parameters: None
         Method Description: Makes things happen within a tick
         Method Return: void
     */
-    async tick(timeDiff){
+    async tick(){
         for (let team of this.teams){
             
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
-                await plane.tick(timeDiff);
+                await plane.tick();
             }
 
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead()){ continue; }
-                await bullet.tick(timeDiff);
+                await bullet.tick();
             }
         }
         for (let [bomb, bombIndex] of this.bombs){
             if (bomb.isDead()){ continue; }
-            await bomb.tick(timeDiff);
+            await bomb.tick();
         }
-        this.checkCollisions(timeDiff);
+        this.checkCollisions();
     }
 
     /*
         Method Name: checkCollisions
-        Method Parameters:
-            timeDiff:
-                Time between ticks
+        Method Parameters: None
         Method Description: Checks for collisions between planes and bullets
         Method Return: void
     */
-    checkCollisions(timeDiff){
+    checkCollisions(){
         let previousTick = this.gamemode.getNumTicks()-1;
         // No collisions on tick 0
         if (previousTick < 0){ return; }
@@ -281,7 +277,7 @@ class TeamCombatManager {
         for (let team of this.teams){
             for (let otherTeam of this.teams){
                 if (team == otherTeam){ continue; }
-                this.checkBulletCollisionsFromTeamToTeam(team, otherTeam, timeDiff);
+                this.checkBulletCollisionsFromTeamToTeam(team, otherTeam);
             }
         }
 
@@ -290,7 +286,7 @@ class TeamCombatManager {
             if (bomb.isDead()){ continue; }
             for (let [building, buildingIndex] of this.buildings){
                 if (building.isDead()){ continue; }
-                if (Bullet.checkForProjectileLinearCollision(bomb, building, previousTick)){
+                if (SimpleProjectile.checkForProjectileLinearCollision(bomb, building, previousTick)){
                     building.damage(bomb.getDamage());
                     bomb.die();
                     break;
@@ -345,12 +341,10 @@ class TeamCombatManager {
                 An alliance
             otherTeam:
                 Another alliance
-            timeDiff:
-                Time between ticks
         Method Description: Checks for collisions between planes of 'team' and bullets of 'otherTeam' and other things to determine if bullet is worth keeping aroun
         Method Return: void
     */
-    checkBulletCollisionsFromTeamToTeam(team, otherTeam, timeDiff){
+    checkBulletCollisionsFromTeamToTeam(team, otherTeam){
         // Check for bullet too far from planes
         let planesLeftX = Number.MAX_SAFE_INTEGER;
         let planesRightX = Number.MIN_SAFE_INTEGER;
@@ -427,7 +421,7 @@ class TeamCombatManager {
             let simplePlaneData = {"lX": leftX, "rX": rightX, "bY": bottomY, "tY": topY};
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead() || ignoreBulletsCheck1[bIndex]){ continue; }
-                if (bullet.collidesWithPlane(plane, timeDiff, simpleBulletData[bIndex], simplePlaneData)){
+                if (bullet.collidesWithPlane(plane, simpleBulletData[bIndex], simplePlaneData)){
                     plane.damage(bullet.getDamage());
                     bullet.die();
                     if (plane.isDead()){

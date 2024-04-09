@@ -29,7 +29,7 @@ class Dogfight extends Gamemode {
         // Update camera
         this.updateCamera();
         await this.tickInProgressLock.awaitUnlock(true);
-        await this.scene.tick(PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        await this.scene.tick();
         this.numTicks++;
         this.checkForEnd();
         this.tickInProgressLock.unlock();

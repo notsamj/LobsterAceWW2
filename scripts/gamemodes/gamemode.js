@@ -1,8 +1,8 @@
 if (typeof window === "undefined"){
-    PlaneGameScene = require("../plane_game_scene.js");
+    PlaneGameScene = require("../scene/plane_game_scene.js");
     SoundManager = require("../general/sound_manager.js");
-    AfterMatchStats = require("../after_match_stats.js");
-    TeamCombatManager = require("../team_combat_manager.js");
+    AfterMatchStats = require("../misc/after_match_stats.js");
+    TeamCombatManager = require("../misc/team_combat_manager.js");
 }
 /*
     Class Name: Gamemode
