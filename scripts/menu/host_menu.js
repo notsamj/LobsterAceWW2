@@ -49,7 +49,7 @@ class HostMenu extends Menu {
     async switchToDogfight(){
         if (this.switchGamemodeLock.isLocked()){ return; }
         this.switchGamemodeLock.lock();
-        let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "dogfight"}, "switch_game_mode");
+        let response = await SERVER_CONNECTION.sendMail({"action": "switch_gamemode", "new_gamemode": "dogfight"}, "switch_gamemode");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
             MENU_MANAGER.addTemporaryMessage("Failed to switch to a dogfight.", "red", 5000);
@@ -122,7 +122,7 @@ class HostMenu extends Menu {
     async switchToMission(){
         if (this.switchGamemodeLock.isLocked()){ return; }
         this.switchGamemodeLock.lock();
-        let response = await SERVER_CONNECTION.sendMail({"action": "switch_game_mode", "new_game_mode": "mission"}, "switch_game_mode");
+        let response = await SERVER_CONNECTION.sendMail({"action": "switch_gamemode", "new_gamemode": "mission"}, "switch_gamemode");
         this.switchGamemodeLock.unlock();
         if (!response || !response["success"]){
             MENU_MANAGER.addTemporaryMessage("Failed to switch to a mission.", "red", 5000);

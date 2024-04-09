@@ -106,7 +106,7 @@ class RemoteDogfight extends Gamemode {
         }else if (isFighter){
             plane = BiasedBotFighterPlane.fromJSON(planeObject, scene, false);
         }else{
-            plane = BiasedBotBomberPlane.fromJSON(planeObject, scene, false);
+            plane = BiasedDogfightBotBomberPlane.fromJSON(planeObject, scene, false);
         }
         this.scene.addPlane(plane);
     }
@@ -152,7 +152,7 @@ class RemoteDogfight extends Gamemode {
                 if (planeModelToType([planeObject["basic"]["plane_class"]]) == "Fighter"){
                     plane = BiasedBotFighterPlane.fromJSON(planeObject, scene, false);
                 }else{
-                    plane = BiasedBotBomberPlane.fromJSON(planeObject, scene, false);
+                    plane = BiasedDogfightBotBomberPlane.fromJSON(planeObject, scene, false);
                 }
                 this.planes.push(plane);
             }

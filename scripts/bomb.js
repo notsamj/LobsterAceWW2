@@ -27,11 +27,14 @@ class Bomb extends Entity {
                 The starting y velocity of the bomb
             currentTick:
                 The tick at which the bomb is created
+            bomberClass:
+                The class of bomber that dropped the bomb
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, game, xVelocity, yVelocity, currentTick){
+    constructor(x, y, game, xVelocity, yVelocity, currentTick, bomberClass){
         super(game);
+        this.bomberClass = bomberClass;
         this.startX = x;
         this.startY = y;
         this.interpolatedX = 0;
@@ -41,6 +44,11 @@ class Bomb extends Entity {
         this.xVelocity = xVelocity;
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bomb_data"]["radius"]);
         this.index = null;
+    }
+
+    // TODO: Comments
+    getDamage(){
+        return PROGRAM_DATA["plane_data"][this.bomberClass]["bomb_damage"];
     }
 
     /*
@@ -70,7 +78,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getX(){
-        return this.getXAtTick(this.game.getNumTicks());
+        return this.getXAtTick(this.gamemode.getNumTicks());
     }
 
     /*
@@ -96,7 +104,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getGameDisplayX(tick, currentTime){
-        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.game.getLastTickTime()) / 1000;
+        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.gamemode.getLastTickTime()) / 1000;
     }
 
     /*
@@ -106,7 +114,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getY(){
-        return this.getYAtTick(this.game.getNumTicks());
+        return this.getYAtTick(this.gamemode.getNumTicks());
     }
 
     /*
@@ -133,7 +141,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getGameDisplayY(tick, currentTime){
-        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.game.getLastTickTime()) / 1000;
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.gamemode.getLastTickTime()) / 1000;
         return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
@@ -146,8 +154,13 @@ class Bomb extends Entity {
         Method Return: void
     */
     calculateInterpolatedCoordinates(currentTime){
-        this.interpolatedX = this.getGameDisplayX(this.game.getNumTicks(), currentTime);
-        this.interpolatedY = this.getGameDisplayY(this.game.getNumTicks(), currentTime);
+        let currentFrameIndex = FRAME_COUNTER.getFrameIndex();
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead() || this.lastInterpolatedFrame == currentFrameIndex){
+            return;
+        }
+        this.lastInterpolatedFrame = currentFrameIndex;
+        this.interpolatedX = this.getGameDisplayX(this.gamemode.getNumTicks(), currentTime);
+        this.interpolatedY = this.getGameDisplayY(this.gamemode.getNumTicks(), currentTime);
     }
 
     /*
@@ -157,7 +170,7 @@ class Bomb extends Entity {
         Method Return: Number
     */
     getYVelocity(){
-        let tick = this.game.getNumTicks();
+        let tick = this.gamemode.getNumTicks();
         return this.getYVelocityAtTick(tick);
     }
 
@@ -211,9 +224,9 @@ class Bomb extends Entity {
     */
     explode(){
         // Loop through and damage all nearby buildings
-        for (let [building, bI] of this.game.getTeamCombatManager().getBuildings()){
+        for (let [building, bI] of this.gamemode.getTeamCombatManager().getBuildings()){
             if (building.distance(this) < PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]){
-                building.damage(1);
+                building.damage(this.getDamage());
             }
         }
         this.die();
@@ -226,7 +239,7 @@ class Bomb extends Entity {
         Method Return: void
     */
     die(){
-        this.game.getSoundManager().play("explode", this.x, this.y);
+        this.gamemode.getSoundManager().play("explode", this.x, this.y);
         super.die();
     }
 
@@ -328,8 +341,8 @@ class Bomb extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.game.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
-        let displayY = this.game.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
+        let displayX = this.gamemode.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 
@@ -347,7 +360,8 @@ class Bomb extends Entity {
             "initial_y_velocity": this.yVI,
             "spawned_tick": this.spawnedTick,
             "dead": this.isDead(),
-            "index": this.index
+            "index": this.index,
+            "bomber_class": this.bomberClass
         }
     }
 
@@ -367,6 +381,7 @@ class Bomb extends Entity {
         this.yVI = jsonRepresentation["initial_y_velocity"];
         this.xVelocity = jsonRepresentation["x_velocity"];
         this.index = jsonRepresentation["index"];
+        this.bomberClass = jsonRepresentation["bomber_class"];
     }
 
     /*

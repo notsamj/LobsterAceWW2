@@ -34,13 +34,17 @@ class Bullet extends Entity {
         this.startX = x;
         this.startY = y;
         angle = toRadians(angle); // Convert the angle to radians so it can be used in calculations
-        this.spawnedTick = this.game.getNumTicks();
+        this.spawnedTick = this.gamemode.getNumTicks();
         this.yVI = yVelocity + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.xVelocity = xVelocity + Math.cos(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.hitBox = new CircleHitbox(PROGRAM_DATA["bullet_data"]["radius"]);
         this.shooterClass = shooterClass;
         this.shooterID = shooterID;
         this.index = null;
+    }
+
+    getDamage(){
+        return PROGRAM_DATA["plane_data"][this.shooterClass]["bullet_damage"];
     }
 
     /*
@@ -70,7 +74,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getX(){
-        return this.getXAtTick(this.game.getNumTicks());
+        return this.getXAtTick(this.gamemode.getNumTicks());
     }
 
     /*
@@ -96,7 +100,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getGameDisplayX(tick, currentTime){
-        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.game.getLastTickTime()) / 1000;
+        return this.getXAtTick(tick) + this.xVelocity * (currentTime - this.gamemode.getLastTickTime()) / 1000;
     }
 
     /*
@@ -106,7 +110,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getY(){
-        return this.getYAtTick(this.game.getNumTicks());
+        return this.getYAtTick(this.gamemode.getNumTicks());
     }
 
     /*
@@ -129,7 +133,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getYVelocity(){
-        let tick = this.game.getNumTicks();
+        let tick = this.gamemode.getNumTicks();
         return this.getYVelocityAtTick(tick);
     }
 
@@ -157,7 +161,7 @@ class Bullet extends Entity {
         Method Return: Number
     */
     getGameDisplayY(tick, currentTime){
-        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.game.getLastTickTime()) / 1000;
+        let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.gamemode.getLastTickTime()) / 1000;
         return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }
 
@@ -168,9 +172,16 @@ class Bullet extends Entity {
                 The current time in milliseconds
         Method Description: Calculate the interpolated x and y
         Method Return: void
-    */    calculateInterpolatedCoordinates(currentTime){
-        this.interpolatedX = this.getGameDisplayX(this.game.getNumTicks(), currentTime);
-        this.interpolatedY = this.getGameDisplayY(this.game.getNumTicks(), currentTime);
+    */ 
+    calculateInterpolatedCoordinates(currentTime){
+        let currentFrameIndex = FRAME_COUNTER.getFrameIndex();
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead() || this.lastInterpolatedFrame == currentFrameIndex){
+            return;
+        }
+        let seconds = ((this.gamemode.getNumTicks() - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"])) + (currentTime - this.gamemode.getLastTickTime()) / 1000;
+        this.lastInterpolatedFrame = currentFrameIndex;
+        this.interpolatedX = this.getGameDisplayX(this.gamemode.getNumTicks(), currentTime);
+        this.interpolatedY = this.getGameDisplayY(this.gamemode.getNumTicks(), currentTime);
     }
 
     /*
@@ -352,7 +363,7 @@ class Bullet extends Entity {
         }
 
         // Need further checking
-        return Bullet.checkForProjectileLinearCollision(this, plane, this.game.getNumTicks()-1);
+        return Bullet.checkForProjectileLinearCollision(this, plane, this.gamemode.getNumTicks()-1);
     }
 
     /*
@@ -374,10 +385,9 @@ class Bullet extends Entity {
         // If not on screen then return
         this.calculateInterpolatedCoordinates(displayTime);
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
-
         // Determine the location it will be displayed at
-        let displayX = this.game.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
-        let displayY = this.game.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
+        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);
         drawingContext.drawImage(this.getImage(), displayX, displayY); 
     }
 

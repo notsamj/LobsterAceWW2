@@ -1,4 +1,5 @@
 const PlaneGameScene = require("../scripts/plane_game_scene.js");
+const Dogfight = require("../scripts/gamemodes/dogfight.js");
 const SoundManager = require("../scripts/general/sound_manager.js");
 const AfterMatchStats = require("../scripts/after_match_stats.js");
 const TickScheduler = require("../scripts/tick_scheduler.js");
@@ -8,7 +9,7 @@ const helperFunctions = require("../scripts/general/helper_functions.js");
 
 const HumanFighterPlane = require("../scripts/plane/fighter_plane/human_fighter_plane.js");
 const HumanBomberPlane = require("../scripts/plane/bomber_plane/human_bomber_plane.js");
-const BiasedBotBomberPlane = require("../scripts/plane/bomber_plane/biased_bot_bomber_plane.js");
+const BiasedDogfightBotBomberPlane = require("../scripts/plane/bomber_plane/biased_bot_bomber_plane.js");
 const BiasedBotFighterPlane = require("../scripts/plane/fighter_plane/biased_bot_fighter_plane.js");
 
 const AsyncUpdateManager = require("../scripts/general/async_update_manager.js");
@@ -31,18 +32,7 @@ class ServerDogfight extends Dogfight {
         super();
         this.serverObject = serverObject;
         this.gameHandler = gameHandler;
-        this.winner = null;
         this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
-
-        this.soundManager = new SoundManager();
-        this.stats = new AfterMatchStats();
-
-        this.scene = new PlaneGameScene(this.soundManager);
-        this.scene.setGamemode(this);
-        this.scene.enableTicks();
-        this.scene.setBulletPhysicsEnabled(this.bulletPhysicsEnabled);
-        this.scene.getTeamCombatManager().setStatsManager(this.stats);
-
         this.planes = [];
         this.createPlanes(dogfightJSON);
         this.scene.setEntities(this.planes);
@@ -51,12 +41,14 @@ class ServerDogfight extends Dogfight {
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
-        this.isATestSession = this.isThisATestSession(dogfightJSON);
-        this.paused = false;
-        this.gameOver = false;
+        this.isATestSession = this.isThisATestSession();
         this.lastState = this.generateState();
 
         this.asyncUpdateManager = new AsyncUpdateManager();
+    }
+
+    runsLocally(){
+        return true;
     }
 
     // TODO: Comments
@@ -81,36 +73,6 @@ class ServerDogfight extends Dogfight {
     }
 
     /*
-        Method Name: pause
-        Method Parameters: None
-        Method Description: Pauses the game
-        Method Return: void
-    */
-    pause(){
-        this.paused = true;
-    }
-
-    /*
-        Method Name: unpause
-        Method Parameters: None
-        Method Description: Resumes the game
-        Method Return: void
-    */
-    unpause(){
-        this.paused = false;
-    }
-
-    /*
-        Method Name: isRunning
-        Method Parameters: None
-        Method Description: Determines if the game is running
-        Method Return: Boolean, true -> running, false -> not running
-    */
-    isRunning(){
-        return this.running && !this.isGameOver();
-    }
-
-    /*
         Method Name: end
         Method Parameters: None
         Method Description: Ends a game
@@ -121,16 +83,6 @@ class ServerDogfight extends Dogfight {
         this.gameOver = true;
         this.tickScheduler.end();
         this.gameHandler.gameOver(this.generateState());
-    }
-
-    /*
-        Method Name: areBulletPhysicsEnabled
-        Method Parameters: None
-        Method Description: Provides information about whether bullet physics are enabled in the game
-        Method Return: Boolean, true -> bullet physics enabled, false -> bullet physics not enabled
-    */
-    areBulletPhysicsEnabled(){
-        return this.bulletPhysicsEnabled;
     }
 
     /*
@@ -160,7 +112,7 @@ class ServerDogfight extends Dogfight {
         Method Description: Checks if the game is ready to end
         Method Return: void
     */
-    checkForEnd(){
+    /*checkForEnd(){
         let allyCount = 0;
         let axisCount = 0;
         // Loop through all the planes, count how many are alive
@@ -177,10 +129,10 @@ class ServerDogfight extends Dogfight {
         // Check if the game is over and act accordingly
         if ((axisCount == 0 || allyCount == 0) && !this.isATestSession){
             this.winner = axisCount != 0 ? "Axis" : "Allies";
-            this.stats.setWinner(this.winner);
+            this.statsManager.setWinner(this.winner);
             this.end();
         }
-    }
+    }*/
 
     /*
         Method Name: isThisATestSession
@@ -190,6 +142,7 @@ class ServerDogfight extends Dogfight {
         Method Description: Determine if this is a test session (not a real fight so no end condition)
         Method Return: boolean, true -> this is determined to be a test session, false -> this isn't detewrmined to be a test session
     */
+    /*
     isThisATestSession(dogfightJSON){
         let noAllies = true;
         let noAxis = true;
@@ -224,7 +177,7 @@ class ServerDogfight extends Dogfight {
             }
         }
         return noAxis || noAllies;
-    }
+    }*?
 
     /*
         Method Name: getLastState
@@ -234,16 +187,6 @@ class ServerDogfight extends Dogfight {
     */
     getLastState(){
         return this.lastState;
-    }
-
-    /*
-        Method Name: isGameOver
-        Method Parameters: None
-        Method Description: Checks if the game is over
-        Method Return: boolean, true -> the game is over, false -> the game is not over
-    */
-    isGameOver(){
-        return this.gameOver;
     }
 
     /*
@@ -269,7 +212,7 @@ class ServerDogfight extends Dogfight {
             stateRep["bullets"] = this.teamCombatManager.getBulletJSON();
         }else{
             // Add after match stats
-            stateRep["stats"] = this.stats.toJSON();
+            stateRep["stats"] = this.statsManager.toJSON();
         }
         // Send out specicially the positions
         this.serverObject.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": stateRep["planes"], "num_ticks": this.numTicks}, (client) => {
@@ -317,7 +260,7 @@ class ServerDogfight extends Dogfight {
                 if (helperFunctions.planeModelToType(planeName) == "Fighter"){
                     botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }else{
-                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
+                    botPlane = BiasedDogfightBotBomberPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }
                 botPlane.setCenterX(aX);
                 botPlane.setCenterY(aY);

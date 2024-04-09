@@ -13,7 +13,8 @@ const PROGRAM_DATA = {
             "country": "Britain",
             "type": "Fighter",
             "gun_offset_x": 126-64,
-            "gun_offset_y": 64-61
+            "gun_offset_y": 64-61,
+            "bullet_damage": 1
         },
         "a6m_zero": {
             "radius": 64,
@@ -22,7 +23,8 @@ const PROGRAM_DATA = {
             "country": "Japan",
             "type": "Fighter",
             "gun_offset_x": 89-64,
-            "gun_offset_y": 64-78
+            "gun_offset_y": 64-78,
+            "bullet_damage": 1
         },
         "republic_p_47": {
             "radius": 64,
@@ -31,7 +33,8 @@ const PROGRAM_DATA = {
             "country": "USA",
             "type": "Fighter",
             "gun_offset_x": 84-64,
-            "gun_offset_y": 64-75
+            "gun_offset_y": 64-75,
+            "bullet_damage": 1
         },
         "me_bf_109": {
             "radius": 64,
@@ -40,7 +43,8 @@ const PROGRAM_DATA = {
             "country": "Germany",
             "type": "Fighter",
             "gun_offset_x": 60-64,
-            "gun_offset_y": 64-86
+            "gun_offset_y": 64-86,
+            "bullet_damage": 1
         },
         "kawasaki_ki_45": {
             "radius": 64,
@@ -49,7 +53,8 @@ const PROGRAM_DATA = {
             "country": "Japan",
             "type": "Fighter",
             "gun_offset_x": 86-64,
-            "gun_offset_y": 64-78
+            "gun_offset_y": 64-78,
+            "bullet_damage": 1
         },
         "p51_mustang": {
             "radius": 64,
@@ -58,7 +63,8 @@ const PROGRAM_DATA = {
             "country": "USA",
             "type": "Fighter",
             "gun_offset_x": 81-64,
-            "gun_offset_y": 64-74
+            "gun_offset_y": 64-74,
+            "bullet_damage": 1
         },
         "hawker_sea_fury": {
             "radius": 64,
@@ -67,7 +73,8 @@ const PROGRAM_DATA = {
             "country": "Britain",
             "type": "Fighter",
             "gun_offset_x": 87-64,
-            "gun_offset_y": 64-85
+            "gun_offset_y": 64-85,
+            "bullet_damage": 1
         },
         "me_309": {
             "radius": 64,
@@ -76,7 +83,8 @@ const PROGRAM_DATA = {
             "country": "Germany",
             "type": "Fighter",
             "gun_offset_x": 88-64,
-            "gun_offset_y": 64-65
+            "gun_offset_y": 64-65,
+            "bullet_damage": 1
         },
         "b24": {
             "radius": 128,
@@ -84,8 +92,10 @@ const PROGRAM_DATA = {
             "health": 50*5,
             "country": "USA",
             "type": "Bomber",
-            "BOMB_OFFSET_X": 123-128,
-            "BOMB_OFFSET_Y": 128-136,
+            "bomb_offset_x": 123-128,
+            "bomb_offset_y": 128-136,
+            "bullet_damage": 4,
+            "bomb_damage": 1,
             "guns": [
                 { // Front gun
                     "x_offset": 224-128,
@@ -120,7 +130,7 @@ const PROGRAM_DATA = {
     },
     "teams": ["Allies", "Axis"],
     "bullet_data": {
-        "speed": 1600,
+        "speed": 900, // was using 1600 for a long time
         "picture": "bullet",
         "radius": 1
     },
@@ -166,7 +176,7 @@ const PROGRAM_DATA = {
         "slow_down_amount": 0.1,
         "expected_canvas_width": 1920,
         "expected_canvas_height": 927,
-        "frame_rate": 60, // 60
+        "frame_rate": 100, // 60
         "tick_rate": 20, // 100
         "ms_between_ticks": 50, // 10
         "max_bullet_y_velocity_multiplier": 2/800,

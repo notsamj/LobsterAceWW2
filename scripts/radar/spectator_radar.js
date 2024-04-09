@@ -32,7 +32,7 @@ class SpectatorRadar extends Radar {
         }
 
         // Add all buildings to radar
-        for (let [building, bI] of this.entity.getGamemode().getBuildings()){
+        for (let [building, bI] of this.entity.getGamemode().getTeamCombatManager().getBuildings()){
             if (building.isDead()){ continue; }
             this.placeOnRadar(building.getCenterX(), building.getCenterY(), "darkgrey");
         }

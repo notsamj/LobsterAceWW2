@@ -7,23 +7,24 @@ class Entity {
     /*
         Method Name: constructor
         Method Parameters:
-            game:
-                A Game object related to the entity
+            gamemode:
+                A Gamemode object related to the entity
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(game){
+    constructor(gamemode){
         this.id = null;
         this.x = null;
         this.y = null;
-        this.game = game;
+        this.gamemode = gamemode;
         this.dead = false;
         this.interpolatedX = 0;
         this.interpolatedY = 0;
+        this.lastInterpolatedFrame = -1;
     }
 
     getGamemode(){
-        return this.game;
+        return this.gamemode;
     }
 
     /*
@@ -33,7 +34,7 @@ class Entity {
         Method Return: Boolean, true -> In a browser, false -> not in a browser (on a server)
     */
     isLocal(){
-        return this.game.isLocal();
+        return this.gamemode.isLocal();
     }
 
     /*
@@ -44,10 +45,12 @@ class Entity {
     */
     calculateInterpolatedCoordinates(displayTime){
         // TODO: Clean this up
-        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead()){
+        let currentFrameIndex = FRAME_COUNTER.getFrameIndex();
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead() || this.lastInterpolatedFrame == currentFrameIndex){
             return;
         }
         let extraTime = (displayTime - (GAMEMODE_MANAGER.getActiveGamemode().getStartTime() + PROGRAM_DATA["settings"]["ms_between_ticks"] * GAMEMODE_MANAGER.getActiveGamemode().getNumTicks())) % PROGRAM_DATA["settings"]["ms_between_ticks"];
+        this.lastInterpolatedFrame = currentFrameIndex;
         this.interpolatedX = this.x + this.xVelocity * extraTime / 1000;
         this.interpolatedY = this.y + this.yVelocity * extraTime / 1000;
     }
@@ -126,7 +129,7 @@ class Entity {
         Method Return: Scene
     */
     getGame(){
-        return this.game;
+        return this.gamemode;
     }
 
     /*
@@ -294,7 +297,7 @@ class Entity {
         Method Return: void
     */
     delete(){
-        this.game.getScene().delete(this.id);
+        this.gamemode.getScene().delete(this.id);
     }
 
     // These methods will likely be overridden

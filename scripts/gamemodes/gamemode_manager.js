@@ -15,7 +15,7 @@ class GamemodeManager {
         this.gamemodeClient = newGamemodeClient;
     }
 
-    deleteGamemode(){
+    deleteActiveGamemode(){
         this.gamemodeClient = null;
     }
 

@@ -16,8 +16,8 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            game:
-                A game object related to the fighter plane
+            gamemode:
+                A gamemode object related to the fighter plane
             biases:
                 An object containing keys and bias values
             angle:
@@ -29,8 +29,8 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, game, biases, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, game, biases, angle, facingRight, autonomous);
+    constructor(planeClass, gamemode, biases, angle=0, facingRight=true, autonomous=true){
+        super(planeClass, gamemode, biases, angle, facingRight, autonomous);
         this.startingThrottle = this.throttle;
     }
 
@@ -39,14 +39,14 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters:
             rep:
                 A json representation of a Biased Campaign Attacker Bot Fighter Plane
-            game:
-                A game object
+            gamemode:
+                A gamemode object
         Method Description: Creates a new Biased Campaign Attacker Bot Fighter Plane
         Method Return: BiasedCampaignAttackerBotFighterPlane
     */
-    static fromJSON(rep, game){
+    static fromJSON(rep, gamemode){
         let planeClass = rep["basic"]["plane_class"];
-        let fp = new BiasedCampaignAttackerBotFighterPlane(planeClass, game, rep["biases"], rep["angle"], rep["facing_right"], false);
+        let fp = new BiasedCampaignAttackerBotFighterPlane(planeClass, gamemode, rep["biases"], rep["angle"], rep["facing_right"], false);
         fp.initFromJSON(rep)
         return fp;
     }
@@ -174,14 +174,14 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     */
     findMyBomber(){
         let furthestBomber = null;
-        let planes = this.game.getTeamCombatManager().getLivingPlanes();
+        let planes = this.gamemode.getTeamCombatManager().getLivingPlanes();
         for (let plane of planes){
             if (!(plane instanceof BomberPlane) || plane.isDead()){ continue; }
             if (furthestBomber == null || plane.getX() > furthestBomber.getX()){
                 furthestBomber = plane;
             }
         }
-        // Bomber assumed not null because then game is broken
+        // Bomber assumed not null because then gamemode is broken
         return furthestBomber;
     }
 
@@ -280,7 +280,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         for (let enemy of enemies){
             let distance = this.distance(enemy);
             if (distance > PROGRAM_DATA["ai"]["fighter_plane"]["max_enemy_distance_campaign"]){ continue; }
-            let score = BiasedBotFighterPlane.calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.game, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
+            let score = BiasedBotFighterPlane.calculateEnemyScore(distance, BiasedBotFighterPlane.focusedCount(this.gamemode, enemy.getID(), this.getID()) * this.biases["enemy_taken_distance_multiplier"]);
             if (bestRecord == null || score < bestRecord["score"]){
                 bestRecord = {
                     "enemy": enemy,
@@ -299,16 +299,16 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
-            game:
-                A game objet related to the plane
+            gamemode:
+                A gamemode objet related to the plane
             difficulty:
                 The current difficulty setting
         Method Description: Return a new biased campaign attacker plane
         Method Return: BiasedCampaignAttackerBotFighterPlane
     */
-    static createBiasedPlane(planeClass, game, difficulty){
+    static createBiasedPlane(planeClass, gamemode, difficulty){
         let biases = BiasedBotFighterPlane.createBiases(difficulty);
-        return new BiasedCampaignAttackerBotFighterPlane(planeClass, game, biases);
+        return new BiasedCampaignAttackerBotFighterPlane(planeClass, gamemode, biases);
     }
 }
 // If using Node JS -> Export the class

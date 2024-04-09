@@ -53,11 +53,9 @@ class PlaneGameScene extends Scene {
     */
     constructor(gamemode=null, local=false){
         super();
-        this.cloudManager = new CloudManager(this);
         this.local = local;
-        this.collisionsEnabled = true;
-        this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
         this.gamemode = gamemode;
+        this.cloudManager = null;
     }
 
     getSoundManager(){
@@ -66,6 +64,9 @@ class PlaneGameScene extends Scene {
 
     // TODO: Comments
     getCloudManager(){
+        if (this.cloudManager == null){
+            this.cloudManager = new CloudManager(this);
+        }
         return this.cloudManager;
     }
 
@@ -102,25 +103,13 @@ class PlaneGameScene extends Scene {
     }
 
     /*
-        Method Name: setBulletPhysicsEnabled
-        Method Parameters:
-            bulletPhysicsEnabled:
-                A boolean specifying if bullet physics are enabled
-        Method Description: Setter
-        Method Return: void
-    */
-    setBulletPhysicsEnabled(bulletPhysicsEnabled){
-        this.bulletPhysicsEnabled = bulletPhysicsEnabled;
-    }
-
-    /*
         Method Name: areBulletPhysicsEnabled
         Method Parameters: None
         Method Description: Checks if bullet physics are enabled
         Method Return: void
     */
     areBulletPhysicsEnabled(){
-        return this.bulletPhysicsEnabled;
+        return this.gamemode.areBulletPhysicsEnabled();
     }
 
     /*
@@ -143,26 +132,6 @@ class PlaneGameScene extends Scene {
     */
     forceUpdatePlanes(listOfPlaneObjects){
         this.gamemode.getTeamCombatManager().forceUpdatePlanes(listOfPlaneObjects);
-    }
-
-    /*
-        Method Name: enableCollisions
-        Method Parameters: None
-        Method Description: Set the property of collisions being enabled to true
-        Method Return: void
-    */
-    enableCollisions(){
-        this.collisionsEnabled = true;
-    }
-
-    /*
-        Method Name: disableCollisions
-        Method Parameters: None
-        Method Description: Set the property of collisions being enabled to false
-        Method Return: void
-    */
-    disableCollisions(){
-        this.collisionsEnabled = false;
     }
     
     /*
@@ -381,7 +350,8 @@ class PlaneGameScene extends Scene {
         Method Return: void
     */
     displayBackground(lX, bY){
-        this.cloudManager.display(lX, bY);
+        let cloudManager = this.getCloudManager();
+        cloudManager.display(lX, bY);
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
         let groundImage = images[PROGRAM_DATA["background"]["ground"]["picture"]];
@@ -467,7 +437,7 @@ class PlaneGameScene extends Scene {
         this.displayBackground(lX, bY);
         
         // Display all planes associated with the team combat manager
-        this.gamemode.getTeamCombatManager().displayAll(this, lX, bY, focusedEntity != null ? focusedEntity.getID() : -1, displayTime);
+        this.gamemode.getTeamCombatManager().displayAll(lX, bY, focusedEntity != null ? focusedEntity.getID() : -1, displayTime);
 
         // Display all extra entities
         for (let [entity, eI] of this.entities){
@@ -492,7 +462,6 @@ class PlaneGameScene extends Scene {
     enable(){
         this.enableTicks();
         this.enableDisplay();
-        this.enableCollisions();
     }
 }
 // If using NodeJS then export the class

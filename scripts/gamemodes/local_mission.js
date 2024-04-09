@@ -17,7 +17,7 @@ class LocalMission extends Mission {
         super(missionObject, missionSetupJSON);
         this.deadCamera = null;
         if (missionSetupJSON["users"].length == 0){
-            let cam = new SpectatorCamera(scene, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);
+            let cam = new SpectatorCamera(this, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);
             this.userEntity = cam;
             this.scene.addEntity(cam);
             this.scene.setFocusedEntity(cam);
@@ -26,6 +26,11 @@ class LocalMission extends Mission {
             this.scene.setFocusedEntity(this.userEntity);
             this.userEntity.setAutonomous(true);
         }
+        this.scene.enable();
+    }
+
+    runsLocally(){
+        return true;
     }
 
     /*
@@ -83,8 +88,9 @@ class LocalMission extends Mission {
     */
     display(){
         this.updateHUD();
+        this.scene.display();
         if (!this.isRunning()){
-            this.stats.display();
+            this.statsManager.display();
         }
     }
 }

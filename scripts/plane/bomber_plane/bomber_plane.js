@@ -15,8 +15,8 @@ class BomberPlane extends Plane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            game:
-                A game object related to the fighter plane
+            gamemode:
+                A gamemode object related to the fighter plane
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -24,8 +24,8 @@ class BomberPlane extends Plane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, game, angle=0, facingRight=true){
-        super(planeClass, game);
+    constructor(planeClass, gamemode, angle=0, facingRight=true){
+        super(planeClass, gamemode);
         this.decisions["bombing"] = false;
         this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
@@ -71,7 +71,7 @@ class BomberPlane extends Plane {
         if (!this.isFacingRight()){
             planeAngleRAD -= toRadians(180);
         }
-        let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["BOMB_OFFSET_X"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["BOMB_OFFSET_Y"] + this.getX();
+        let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_x"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_y"] + this.getX();
         return rotatedX;
     }
 
@@ -86,7 +86,7 @@ class BomberPlane extends Plane {
         if (!this.isFacingRight()){
             planeAngleRAD -= toRadians(180);
         }
-        let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["BOMB_OFFSET_X"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["BOMB_OFFSET_Y"] + this.getY();
+        let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_x"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_y"] + this.getY();
         return rotatedY;
     }
 
@@ -97,8 +97,8 @@ class BomberPlane extends Plane {
         Method Return: void
     */
     dropBomb(){
-        this.game.getSoundManager().play("bomb", this.x, this.y);
-        this.game.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.game, this.getXVelocity(), this.getYVelocity(), this.game.getNumTicks()));
+        this.gamemode.getSoundManager().play("bomb", this.x, this.y);
+        this.gamemode.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.gamemode.getNumTicks(), this.planeClass));
     }
 
     /*
@@ -133,8 +133,8 @@ class BomberPlane extends Plane {
         for (let gun of this.guns){
             if (!gun.readyToShoot()){
                 // Display flash
-                let rotateX = this.game.getScene().getDisplayX(gun.getInterpolatedX(), 0, lX);
-                let rotateY = this.game.getScene().getDisplayY(gun.getInterpolatedY(), 0, bY);
+                let rotateX = this.gamemode.getScene().getDisplayX(gun.getInterpolatedX(), 0, lX);
+                let rotateY = this.gamemode.getScene().getDisplayY(gun.getInterpolatedY(), 0, bY);
                 let interpolatedAngle = this.getInterpolatedAngle();
                 let flashImageWidth = getImage("flash").width;
                 let flashImageHeight = getImage("flash").height;

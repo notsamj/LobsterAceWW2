@@ -1,6 +1,6 @@
 class RemoteClient extends ClientGamemode {
-    constructor(){
-        super();
+    constructor(gamemode){
+        super(gamemode);
         this.asyncUpdateManager = new AsyncUpdateManager();
         this.lastServerState = null;
         this.newServerState = null;

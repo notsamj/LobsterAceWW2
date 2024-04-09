@@ -1,25 +1,21 @@
 // If using NodeJS -> Do required imports
 if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../../data/data_json.js");
-    TickLock = require("../../general/tick_lock.js");
-    BomberPlane = require("./bomber_plane.js");
-    var helperFunctions = require("../../general/helper_functions.js");
-    angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
+    BiasedBotBomberPlane = require("./biased_bot_bomber_plane.js");
 }
 
 /*
     Class Name: BiasedCampaignBotBomberPlane
-    Description: A subclass of the BomberPlane with biases for its actions and the task at bombing all buildings.
-    Note: Lots of this code should be copied from BiasedBotBomberPlane. It's unfortunate but this can't be a subclass so its mostly a copy.
+    Description: A subclass of the BiasedBomberBomberPlane with the task of bombing all buildings.
 */
-class BiasedCampaignBotBomberPlane extends BomberPlane {
+class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     /*
         Method Name: constructor
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            game:
-                A game object related to the fighter plane
+            gamemode:
+                A gamemode object related to the fighter plane
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
@@ -31,15 +27,8 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, game, angle, facingRight, biases, autonomous=true){
-        super(planeClass, game, angle, facingRight);
-        this.biases = biases;
-        this.generateGuns(biases);
-        this.throttle += this.biases["throttle"];
-        this.maxSpeed += this.biases["max_speed"];
-        this.health += this.biases["health"];
-        this.startingHealth = this.health;
-        this.autonomous = autonomous;
+    constructor(planeClass, gamemode, angle, facingRight, biases, autonomous=true){
+        super(planeClass, gamemode, angle, facingRight, autonomous);
     }
 
     /*
@@ -129,16 +118,16 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Parameters:
             rep:
                 A json representation of a biased bot bomber plane
-            game:
-                A game object
+            gamemode:
+                A gamemode object
             autonomous:
                 Whether or not the new plane can make its own decisions (Boolean)
         Method Description: Creates a new Biased Campaign Bot Bomber Plane
         Method Return: BiasedCampaignBotBomberPlane
     */
-    static fromJSON(rep, game, autonomous){
+    static fromJSON(rep, gamemode, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let bp = new BiasedCampaignBotBomberPlane(planeClass, game, rep["angle"], rep["facing_right"], rep["biases"], autonomous);
+        let bp = new BiasedCampaignBotBomberPlane(planeClass, gamemode, rep["angle"], rep["facing_right"], rep["biases"], autonomous);
         bp.initFromJSON(rep)
         return bp;
     }
@@ -206,57 +195,6 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     }
 
     /*
-    Method Name: generateGuns
-        Method Parameters: None
-        Method Description: Create gun objects for the plane
-        Method Return: void
-    */
-    generateGuns(biases){
-        this.guns = [];
-        for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.game, this, biases, this.autonomous));
-        }
-    }
-
-    /*
-        Method Name: getEnemyList
-        Method Parameters: None
-        Method Description: Find all the enemies and return them
-        Method Return: List
-    */
-    getEnemyList(){
-        let entities = this.game.getTeamCombatManager().getLivingPlanes();
-        let enemies = [];
-        for (let entity of entities){
-            if (entity instanceof Plane && !this.onSameTeam(entity)){
-                enemies.push(entity);
-            }
-        }
-        let me = this;
-        return enemies.sort((enemy1, enemy2) => {
-            let d1 = enemy1.distance(me);
-            let d2 = enemy2.distance(me);
-            if (d1 < d2){
-                return -1;
-            }else if (d1 > d2){
-                return 1;
-            }else{
-                return 0;
-            }
-        });
-    }
-
-    /*
-        Method Name: getMaxShootingDistance
-        Method Parameters: None
-        Method Description: Return the max shooting distance of this biased plane
-        Method Return: float
-    */
-    getMaxShootingDistance(){
-        return PROGRAM_DATA["settings"]["shoot_distance_constant"] * PROGRAM_DATA["bullet_data"]["speed"] + this.biases["max_shooting_distance_offset"];
-    }
-
-    /*
         Method Name: decideOnDirection
         Method Parameters: None
         Method Description: Make a decision on which direction to face. Either stay the same or turn.
@@ -279,14 +217,14 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
-            game:
-                A game objet related to the plane
+            gamemode:
+                A gamemode objet related to the plane
             difficulty:
                 The current difficulty setting
         Method Description: Return the max shooting distance of this biased plane
         Method Return: float
     */
-    static createBiasedPlane(planeClass, game, difficulty){
+    static createBiasedPlane(planeClass, gamemode, difficulty){
         let biases = {};
         for (let [key, bounds] of Object.entries(PROGRAM_DATA["ai"]["bomber_plane"]["bias_ranges"][difficulty])){
             let upperBound = bounds["upper_range"]["upper_bound"];
@@ -301,7 +239,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedCampaignBotBomberPlane(planeClass, game, true, 0, biases); // Temporary values some will be changed
+        return new BiasedCampaignBotBomberPlane(planeClass, gamemode, true, 0, biases); // Temporary values some will be changed
     }
 
     /*
@@ -313,7 +251,7 @@ class BiasedCampaignBotBomberPlane extends BomberPlane {
     getBuildingInfo(){
         let frontEnd = null;
         let backEnd = null;
-        for (let [building, bI] of this.game.getTeamCombatManager().getBuildings()){
+        for (let [building, bI] of this.gamemode.getTeamCombatManager().getBuildings()){
             if (building.isDead()){ continue; }
             if (frontEnd == null || building.getX() < frontEnd){
                 frontEnd = building.getX();

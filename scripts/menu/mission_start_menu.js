@@ -59,7 +59,7 @@ class MissionStartMenu extends Menu {
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            GAMEMODE_MANAGER.setActiveGamemode(new LocalMission(this.mission, this.createJSONRep()));
+            GAMEMODE_MANAGER.setActiveGamemode(new LocalMissionClient(this.mission, this.createJSONRep()));
             this.goToGame();
         }));
 
@@ -127,6 +127,7 @@ class MissionStartMenu extends Menu {
         }
         jsonRep["ally_difficulty"] = this.allyDifficulty;
         jsonRep["axis_difficulty"] = this.axisDifficulty;
+        jsonRep["use_physics_bullets"] = PROGRAM_DATA["settings"]["use_physics_bullets"];
         return jsonRep;
     }
 

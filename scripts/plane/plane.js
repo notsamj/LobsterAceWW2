@@ -22,8 +22,8 @@ class Plane extends Entity {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            game:
-                A Gamemode object related to the plane
+            gamemode:
+                A gamemode object related to the plane
             angle:
                 The starting angle of the plane (integer)
             facingRight:
@@ -31,8 +31,8 @@ class Plane extends Entity {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, game, angle=0, facingRight=true){
-        super(game);
+    constructor(planeClass, gamemode, angle=0, facingRight=true){
+        super(gamemode);
         this.planeClass = planeClass;
         this.facingRight = facingRight;
         this.angle = angle;
@@ -57,11 +57,11 @@ class Plane extends Entity {
     }
 
     getTeamCombatManager(){
-        return this.game.getTeamCombatManager();
+        return this.gamemode.getTeamCombatManager();
     }
 
     getScene(){
-        return this.game.getScene();
+        return this.gamemode.getScene();
     }
 
     /*
@@ -94,11 +94,11 @@ class Plane extends Entity {
     /*
         Method Name: getCurrentTicks
         Method Parameters: None
-        Method Description: Get the current tick count of the game mode
+        Method Description: Get the current tick count of the gamemode mode
         Method Return: integer
     */
     getCurrentTicks(){
-        return this.game.getNumTicks();
+        return this.gamemode.getNumTicks();
     }
 
     /*
@@ -328,10 +328,10 @@ class Plane extends Entity {
         Method Return: void
     */
     damage(amount){
-        this.game.getSoundManager().play("damage", this.x, this.y);
+        this.gamemode.getSoundManager().play("damage", this.x, this.y);
         this.health -= amount * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"];
         if (this.health <= 0){
-            this.game.getSoundManager().play("explode", this.x, this.y);
+            this.gamemode.getSoundManager().play("explode", this.x, this.y);
             this.die();
         }
     }
@@ -487,7 +487,7 @@ class Plane extends Entity {
         this.x = newPositionValues["x"];
         this.y = newPositionValues["y"];
         this.speed = newPositionValues["speed"];
-        this.game.getSoundManager().play("engine", this.x, this.y);
+        this.gamemode.getSoundManager().play("engine", this.x, this.y);
         this.makeDecisions();
     }
 
@@ -496,13 +496,19 @@ class Plane extends Entity {
         Method Parameters:
             timeDiffMS:
                 The amount of time passed since last tick
+            displayOnly:
+                Whether the new value are for display only, should use decisions to affect angle
         Method Description: Determines new x, y, speed values for a tick
         Method Return: JSON Object
     */
-    getNewPositionValues(timeDiffMS){
+    getNewPositionValues(timeDiffMS, displayOnly=false){
         let timeProportion = (timeDiffMS / 1000);
 
         // Throttle - Drag
+        let throttle = this.throttle;
+        if (displayOnly){
+            throttle += this.decisions["throttle"];
+        }
         let throttleAcc = this.throttle * this.throttleConstant;
     
         // Drag
@@ -519,11 +525,11 @@ class Plane extends Entity {
         // Handle zero throttle
         let y;
         if (this.throttle > 0){
-            y = this.y + this.getYVelocity(speed) * timeProportion;
+            y = this.y + this.getYVelocity(speed, displayOnly) * timeProportion;
         }else{
             y = this.y - PROGRAM_DATA["settings"]["fall_speed"] * timeProportion;
         }
-        let x = this.x + this.getXVelocity(speed) * timeProportion;
+        let x = this.x + this.getXVelocity(speed, displayOnly) * timeProportion;
         return {"x": x, "y": y, "speed": speed}
     }
 
@@ -555,27 +561,48 @@ class Plane extends Entity {
         Method Parameters:
             speed:
                 The speed that we are travelling
+            interpolated:
+                Whether or not the x velocity is dependent on the angle decision    
         Method Description: Determine the x velocity of the plane at the moment
         Method Return: float
     */
-    getXVelocity(speed=this.speed){
-        let effectiveAngle = this.getEffectiveAngle();
+    getXVelocity(speed=this.speed, interpolated=false){
+        let angle = interpolated ? this.interpolatedAngle : this.angle;
+        let effectiveAngle = this.getEffectiveAngle(angle);
         let cosAngle = Math.cos(toRadians(effectiveAngle));
         if (this.throttle == 0){ return 0; }
         return speed * cosAngle * (!this.facingRight ? -1 : 1);
     }
 
     /*
+        Method Name: getYVelocity
+            speed:
+                The speed that we are travelling
+            interpolated:
+                Whether or not the y velocity is dependent on the angle decision
+        Method Description: Determine the y velocity of the plane at the moment
+        Method Return: float
+    */
+    getYVelocity(speed=this.speed, interpolated=false){
+        let angle = interpolated ? this.interpolatedAngle : this.angle;
+        let effectiveAngle = this.getEffectiveAngle(angle);
+        let sinAngle = Math.sin(toRadians(effectiveAngle))
+        return speed * sinAngle;
+    }
+
+    /*
         Method Name: getEffectiveAngle
-        Method Parameters: None
+        Method Parameters:
+            angle:
+                The angle to modify to find the effective angle
         Method Description: 
         Determine the effective angle of the plane at the moment, 
         if facing left must be changed to match what it would be if facing right
         Method Return: int in range [0,360]
     */
-    getEffectiveAngle(){
-        let effectiveAngle = this.angle;
-        if (!this.facingRight){
+    getEffectiveAngle(angle=this.angle){
+        let effectiveAngle = angle;
+        if (!this.isFacingRight()){
             effectiveAngle = fixDegrees(360 - effectiveAngle);
         }
         return effectiveAngle;
@@ -590,19 +617,6 @@ class Plane extends Entity {
     */
     getNoseAngle(){
         return fixDegrees(this.angle + (this.facingRight ? 0 : 180));
-    }
-
-    /*
-        Method Name: getYVelocity
-            speed:
-                The speed that we are travelling
-        Method Description: Determine the y velocity of the plane at the moment
-        Method Return: float
-    */
-    getYVelocity(speed=this.speed){
-        let effectiveAngle = this.getEffectiveAngle();
-        let sinAngle = Math.sin(toRadians(effectiveAngle))
-        return speed * sinAngle;
     }
 
     /*
@@ -697,7 +711,8 @@ class Plane extends Entity {
     */
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead()){
+        let currentFrameIndex = FRAME_COUNTER.getFrameIndex();
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead() || this.lastInterpolatedFrame == currentFrameIndex){
             return;
         }
         let extraTime = currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime();
@@ -708,6 +723,7 @@ class Plane extends Entity {
         }else{
             this.interpolatedAngle = fixDegrees(this.getAngle());
         }
+        this.lastInterpolatedFrame = currentFrameIndex;
         this.interpolatedX = newPositionValues["x"];
         this.interpolatedY = newPositionValues["y"];
     }
@@ -734,8 +750,8 @@ class Plane extends Entity {
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
         // Determine the location it will be displayed at
-        let displayX = this.game.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
-        let displayY = this.game.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
+        let displayX = this.gamemode.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
 
         // If dead then draw the explosion instead
         if (this.isDead()){
@@ -817,7 +833,7 @@ class Plane extends Entity {
         let bestPlane = null;
         let bestDistance = null;
         // Find the best plane to shoot at
-        for (let plane of this.game.getTeamCombatManager().getLivingPlanes()){
+        for (let plane of this.gamemode.getTeamCombatManager().getLivingPlanes()){
             // Check 1 - If the planes are on the same team then the shot won't hit this plane
             if (this.onSameTeam(plane)){ continue; }
             // Check 2 - If the plane located is in the correct x direction
@@ -874,11 +890,11 @@ class Plane extends Entity {
         // If we failed to find a plane getting shot then return
         if (bestPlane == null){ return; }
         // Hit the plane
-        bestPlane.damage(1);
+        let fauxBullet = new Bullet(null, null, this.gamemode, null, null, null, this.getID(), this.planeClass);
+        bestPlane.damage(fauxBullet.getDamage());
         if (bestPlane.isDead()){
             // Make a fake bullet just because that's how the handlekill function works
-            let fauxBullet = new Bullet(null, null, this.game, null, null, null, this.getID(), null);
-            this.game.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
+            this.gamemode.getTeamCombatManager().handleKill(fauxBullet, bestPlane);
         }
     }
 }

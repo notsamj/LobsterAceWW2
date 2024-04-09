@@ -302,7 +302,7 @@ class Client {
         Method Return: Boolean, true -> is a heart beat, false -> is not a heart beat
     */
     handleHeartbeat(dataJSON){
-        console.log("Message", dataJSON)
+        //console.log("Message", dataJSON)
         if (dataJSON["action"] == "ping"){
             this.sendJSON({"action": "pong", "mail_box": "heart_beat"});
             return true;
@@ -482,8 +482,8 @@ class Client {
             SERVER.getGameHandler().getLobby().updateSettings(dataJSON["new_settings"]);
         }else if (dataJSON["action"] == "plane_update"){ // Updating with plane preference
             SERVER.getGameHandler().getLobby().updatePreference(this.username, dataJSON["plane_update"]);
-        }else if (dataJSON["action"] == "switch_game_mode"){
-            SERVER.getGameHandler().getLobby().switchGamemode(dataJSON["new_game_mode"]);
+        }else if (dataJSON["action"] == "switch_gamemode"){
+            SERVER.getGameHandler().getLobby().switchGamemode(dataJSON["new_gamemode"]);
             this.sendJSON({"success": true, "mail_box": dataJSON["mail_box"]});
         }else if (dataJSON["action"] == "switch_mission"){
             SERVER.getGameHandler().getLobby().switchMission(dataJSON["new_mission_id"]);
@@ -658,14 +658,14 @@ class GameHandler {
         Method Return: Constructor
     */
     constructor(){
-        this.game = null;
+        this.gamemode = null;
         this.endState = null;
         this.lobby = null;
     }
 
     gameOver(endState){
         this.endState = endState;
-        this.game = null;
+        this.gamemode = null;
     }
 
     /*
@@ -675,8 +675,8 @@ class GameHandler {
         Method Return: void
     */
     end(){
-        this.game.end();
-        this.game = null;
+        this.gamemode.end();
+        this.gamemode = null;
     }
 
     /*
@@ -696,7 +696,7 @@ class GameHandler {
         Method Return: void
     */
     async startGame(){
-        this.game = this.lobby.getGamemodeSetup().create(this.lobby.dissolve(), this);
+        this.gamemode = this.lobby.getGamemodeSetup().create(this.lobby.dissolve(), this);
         this.lobby = null;
     }
 
@@ -707,7 +707,7 @@ class GameHandler {
         Method Return: Boolean, true -> There is a game in progress, false -> There is no game in progress
     */
     isInProgress(){
-        return this.game != null;
+        return this.gamemode != null;
     }
 
     /*
@@ -767,7 +767,7 @@ class GameHandler {
             this.lobby.handleDisconnect(username);
         }else if (this.gameInProgress()){
             // If there is a game in progress then kill the player
-            this.game.playerDisconnected(username);
+            this.gamemode.playerDisconnected(username);
         }
         // Else nothing needs to be done here
     }
@@ -792,8 +792,8 @@ class GameHandler {
     */
     updateFromUser(planeUpdate){
         // This is expected to happen occasionally
-        if (this.game == null){ return; }
-        this.game.newPlaneJSON(planeUpdate);
+        if (this.gamemode == null){ return; }
+        this.gamemode.newPlaneJSON(planeUpdate);
     }
 
     /*
@@ -829,10 +829,10 @@ class GameHandler {
     */
     getState(){
         // If game isn't running send the last state from a game that we have
-        if (this.game == null){
+        if (this.gamemode == null){
             return this.endState;
         }
-        return this.game.getLastState();
+        return this.gamemode.getLastState();
     }
 }
 

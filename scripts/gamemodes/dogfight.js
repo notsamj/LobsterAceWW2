@@ -1,3 +1,6 @@
+if (typeof window === "undefined"){
+    Gamemode = require("./gamemode.js");
+}
 /*
     Class Name: Dogfight
     Description: A class that runs a Dogfight
@@ -11,12 +14,7 @@ class Dogfight extends Gamemode {
     */
     constructor(){
         super();
-        this.winner = null;
         this.isATestSession = false;
-        this.startTime = Date.now();
-        this.numTicks = 0;
-        this.userEntity = null;
-        this.paused = false;
     }
 
     /*
@@ -70,7 +68,7 @@ class Dogfight extends Gamemode {
         // Check if the game is over and act accordingly
         if ((axisCount == 0 || allyCount == 0) && !this.isATestSession){
             this.winner = axisCount != 0 ? "Axis" : "Allies";
-            this.stats.setWinner(this.winner);
+            this.statsManager.setWinner(this.winner);
             this.running = false;
         }
     }
@@ -96,4 +94,7 @@ class Dogfight extends Gamemode {
         }
         return allyCount == 0 || axisCount == 0;
     }
+}
+if (typeof window === "undefined"){
+    module.exports=Dogfight;
 }

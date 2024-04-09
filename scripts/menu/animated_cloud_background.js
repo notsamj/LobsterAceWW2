@@ -16,7 +16,7 @@ class AnimatedCloudBackground extends Component {
         this.xVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_x"]);
         this.xVelocity *= (randomFloatBetween(0,1)==0) ? -1 : 1;
         this.yVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_y"]);
-        this.scene = new PlaneGameScene();
+        this.scene = new PlaneGameScene(null, true);
     }
 
     /*

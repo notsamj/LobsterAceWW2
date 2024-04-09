@@ -22,8 +22,8 @@ class BotBomberTurret extends BomberTurret {
                 An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            game:
-                A Game object involving the bot bomber turret
+            gamemode:
+                A gamemode object involving the bot bomber turret
             plane:
                 The bomber plane which the turret is attached to
             autonomous:
@@ -31,8 +31,8 @@ class BotBomberTurret extends BomberTurret {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, game, plane, autonomous=true){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, game, plane);
+    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, gamemode, plane, autonomous=true){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, gamemode, plane);
         this.shootingAngle = 0;
         this.autonomous = autonomous;
     }
@@ -138,7 +138,7 @@ class BotBomberTurret extends BomberTurret {
         // If the distance is acceptable then the shot is good
         if (distanceToEnemy < this.plane.getMaxShootingDistance()){
             // Either physics bullets OR don't shoot past the limit of instant shot
-            if (this.game.getScene().areBulletPhysicsEnabled() || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
+            if (this.gamemode.getScene().areBulletPhysicsEnabled() || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
                 return true;
             }
         }
@@ -150,15 +150,15 @@ class BotBomberTurret extends BomberTurret {
         Method Parameters:
             gunObject:
                 A JSON object with details about the gun
-            game:
-                A Game object that the bot bomber turret is a part of
+            gamemode:
+                A gamemode object that the bot bomber turret is a part of
             plane:
                 The bomber plane which the turret is attached to
         Method Description: Create a bot bomber turret
         Method Return: BotBomberTurret
     */
-    static create(gunObject, game, plane){
-        return new BotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], game, plane);
+    static create(gunObject, gamemode, plane){
+        return new BotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], gamemode, plane);
     }
 }
 

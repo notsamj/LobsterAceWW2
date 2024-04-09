@@ -19,7 +19,13 @@ class FrameRateCounter {
         this.minFrameGap = 1000 / maxFPS * FrameRateCounter.FRAME_GAP_CONSTANT;
         this.lastFrameTime = 0;
         this.frameTimes = [];
+        this.frameIndex = -1; // countFrame() is expected to be called before each frame
         for (let i = 0; i < maxFPS; i++){ this.frameTimes.push(0); }
+    }
+
+    // TODO: Comments
+    getFrameIndex(){
+        return this.frameIndex;
     }
 
     /*
@@ -44,6 +50,7 @@ class FrameRateCounter {
             if (!FrameRateCounter.fromPastSecond(currentTime, this.frameTimes[i])){
                 this.frameTimes[i] = currentTime;
                 this.lastFrameTime = currentTime;
+                this.frameIndex++;
                 break;
             }
         }

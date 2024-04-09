@@ -7,7 +7,7 @@ if (typeof window === "undefined"){
     BiasedCampaignDefenderBotFighterPlane = require("../plane/fighter_plane/biased_campaign_defender_bot_fighter_plane.js");
     HumanFighterPlane = require("../plane/fighter_plane/human_fighter_plane.js");
     HumanBomberPlane = require("../plane/bomber_plane/human_bomber_plane.js");
-    Gamemode = require("./game_mode.js");
+    Gamemode = require("./gamemode.js");
     Building = require("../building.js");
     helperFunctions = require("../general/helper_functions.js");
     mergeCopyObjects = helperFunctions.mergeCopyObjects;
@@ -32,21 +32,14 @@ class Mission extends Gamemode {
 	constructor(missionObject, missionSetupJSON){
 		super();
 		this.missionObject = missionObject;
-        this.stats = new AfterMatchStats();
-        this.scene.setGamemode(this);
-        this.scene.getTeamCombatManager().setStatsManager(this.stats);
         this.allyDifficulty = missionSetupJSON["ally_difficulty"];
         this.axisDifficulty = missionSetupJSON["axis_difficulty"];
 		this.buildings = this.createBuildings();
 		this.planes = this.createPlanes(missionSetupJSON["users"]);
         this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
         this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
-        this.startTime = Date.now();
-        this.numTicks = 0;
 		this.scene.setEntities(appendLists(this.planes, this.buildings));
-        this.gameOver = false;
-        this.scene.setBulletPhysicsEnabled(PROGRAM_DATA["settings"]["use_physics_bullets"]);
-        this.scene.enableTicks();
+        this.bulletPhysicsEnabled = missionSetupJSON["use_physics_bullets"];
 	}
 
     /*
@@ -78,16 +71,6 @@ class Mission extends Gamemode {
     getBuildings(){
         return this.buildings;
     }
-
-    /*
-        Method Name: isRunning
-        Method Parameters: None
-        Method Description: Checks if the game mode is running
-        Method Return: boolean, true -> mission is running, false -> mission is not running
-    */
-	isRunning(){
-		return this.running && !this.isGameOver();
-	}
 
 	/*
         Method Name: tick
@@ -265,7 +248,7 @@ class Mission extends Gamemode {
         Method Return: void
     */
     endGame(attackerWon){
-        this.stats.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
+        this.statsManager.setWinner(attackerWon ? this.missionObject["attackers"] : this.missionObject["defenders"], "won!");
         this.running = false;
         this.gameOver = true;
     }
@@ -322,7 +305,7 @@ class Mission extends Gamemode {
             let facingRight = side == "attackers" ? true : false;
             plane.setAngle(0);
             plane.setAlive(true); // This is good for setting up previously dead planes
-            plane.increaseModCount(); // This is good so that clients will take the new position immediately
+            // plane.increaseModCount(); // This is good so that clients will take the new position immediately
             plane.setFacingRight(facingRight);
             plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
             plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);

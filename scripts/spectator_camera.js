@@ -88,7 +88,7 @@ class SpectatorCamera extends Entity {
         if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
 
         // Otherwise determine the previous one and follow it
-        let followableEntities = this.game.getScene().getGoodToFollowEntities();
+        let followableEntities = this.gamemode.getScene().getGoodToFollowEntities();
         let found = false;
         let i = followableEntities.length - 1;
         while (i >= 0){
@@ -168,7 +168,7 @@ class SpectatorCamera extends Entity {
         if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
 
         // Otherwise determine the next one and follow it
-        let followableEntities = this.game.getScene().getGoodToFollowEntities();
+        let followableEntities = this.gamemode.getScene().getGoodToFollowEntities();
         let found = false;
         let i = 0;
         while (i < followableEntities.length){
@@ -195,7 +195,7 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     spectateFirstEntity(){
-        let followableEntities = this.game.getScene().getGoodToFollowEntities();
+        let followableEntities = this.gamemode.getScene().getGoodToFollowEntities();
         if (followableEntities.length > 0){
             let bestEntity = null;
             let bestDistance = null;
@@ -221,7 +221,7 @@ class SpectatorCamera extends Entity {
         if (this.followingEntity == null){ this.spectateFirstEntity(); return; }
 
         // Otherwise determine the next one and follow it
-        let followableEntities = this.game.getScene().getGoodToFollowEntities();
+        let followableEntities = this.gamemode.getScene().getGoodToFollowEntities();
         let alliance = planeModelToAlliance(this.followingEntity.getModel());
         let found = false;
         let i = 0;
@@ -390,7 +390,8 @@ class SpectatorCamera extends Entity {
 
     calculateInterpolatedCoordinates(currentTime){
         // TODO: Clean this up
-        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning()){
+        let currentFrameIndex = FRAME_COUNTER.getFrameIndex();
+        if (GAMEMODE_MANAGER.getActiveGamemode().isPaused() || !GAMEMODE_MANAGER.getActiveGamemode().isRunning() || this.isDead() || this.lastInterpolatedFrame == currentFrameIndex){
             return;
         }
         if (this.isFollowing()){
@@ -401,6 +402,7 @@ class SpectatorCamera extends Entity {
             this.interpolatedX = this.x + this.xVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
             this.interpolatedY = this.y + this.yVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
         }
+        this.lastInterpolatedFrame = currentFrameIndex;
     }
 
     /*

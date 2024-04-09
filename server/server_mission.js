@@ -3,7 +3,7 @@ const TickScheduler = require("../scripts/tick_scheduler.js");
 const Lock = require("../scripts/general/lock.js");
 const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
 const helperFunctions = require("../scripts/general/helper_functions.js");
-const Mission = require("../scripts/game_modes/mission.js");
+const Mission = require("../scripts/gamemodes/mission.js");
 const PROGRAM_DATA = require("../data/data_json.js");
 // TODO: Comments
 class ServerMisson extends Mission {
@@ -19,18 +19,18 @@ class ServerMisson extends Mission {
     constructor(missionSetupJSON, gameHandler){
         super(PROGRAM_DATA["missions"][missionSetupJSON["mission_id"]], missionSetupJSON);
         this.gameHandler = gameHandler;
-        this.winner = null;
         this.bulletPhysicsEnabled = missionSetupJSON["bullet_physics_enabled"];
-
-        this.soundManager = new SoundManager();
-        this.scene.setSoundManager(this.soundManager);
 
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
         this.userInputQueue = new NotSamLinkedList();
 
         this.tickScheduler = new TickScheduler(() => { this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
-        this.lastState = this.generateState();
+        this.lastState = this.generateState(); 
+    }
+
+    runsLocally(){
+        return true;
     }
 
     isPaused(){
@@ -177,7 +177,7 @@ class ServerMisson extends Mission {
             stateRep["defender_spawn_ticks_left"] = this.defenderSpawnLock.getTicksLeft();
         }else{
             // Add after match stats
-            stateRep["stats"] = this.stats.toJSON();
+            stateRep["stats"] = this.statsManager.toJSON();
         }
         return stateRep;
     }

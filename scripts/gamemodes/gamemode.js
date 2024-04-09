@@ -1,3 +1,9 @@
+if (typeof window === "undefined"){
+    PlaneGameScene = require("../plane_game_scene.js");
+    SoundManager = require("../general/sound_manager.js");
+    AfterMatchStats = require("../after_match_stats.js");
+    TeamCombatManager = require("../team_combat_manager.js");
+}
 /*
     Class Name: Gamemode
     Description: Abstract class for a game mode
@@ -12,6 +18,8 @@ class Gamemode {
     */    
     constructor(){
         this.running = true;
+        this.gameOver = false;
+        this.winner = null;
         this.numTicks = 0;
         this.startTime = Date.now();
         this.lastTickTime = Date.now();
@@ -22,6 +30,17 @@ class Gamemode {
         this.soundManager = new SoundManager(this);
         this.statsManager = new AfterMatchStats(this);
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
+
+        // Default Values subject to change
+        this.bulletPhysicsEnabled = false;
+    }
+
+    areBulletPhysicsEnabled(){
+        return this.bulletPhysicsEnabled;
+    }
+
+    runsLocally(){
+        return false;
     }
 
     getScene(){
@@ -155,6 +174,8 @@ class Gamemode {
     */
     unpause(){
         this.correctTicks();
+        this.lastTickTime = Date.now();
+        //this.numTicks = Math.max(0, this.numTicks-1);
         this.paused = false;
     }
 
@@ -169,11 +190,16 @@ class Gamemode {
     /*
         Method Name: isRunning
         Method Parameters: None
-        Method Description: Proxy for accessing a boolean value
-        Method Return: boolean, true -> running, false -> not running
+        Method Description: Checks if the game mode is running
+        Method Return: boolean, true -> mission is running, false -> mission is not running
     */
     isRunning(){
-        return this.running;
+        return this.running && !this.isGameOver();
+    }
+
+    // TODO: Comments
+    isGameOver(){
+        return this.gameOver;
     }
 
     /*

@@ -13,11 +13,16 @@ class LocalDogfight extends Dogfight {
     */
     constructor(dogfightJSON){
         super();
-        this.scene.setBulletPhysicsEnabled(PROGRAM_DATA["settings"]["use_physics_bullets"]);
+        this.userEntity = null;
+        this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
         this.planes = [];
         this.setup(dogfightJSON);
         this.scene.enable();
         this.isATestSession = this.isThisATestSession();
+    }
+
+    runsLocally(){
+        return true;
     }
 
     /*
@@ -28,10 +33,9 @@ class LocalDogfight extends Dogfight {
     */
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
-        this.lastTickTime = Date.now();
         // Update camera
         this.updateCamera();
-        super.tick();
+        await super.tick();
     }
 
 
@@ -64,7 +68,7 @@ class LocalDogfight extends Dogfight {
                 if (planeModelToType(planeName) == "Fighter"){
                     botPlane = BiasedBotFighterPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }else{
-                    botPlane = BiasedBotBomberPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
+                    botPlane = BiasedDogfightBotBomberPlane.createBiasedPlane(planeName, this, allied ? dogfightJSON["ally_difficulty"] : dogfightJSON["axis_difficulty"], true);
                 }
                 botPlane.setCenterX(aX);
                 botPlane.setCenterY(aY);
@@ -112,7 +116,7 @@ class LocalDogfight extends Dogfight {
     display(){
         this.scene.display();
         if (!this.isRunning()){
-            this.stats.display();
+            this.statsManager.display();
         }
     }
 }
