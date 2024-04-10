@@ -5,20 +5,34 @@
 class RemoteDogfight extends Gamemode {
     /*
         Method Name: constructor
-        Method Parameters:
-            client:
-                A remote dogfight client associated with this dogfight
+        Method Parameters: None
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(client){
+    constructor(){
         super();
+        this.client = null; // Placeholder
+        this.translator = null; // Placeholder
+
         this.planes = [];
         this.gameOver = false;
 
         // Wait for start up to start running
         this.running = false;
-        this.startUp();
+
+        this.userEntity = null;
+    }
+
+    setClient(client){
+        this.client = client;
+    }
+
+    getUserEntity(){
+        return this.userEntity;
+    }
+
+    getLastTickTime(){
+        return this.client.getLastTickTime();
     }
 
     /*
@@ -34,23 +48,20 @@ class RemoteDogfight extends Gamemode {
         
         // If not running then load the end
         if (this.isGameOver()){
-            this.stats.fromJSON(state["stats"]);
+            this.statsManager.fromJSON(state["stats"]);
             return;
         }
         
         // Load sounds
         SOUND_MANAGER.fromSoundRequestList(state["sound_list"]);
 
-        // TODO: If tickdifference is great enough then take from server!
+        // TODO: If tickdifference is great enough then take from server?
         let tickDifference = this.numTicks - state["num_ticks"];
         let planeData = state["planes"];
-        if (tickDifference < 0){
-
-        }
 
         // Update plane general information
         for (let planeObject of planeData){
-            let plane = scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
+            let plane = this.scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
                 console.log(planeObject["basic"]["id"])
@@ -64,10 +75,11 @@ class RemoteDogfight extends Gamemode {
         // Check if update is super future save and try to load if we have one
         if (tickDifference < 0){
             // Tick differnece < 0
-            await this.asyncUpdateManager.put("plane_movement_data", this.numTicks, planeData);
-            if (await this.asyncUpdateManager.has("plane_movement_data", this.numTicks)){
-                planeData = await this.asyncUpdateManager.getValue("plane_movement_data", this.numTicks);
-                await this.asyncUpdateManager.deletionProcedure(this.numTicks);
+            let asyncUpdateManager = this.client.getAsyncUpdateManager();
+            await asyncUpdateManager.put("plane_movement_data", this.numTicks, planeData);
+            if (await asyncUpdateManager.has("plane_movement_data", this.numTicks)){
+                planeData = await asyncUpdateManager.getValue("plane_movement_data", this.numTicks);
+                await asyncUpdateManager.deletionProcedure(this.numTicks);
                 tickDifference = 0;
             }
         }
@@ -75,7 +87,7 @@ class RemoteDogfight extends Gamemode {
         // Update plane movement
         if (tickDifference >= 0){
             for (let planeObject of planeData){
-                let plane = scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
+                let plane = this.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
                 if (plane == null){
                     continue;
                 }
@@ -84,7 +96,7 @@ class RemoteDogfight extends Gamemode {
         }
 
         // Update bullets
-        scene.getTeamCombatManager().fromBulletJSON(state["bullets"]);
+        this.getTeamCombatManager().fromBulletJSON(state["bullets"]);
     }
 
     /*
@@ -100,13 +112,13 @@ class RemoteDogfight extends Gamemode {
         let isHuman = planeObject["human"];
         let plane;
         if (isHuman && isFighter){
-            plane = HumanFighterPlane.fromJSON(planeObject, scene, planeIsMe);
+            plane = HumanFighterPlane.fromJSON(planeObject, this, planeIsMe);
         }else if (isHuman){
-            plane = HumanBomberPlane.fromJSON(planeObject, scene, planeIsMe);
+            plane = HumanBomberPlane.fromJSON(planeObject, this, planeIsMe);
         }else if (isFighter){
-            plane = BiasedBotFighterPlane.fromJSON(planeObject, scene, false);
+            plane = BiasedBotFighterPlane.fromJSON(planeObject, this, false);
         }else{
-            plane = BiasedDogfightBotBomberPlane.fromJSON(planeObject, scene, false);
+            plane = BiasedDogfightBotBomberPlane.fromJSON(planeObject, this, false);
         }
         this.scene.addPlane(plane);
     }
@@ -118,18 +130,24 @@ class RemoteDogfight extends Gamemode {
         Method Return: void
     */
     display(){
+        this.scene.display();
         if (this.isGameOver()){
-            this.stats.display();
+            this.statsManager.display();
         }
     }
 
     /*
         Method Name: startUp
-        Method Parameters: None
+        Method Parameters:
+            TODO
+            translator:
+                A tool for communicating with the server
         Method Description: Prepares the game mode from a state
         Method Return: void
     */
-    async startUp(){
+    async startUp(client, translator){
+        this.client = client;
+        this.translator = translator;
         // Get a state from the server and await it then set start time then set up based on the server state
         let state = await this.translator.getState();
         let myID = USER_DATA["name"];
@@ -139,9 +157,9 @@ class RemoteDogfight extends Gamemode {
                 let planeIsMe = planeObject["basic"]["id"] == myID;
                 let plane;
                 if (planeModelToType([planeObject["basic"]["plane_class"]]) == "Fighter"){
-                    plane = HumanFighterPlane.fromJSON(planeObject, scene, planeIsMe);
+                    plane = HumanFighterPlane.fromJSON(planeObject, this, planeIsMe);
                 }else{
-                    plane = HumanBomberPlane.fromJSON(planeObject, scene, planeIsMe);
+                    plane = HumanBomberPlane.fromJSON(planeObject, this, planeIsMe);
                 }
                 if (planeIsMe){
                     this.userEntity = plane;
@@ -150,16 +168,16 @@ class RemoteDogfight extends Gamemode {
             }else{
                 let plane;
                 if (planeModelToType([planeObject["basic"]["plane_class"]]) == "Fighter"){
-                    plane = BiasedBotFighterPlane.fromJSON(planeObject, scene, false);
+                    plane = BiasedBotFighterPlane.fromJSON(planeObject, this, false);
                 }else{
-                    plane = BiasedDogfightBotBomberPlane.fromJSON(planeObject, scene, false);
+                    plane = BiasedDogfightBotBomberPlane.fromJSON(planeObject, this, false);
                 }
                 this.planes.push(plane);
             }
         }
 
         // Add planes to the scene
-        scene.setEntities(this.planes);
+        this.scene.setEntities(this.planes);
 
         // If no user then add a freecam
         //console.log("Is user entity null?", this.userEntity)
@@ -170,12 +188,12 @@ class RemoteDogfight extends Gamemode {
             let axisY = PROGRAM_DATA["dogfight_settings"]["axis_spawn_y"];
             let middleX = (allyX + axisX) / 2;
             let middleY = (allyY + axisY) / 2;
-            this.userEntity = new SpectatorCamera(scene);
+            this.userEntity = new SpectatorCamera(this);
             this.userEntity.setCenterX(middleX);
             this.userEntity.setCenterY(middleY);
-            scene.addEntity(this.userEntity);
+            this.scene.addEntity(this.userEntity);
         }
-        scene.setFocusedEntity(this.userEntity);
+        this.scene.setFocusedEntity(this.userEntity);
         this.startTime = state["start_time"];
         this.numTicks = state["num_ticks"];
         this.running = true;

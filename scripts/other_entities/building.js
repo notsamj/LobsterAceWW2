@@ -1,7 +1,7 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    Entity = require("./other_entities/entity.js");
-    RectangleHitbox = require("./general/hitboxes.js").RectangleHitbox;
+    Entity = require("./entity.js");
+    RectangleHitbox = require("../general/hitboxes.js").RectangleHitbox;
 }
 /*
     Class Name: Building

@@ -15,7 +15,6 @@ class LocalMission extends Mission {
     */
     constructor(missionObject, missionSetupJSON){
         super(missionObject, missionSetupJSON);
-        this.deadCamera = null;
         if (missionSetupJSON["users"].length == 0){
             let cam = new SpectatorCamera(this, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);
             this.userEntity = cam;
@@ -27,6 +26,14 @@ class LocalMission extends Mission {
             this.userEntity.setAutonomous(true);
         }
         this.scene.enable();
+    }
+
+    setClient(client){
+        this.client = client;
+    }
+
+    getUserEntity(){
+        return this.userEntity;
     }
 
     runsLocally(){
@@ -41,7 +48,7 @@ class LocalMission extends Mission {
     */
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
-        this.updateCamera();
+        this.client.updateCamera();
         await super.tick();
     }
 

@@ -25,12 +25,4 @@ class LocalClient extends ClientGamemode {
         if (this.isPaused()){ return; }
         await this.gamemode.tick();
     }
-
-    /*
-        Method Name: inputAllowed
-        Method Parameters: None
-        Method Description: Provides information that this gamemode allows input from the user.
-        Method Return: Boolean
-    */
-    inputAllowed(){ return true; }
 }

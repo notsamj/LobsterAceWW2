@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    helperFunctions = require("../scripts/general/helper_functions.js");
+    helperFunctions = require("../general/helper_functions.js");
     objectHasKey = helperFunctions.objectHasKey;
 }
 /*

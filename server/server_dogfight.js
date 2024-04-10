@@ -45,6 +45,7 @@ class ServerDogfight extends Dogfight {
         this.lastState = this.generateState();
 
         this.asyncUpdateManager = new AsyncUpdateManager();
+        this.running = true;
     }
 
     runsLocally(){
@@ -277,7 +278,6 @@ class ServerDogfight extends Dogfight {
         Method Return: void
     */
     async updateFromUserInput(){
-        if (this.isPaused()){ return; }
         await this.userInputLock.awaitUnlock(true);
         // Update all planes based on user input
         for (let plane of this.teamCombatManager.getLivingPlanes()){

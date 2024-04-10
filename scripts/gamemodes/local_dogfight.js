@@ -13,12 +13,21 @@ class LocalDogfight extends Dogfight {
     */
     constructor(dogfightJSON){
         super();
-        this.userEntity = null;
+        this.userEntity = null; // Needed so it can provided to the client later
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
         this.planes = [];
         this.setup(dogfightJSON);
         this.scene.enable();
         this.isATestSession = this.isThisATestSession();
+        this.client = null; // Placeholder
+    }
+
+    setClient(client){
+        this.client = client;
+    }
+
+    getUserEntity(){
+        return this.userEntity;
     }
 
     runsLocally(){
@@ -34,7 +43,7 @@ class LocalDogfight extends Dogfight {
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
         // Update camera
-        this.updateCamera();
+        this.client.updateCamera();
         await super.tick();
     }
 
@@ -91,9 +100,10 @@ class LocalDogfight extends Dogfight {
         }else{
             let middleX = (allyX + axisX) / 2;
             let middleY = (allyY + axisY) / 2;
-            this.userEntity = new SpectatorCamera(this);
-            this.userEntity.setCenterX(middleX);
-            this.userEntity.setCenterY(middleY);
+            let cam = new SpectatorCamera(this);
+            this.userEntity = cam;
+            cam.setCenterX(middleX);
+            cam.setCenterY(middleY);
         }
         //scene.addPlane(this.userEntity);
         this.scene.setFocusedEntity(this.userEntity);

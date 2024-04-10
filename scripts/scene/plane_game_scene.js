@@ -1,11 +1,11 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    TeamCombatManager = require("../scripts/misc/team_combat_manager.js");
-    PROGRAM_DATA = require("../data/data_json.js");
-    SoundManager = require("./general/sound_manager.js");
-    Bomb = require("./other_entities/simple_projectiles/bomb.js");
-    Building = require("./other_entities/building.js");
-    NotSamLinkedList = require("./general/notsam_linked_list.js");
+    TeamCombatManager = require("../misc/team_combat_manager.js");
+    PROGRAM_DATA = require("../../data/data_json.js");
+    SoundManager = require("../general/sound_manager.js");
+    Bomb = require("../other_entities/simple_projectiles/bomb.js");
+    Building = require("../other_entities/building.js");
+    NotSamLinkedList = require("../general/notsam_linked_list.js");
 }
 
 /*

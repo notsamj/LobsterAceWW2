@@ -1,9 +1,9 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    FighterPlane = require("../../scripts/plane/fighter_plane/fighter_plane.js");
-    helperFunctions = require("../../scripts/general/helper_functions.js");
+    FighterPlane = require("../plane/fighter_plane/fighter_plane.js");
+    helperFunctions = require("../general/helper_functions.js");
     onSameTeam = helperFunctions.onSameTeam;
-    Radar = require("../../scripts/radar/radar.js");
+    Radar = require("./radar.js");
 }
 /*
     Class Name: PlaneRadar

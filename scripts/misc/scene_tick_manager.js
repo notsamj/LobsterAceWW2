@@ -1,7 +1,7 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    PROGRAM_DATA = require("../data/data_json.js");
-    Lock = require("../scripts/lock.js");
+    PROGRAM_DATA = require("../../data/data_json.js");
+    Lock = require("../general/lock.js");
 }
 
 /*

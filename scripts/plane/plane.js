@@ -716,7 +716,6 @@ class Plane extends Entity {
         let extraTime = currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
         if (this.throttle > 0){
-            //this.interpolatedAngle = fixDegrees(this.getAngle());
             this.interpolatedAngle = fixDegrees(this.getAngle() + (this.isFacingRight() ? 1 : -1) * Math.floor(extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"])); 
         }else{
             this.interpolatedAngle = fixDegrees(this.getAngle());

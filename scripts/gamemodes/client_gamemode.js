@@ -1,10 +1,16 @@
 class ClientGamemode {
     constructor(gamemode){
         this.gamemode = gamemode;
+        this.deadCamera = null; // Used when the user is a plane but is dead so becomes a camera
+        this.gamemode.setClient(this);
     }
 
     display(){
         this.gamemode.display();
+    }
+
+    getUserEntity(){
+        return this.gamemode.getUserEntity();
     }
 
     /*
@@ -19,23 +25,22 @@ class ClientGamemode {
 
     updateCamera(){
         let userEntity = this.gamemode.getUserEntity();
-        let deadCamera = this.gamemode.getDeadCamera();
         let scene = this.gamemode.getScene();
         // No need to update if user is meant to be a camera
         if (userEntity instanceof SpectatorCamera){
             return;
-        }else if (userEntity.isAlive() && deadCamera == null){ // No need to do anything if following user
+        }else if (userEntity.isAlive() && this.deadCamera == null){ // No need to do anything if following user
             return;
         }
 
         // if the user is dead then switch to dead camera
-        if (userEntity.isDead() && deadCamera == null){
-            deadCamera = new SpectatorCamera(this.gamemode, userEntity.getX(), userEntity.getY());
-            scene.addEntity(deadCamera);
-            scene.setFocusedEntity(deadCamera);
-        }else if (userEntity.isAlive() && deadCamera != null){ // More appropriate for campaign (resurrection) but whatever
-            deadCamera.die(); // Kill so automatically deleted by scene
-            deadCamera = null;
+        if (userEntity.isDead() && this.deadCamera == null){
+            this.deadCamera = new SpectatorCamera(this.gamemode, userEntity.getX(), userEntity.getY());
+            scene.addEntity(this.deadCamera);
+            scene.setFocusedEntity(this.deadCamera);
+        }else if (userEntity.isAlive() && this.deadCamera != null){ // More appropriate for campaign (resurrection) but whatever
+            this.deadCamera.die(); // Kill so automatically deleted by scene
+            this.deadCamera = null;
             scene.setFocusedEntity(userEntity);
         }
     }

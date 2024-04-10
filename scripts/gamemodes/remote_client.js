@@ -4,7 +4,19 @@ class RemoteClient extends ClientGamemode {
         this.asyncUpdateManager = new AsyncUpdateManager();
         this.lastServerState = null;
         this.newServerState = null;
+        this.lastTickTime = Date.now();
         this.stateLock = new Lock();
+        this.translator = new GamemodeRemoteTranslator();
+        this.tickInProgressLock = this.gamemode.getTickInProgressLock();
+        this.gamemode.startUp(this, this.translator);
+    }
+
+    getAsyncUpdateManager(){
+        return this.asyncUpdateManager;
+    }
+
+    getLastTickTime(){
+        return this.lastTickTime;
     }
 
     /*
@@ -51,15 +63,14 @@ class RemoteClient extends ClientGamemode {
             console.log("Broken", messageJSON);
         }
         // Only interested if a tick is NOT in progress
-        let tickInProgressLock = this.game.getTickInProgressLock();
-        if (tickInProgressLock.isLocked()){ return; }
-        tickInProgressLock.lock();
+        if (this.tickInProgressLock.isLocked()){ return; }
+        this.tickInProgressLock.lock();
 
         // Only take this information if numTicks match. It should be fine though if this info is from tick 0 but sent after numTicks++ but will be for both
-        if (messageJSON["num_ticks"] == this.game.getNumTicks()){ 
+        if (messageJSON["num_ticks"] == this.gamemode.getNumTicks()){ 
             for (let planeObject of messageJSON["planes"]){
-                if (planeObject["basic"]["id"] == this.userEntity.getID()){ continue; }
-                let plane = this.game.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
+                if (planeObject["basic"]["id"] == this.gamemode.getUserEntity().getID()){ continue; }
+                let plane = this.gamemode.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
                 // If plane not found -> ignore
                 if (plane == null){
                     continue;
@@ -67,7 +78,7 @@ class RemoteClient extends ClientGamemode {
                 plane.loadMovementIfNew(planeObject);
             }
         }
-        tickInProgressLock.unlock();
+        this.tickInProgressLock.unlock();
     }
 
     /*
@@ -77,7 +88,7 @@ class RemoteClient extends ClientGamemode {
         Method Return: integer
     */
     getExpectedTicks(){
-        return Math.floor((Date.now() - this.startTime) / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        return Math.floor((Date.now() - this.gamemode.getStartTime()) / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
     /*
@@ -87,7 +98,7 @@ class RemoteClient extends ClientGamemode {
         Method Return: void
     */
     async tick(){
-        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
+        if (this.tickInProgressLock.notReady() || !this.isRunning() || this.gamemode.getNumTicks() >= this.getExpectedTicks()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
         this.lastTickTime = Date.now();
 
@@ -95,14 +106,14 @@ class RemoteClient extends ClientGamemode {
         await this.loadStateFromServer();
 
         // Update camera
-        this.client.updateCamera();
+        this.updateCamera();
 
         // Tick the scene
-        await this.scene.tick();
-        this.correctTicks();
+        await this.gamemode.getScene().tick();
+        this.gamemode.correctTicks();
 
         // Send the current position
-        await this.sendPlanePosition();
+        await this.sendLocalPlaneData();
 
         // Request state from server
         this.requestStateFromServer();
@@ -131,10 +142,13 @@ class RemoteClient extends ClientGamemode {
     */
     async sendLocalPlaneData(){
         // Check if the client is a freecam or a plane, if a plane then send its current position JSON to server
-        if (this.userEntity instanceof SpectatorCamera || this.userEntity.isDead()){
+        let userEntity = this.gamemode.getUserEntity();
+        if (this.gamemode.getUserEntity() instanceof SpectatorCamera || userEntity.isDead()){
             return;
         }
-        await this.translator.sendLocalPlaneData(this.userEntity.toJSON());
+        let userJSON = userEntity.toJSON();
+        userJSON["num_ticks"] = this.gamemode.getNumTicks();
+        await this.translator.sendLocalPlaneData(userJSON);
     }
 
     /*
@@ -149,7 +163,7 @@ class RemoteClient extends ClientGamemode {
         // Only update if the new state is really new
         if (this.newServerState == null){ return; }
         if (this.lastServerState == null || this.lastServerState["num_ticks"] < this.newServerState["num_ticks"]){
-            this.game.loadState(this.newServerState);
+            this.gamemode.loadState(this.newServerState);
             this.lastServerState = this.newServerState;
         }
         this.stateLock.unlock();

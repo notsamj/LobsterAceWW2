@@ -1,8 +1,8 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    PROGRAM_DATA = require("../data/data_json.js");
-    SimpleProjectile = require("./simple_projectile.js");
-    CircleHitbox = require("./general/hitboxes.js").CircleHitbox;
+    Entity = require("../entity.js");
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    CircleHitbox = require("../../general/hitboxes.js").CircleHitbox;
 }
 // TODO: Comments
 class SimpleProjectile extends Entity {
@@ -13,8 +13,8 @@ class SimpleProjectile extends Entity {
                 The starting x position of the projectile
             y:
                 The starting y position of the projectile
-            game:
-                The game that the projectile is a part of
+            gamemode:
+                The gamemode that the projectile is a part of
             xVelocity:
                 The starting x velocity of the projectile
             yVelocity:
@@ -26,8 +26,8 @@ class SimpleProjectile extends Entity {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, game, xVelocity, yVelocity, currentTick, hitboxRadius){
-        super(game);
+    constructor(x, y, gamemode, xVelocity, yVelocity, currentTick, hitboxRadius){
+        super(gamemode);
         this.startX = x;
         this.startY = y;
         this.spawnedTick = currentTick;
@@ -257,7 +257,6 @@ class SimpleProjectile extends Entity {
         this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
-
         // Determine the location it will be displayed at
         let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
         let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);

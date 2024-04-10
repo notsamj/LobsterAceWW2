@@ -60,33 +60,6 @@ class Gamemode {
     }
 
     /*
-        Method Name: updateCamera
-        Method Parameters: None
-        Method Description: Ensures that the user is operating a spectator camera if dead or a plane if their plane is still alive (or respawns)
-        Method Return: void
-    */
-    updateCamera(){
-        // No need to update if user is meant to be a camera
-        if (this.userEntity instanceof SpectatorCamera){
-            return;
-        }else if (this.userEntity.isAlive() && this.deadCamera == null){ // No need to do anything if following user
-            return;
-        }
-
-        // if the user is dead then switch to dead camera
-        if (this.userEntity.isDead() && this.deadCamera == null){
-            this.deadCamera = new SpectatorCamera(scene, this.userEntity.getX(), this.userEntity.getY());
-            scene.addEntity(this.deadCamera);
-            scene.setFocusedEntity(this.deadCamera);
-        }else if (this.userEntity.isAlive() && this.deadCamera != null){ // More appropriate for campaign (resurrection) but whatever
-            this.deadCamera.die(); // Kill so automatically deleted by scene
-            this.deadCamera = null;
-            // TODO: SCene is removing these dead entities right?
-            scene.setFocusedEntity(this.userEntity);
-        }
-    }
-
-    /*
         Method Name: getLastTickTime
         Method Parameters: None
         Method Description: Getter
@@ -220,17 +193,8 @@ class Gamemode {
     */
     isRunningATestSession(){ return false; }
 
-    /*
-        Method Name: inputAllowed
-        Method Parameters: None
-        Method Description: A default method for any game mode. The default is that a game mode is that input is allowed.
-        Method Return: Boolean
-    */
-    inputAllowed(){ return true; }
-
     // Abstract Methods
-    display(){}
-    runsLocally(){}
+    display(){ throw new Error("This method is expected to be overriden by a sub-class."); }
 }
 // If using NodeJS then export the class
 if (typeof window === "undefined"){

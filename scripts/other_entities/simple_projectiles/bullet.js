@@ -1,6 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    PROGRAM_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../../../data/data_json.js");
     SimpleProjectile = require("./simple_projectile.js");
 }
 /*
@@ -197,6 +197,7 @@ class Bullet extends SimpleProjectile {
         Method Return: void
     */
     fromJSON(jsonRepresentation, force=false){
+        //console.log(this.isDead(), force, jsonRepresentation)
         // Don't overwrite a living bullet
         // TODO: Local still kills bullets even without collision right?
         if (!this.isDead() && !force){ 

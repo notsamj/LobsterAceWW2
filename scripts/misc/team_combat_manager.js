@@ -1,9 +1,9 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
-    NotSamLinkedList = require("./general/notsam_linked_list.js");
-    NotSamArrayList = require("./general/notsam_array_list.js");
-    planeModelToAlliance = require("./general/helper_functions.js").planeModelToAlliance;
-    AfterMatchStats = require("./misc/after_match_stats.js");
+    NotSamLinkedList = require("../general/notsam_linked_list.js");
+    NotSamArrayList = require("../general/notsam_array_list.js");
+    planeModelToAlliance = require("../general/helper_functions.js").planeModelToAlliance;
+    AfterMatchStats = require("./after_match_stats.js");
 }
 /*
     Class Name: TeamCombatManager
@@ -732,7 +732,7 @@ class TeamCombatManager {
     }
 
     /*
-        Method Name: fromBuildingJSON
+        Method Name: fromBulletJSON
         Method Parameters:
             bulletsJSON:
                 A list of json representations of bullets
@@ -747,7 +747,7 @@ class TeamCombatManager {
             if (index >= this.bullets[allianceName].getLength()){
                 this.bullets[allianceName].push(Bullet.fromJSON(bulletJSON, this.gamemode));
             }else{
-                this.bullets[allianceName].get(index).fromJSON(bulletJSON, this.gamemode);
+                this.bullets[allianceName].get(index).fromJSON(bulletJSON, false);
             }
         }
     }
