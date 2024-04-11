@@ -18,15 +18,13 @@ class FighterPlane extends Plane {
                 A string representing the type of plane
             gamemode:
                 A gamemode object related to the fighter plane
-            angle:
-                The starting angle of the fighter plane (integer)
-            facingRight:
-                The starting orientation of the fighter plane (boolean)
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, angle=0, facingRight=true){
-        super(planeClass, gamemode);
+    constructor(planeClass, gamemode, autonomous){
+        super(planeClass, gamemode, autonomous);
         this.shootLock = new TickLock(PROGRAM_DATA["settings"]["plane_shoot_gap_ms"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
@@ -47,14 +45,14 @@ class FighterPlane extends Plane {
     }
 
     /*
-        Method Name: loadImportantDecisions
+        Method Name: loadDecisions
         Method Parameters:
             rep:
                 A Json representation of the plane sent by the server
         Method Description: Loads important decisions received from the server
         Method Return: void
     */
-    loadImportantDecisions(rep){
+    loadDecisions(rep){
         this.decisions["shoot"] = rep["decisions"]["shoot"];
     }
 

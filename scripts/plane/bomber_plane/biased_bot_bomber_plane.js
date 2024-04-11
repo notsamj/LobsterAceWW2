@@ -17,10 +17,6 @@ class BiasedBotBomberPlane extends BomberPlane {
                 A string representing the type of plane
             gamemode:
                 A gamemode object related to the bomber plane
-            angle:
-                The starting angle of the bomber plane (integer)
-            facingRight:
-                The starting orientation of the bomber plane (boolean)
             biases:
                 An object containing keys and bias values
             autonomous:
@@ -28,15 +24,14 @@ class BiasedBotBomberPlane extends BomberPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, angle, facingRight, biases, autonomous=true){
-        super(planeClass, gamemode, angle, facingRight, autonomous);
+    constructor(planeClass, gamemode, biases, autonomous=true){
+        super(planeClass, gamemode, autonomous);
         this.biases = biases;
         this.generateGuns(biases);
         this.throttle += this.biases["throttle"];
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
         this.startingHealth = this.health;
-        this.autonomous = autonomous; 
     }
 
     /*
@@ -48,7 +43,7 @@ class BiasedBotBomberPlane extends BomberPlane {
     generateGuns(biases){
         this.guns = [];
         for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(BiasedBotBomberTurret.create(gunObj, this.gamemode, this, biases, this.autonomous));
+            this.guns.push(BiasedBotBomberTurret.create(gunObj, this, biases));
         }
     }
 

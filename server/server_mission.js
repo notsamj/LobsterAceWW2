@@ -5,6 +5,7 @@ const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
 const helperFunctions = require("../scripts/general/helper_functions.js");
 const Mission = require("../scripts/gamemodes/mission.js");
 const PROGRAM_DATA = require("../data/data_json.js");
+const AsyncUpdateManager = require("../scripts/general/async_update_manager.js");
 // TODO: Comments
 class ServerMisson extends Mission {
     /*
@@ -16,25 +17,24 @@ class ServerMisson extends Mission {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(missionSetupJSON, gameHandler){
+    constructor(missionSetupJSON, gameHandler, serverObject){
         super(PROGRAM_DATA["missions"][missionSetupJSON["mission_id"]], missionSetupJSON);
+        this.serverObject = serverObject;
         this.gameHandler = gameHandler;
         this.bulletPhysicsEnabled = missionSetupJSON["bullet_physics_enabled"];
 
         this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
-        this.userInputQueue = new NotSamLinkedList();
 
         this.tickScheduler = new TickScheduler(() => { this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
         this.lastState = this.generateState(); 
+        
+        this.asyncUpdateManager = new AsyncUpdateManager();
+        this.running = true;
     }
 
     runsLocally(){
         return true;
-    }
-
-    isPaused(){
-        return false;
     }
 
     /*
@@ -52,22 +52,6 @@ class ServerMisson extends Mission {
             }
         }
     }
-
-    /*
-        Method Name: pause
-        Method Parameters: None
-        Method Description: Dud. Server gamemodes cannot pause.
-        Method Return: void
-    */
-    pause(){}
-
-    /*
-        Method Name: unpause
-        Method Parameters: None
-        Method Description: Dud. Server gamemodes cannot pause.
-        Method Return: void
-    */
-    unpause(){}
 
     /*
         Method Name: isRunning
@@ -155,7 +139,6 @@ class ServerMisson extends Mission {
     generateState(){
         let stateRep = {};
         stateRep["mission_id"] = this.missionObject["id"];
-        stateRep["paused"] = this.isPaused();
         stateRep["num_ticks"] = this.numTicks;
         stateRep["start_time"] = this.tickScheduler.getStartTime();
         stateRep["game_over"] = this.isGameOver()
@@ -175,6 +158,10 @@ class ServerMisson extends Mission {
             // Lock timers
             stateRep["attacker_spawn_ticks_left"] = this.attackerSpawnLock.getTicksLeft();
             stateRep["defender_spawn_ticks_left"] = this.defenderSpawnLock.getTicksLeft();
+            // Send out specicially the positions
+            this.serverObject.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": stateRep["planes"], "num_ticks": this.numTicks}, (client) => {
+                return client.getState() == PROGRAM_DATA["client_states"]["in_game"];
+            });
         }else{
             // Add after match stats
             stateRep["stats"] = this.statsManager.toJSON();
@@ -189,17 +176,19 @@ class ServerMisson extends Mission {
         Method Return: void
     */
     async updateFromUserInput(){
-        if (this.isPaused()){ return; }
         await this.userInputLock.awaitUnlock(true);
         // Update all planes based on user input
-        for (let [planeObject, planeIndex] of this.userInputQueue){
-            for (let plane of this.teamCombatManager.getLivingPlanes()){
-                if (plane.getID() == planeObject["basic"]["id"]){
-                    plane.fromJSON(planeObject);
-                    break;
-                }
-            }
+        for (let plane of this.teamCombatManager.getLivingPlanes()){
+            let planeID = plane.getID();
+            let latestPlaneUpdate = await this.asyncUpdateManager.getLastUpTo(planeID, this.numTicks);
+            if (latestPlaneUpdate == null){ continue; }
+            let tickDifference = this.numTicks - latestPlaneUpdate["num_ticks"];
+            // Note: tickDifference MUST be >= 0 because of how the update was obtained
+            plane.loadImportantData(latestPlaneUpdate);
+            plane.loadDecisions(latestPlaneUpdate);
+            plane.loadMovementIfNew(latestPlaneUpdate, tickDifference);
         }
+        await this.asyncUpdateManager.deletionProcedure(this.numTicks);
         this.userInputLock.unlock();
     }
 
@@ -211,27 +200,12 @@ class ServerMisson extends Mission {
     */
     async newPlaneJSON(planeJSON){
         await this.userInputLock.awaitUnlock(true);
-        // Remove a previous instance if present (assume only 1)
-        let previousInput = null;
-        for (let [planeObject, planeIndex] of this.userInputQueue){
-            if (planeJSON["id"] == planeObject["id"]){
-                previousInput = this.userInputQueue.pop(planeIndex);
-                break;
-            }
-        }
-
-        // If a previous input exists, merge it
-        if (previousInput != null){
-            for (let key of Object.keys(planeJSON)){
-                // Merge all 0 values with non-zero values of previous input so that changes aren't overridden
-                if (planeJSON[key] == 0 && previousInput[key] != 0){
-                    planeJSON[key] = previousInput[key];
-                }
-            }
-        }
-
-        // Add new instance to the queue
-        this.userInputQueue.add(planeJSON);
+        let numTicks = planeJSON["num_ticks"];
+        let id = planeJSON["basic"]["id"];
+        await this.asyncUpdateManager.put(id, numTicks, planeJSON);
+        this.serverObject.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": [planeJSON], "num_ticks": planeJSON["num_ticks"]}, (client) => {
+            return client.getState() == PROGRAM_DATA["client_states"]["in_game"] && client.getUsername() != planeJSON["id"];
+        });
         this.userInputLock.unlock();
     }
 }

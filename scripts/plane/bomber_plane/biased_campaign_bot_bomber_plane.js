@@ -16,10 +16,6 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
                 A string representing the type of plane
             gamemode:
                 A gamemode object related to the fighter plane
-            angle:
-                The starting angle of the fighter plane (integer)
-            facingRight:
-                The starting orientation of the fighter plane (boolean)
             biases:
                 An object containing keys and bias values
             autonomous:
@@ -27,8 +23,8 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, angle, facingRight, biases, autonomous=true){
-        super(planeClass, gamemode, angle, facingRight, biases, autonomous);
+    constructor(planeClass, gamemode, biases, autonomous=true){
+        super(planeClass, gamemode, biases, autonomous);
     }
 
     /*
@@ -107,7 +103,7 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
         this.decisions = rep["decisions"];
         this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
         for (let i = 0; i < this.guns.length; i++){
-            this.guns[i].fromJSON(rep["guns"][i]);
+            this.guns[i].initFromJSON(rep["guns"][i]);
         }
     }
 
@@ -125,7 +121,7 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     */
     static fromJSON(rep, gamemode, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let bp = new BiasedCampaignBotBomberPlane(planeClass, gamemode, rep["angle"], rep["facing_right"], rep["biases"], autonomous);
+        let bp = new BiasedCampaignBotBomberPlane(planeClass, gamemode, rep["biases"], autonomous);
         bp.initFromJSON(rep)
         return bp;
     }
@@ -138,7 +134,7 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     */
     makeDecisions(){
         // If not allowed to make decisions -> not make any
-        if (!this.autonomous){ return; }
+        if (!this.isAutonomous()){ return; }
         this.resetDecisions();
 
         // Decide if the plane must switch directions
@@ -220,7 +216,7 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
             difficulty:
                 The current difficulty setting
         Method Description: Return the max shooting distance of this biased plane
-        Method Return: float
+        Method Return: BiasedCampaignBotBomberPlane
     */
     static createBiasedPlane(planeClass, gamemode, difficulty){
         let biases = {};
@@ -237,7 +233,7 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedCampaignBotBomberPlane(planeClass, gamemode, true, 0, biases); // Temporary values some will be changed
+        return new BiasedCampaignBotBomberPlane(planeClass, gamemode, biases); // Temporary values some will be changed
     }
 
     /*

@@ -19,33 +19,18 @@ class HumanBomberPlane extends BomberPlane {
                 A string representing the type of plane
             gamemode:
                 A Scene object related to the bomber plane
-            angle:
-                The starting angle of the bomber plane (integer)
-            facingRight:
-                The starting orientation of the bomber plane (boolean)
             autonomous:
                 Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, gamemode, angle, facingRight);
+    constructor(planeClass, gamemode, autonomous=true){
+        super(planeClass, gamemode, autonomous);
         this.lrLock = new Lock();
         this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
         this.bombLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.generateGuns();
-        this.autonomous = autonomous;
-    }
-
-    /*
-        Method Name: setAutonomous
-        Method Parameters: None
-        Method Description: Setter
-        Method Return: void
-    */
-    setAutonomous(value){
-        this.autonomous = value;
     }
 
     /*
@@ -95,7 +80,7 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     loadMovementIfNew(rep, rollForwardAmount=0){
-        if (this.autonomous){ return; }
+        if (this.isAutonomous()){ return; }
         super.loadMovementIfNew(rep, rollForwardAmount);
     }
 
@@ -122,7 +107,7 @@ class HumanBomberPlane extends BomberPlane {
         this.decisions = rep["decisions"];
         this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
         for (let i = 0; i < this.guns.length; i++){
-            this.guns[i].fromJSON(rep["guns"][i]);
+            this.guns[i].initFromJSON(rep["guns"][i]);
         }
     }
 
@@ -140,7 +125,7 @@ class HumanBomberPlane extends BomberPlane {
     */
     static fromJSON(rep, gamemode, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let hBP = new HumanBomberPlane(planeClass, gamemode, rep["angle"], rep["facing_right"], autonomous);
+        let hBP = new HumanBomberPlane(planeClass, gamemode, autonomous);
         hBP.initFromJSON(rep)
         return hBP;
     }
@@ -164,21 +149,8 @@ class HumanBomberPlane extends BomberPlane {
     generateGuns(){
         this.guns = [];
         for (let gunObj of PROGRAM_DATA["plane_data"][this.planeClass]["guns"]){
-            this.guns.push(HumanBomberTurret.create(gunObj, this.gamemode, this, this.autonomous));
+            this.guns.push(HumanBomberTurret.create(gunObj, this));
         }
-    }
-
-    /*
-        Method Name: die
-        Method Parameters: None
-        Method Description: Kill off a plane and replace it with a spectator plane
-        Method Return: void
-    */
-    die(){
-        super.die();
-        let cam = new SpectatorCamera(this.gamemode, this.x, this.y);
-        this.gamemode.addEntity(cam);
-        this.gamemode.setFocusedEntity(cam);
     }
 
     /*

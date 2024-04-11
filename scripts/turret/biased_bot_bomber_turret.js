@@ -24,19 +24,15 @@ class BiasedBotBomberTurret extends BotBomberTurret {
                 An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            game:
-                A Game object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
             biases:
                 An object containing keys and bias values
-            autonomous:
-                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, game, plane, biases, autonomous){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, game, plane, autonomous);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, biases){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
         this.biases = biases;
         this.shootingAngle = 0;
         this.shootCD = new TickLock(this.shootCD.getCooldown() * this.biases["rate_of_fire_multiplier"]);
@@ -57,19 +53,15 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Parameters:
             gunObject:
                 A JSON object containing information about the turret
-            game:
-                A Game object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
             biases:
                 An object containing keys and bias values
-            autonomous:
-                Whether or not the turret is autonomous
         Method Description: Creates an instance of a biased bot bomber turret and returns it
         Method Return: BiasedBotBomberTurret
     */
-    static create(gunObject, game, plane, biases, autonomous){
-        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], game, plane, biases, autonomous);
+    static create(gunObject, plane, biases){
+        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], plane, biases);
     }
 }
 

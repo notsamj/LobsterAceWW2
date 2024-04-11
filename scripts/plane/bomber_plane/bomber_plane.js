@@ -17,15 +17,13 @@ class BomberPlane extends Plane {
                 A string representing the type of plane
             gamemode:
                 A gamemode object related to the fighter plane
-            angle:
-                The starting angle of the fighter plane (integer)
-            facingRight:
-                The starting orientation of the fighter plane (boolean)
+            autonomous:
+                Whether not not the plane can make its own decisions
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, angle=0, facingRight=true){
-        super(planeClass, gamemode);
+    constructor(planeClass, gamemode, autonomous){
+        super(planeClass, gamemode, autonomous);
         this.decisions["bombing"] = false;
         this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
@@ -49,15 +47,18 @@ class BomberPlane extends Plane {
     }
 
     /*
-        Method Name: loadImportantDecisions
+        Method Name: loadDecisions
         Method Parameters:
             rep:
                 A Json representation of the plane sent by the server
         Method Description: Loads important decisions received from the server
         Method Return: void
     */
-    loadImportantDecisions(rep){
+    loadDecisions(rep){
         this.decisions["bombing"] = rep["decisions"]["bombing"];
+        for (let i = 0; i < this.guns.length; i++){
+            this.guns[i].loadDecisions(rep["guns"][i]); // TODO: I need 1 function to load shoot lock tick timer and another function to load the deicison to shoot
+        }
     }
 
     /*

@@ -69,6 +69,7 @@ class Dogfight extends Gamemode {
             this.winner = axisCount != 0 ? "Axis" : "Allies";
             this.statsManager.setWinner(this.winner);
             this.running = false;
+            this.gameOver = true;
         }
     }
 

@@ -20,17 +20,13 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
                 A gamemode object related to the fighter plane
             biases:
                 An object containing keys and bias values
-            angle:
-                The starting angle of the fighter plane (integer)
-            facingRight:
-                The starting orientation of the fighter plane (boolean)
             autonomous:
                 Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, biases, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, gamemode, biases, angle, facingRight, autonomous);
+    constructor(planeClass, gamemode, biases, autonomous=true){
+        super(planeClass, gamemode, biases, autonomous);
         this.startingThrottle = this.throttle;
     }
 
@@ -46,7 +42,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     */
     static fromJSON(rep, gamemode){
         let planeClass = rep["basic"]["plane_class"];
-        let fp = new BiasedCampaignAttackerBotFighterPlane(planeClass, gamemode, rep["biases"], rep["angle"], rep["facing_right"], false);
+        let fp = new BiasedCampaignAttackerBotFighterPlane(planeClass, gamemode, rep["biases"], false);  // In all circumstances when loading a bot from a JSON it will not be autonomous
         fp.initFromJSON(rep)
         return fp;
     }
@@ -59,7 +55,7 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     */
     makeDecisions(){
         // Only make decisions if autonomous
-        if (!this.autonomous){ return; }
+        if (!this.isAutonomous()){ return; }
 
         let startingDecisions = copyObject(this.decisions);
         this.resetDecisions();

@@ -43,6 +43,21 @@ class Turret {
         }
     }
 
+    // TODO: Comments
+    loadImportantData(rep){
+        this.shootCD.setTicksLeft(rep["shoot_cd"]);
+    }
+
+    loadDecisions(rep){
+        this.decisions = rep["decisions"];
+    }
+
+    initFromJSON(rep){
+        this.loadImportantData(rep);
+        this.loadDecisions(rep);
+    }
+
+
     /*
         Method Name: tick
         Method Parameters: None

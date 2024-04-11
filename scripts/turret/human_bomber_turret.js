@@ -22,19 +22,14 @@ class HumanBomberTurret extends BomberTurret {
                 An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            gamemode:
-                A gamemode object that the human bomber turret is a part of
             plane:
                 The bomber plane which the turret is attached to
-            autonomous:
-                Whether or not the turret may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
 
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, gamemode, plane, autonomous=true){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, gamemode, plane);
-        this.autonomous = autonomous;
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
     }
 
     /*
@@ -44,7 +39,7 @@ class HumanBomberTurret extends BomberTurret {
         Method Return: void
     */
     makeDecisions(){
-        if (!this.autonomous){ return; }
+        if (!this.isAutonomous()){ return; }
         this.resetDecisions();
         this.checkShoot();
     }
@@ -57,7 +52,7 @@ class HumanBomberTurret extends BomberTurret {
     */
     getShootingAngle(){
         let x = window.mouseX - getScreenWidth() / 2;
-        let y = this.gamemode.getScene().changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
+        let y = this.getGamemode().getScene().changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
         let x0 = 0;
         let y0 = 0;
         return getDegreesFromDisplacement(x - x0, y - y0);
@@ -85,7 +80,7 @@ class HumanBomberTurret extends BomberTurret {
     executeDecisions(){
         // If decided to shoot
         if (this.decisions["shooting"]){
-            if (this.shootCD.isReady()){
+            if (this.shootCD.isReady() && this.getGamemode().runsLocally()){
                 this.shoot(this.decisions["angle"]);
             }
         }
@@ -96,17 +91,13 @@ class HumanBomberTurret extends BomberTurret {
         Method Parameters:
             gunObject:
                 A JSON object with details about the gun
-            gamemode:
-                A gamemode object related to the turret
             plane:
                 The bomber plane which the turret is attached to
-            autonomous:
-                Whether the turret is autonomous or not
         Method Description: Create a bot bomber turret
         Method Return: HumanBomberTurret
     */
-    static create(gunObject, gamemode, plane, autonomous){
-        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], gamemode, plane, autonomous);
+    static create(gunObject, plane){
+        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], plane);
     }
 }
 // If using NodeJS -> Export the class

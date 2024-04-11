@@ -18,17 +18,13 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
                 A game object related to the fighter plane
             biases:
                 An object containing keys and bias values
-            angle:
-                The starting angle of the fighter plane (integer)
-            facingRight:
-                The starting orientation of the fighter plane (boolean)
             autonomous:
                 Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, game, biases, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, game, biases, angle, facingRight, autonomous);
+    constructor(planeClass, game, biases, autonomous=true){
+        super(planeClass, game, biases, autonomous);
     }
 
     /*
@@ -43,7 +39,7 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
     */
     static fromJSON(rep, game){
         let planeClass = rep["basic"]["plane_class"];
-        let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, game, rep["biases"], rep["angle"], rep["facing_right"], false);
+        let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, game, rep["biases"], false); // In all circumstances when loading a bot from a JSON it will not be autonomous
         fp.initFromJSON(rep)
         return fp;
     }

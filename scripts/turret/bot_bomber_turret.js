@@ -31,10 +31,9 @@ class BotBomberTurret extends BomberTurret {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, gamemode, plane, autonomous=true){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, gamemode, plane);
+    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, plane){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
         this.shootingAngle = 0;
-        this.autonomous = autonomous;
     }
 
     /*
@@ -67,7 +66,7 @@ class BotBomberTurret extends BomberTurret {
     */
     makeDecisions(enemyList){
         // If it can't make its own decisions then skip this
-        if (!this.autonomous){ return; }
+        if (!this.isAutonomous()){ return; }
         this.resetDecisions();
         this.checkShoot(enemyList);
     }
@@ -150,15 +149,13 @@ class BotBomberTurret extends BomberTurret {
         Method Parameters:
             gunObject:
                 A JSON object with details about the gun
-            gamemode:
-                A gamemode object that the bot bomber turret is a part of
             plane:
                 The bomber plane which the turret is attached to
         Method Description: Create a bot bomber turret
         Method Return: BotBomberTurret
     */
-    static create(gunObject, gamemode, plane){
-        return new BotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], gamemode, plane);
+    static create(gunObject, plane){
+        return new BotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], plane);
     }
 }
 

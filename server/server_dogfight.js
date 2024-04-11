@@ -9,7 +9,7 @@ const helperFunctions = require("../scripts/general/helper_functions.js");
 
 const HumanFighterPlane = require("../scripts/plane/fighter_plane/human_fighter_plane.js");
 const HumanBomberPlane = require("../scripts/plane/bomber_plane/human_bomber_plane.js");
-const BiasedDogfightBotBomberPlane = require("../scripts/plane/bomber_plane/biased_bot_bomber_plane.js");
+const BiasedDogfightBotBomberPlane = require("../scripts/plane/bomber_plane/biased_dogfight_bot_bomber_plane.js");
 const BiasedBotFighterPlane = require("../scripts/plane/fighter_plane/biased_bot_fighter_plane.js");
 
 const AsyncUpdateManager = require("../scripts/general/async_update_manager.js");
@@ -38,9 +38,7 @@ class ServerDogfight extends Dogfight {
         this.scene.setEntities(this.planes);
 
         this.tickScheduler = new TickScheduler(async () => { await this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
-        this.tickInProgressLock = new Lock();
         this.userInputLock = new Lock();
-        this.userInputQueue = new NotSamLinkedList();
         this.isATestSession = this.isThisATestSession();
         this.lastState = this.generateState();
 
@@ -50,11 +48,6 @@ class ServerDogfight extends Dogfight {
 
     runsLocally(){
         return true;
-    }
-
-    // TODO: Comments
-    isPaused(){
-        return false;
     }
 
     /*
@@ -108,79 +101,6 @@ class ServerDogfight extends Dogfight {
     }
 
     /*
-        Method Name: checkForEnd
-        Method Parameters: None
-        Method Description: Checks if the game is ready to end
-        Method Return: void
-    */
-    /*checkForEnd(){
-        let allyCount = 0;
-        let axisCount = 0;
-        // Loop through all the planes, count how many are alive
-        for (let entity of this.planes){
-            if (entity instanceof Plane && !entity.isDead()){
-                let plane = entity;
-                if (planeModelToAlliance(plane.getPlaneClass()) == "Axis"){
-                    axisCount++;
-                }else{
-                    allyCount++;
-                }
-            }
-        }
-        // Check if the game is over and act accordingly
-        if ((axisCount == 0 || allyCount == 0) && !this.isATestSession){
-            this.winner = axisCount != 0 ? "Axis" : "Allies";
-            this.statsManager.setWinner(this.winner);
-            this.end();
-        }
-    }*/
-
-    /*
-        Method Name: isThisATestSession
-        Method Parameters:
-            dogfightJSON:
-                Details about the dog fight
-        Method Description: Determine if this is a test session (not a real fight so no end condition)
-        Method Return: boolean, true -> this is determined to be a test session, false -> this isn't detewrmined to be a test session
-    */
-    /*
-    isThisATestSession(dogfightJSON){
-        let noAllies = true;
-        let noAxis = true;
-        // Check humans
-        for (let userObject of dogfightJSON["users"]){
-            let planeModel = userObject["model"];
-            if (planeModel == "freecam"){ return; }
-            if (planeModelToAlliance(planeModel) == "Axis"){
-                noAxis = false;
-            }else if (planeModelToAlliance(planeModel) == "Allies"){
-                noAllies = false;
-            }
-            // If determines its not a test session stop checking
-            if (!(noAxis || noAllies)){
-                break;
-            }
-        }
-        // If there are both allies and axis then return false
-        if (!(noAxis || noAllies)){
-            return false;
-        }
-        // Check bots
-        for (let [planeModel, planeCount] of Object.entries(dogfightJSON["plane_counts"])){
-            if (planeModelToAlliance(planeModel) == "Axis" && planeCount > 0){
-                noAxis = false;
-            }else if (planeModelToAlliance(planeModel) == "Allies" && planeCount > 0){
-                noAllies = false;
-            }
-            // If determines its not a test session stop checking
-            if (!noAxis && !noAllies){
-                break;
-            }
-        }
-        return noAxis || noAllies;
-    }*?
-
-    /*
         Method Name: getLastState
         Method Parameters: None
         Method Description: Getter
@@ -211,14 +131,15 @@ class ServerDogfight extends Dogfight {
             stateRep["planes"] = this.teamCombatManager.getPlaneJSON();
             // Add bullets
             stateRep["bullets"] = this.teamCombatManager.getBulletJSON();
+
+            // Send out specicially the positions
+            this.serverObject.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": stateRep["planes"], "num_ticks": this.numTicks}, (client) => {
+                return client.getState() == PROGRAM_DATA["client_states"]["in_game"];
+            });
         }else{
             // Add after match stats
             stateRep["stats"] = this.statsManager.toJSON();
         }
-        // Send out specicially the positions
-        this.serverObject.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": stateRep["planes"], "num_ticks": this.numTicks}, (client) => {
-            return client.getState() == PROGRAM_DATA["client_states"]["in_game"];
-        });
         return stateRep;
     }
 
@@ -287,7 +208,7 @@ class ServerDogfight extends Dogfight {
             let tickDifference = this.numTicks - latestPlaneUpdate["num_ticks"];
             // Note: tickDifference MUST be >= 0 because of how the update was obtained
             plane.loadImportantData(latestPlaneUpdate);
-            plane.loadImportantDecisions(latestPlaneUpdate);
+            plane.loadDecisions(latestPlaneUpdate);
             plane.loadMovementIfNew(latestPlaneUpdate, tickDifference);
         }
         await this.asyncUpdateManager.deletionProcedure(this.numTicks);
@@ -305,7 +226,9 @@ class ServerDogfight extends Dogfight {
         let numTicks = planeJSON["num_ticks"];
         let id = planeJSON["basic"]["id"];
         await this.asyncUpdateManager.put(id, numTicks, planeJSON);
-        // TODO: this.sendAll
+        this.serverObject.sendAllWithCondition({"mail_box": "plane_movement_update", "planes": [planeJSON], "num_ticks": planeJSON["num_ticks"]}, (client) => {
+            return client.getState() == PROGRAM_DATA["client_states"]["in_game"] && client.getUsername() != planeJSON["id"];
+        });
         this.userInputLock.unlock();
     }
 }

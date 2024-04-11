@@ -21,31 +21,25 @@ class BomberTurret extends Turret {
                 An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            gamemode:
-                A gamemode object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, gamemode, plane){
-        super(null, null, fov1, fov2, rateOfFire, gamemode);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane){
+        super(null, null, fov1, fov2, rateOfFire, plane.getGamemode());
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.plane = plane;
         this.model = plane.getPlaneClass();
     }
 
-    /*
-        Method Name: fromJSON
-        Method Parameters:
-            rep:
-                A json representation of a turret
-        Method Description: Updates attributes based on a JSON representation
-        Method Return: void
-    */
-    fromJSON(rep){
-        this.shootCD.setTicksLeft(rep["shoot_cd"]);
+    isAutonomous(){
+        return this.plane.isAutonomous();
+    }
+
+    getGamemode(){
+        return this.plane.getGamemode();
     }
 
     /*
@@ -56,6 +50,7 @@ class BomberTurret extends Turret {
     */
     toJSON(){
         let rep = {};
+        rep["decisions"] = this.decisions;
         rep["shoot_cd"] = this.shootCD.getTicksLeft();
         return rep;
     }
@@ -74,9 +69,9 @@ class BomberTurret extends Turret {
             return; 
         }
         this.shootCD.lock();
-        this.gamemode.getSoundManager().play("shoot", this.getX(), this.getY());
-        if (this.gamemode.areBulletPhysicsEnabled()){
-            this.gamemode.getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
+        this.getGamemode().getSoundManager().play("shoot", this.getX(), this.getY());
+        if (this.getGamemode().areBulletPhysicsEnabled()){
+            this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), this.decisions["angle"], this.getID(), this.model));
         }else{ // Fake bullets
             this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
         }

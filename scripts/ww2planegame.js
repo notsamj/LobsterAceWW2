@@ -100,11 +100,10 @@ async function setup() {
         resizeCanvas(getScreenWidth(), getScreenHeight());
     };
     frameRate(0);
-    document.addEventListener("error", (event) => {
+    window.onerror = (event) => {
         console.log(event);
-        console.log("program over")
         programOver = true;
-    });
+    };
 
     // Prevent auto page scrolling
     document.addEventListener("keydown", (event) => {

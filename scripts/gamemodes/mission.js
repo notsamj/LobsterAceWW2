@@ -13,6 +13,7 @@ if (typeof window === "undefined"){
     mergeCopyObjects = helperFunctions.mergeCopyObjects;
     appendLists = helperFunctions.appendLists;
     randomNumberInclusive = helperFunctions.randomNumberInclusive;
+    planeModelToType = helperFunctions.planeModelToType;
 }
 /*
     Class Name: Mission

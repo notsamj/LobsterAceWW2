@@ -5,20 +5,32 @@
 class RemoteMission extends Gamemode {
     /*
         Method Name: constructor
-        Method Parameters:
-            client:
-                A remote mission client associated with this mission
+        Method Parameters: None
         Method Description: Constructor
         Method Return: Constructor
     */
     constructor(client){
         super();
-        this.client = client;
         this.planes = [];
         this.gameOver = false;
         this.attackerSpawnLock = new TickLock(0, false);
         this.defenderSpawnLock = new TickLock(0, false);
-        this.startUp();
+
+        this.client = null; // Placeholder
+        this.translator = null; // Placeholder
+
+        // Wait for start up to start running
+        this.running = false;
+
+        this.userEntity = null;
+    }
+
+    setClient(client){
+        this.client = client;
+    }
+
+    getUserEntity(){
+        return this.userEntity;
     }
 
     /*
@@ -27,7 +39,7 @@ class RemoteMission extends Gamemode {
         Method Description: Loads a state
         Method Return: void
     */
-    loadState(state){
+    async loadState(state){
         if (state == null){ return; }
         // Check game end
         this.gameOver = state["game_over"];
@@ -45,22 +57,41 @@ class RemoteMission extends Gamemode {
         this.attackerSpawnLock.setTicksLeft(state["attacker_spawn_ticks_left"]);
         this.defenderSpawnLock.setTicksLeft(state["defender_spawn_ticks_left"])
 
-        // TODO: If tickdifference is great enough then take from server!
-        let tickDifference = state["num_ticks"] - this.numTicks;
-        // TODO: Put this in settings
-        if (tickDifference > 10){
-            this.numTicks = state["num_ticks"];
-        }
+        // TODO: If tickdifference is great enough then take from server?
+        let tickDifference = this.numTicks - state["num_ticks"];
+        let planeData = state["planes"];
 
-        // Update planes
-        for (let planeObject of state["planes"]){
+        // Update plane general information
+        for (let planeObject of planeData){
             let plane = this.scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
                 this.addNewPlane(planeObject);
-                continue;
             }
-            plane.fromJSON(planeObject, state["num_ticks"] - this.numTicks, tickDifference > 10);
+            plane.loadImportantData(planeObject);
+        }
+
+        // Check if update is super future save and try to load if we have one
+        if (tickDifference < 0){
+            // Tick differnece < 0
+            let asyncUpdateManager = this.client.getAsyncUpdateManager();
+            await asyncUpdateManager.put("plane_movement_data", this.numTicks, planeData);
+            if (await asyncUpdateManager.has("plane_movement_data", this.numTicks)){
+                planeData = await asyncUpdateManager.getValue("plane_movement_data", this.numTicks);
+                await asyncUpdateManager.deletionProcedure(this.numTicks);
+                tickDifference = 0;
+            }
+        }
+
+        // Update plane movement
+        if (tickDifference >= 0){
+            for (let planeObject of planeData){
+                let plane = this.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
+                if (plane == null){
+                    continue;
+                }
+                plane.loadMovementIfNew(planeObject, tickDifference);
+            }
         }
 
         // Update bullets
@@ -152,7 +183,10 @@ class RemoteMission extends Gamemode {
         Method Description: Prepares the game mode from a state
         Method Return: void
     */
-    startUp(state){
+    async startUp(client, translator){
+        this.client = client;
+        this.translator = translator;
+        let state = await this.translator.getState();
         // Get a state from the server and await it then set start time then set up based on the server state
         let missionObject = PROGRAM_DATA["missions"][state["mission_id"]];
         this.missionObject = missionObject;

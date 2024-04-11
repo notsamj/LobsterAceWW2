@@ -32,17 +32,13 @@ class BiasedBotFighterPlane extends FighterPlane {
                 A gamemode object related to the fighter plane
             biases:
                 An object containing keys and bias values
-            angle:
-                The starting angle of the fighter plane (integer)
-            facingRight:
-                The starting orientation of the fighter plane (boolean)
             autonomous:
                 Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, biases, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, gamemode, angle, facingRight);
+    constructor(planeClass, gamemode, biases, autonomous=true){
+        super(planeClass, gamemode, autonomous);
         this.currentEnemy = null;
         this.turningDirection = null;
         this.ticksOnCourse = 0;
@@ -53,7 +49,6 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];
         this.startingHealth = this.health;
-        this.autonomous = autonomous;
     }
 
     /*
@@ -75,7 +70,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     */
     makeDecisions(){
         // Sometimes the bot is controlled externally so doesn't need to make its own decisions
-        if (!this.autonomous){
+        if (!this.isAutonomous()){
             return;
         }
         let startingDecisions = copyObject(this.decisions);
@@ -198,7 +193,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     */
     static fromJSON(rep, gamemode){
         let planeClass = rep["basic"]["plane_class"];
-        let fp = new BiasedBotFighterPlane(planeClass, gamemode, rep["biases"], rep["angle"], rep["facing_right"], false);
+        let fp = new BiasedBotFighterPlane(planeClass, gamemode, rep["biases"], false); // In all circumstances when loading a bot from a JSON it will not be autonomous
         fp.initFromJSON(rep)
         return fp;
     }
@@ -544,7 +539,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     */
     static createBiasedPlane(planeClass, gamemode, difficulty, autonomous=true){
         let biases = BiasedBotFighterPlane.createBiases(difficulty);
-        return new BiasedBotFighterPlane(planeClass, gamemode, biases, 0, true, autonomous);
+        return new BiasedBotFighterPlane(planeClass, gamemode, biases, autonomous);
     }
 
     /*

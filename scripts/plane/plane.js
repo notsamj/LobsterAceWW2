@@ -24,18 +24,16 @@ class Plane extends Entity {
                 A string representing the type of plane
             gamemode:
                 A gamemode object related to the plane
-            angle:
-                The starting angle of the plane (integer)
-            facingRight:
-                The starting orientation of the plane (boolean)
+            autonomous:
+                Whether this instance of the plane can control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, angle=0, facingRight=true){
+    constructor(planeClass, gamemode, autonomous=false){
         super(gamemode);
         this.planeClass = planeClass;
-        this.facingRight = facingRight;
-        this.angle = angle;
+        this.facingRight = true;
+        this.angle = 0;
         this.throttle = PROGRAM_DATA["settings"]["max_throttle"];
         this.maxSpeed = PROGRAM_DATA["plane_data"][planeClass]["max_speed"];
         this.speed = this.maxSpeed;
@@ -47,6 +45,7 @@ class Plane extends Entity {
         this.interpolatedY = 0;
         this.x = 0;
         this.y = 0;
+        this.autonomous = autonomous;
         this.decisions = {
             "face": 0, // 1 -> right, -1 -> left, 0 -> no change
             "angle": 0, // 1 -> ccw by 1 deg, -1 -> cw by 1 deg, 0 -> no change
@@ -56,12 +55,30 @@ class Plane extends Entity {
         }
     }
 
+    /*
+        Method Name: setAutonomous
+        Method Parameters: None
+        Method Description: Setter
+        Method Return: void
+    */
+    setAutonomous(value){
+        this.autonomous = value;
+    }
+
+    isAutonomous(){
+        return this.autonomous;
+    }
+
     getTeamCombatManager(){
         return this.gamemode.getTeamCombatManager();
     }
 
     getScene(){
         return this.gamemode.getScene();
+    }
+
+    getGamemode(){
+        return this.gamemode;
     }
 
     /*

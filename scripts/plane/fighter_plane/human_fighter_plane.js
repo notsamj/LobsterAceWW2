@@ -28,22 +28,11 @@ class HumanFighterPlane extends FighterPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, game, angle=0, facingRight=true, autonomous=true){
-        super(planeClass, game, angle, facingRight);
+    constructor(planeClass, game, autonomous=true){
+        super(planeClass, game, autonomous);
         this.lrLock = new Lock();
         this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
-        this.autonomous = autonomous;
-    }
-
-    /*
-        Method Name: setAutonomous
-        Method Parameters: None
-        Method Description: Setter
-        Method Return: void
-    */
-    setAutonomous(value){
-        this.autonomous = value;
     }
 
     /*
@@ -86,7 +75,7 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     loadMovementIfNew(rep, rollForwardAmount=0){
-        if (this.autonomous){ return; }
+        if (this.isAutonomous()){ return; }
         super.loadMovementIfNew(rep, rollForwardAmount);
     }
 
@@ -128,7 +117,7 @@ class HumanFighterPlane extends FighterPlane {
     */
     static fromJSON(rep, game, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let hFP = new HumanFighterPlane(planeClass, game, rep["angle"], rep["facing_right"], autonomous);
+        let hFP = new HumanFighterPlane(planeClass, game, autonomous);
         hFP.initFromJSON(rep);
         return hFP;
     }
@@ -161,7 +150,7 @@ class HumanFighterPlane extends FighterPlane {
     */
     tick(){
         // Only need radar if autonomous
-        if (this.autonomous){ this.radarLock.tick(); this.updateRadar(); }
+        if (this.isAutonomous()){ this.radarLock.tick(); this.updateRadar(); }
         super.tick();
     }
 
@@ -173,7 +162,7 @@ class HumanFighterPlane extends FighterPlane {
     */
     makeDecisions(){
         // Sometimes the human will be controlled by the external input so don't make decisions
-        if (!this.autonomous){
+        if (!this.isAutonomous()){
             return;
         }
         let startingDecisions = copyObject(this.decisions);

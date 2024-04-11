@@ -5,6 +5,7 @@ if (typeof window === "undefined"){
     BomberPlane = require("./bomber_plane.js");
     BiasedBotFighterPlane = require("../fighter_plane/biased_bot_fighter_plane.js");
     BiasedBotBomberTurret = require("../../turret/biased_bot_bomber_turret.js");
+    BiasedBotBomberPlane = require("./biased_bot_bomber_plane.js");
     helperFunctions = require("../../general/helper_functions.js");
     displacementToDegrees = helperFunctions.displacementToDegrees;
     angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
@@ -25,10 +26,6 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
                 A string representing the type of plane
             gamemode:
                 A gamemode object related to the bomber plane
-            angle:
-                The starting angle of the bomber plane (integer)
-            facingRight:
-                The starting orientation of the bomber plane (boolean)
             biases:
                 An object containing keys and bias values
             autonomous:
@@ -36,8 +33,8 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, gamemode, angle, facingRight, biases, autonomous=true){
-        super(planeClass, gamemode, angle, facingRight, biases, autonomous);
+    constructor(planeClass, gamemode, biases, autonomous=true){
+        super(planeClass, gamemode, biases, autonomous);
         this.currentEnemy = null;
         this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
@@ -91,11 +88,11 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
             autonomous:
                 Whether or not the new plane can make its own decisions (Boolean)
         Method Description: Creates a new Biased Bot Bomber Plane
-        Method Return: BiasedBotBomberPlane
+        Method Return: BiasedDogfightBotBomberPlane
     */
     static fromJSON(rep, gamemode, autonomous){
         let planeClass = rep["basic"]["plane_class"];
-        let bp = new BiasedDogfightBotBomberPlane(planeClass, gamemode, 0, true, rep["biases"], rep["angle"], rep["facing_right"], autonomous);
+        let bp = new BiasedDogfightBotBomberPlane(planeClass, gamemode, rep["biases"], autonomous);
         bp.initFromJSON(rep)
         return bp;
     }
@@ -123,7 +120,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         this.decisions = rep["decisions"];
         this.bombLock.setTicksLeft(rep["locks"]["bomb_lock"]);  
         for (let i = 0; i < this.guns.length; i++){
-            this.guns[i].fromJSON(rep["guns"][i]);
+            this.guns[i].initFromJSON(rep["guns"][i]);
         }
     }
 
@@ -169,7 +166,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     makeDecisions(){
         // If not allowed to make decisions -> not make any
         this.resetDecisions();
-        if (!this.autonomous){ return; }
+        if (!this.isAutonomous()){ return; }
         let centerOfFriendyMass = this.findFriendlyCenter();
         // If there are friendlies then the top priority is to be near them
         if (!centerOfFriendyMass["empty"]){
@@ -251,7 +248,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
             autonomous:
                 Whether or not the plane can make its own decisions
         Method Description: Return the max shooting distance of this biased plane
-        Method Return: float
+        Method Return: BiasedDogfightBotBomberPlane
     */
     static createBiasedPlane(planeClass, gamemode, difficulty, autonomous){
         let biases = {};
@@ -268,7 +265,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
             let usesFloatValue = Math.floor(upperBound) != upperBound || Math.floor(lowerBound) != lowerBound;
             biases[key] = usesFloatValue ? randomFloatBetween(lowerBound, upperBound) : randomNumberInclusive(lowerBound, upperBound);    
         }
-        return new BiasedDogfightBotBomberPlane(planeClass, gamemode, true, 0, biases, autonomous); // Temporary values some will be changed
+        return new BiasedDogfightBotBomberPlane(planeClass, gamemode, biases, autonomous); // Temporary values some will be changed
     }
 
     /*
@@ -471,5 +468,5 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
 
 // If using Node JS Export the class
 if (typeof window === "undefined"){
-    module.exports = BiasedBotBomberPlane;
+    module.exports = BiasedDogfightBotBomberPlane;
 }

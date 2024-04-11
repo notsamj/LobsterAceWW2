@@ -1162,7 +1162,7 @@ class MissionSetup extends GamemodeSetup {
     }
 
     create(gameDetails, gameHandler){
-        return new ServerMission(gameDetails, gameHandler, new PlaneGameScene());
+        return new ServerMission(gameDetails, gameHandler, SERVER);
     }
 
     switchMission(newMissionID){

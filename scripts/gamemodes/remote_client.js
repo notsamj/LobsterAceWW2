@@ -59,9 +59,6 @@ class RemoteClient extends ClientGamemode {
     */
     handlePlaneMovementUpdate(messageJSON){
         if (objectHasKey(messageJSON, "game_over") && messageJSON["game_over"]){ return; }
-        if (typeof messageJSON["planes"] != typeof []){
-            console.log("Broken", messageJSON);
-        }
         // Only interested if a tick is NOT in progress
         if (this.tickInProgressLock.isLocked()){ return; }
         this.tickInProgressLock.lock();

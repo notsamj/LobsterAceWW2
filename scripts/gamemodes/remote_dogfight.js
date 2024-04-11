@@ -45,13 +45,12 @@ class RemoteDogfight extends Gamemode {
         if (state == null){ return; }
         // Check game end
         this.gameOver = state["game_over"];
-        
         // If not running then load the end
         if (this.isGameOver()){
             this.statsManager.fromJSON(state["stats"]);
             return;
         }
-        
+                
         // Load sounds
         SOUND_MANAGER.fromSoundRequestList(state["sound_list"]);
 
@@ -64,10 +63,7 @@ class RemoteDogfight extends Gamemode {
             let plane = this.scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
-                console.log(planeObject["basic"]["id"])
-                debugger;
-                this.addNewPlane(planeObject);
-                continue;
+                throw new Error("Received unknown plane from server.");
             }
             plane.loadImportantData(planeObject);
         }
