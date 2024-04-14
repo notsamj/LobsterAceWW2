@@ -34,18 +34,7 @@ class BiasedBotBomberTurret extends BotBomberTurret {
     constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, biases){
         super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
         this.biases = biases;
-        this.shootingAngle = 0;
         this.shootCD = new TickLock(this.shootCD.getCooldown() * this.biases["rate_of_fire_multiplier"]);
-    }
-
-    /*
-        Method Name: getShootingAngle
-        Method Parameters: None
-        Method Description: Determines the shooting angle of the turret.
-        Method Return: int
-    */
-    getShootingAngle(){
-        return fixDegrees(this.decisions["angle"] + this.biases["shooting_angle_offset"]);
     }
 
     /*
@@ -63,6 +52,20 @@ class BiasedBotBomberTurret extends BotBomberTurret {
     static create(gunObject, plane, biases){
         return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], plane, biases);
     }
+
+    /*
+        Method Name: checkShoot
+        Method Parameters:
+            enemyList:
+                A list of enemy planes
+        Method Description: Checks if the turret should shoot. If so, it makes the decision to shoot at the enemy.
+        Method Return: void
+    */
+    checkShoot(enemyList){
+        super.checkShoot(enemyList);
+        this.decisions["angle"] = fixDegrees(this.decisions["angle"] + this.biases["shooting_angle_offset"]);
+    }
+
 }
 
 // If using NodeJS -> Export the class

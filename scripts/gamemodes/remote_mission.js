@@ -9,7 +9,7 @@ class RemoteMission extends Gamemode {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(client){
+    constructor(){
         super();
         this.planes = [];
         this.gameOver = false;
@@ -23,6 +23,7 @@ class RemoteMission extends Gamemode {
         this.running = false;
 
         this.userEntity = null;
+        this.teamCombatManager.disableCollisions();
     }
 
     setClient(client){
@@ -31,6 +32,10 @@ class RemoteMission extends Gamemode {
 
     getUserEntity(){
         return this.userEntity;
+    }
+
+    getLastTickTime(){
+        return this.client.getLastTickTime();
     }
 
     /*
@@ -46,7 +51,7 @@ class RemoteMission extends Gamemode {
         
         // If not running then load the end
         if (this.isGameOver()){
-            this.stats.fromJSON(state["stats"]);
+            this.statsManager.fromJSON(state["stats"]);
             return;
         }
         
@@ -67,6 +72,7 @@ class RemoteMission extends Gamemode {
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
                 this.addNewPlane(planeObject);
+                continue;
             }
             plane.loadImportantData(planeObject);
         }
@@ -134,8 +140,9 @@ class RemoteMission extends Gamemode {
         Method Return: void
     */
     display(){
+        this.scene.display();
         if (this.isGameOver()){
-            this.stats.display();
+            this.statsManager.display();
         }else if (this.isRunning()){
             this.updateHUD();
         }

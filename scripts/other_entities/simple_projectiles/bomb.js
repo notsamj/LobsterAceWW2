@@ -126,7 +126,7 @@ class Bomb extends SimpleProjectile {
     toJSON(){
         return {
             "start_x": this.startX,
-            "start_y": this.startX,
+            "start_y": this.startY,
             "x_velocity": this.xVelocity,
             "initial_y_velocity": this.yVI,
             "spawned_tick": this.spawnedTick,
@@ -144,7 +144,12 @@ class Bomb extends SimpleProjectile {
         Method Description: Set up a bullet based on a json representation
         Method Return: void
     */
-    fromJSON(jsonRepresentation){
+    fromJSON(jsonRepresentation, force=false){
+        if (!this.isDead() && !force){ 
+            return; 
+        }
+        // No need to taken info from a dead bomb
+        if (jsonRepresentation["dead"]){ return; }
         this.startX = jsonRepresentation["start_x"];
         this.startY = jsonRepresentation["start_y"];
         this.spawnedTick = jsonRepresentation["spawned_tick"];
@@ -158,14 +163,15 @@ class Bomb extends SimpleProjectile {
     /*
         Method Name: fromJSON
         Method Parameters:
+            rep: TODO
             game:
                 A Game reference that includes the bomb
         Method Description: Creates a Bomb object from a JSON representation
         Method Return: Bomb
     */
-    static fromJSON(game, rep){
+    static fromJSON(rep, game){
         let bomb = new Bomb(0, 0, game, 0, 0, 0);
-        bomb.fromJSON(rep);
+        bomb.fromJSON(rep, true);
         return bomb;
     }
 }

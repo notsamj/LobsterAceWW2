@@ -90,7 +90,7 @@ class PlaneGameScene {
     constructor(gamemode=null, local=false){
         this.local = local;
         this.gamemode = gamemode;
-        this.cloudManager = null;
+        this.SkyManager = null;
         this.entities = new NotSamLinkedList();
         this.focusedEntity = null;
         this.ticksEnabled = true;
@@ -280,11 +280,11 @@ class PlaneGameScene {
     }
 
     // TODO: Comments
-    getCloudManager(){
-        if (this.cloudManager == null){
-            this.cloudManager = new CloudManager(this);
+    getSkyManager(){
+        if (this.SkyManager == null){
+            this.SkyManager = new SkyManager(this);
         }
-        return this.cloudManager;
+        return this.SkyManager;
     }
 
     /*
@@ -559,7 +559,6 @@ class PlaneGameScene {
             HEADS_UP_DISPLAY.updateElement("FPS", fps);
             HEADS_UP_DISPLAY.updateElement("ID", entityID);
         }
-        // TODO: Clean this up
         HEADS_UP_DISPLAY.updateElement("Entities", numberOfEntities);
         HEADS_UP_DISPLAY.updateElement("Allied Planes", allyPlanes);
         HEADS_UP_DISPLAY.updateElement("Axis Planes", axisPlanes);
@@ -577,8 +576,8 @@ class PlaneGameScene {
         Method Return: void
     */
     displayBackground(lX, bY){
-        let cloudManager = this.getCloudManager();
-        cloudManager.display(lX, bY);
+        let SkyManager = this.getSkyManager();
+        SkyManager.displaySky();
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
         let groundImage = IMAGES[PROGRAM_DATA["background"]["ground"]["picture"]];
@@ -611,27 +610,6 @@ class PlaneGameScene {
                 }
             }
         }
-        // Display above ground
-        let aboveGroundImage = IMAGES[PROGRAM_DATA["background"]["above_ground"]["picture"]];
-        let aboveGroundHeight = aboveGroundImage.height;
-        let aboveGroundWidth = aboveGroundImage.width;
-        // If screen contains the above ground range
-        if (bYP < aboveGroundHeight && bYP > -1 * aboveGroundHeight){
-            let aboveGroundImageOffsetX = Math.abs(lXP) % aboveGroundWidth;
-            // Display the above ground image
-            let bottomDisplayAboveGroundX = lXP - aboveGroundImageOffsetX * (lXP < 0 ? -1 : 1);
-            // Find bottom corner of image to display in window
-            while (bottomDisplayAboveGroundX + aboveGroundWidth > lXP){
-                bottomDisplayAboveGroundX -= aboveGroundWidth;
-            }
-            bottomDisplayAboveGroundX += aboveGroundWidth;
-            // Display along the screen
-            for (let x = bottomDisplayAboveGroundX; x < this.getWidth() + aboveGroundWidth + bottomDisplayAboveGroundX; x += aboveGroundWidth){
-                let displayX = x-lXP;
-                drawingContext.drawImage(aboveGroundImage, displayX, this.getDisplayY(aboveGroundHeight, 0, bYP));
-            }
-        }
-
     }
 
     /*
@@ -675,6 +653,9 @@ class PlaneGameScene {
         if (this.hasEntityFocused()){
             this.focusedEntity.display(lX, bY, displayTime);
         }
+
+        // Display Clouds over entities
+        this.getSkyManager().displayClouds(lX, bY);
 
         // Display the HUD
         this.displayHUD();

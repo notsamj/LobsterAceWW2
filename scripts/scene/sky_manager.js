@@ -1,8 +1,8 @@
 /*
-    Class Name: CloudManager
-    Description: Creates procedurally generated clouds
+    Class Name: SkyManager
+    Description: Manages the sky
 */
-class CloudManager {
+class SkyManager {
     /*
         Method Name: constructor
         Method Parameters:
@@ -16,6 +16,87 @@ class CloudManager {
         this.scene = scene;
     }
 
+    // TODO
+    getSkyBrightness(){
+        return 1 - Math.abs(PROGRAM_DATA["sky_generation"]["current_hour"] - 12) / 12;
+    }
+
+    /*
+        Method Name: display
+        Method Parameters:
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+        Method Description: Displays the sky and clouds
+        Method Return: void
+    */
+    display(lX, bY){
+        this.displaySky();
+        this.displayClouds(lX, bY);
+    }
+
+    /*
+        Method Name: displaySky
+        Method Parameters:
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+        Method Description: Displays the sky
+        Method Return: void
+    */
+    displaySky(){
+        strokeWeight(0);
+        // Fill the entire screen with the sky background
+        let skyColour = color(PROGRAM_DATA["sky_generation"]["sky_colour"]);
+        let skyBrightness = this.getSkyBrightness();
+        skyColour.levels[0] *= skyBrightness;
+        skyColour.levels[1] *= skyBrightness;
+        skyColour.levels[2] *= skyBrightness;
+        fill(skyColour);
+        let screenWidth = getScreenWidth();
+        let screenHeight = getScreenHeight();
+        rect(0, 0, screenWidth, screenHeight);
+        
+        let currentHour = PROGRAM_DATA["sky_generation"]["current_hour"];
+
+        // Display the sun
+        let sunColour = color(PROGRAM_DATA["sky_generation"]["sun_colour"]);
+        let sunDiameter = PROGRAM_DATA["sky_generation"]["sun_diameter"];
+        fill(sunColour);
+        let sunAngleDEG = fixDegrees(270 - 15 * currentHour);
+        let sunAngleRadians = toRadians(sunAngleDEG);
+        let sunX = Math.cos(sunAngleRadians) * (screenWidth-sunDiameter)/2 + screenWidth/2;
+        let sunY = (Math.sin(sunAngleRadians) * (screenHeight-sunDiameter)/2 * -1) + screenHeight/2;
+        // Only display sun if up
+        if (sunY <= screenHeight/2){
+            circle(sunX, sunY, sunDiameter)
+        }
+        
+        // Display the moon
+        let moonPhase = PROGRAM_DATA["sky_generation"]["moon_phase"];
+        let moonColour = color(PROGRAM_DATA["sky_generation"]["moon_colour"]);
+        let moonDiameter = PROGRAM_DATA["sky_generation"]["moon_diameter"];
+        fill(moonColour);
+        let moonAngleDEG = fixDegrees(90 - 15 * currentHour); 
+        let moonAngleRadians = toRadians(moonAngleDEG);
+        let moonX = Math.cos(moonAngleRadians) * (screenWidth-moonDiameter)/2 + screenWidth/2;
+        let moonY = (Math.sin(moonAngleRadians) * (screenHeight-moonDiameter)/2 * -1) + screenHeight/2;
+        //debugger;
+        // Only display sun if up
+        if (moonY <= screenHeight/2){
+            circle(moonX, moonY, moonDiameter)
+        }
+        // Display the moon's shadow
+        fill(skyColour);
+        let shadowOffset = (-1 + 0.25 * moonPhase) * moonDiameter;
+        if (moonY <= screenWidth/2){
+            circle(moonX + shadowOffset, moonY, moonDiameter)
+        }
+        strokeWeight(1);
+    }
+
     /*
         Method Name: display
         Method Parameters:
@@ -26,17 +107,13 @@ class CloudManager {
         Method Description: Displays clouds in the 1-4 quadrants shown on screen.
         Method Return: void
     */
-    display(lX, bY){
-        // Fill the entire screen with the sky background
-        fill(PROGRAM_DATA["cloud_generation"]["sky_colour"]);
-        rect(0, 0, getScreenWidth(), getScreenHeight());
-
+    displayClouds(lX, bY){
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
-        let leftQuadrantX = Math.floor(lX / PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"]);
-        let rightQuadrantX = Math.floor(rX / PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"]);
-        let bottomQuadrantY = Math.floor(bY / PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"]);
-        let topQuadrantY = Math.floor(tY / PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"]);
+        let leftQuadrantX = Math.floor(lX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
+        let rightQuadrantX = Math.floor(rX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
+        let bottomQuadrantY = Math.floor(bY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
+        let topQuadrantY = Math.floor(tY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
 
         // Display bottom left quadrant
         this.getCloudCluster(leftQuadrantX, bottomQuadrantY).display(lX, bY);
@@ -101,9 +178,9 @@ class CloudManager {
         let cY = bY + 0.5 * getScreenHeight();
         for (let i = this.cloudClusters.getLength() - 1; i >= 0; i--){
             let cluster = this.cloudClusters.get(i);
-            let distance = Math.sqrt(Math.pow(cluster.getQuadrantX() * PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"] - cX, 2) + Math.pow(cluster.getQuadrantY() * PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"] - cY, 2));
+            let distance = Math.sqrt(Math.pow(cluster.getQuadrantX() * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"] - cX, 2) + Math.pow(cluster.getQuadrantY() * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"] - cY, 2));
             // Delete clusters more than 2 times max(width, height) away from the center of the screen
-            if (distance > 2 * Math.max(PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"], PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"])){
+            if (distance > 2 * Math.max(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"])){
                 this.cloudClusters.remove(i);
             }
         }
@@ -165,16 +242,16 @@ class CloudCluster {
         Method Return: void
     */
     createClouds(scene){
-        let leftX = this.quadrantX * PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"];
-        let bottomY = this.quadrantY * PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"];
+        let leftX = this.quadrantX * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"];
+        let bottomY = this.quadrantY * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"];
         let seed = this.quadrantX + 2 * this.quadrantY; // TODO: Come up with something better?
         let random = new SeededRandomizer(seed);
-        let numClouds = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_clouds_per_cluster"], PROGRAM_DATA["cloud_generation"]["max_clouds_per_cluster"]);
+        let numClouds = random.getIntInRangeInclusive(PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_clouds_per_cluster"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_clouds_per_cluster"]);
         
         // Create as many clouds as chosen
         for (let i = 0; i < numClouds; i++){
-            let newCloudX = random.getIntInRangeExclusive(leftX + PROGRAM_DATA["cloud_generation"]["max_radius"] * 2, leftX + PROGRAM_DATA["cloud_generation"]["cloud_cluster_width"] - PROGRAM_DATA["cloud_generation"]["max_radius"] * 2);
-            let newCloudY = random.getIntInRangeExclusive(bottomY + PROGRAM_DATA["cloud_generation"]["max_radius"] * 2, bottomY + PROGRAM_DATA["cloud_generation"]["cloud_cluster_height"] - PROGRAM_DATA["cloud_generation"]["max_radius"] * 2);
+            let newCloudX = random.getIntInRangeExclusive(leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2, leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"] - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2);
+            let newCloudY = random.getIntInRangeExclusive(bottomY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2, bottomY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"] - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2);
             this.clouds.push(Cloud.create(newCloudX, newCloudY, random, scene))
         }
     }
@@ -231,7 +308,9 @@ class Cloud {
             let screenX = this.scene.getDisplayX(circleObject["x"], 0, lX, false);
             let screenY = this.scene.getDisplayY(circleObject["y"], 0, bY, false);
             strokeWeight(0);
-            fill(PROGRAM_DATA["cloud_generation"]["cloud_colour"]);
+            let cloudColour = color(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_colour"]);
+            cloudColour.setAlpha(Math.floor(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_opacity"]/100*255));
+            fill(cloudColour);
             circle(screenX, screenY, circleObject["radius"]*2);
             strokeWeight(1);
         }
@@ -253,13 +332,13 @@ class Cloud {
     */
     static create(x, y, random, scene){
         let circles = [];
-        let numCircles = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_circles_per_cloud"], PROGRAM_DATA["cloud_generation"]["max_circles_per_cloud"]);
-        let mainRadius = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_radius"], PROGRAM_DATA["cloud_generation"]["max_radius"]);
+        let numCircles = random.getIntInRangeInclusive(PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_circles_per_cloud"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_circles_per_cloud"]);
+        let mainRadius = random.getIntInRangeInclusive(PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_radius"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"]);
         circles.push({"x": x, "y": y, "radius": mainRadius});
         for (let i = 0; i < numCircles - 1; i++){
             let circleX = x + random.getIntInRangeInclusive(-1 * mainRadius, mainRadius);
             let circleY = y + random.getIntInRangeInclusive(-1 * mainRadius, mainRadius);
-            let circleRadius = random.getIntInRangeInclusive(PROGRAM_DATA["cloud_generation"]["min_radius"], PROGRAM_DATA["cloud_generation"]["max_radius"]);
+            let circleRadius = random.getIntInRangeInclusive(PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_radius"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"]);
             circles.push({"x": circleX, "y": circleY, "radius": circleRadius});
         }
         return new Cloud(circles, scene);

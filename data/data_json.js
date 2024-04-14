@@ -152,12 +152,6 @@ const PROGRAM_DATA = {
     "background": {
         "ground": {
             "picture": "dirt",
-        },
-        "above_ground": {
-            "picture": "above_ground",
-        },
-        "sky": {
-            "picture": "clouds",
         }
     },
     "settings": {
@@ -564,18 +558,26 @@ const PROGRAM_DATA = {
             }
         }
     ],
-
-    "cloud_generation": {
+    "sky_generation": {
         "sky_colour": "#5bb8ff",
-        "cloud_colour": "#e8ecff",
-        "cloud_cluster_width": 3840,
-        "cloud_cluster_height": 2160,
-        "min_radius": 30,
-        "max_radius": 80,
-        "min_circles_per_cloud": 3,
-        "max_circles_per_cloud": 7,
-        "min_clouds_per_cluster": 50,
-        "max_clouds_per_cluster": 70,
+        "sun_colour": "#fdb813",
+        "moon_colour": "f6f1d5",
+        "sun_diameter": 300,
+        "moon_diameter": 150,
+        "moon_phase": 5,
+        "current_hour": 12,
+        "cloud_generation": {
+            "cloud_opacity": 80,
+            "cloud_colour": "#e8ecff",
+            "cloud_cluster_width": 3840,
+            "cloud_cluster_height": 2160,
+            "min_radius": 30,
+            "max_radius": 80,
+            "min_circles_per_cloud": 3,
+            "max_circles_per_cloud": 7,
+            "min_clouds_per_cluster": 50,
+            "max_clouds_per_cluster": 70,
+        }
     },
 
     "hud": {

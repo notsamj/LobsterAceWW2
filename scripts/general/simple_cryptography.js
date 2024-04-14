@@ -16,7 +16,7 @@ class SimpleCryptography {
     */
     constructor(secretSeed){
         this.secretSeed = secretSeed;
-        this.disabled = false;
+        this.disabled = true;
     }
 
     /*

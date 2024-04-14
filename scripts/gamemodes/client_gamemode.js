@@ -1,3 +1,7 @@
+/*
+    Class Name: ClientGamemode
+    Description: A
+*/
 class ClientGamemode {
     constructor(gamemode){
         this.gamemode = gamemode;

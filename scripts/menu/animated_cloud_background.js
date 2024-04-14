@@ -47,7 +47,7 @@ class AnimatedCloudBackground extends Component {
     */
     display(){
         if (!this.enabled){ return; }
-        this.scene.getCloudManager().display(this.lX, this.bY);
+        this.scene.getSkyManager().display(this.lX, this.bY);
         this.lX += this.xVelocity;
         this.bY += this.yVelocity;
     }

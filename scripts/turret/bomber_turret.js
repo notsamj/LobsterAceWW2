@@ -57,23 +57,22 @@ class BomberTurret extends Turret {
 
     /*
         Method Name: shoot
-        Method Parameters:
-            shootingAngle:
-                The angle at which to shoot
+        Method Parameters: None
         Method Description: Shoots the turret, if it is ready and the angle is in an allowed range.
         Method Return: void
     */
-    shoot(shootingAngle){
+    shoot(){
         if (!this.readyToShoot()){ return; }
+        let shootingAngle = this.decisions["angle"];
         if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ 
             return; 
         }
         this.shootCD.lock();
         this.getGamemode().getSoundManager().play("shoot", this.getX(), this.getY());
         if (this.getGamemode().areBulletPhysicsEnabled()){
-            this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), this.decisions["angle"], this.getID(), this.model));
+            this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), shootingAngle, this.getID(), this.model));
         }else{ // Fake bullets
-            this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
+            this.plane.instantShot(this.getX(), this.getY(), shootingAngle);
         }
     }
 

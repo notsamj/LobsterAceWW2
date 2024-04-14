@@ -77,16 +77,6 @@ class ServerMisson extends Mission {
     }
 
     /*
-        Method Name: areBulletPhysicsEnabled
-        Method Parameters: None
-        Method Description: Provides information about whether bullet physics are enabled in the game
-        Method Return: Boolean, true -> bullet physics enabled, false -> bullet physics not enabled
-    */
-    areBulletPhysicsEnabled(){
-        return this.bulletPhysicsEnabled;
-    }
-
-    /*
         Method Name: tick
         Method Parameters: None
         Method Description: Run the actions that take place during a tick
@@ -105,8 +95,8 @@ class ServerMisson extends Mission {
         this.numTicks++;
 
         // Save current state and update from user input
+        await this.updateFromUserInput(); // Note: I moved this here on 2024-04-11 before sleeping I didn't test it. Was previosuly right after this.generateState()
         this.lastState = this.generateState();
-        await this.updateFromUserInput();
         this.tickInProgressLock.unlock();
     }
 
@@ -184,7 +174,7 @@ class ServerMisson extends Mission {
             if (latestPlaneUpdate == null){ continue; }
             let tickDifference = this.numTicks - latestPlaneUpdate["num_ticks"];
             // Note: tickDifference MUST be >= 0 because of how the update was obtained
-            plane.loadImportantData(latestPlaneUpdate);
+            //plane.loadImportantData(latestPlaneUpdate);
             plane.loadDecisions(latestPlaneUpdate);
             plane.loadMovementIfNew(latestPlaneUpdate, tickDifference);
         }

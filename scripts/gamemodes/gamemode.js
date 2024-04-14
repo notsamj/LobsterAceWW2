@@ -35,6 +35,12 @@ class Gamemode {
         this.bulletPhysicsEnabled = false;
     }
 
+    /*
+        Method Name: areBulletPhysicsEnabled
+        Method Parameters: None
+        Method Description: Provides information about whether bullet physics are enabled in the game
+        Method Return: Boolean, true -> bullet physics enabled, false -> bullet physics not enabled
+    */
     areBulletPhysicsEnabled(){
         return this.bulletPhysicsEnabled;
     }

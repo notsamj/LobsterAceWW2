@@ -33,17 +33,6 @@ class BotBomberTurret extends BomberTurret {
     */
     constructor(xOffset, yOffset,fov1, fov2, rateOfFire, plane){
         super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
-        this.shootingAngle = 0;
-    }
-
-    /*
-        Method Name: getShootingAngle
-        Method Parameters: None
-        Method Description: Determines the shooting angle of the turret.
-        Method Return: int
-    */
-    getShootingAngle(){
-        return this.shootingAngle;
     }
 
     /*
@@ -119,8 +108,8 @@ class BotBomberTurret extends BomberTurret {
     executeDecisions(){
         // If decided to shoot
         if (this.decisions["shooting"]){
-            if (this.shootCD.isReady()){
-                this.shoot(this.getShootingAngle());
+            if (this.shootCD.isReady() && this.getGamemode().runsLocally()){
+                this.shoot();
             }
         }
     }
@@ -137,7 +126,7 @@ class BotBomberTurret extends BomberTurret {
         // If the distance is acceptable then the shot is good
         if (distanceToEnemy < this.plane.getMaxShootingDistance()){
             // Either physics bullets OR don't shoot past the limit of instant shot
-            if (this.gamemode.getScene().areBulletPhysicsEnabled() || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
+            if (this.getGamemode().getScene().areBulletPhysicsEnabled() || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
                 return true;
             }
         }

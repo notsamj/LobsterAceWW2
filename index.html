@@ -10,18 +10,18 @@
 
     <!-- Data -->
     <script src="data/data_json.js"></script>
+    <script src="data/web_data_json.js"></script>
 
-    <!-- Dependencies -->
+<!-- Dependencies -->
     
     <!-- General -->
     <script src="scripts/general/performance_timer.js"></script>
+    <script src="scripts/general/program_tester.js"></script>
     <script src="scripts/general/notsam_linked_list.js"></script>
     <script src="scripts/general/notsam_array_list.js"></script>
     <script src="scripts/general/user_input_manager.js"></script>
     <script src="scripts/general/sound_manager.js"></script>
-    <script src="scripts/general/value_history_manager.js"></script>
     <script src="scripts/general/helper_functions.js"></script>
-    <script src="scripts/general/mail_box.js"></script>
     <script src="scripts/general/infinite_loop_finder.js"></script>
     <script src="scripts/general/frame_rate_counter.js"></script>
     <script src="scripts/general/hitboxes.js"></script>
@@ -30,6 +30,9 @@
     <script src="scripts/general/tick_lock.js"></script>
     <script src="scripts/general/seeded_randomizer.js"></script>
     <script src="scripts/general/HUD.js"></script>
+    <script src="scripts/general/mail_service.js"></script>
+    <script src="scripts/general/simple_cryptography.js"></script>
+    <script src="scripts/general/async_update_manager.js"></script>
 
     <!-- Menu Specific -->
     <script src="scripts/menu/component.js"></script>
@@ -47,18 +50,26 @@
     <script src="scripts/menu/mission_start_menu.js"></script>
     <script src="scripts/menu/campaign_menu.js"></script>
     <script src="scripts/menu/animated_cloud_background.js"></script>
+    <script src="scripts/menu/participant_menu.js"></script>
+    <script src="scripts/menu/host_menu.js"></script>
 
+    <!-- Server Connection Related -->
+    <!-- <script src="scripts/server_communication/server_connection.js"></script> -->
+    <script src="scripts/server_communication/server_connection_dud.js"></script>
     <!-- Game Specific -->
     <script src="scripts/misc/after_match_stats.js"></script>
     <script src="scripts/misc/scene_tick_manager.js"></script>
     <script src="scripts/other_entities/entity.js"></script>
     <script src="scripts/scene/plane_game_scene.js"></script>
     <script src="scripts/other_entities/spectator_camera.js"></script>
-    <script src="scripts/other_entities/simple_projectiles/bullet.js"></script>
     <script src="scripts/other_entities/building.js"></script>
+
+    <script src="scripts/other_entities/simple_projectiles/simple_projectile.js"></script>
+    <script src="scripts/other_entities/simple_projectiles/bullet.js"></script>
     <script src="scripts/other_entities/simple_projectiles/bomb.js"></script>
+
     <script src="scripts/misc/team_combat_manager.js"></script>
-    <script src="scripts/scene/cloud_manager.js"></script>
+    <script src="scripts/scene/sky_manager.js"></script>
     <script src="scripts/misc/tick_scheduler.js"></script>
 
     <script src="scripts/radar/radar.js"></script>
@@ -78,18 +89,38 @@
     <script src="scripts/plane/fighter_plane/biased_campaign_attacker_bot_fighter_plane.js"></script>
     <script src="scripts/plane/fighter_plane/biased_campaign_defender_bot_fighter_plane.js"></script>
     <script src="scripts/plane/fighter_plane/human_fighter_plane.js"></script>
-    <script src="scripts/plane/fighter_plane/remote/multiplayer_human_fighter_plane.js"></script>
-    <script src="scripts/plane/fighter_plane/remote/multiplayer_remote_fighter_plane.js"></script>
 
     <script src="scripts/plane/bomber_plane/bomber_plane.js"></script>
-    <script src="scripts/plane/bomber_plane/biased_campaign_bot_bomber_plane.js"></script>
     <script src="scripts/plane/bomber_plane/biased_bot_bomber_plane.js"></script>
+    <script src="scripts/plane/bomber_plane/biased_campaign_bot_bomber_plane.js"></script>
+    <script src="scripts/plane/bomber_plane/biased_dogfight_bot_bomber_plane.js"></script>
     <script src="scripts/plane/bomber_plane/human_bomber_plane.js"></script>
 
     <script src="scripts/gamemodes/gamemode.js"></script>
-    <script src="scripts/gamemodes/mission.js"></script>
+
     <script src="scripts/gamemodes/dogfight.js"></script>
+    <script src="scripts/gamemodes/mission.js"></script>
+
     <script src="scripts/gamemodes/local_dogfight.js"></script>
+    <script src="scripts/gamemodes/local_mission.js"></script>
+
+    <script src="scripts/gamemodes/remote_dogfight.js"></script>
+    <script src="scripts/gamemodes/remote_mission.js"></script>
+
+    <script src="scripts/gamemodes/client_gamemode.js"></script>
+    <script src="scripts/gamemodes/local_client.js"></script>   
+    <script src="scripts/gamemodes/remote_client.js"></script>
+
+    <script src="scripts/gamemodes/remote_dogfight_client.js"></script>
+    <script src="scripts/gamemodes/remote_mission_client.js"></script>
+
+    <script src="scripts/gamemodes/local_dogfight_client.js"></script>
+    <script src="scripts/gamemodes/local_mission_client.js"></script>
+
+    <script src="scripts/gamemodes/gamemode_remote_translator.js"></script>
+
+    <script src="scripts/gamemodes/gamemode_manager.js"></script>
+
 
     <!-- Main Script --> 
     <script src="scripts/ww2planegame.js"></script>

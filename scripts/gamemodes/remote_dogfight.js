@@ -21,6 +21,7 @@ class RemoteDogfight extends Gamemode {
         this.running = false;
 
         this.userEntity = null;
+        this.teamCombatManager.disableCollisions();
     }
 
     setClient(client){
@@ -43,6 +44,7 @@ class RemoteDogfight extends Gamemode {
     */
     async loadState(state){
         if (state == null){ return; }
+        PERFORMANCE_TIMER.get("load_state").start();
         // Check game end
         this.gameOver = state["game_over"];
         // If not running then load the end
@@ -60,7 +62,7 @@ class RemoteDogfight extends Gamemode {
 
         // Update plane general information
         for (let planeObject of planeData){
-            let plane = this.scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
+            let plane = this.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
                 throw new Error("Received unknown plane from server.");
@@ -93,6 +95,7 @@ class RemoteDogfight extends Gamemode {
 
         // Update bullets
         this.getTeamCombatManager().fromBulletJSON(state["bullets"]);
+        PERFORMANCE_TIMER.get("load_state").end();
     }
 
     /*

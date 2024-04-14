@@ -72,6 +72,7 @@ class PerformanceTimer {
         this.nodes.sort((e1, e2) => {
             return e1.getMaxTime() <= e2.getMaxTime();
         });
+        console.log("Mean, Median, Max, Min");
         for (let node of this.nodes){
             console.log(node.getName() + ":", node.getMeanTime() + ", " +  node.getMedianTime() + ", " +  node.getMaxTime() + ", " + node.getMinTime());
         }

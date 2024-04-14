@@ -95,8 +95,8 @@ class ServerDogfight extends Dogfight {
         this.numTicks++;
 
         // Save current state and update from user input
-        this.lastState = this.generateState();
         await this.updateFromUserInput();
+        this.lastState = this.generateState();
         this.tickInProgressLock.unlock();
     }
 
@@ -161,7 +161,7 @@ class ServerDogfight extends Dogfight {
         // Add users
         for (let user of dogfightJSON["users"]){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
-            let userPlane = helperFunctions.planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, 0, true, false) : new HumanBomberPlane(userEntityModel, this, 0, true, false);
+            let userPlane = helperFunctions.planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, false) : new HumanBomberPlane(userEntityModel, this, false);
             userPlane.setCenterX(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
             userPlane.setCenterY(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY);
             userPlane.setFacingRight((helperFunctions.planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);
@@ -207,7 +207,7 @@ class ServerDogfight extends Dogfight {
             if (latestPlaneUpdate == null){ continue; }
             let tickDifference = this.numTicks - latestPlaneUpdate["num_ticks"];
             // Note: tickDifference MUST be >= 0 because of how the update was obtained
-            plane.loadImportantData(latestPlaneUpdate);
+            //plane.loadImportantData(latestPlaneUpdate);
             plane.loadDecisions(latestPlaneUpdate);
             plane.loadMovementIfNew(latestPlaneUpdate, tickDifference);
         }

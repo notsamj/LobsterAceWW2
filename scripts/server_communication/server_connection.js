@@ -115,7 +115,9 @@ class ServerConnection {
             if (!this.sc.matchesEncryptedFormat(data)){
                 throw new Error("Data in bad format!");
             }
+            PERFORMANCE_TIMER.get("decrypt").start();
             let decryptedData = this.sc.decrypt(data);
+            PERFORMANCE_TIMER.get("decrypt").end();
             let dataJSON = JSON.parse(decryptedData);
             if (dataJSON["password"] != USER_DATA["server_data"]["password"]){
                 console.log(dataJSON)

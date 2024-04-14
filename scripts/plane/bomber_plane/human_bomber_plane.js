@@ -242,7 +242,7 @@ class HumanBomberPlane extends BomberPlane {
 
         // Drop bombs
         if (this.decisions["bombing"]){
-            if (this.bombLock.isReady()){
+            if (this.bombLock.isReady() && this.gamemode.runsLocally()){
                 this.bombLock.lock();
                 this.dropBomb();
             }

@@ -31,6 +31,15 @@ class TeamCombatManager {
             this.planes[team] = new NotSamLinkedList();
             this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets"]);
         }
+        this.collisionsDisabled = false;
+    }
+
+    hasCollisionsDisabled(){
+        return this.collisionsDisabled;
+    }
+
+    disableCollisions(){
+        this.collisionsDisabled = true;
     }
 
     /*
@@ -267,12 +276,12 @@ class TeamCombatManager {
         Method Return: void
     */
     checkCollisions(){
+        if (this.hasCollisionsDisabled()){ return; }
         let previousTick = this.gamemode.getNumTicks()-1;
         // No collisions on tick 0
         if (previousTick < 0){ return; }
         // No collisions in testing
         this.checkBulletCollisionsWithWorldBorder();
-
         // Check ally and axis bullet hits
         for (let team of this.teams){
             for (let otherTeam of this.teams){
@@ -442,17 +451,11 @@ class TeamCombatManager {
     getNumberOfEntities(){
         let count = 0;
         for (let team of this.teams){
-            for (let [plane, pIndex] of this.planes[team]){
-                if (!plane.isDead()){
-                    count++;
-                }
-            }
-            for (let [bullet, bIndex] of this.bullets[team]){
-                if (!bullet.isDead()){
-                    count++;
-                }
-            }
+            count += this.planes[team].getLength();
+            count += this.bullets[team].getLength();
         }
+        count += this.bombs.getLength();
+        count += this.buildings.getLength();
         return count;
     }
 
@@ -704,7 +707,7 @@ class TeamCombatManager {
             if (index >= this.buildings.getLength()){
                 this.buildings.push(Building.fromJSON(buildingJSON, this.gamemode));
             }else{
-                this.buildings.get(index).fromJSON(buildingJSON, this.gamemode);
+                this.buildings.get(index).fromJSON(buildingJSON);
             }
             index++;
         }
@@ -725,12 +728,10 @@ class TeamCombatManager {
             if (index >= this.bombs.getLength()){
                 this.bombs.push(Bomb.fromJSON(bombJSON, this.gamemode));
             }else{
-                let bomb = this.bombs.get(index);
-                bomb.fromJSON(bombJSON, this.gamemode);
+                this.bombs.get(index).fromJSON(bombJSON, false);
             }
         }
-    }
-
+    } m
     /*
         Method Name: fromBulletJSON
         Method Parameters:

@@ -81,7 +81,7 @@ class HumanBomberTurret extends BomberTurret {
         // If decided to shoot
         if (this.decisions["shooting"]){
             if (this.shootCD.isReady() && this.getGamemode().runsLocally()){
-                this.shoot(this.decisions["angle"]);
+                this.shoot();
             }
         }
     }
