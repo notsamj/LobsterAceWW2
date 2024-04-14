@@ -11,8 +11,8 @@ class AnimatedCloudBackground extends Component {
     */
     constructor(){
         super();
-        this.lX = 0;
-        this.bY = 0;
+        this.lX = randomFloatBetween(100000,200000);
+        this.bY = randomFloatBetween(100000,200000);
         this.xVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_x"]);
         this.xVelocity *= (randomFloatBetween(0,1)==0) ? -1 : 1;
         this.yVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_y"]);

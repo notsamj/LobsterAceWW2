@@ -374,6 +374,11 @@ class Plane extends Entity {
         return this.maxSpeed;
     }
 
+    // TODO: Comments
+    hasNoControl(){
+        return this.throttle == 0;
+    }
+
     /*
         Method Name: adjustAngle
         Method Parameters:
@@ -384,7 +389,7 @@ class Plane extends Entity {
     */
     adjustAngle(amount){
         let newAngle = this.angle;
-        if (this.throttle == 0){ return; }
+        if (this.hasNoControl()){ return; }
 
         // Determine angle
         if (this.facingRight){
@@ -416,7 +421,7 @@ class Plane extends Entity {
         if (facingRight == this.facingRight){
             return;
         }
-        if (this.throttle == 0){ return; }
+        if (this.hasNoControl()){ return; }
         let newAngle = fixDegrees(360 - this.angle);
         this.angle = newAngle;
         this.facingRight = facingRight;
@@ -585,7 +590,6 @@ class Plane extends Entity {
         let angle = interpolated ? this.interpolatedAngle : this.angle;
         let effectiveAngle = this.getEffectiveAngle(angle);
         let cosAngle = Math.cos(toRadians(effectiveAngle));
-        if (this.throttle == 0){ return 0; }
         return speed * cosAngle * (!this.facingRight ? -1 : 1);
     }
 

@@ -166,7 +166,7 @@ const PROGRAM_DATA = {
         "min_angle_to_adjust": 3,
         "min_velocity_assumption": 0.01,
         "max_throttle": 100,
-        "fall_speed": 200,
+        "fall_speed": 1200,
         "slow_down_amount": 0.1,
         "expected_canvas_width": 1920,
         "expected_canvas_height": 927,
@@ -564,9 +564,10 @@ const PROGRAM_DATA = {
         "moon_colour": "f6f1d5",
         "sun_diameter": 300,
         "moon_diameter": 150,
-        "moon_phase": 5,
+        "moon_phase": 5, // Allowed range [0, 7]
         "current_hour": 12,
         "cloud_generation": {
+            "min_height": 600,
             "cloud_opacity": 80,
             "cloud_colour": "#e8ecff",
             "cloud_cluster_width": 3840,

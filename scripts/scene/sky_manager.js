@@ -16,7 +16,7 @@ class SkyManager {
         this.scene = scene;
     }
 
-    // TODO
+    // TODO: Comments
     getSkyBrightness(){
         return 1 - Math.abs(PROGRAM_DATA["sky_generation"]["current_hour"] - 12) / 12;
     }
@@ -83,7 +83,6 @@ class SkyManager {
         let moonAngleRadians = toRadians(moonAngleDEG);
         let moonX = Math.cos(moonAngleRadians) * (screenWidth-moonDiameter)/2 + screenWidth/2;
         let moonY = (Math.sin(moonAngleRadians) * (screenHeight-moonDiameter)/2 * -1) + screenHeight/2;
-        //debugger;
         // Only display sun if up
         if (moonY <= screenHeight/2){
             circle(moonX, moonY, moonDiameter)
@@ -252,6 +251,8 @@ class CloudCluster {
         for (let i = 0; i < numClouds; i++){
             let newCloudX = random.getIntInRangeExclusive(leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2, leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"] - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2);
             let newCloudY = random.getIntInRangeExclusive(bottomY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2, bottomY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"] - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2);
+            // Skip clouds under min height
+            if (newCloudY < PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_height"]){ continue; }
             this.clouds.push(Cloud.create(newCloudX, newCloudY, random, scene))
         }
     }
