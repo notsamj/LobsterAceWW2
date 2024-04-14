@@ -3,6 +3,27 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../data/data_json.js");
 }
 
+function modifyDataJSONValue(path, newValue){
+    path = copyArray(path);
+    let finalKey = path[path.length-1];
+    getDataJSONObjAtPath(path)[finalKey] = newValue;
+}
+
+// TODO: Comments
+function accessDataJSONValue(path){
+    path = copyArray(path);
+    let finalKey = path[path.length-1];
+    return getDataJSONObjAtPath(path)[finalKey];
+}
+
+function getDataJSONObjAtPath(path){
+    let obj = PROGRAM_DATA;
+    while (path.length > 1){
+        obj = obj[path.shift()];
+    }
+    return obj;
+}
+
 /*
     Method Name: getImage
     Method Parameters:

@@ -200,7 +200,24 @@ const PROGRAM_DATA = {
     "extra_settings": [
         {
             "name": "use_physics_bullets",
-            "path": ["settings"]
+            "path": ["settings", "use_physics_bullets"],
+            "type": "on_off"
+        },
+        {
+            "name": "moon_phase",
+            "path": ["sky_generation", "moon_phase"],
+            "type": "quantity_slider",
+            "max_value": 7,
+            "min_value": 0,
+            "uses_float": false
+        },
+        {
+            "name": "current_hour",
+            "path": ["sky_generation", "current_hour"],
+            "type": "quantity_slider",
+            "max_value": 23,
+            "min_value": 0,
+            "uses_float": false
         }
     ],
 
@@ -595,6 +612,12 @@ const PROGRAM_DATA = {
         "in_lobby": 4,
         "hosting": 5
 
+    },
+
+    "menu": {
+        "quantity_slider": {
+            "slider_width_px": 20
+        }
     }
 }
 if (typeof window === "undefined"){

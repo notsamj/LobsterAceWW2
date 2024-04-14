@@ -20,8 +20,12 @@ const PROGRAM_TESTER = new ProgramTester();
 const GAMEMODE_MANAGER = new GamemodeManager();
 
 // Register inputs
+USER_INPUT_MANAGER.register("quantity_slider_grab", "mousedown", (event) => { return true; });
+USER_INPUT_MANAGER.register("quantity_slider_grab", "mouseup", (event) => { return true; }, false);
+
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
+
 USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
 USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 84; }, false)
 

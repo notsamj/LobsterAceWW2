@@ -38,85 +38,69 @@ class ExtraSettingsMenu extends Menu {
         // Interface for changing settings
         let i = 0;
         for (let setting of PROGRAM_DATA["extra_settings"]){
-            this.createSetting(setting["name"], setting["path"], i++);
+            this.createSetting(setting, i++);
         }
     }
 
     /*
         Method Name: createSetting
         Method Parameters:
-            settingName:
-                Name of the setting
-            settingPath:
-                Series of keys to lead from PROGRAM_DATA to the value
+            setting:
+                Setting object
             offSetIndex:
                 The index of the setting used to offset its y position
         Method Description: Creates a setting in the menu
         Method Return: void
     */
-    createSetting(settingName, settingPath, offSetIndex){
+    createSetting(setting, offSetIndex){
+        let settingName = setting["name"];
+        let settingPath = setting["path"];
+        let settingType = setting["type"];
         let sectionYSize = 100;
-        let onOffButtonSize = 50;
+        let settingModifierButtonSize = 50;
         let sectionYStart = sectionYSize * offSetIndex;
 
         let settingLabelXSize = 300;
         let settingLabelX = 600;
         let settingLabelYSize = 100;
-        let settingLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart + onOffButtonSize/2; }
+        let settingLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart + settingModifierButtonSize/2; }
 
-        let settingOnOffButtonX = settingLabelX + settingLabelXSize;
-        let settingOnOffButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
+        let settingModifierButtonX = settingLabelX + settingLabelXSize;
+        let settingModifierButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
         // Components
-
         this.components.push(new TextComponent(settingName, "#e6f5f4", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, CENTER, CENTER));
 
+        if (settingType == "on_off"){
+            this.createOnOffButton(settingPath, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
+        }else if (settingType == "quantity_slider"){
+            this.createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
+        }
+    }
+
+    createOnOffButton(settingPath, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
         let onOffButtonComponentIndex = this.components.length; // Note: Assumes index never changes
-        let startingValue = this.getSettingValue(settingName, settingPath) ? "On" : "Off";
-        this.components.push(new RectangleButton(startingValue, "#3bc44b", "#e6f5f4", settingOnOffButtonX, settingOnOffButtonY, onOffButtonSize, onOffButtonSize, (menuInstance) => {
-            let onOrOff = menuInstance.getSettingValue(settingName, settingPath);
+        let startingValue = accessDataJSONValue(settingPath) ? "On" : "Off";
+        this.components.push(new RectangleButton(startingValue, "#3bc44b", "#e6f5f4", settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize, settingModifierButtonSize, (menuInstance) => {
+            let onOrOff = accessDataJSONValue(settingPath);
             onOrOff = !onOrOff; // Flip it
-            menuInstance.setSettingValue(settingName, settingPath, onOrOff);
+            modifyDataJSONValue(settingPath, onOrOff)
             menuInstance.components[onOffButtonComponentIndex].setText(onOrOff ? "On" : "Off");
         }));
     }
 
-    /*
-        Method Name: getSettingValue
-        Method Parameters:
-            settingName:
-                Name of the setting
-            path:
-                Sequence of keys to navigate to the setting in PROGRAM_DATA
-        Method Description: Find the value for a setting
-        Method Return: Variable
-    */
-    getSettingValue(settingName, path){
-        let currentJSONObject = PROGRAM_DATA;
-        for (let key of path){
-            currentJSONObject = currentJSONObject[key];
+    createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
+        let quantitySlideXSize = 300;
+        let settingPath = setting["path"];
+        let getValueFunction = () => {
+            return accessDataJSONValue(settingPath);
         }
-        return currentJSONObject[settingName];
-    }
 
-    /*
-        Method Name: setSettingValue
-        Method Parameters:
-            settingName:
-                Name of the setting
-            settingPath:
-                Series of keys to lead from PROGRAM_DATA to the value
-            value:
-                Value of the setting
-        Method Description: Sets the value of a setting
-        Method Return: void
-    */
-    setSettingValue(settingName, path, value){
-        let currentJSONObject = PROGRAM_DATA;
-        for (let key of path){
-            currentJSONObject = currentJSONObject[key];
+        let setValueFunction = (newValue) => {
+            modifyDataJSONValue(settingPath, newValue);
         }
-        currentJSONObject[settingName] = value;
+        let quantitySlider = new QuantitySlider(settingModifierButtonX, settingModifierButtonY, quantitySlideXSize, settingModifierButtonSize, getValueFunction, setValueFunction, setting["min_value"], setting["max_value"], setting["uses_float"]);
+        this.components.push(quantitySlider);
     }
 
     /*
