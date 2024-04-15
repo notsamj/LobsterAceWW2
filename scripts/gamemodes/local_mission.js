@@ -15,21 +15,28 @@ class LocalMission extends Mission {
     */
     constructor(missionObject, missionSetupJSON){
         super(missionObject, missionSetupJSON);
-        if (missionSetupJSON["users"].length == 0){
-            let cam = new SpectatorCamera(this, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);
-            this.userEntity = cam;
-            this.scene.addEntity(cam);
-            this.scene.setFocusedEntity(cam);
-        }else{
-            this.userEntity = this.scene.getEntity(USER_DATA["name"]);
-            this.scene.setFocusedEntity(this.userEntity);
-            this.userEntity.setAutonomous(true);
-        }
-        this.scene.enable();
+        this.missionSetupJSON = missionSetupJSON;
     }
 
-    setClient(client){
+    getScene(){ return this.client.getScene(); }
+
+    attachToClient(client){
         this.client = client;
+
+        // Start the scene
+        this.getScene().enable();
+        
+        // Set up the camera
+        if (this.missionSetupJSON["users"].length == 0){
+            let cam = new SpectatorCamera(this, (this.missionObject["start_zone"]["attackers"]["x"] + this.missionObject["start_zone"]["defenders"]["x"])/2, (this.missionObject["start_zone"]["attackers"]["y"] + this.missionObject["start_zone"]["defenders"]["y"])/2);
+            this.userEntity = cam;
+            this.getScene().addEntity(cam);
+            this.getScene().setFocusedEntity(cam);
+        }else{
+            this.userEntity = this.getScene().getEntity(USER_DATA["name"]);
+            this.getScene().setFocusedEntity(this.userEntity);
+            this.userEntity.setAutonomous(true);
+        }
     }
 
     getUserEntity(){
@@ -50,6 +57,7 @@ class LocalMission extends Mission {
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
         this.client.updateCamera();
         await super.tick();
+        await this.getScene().tick();
     }
 
     /*
@@ -95,7 +103,7 @@ class LocalMission extends Mission {
     */
     display(){
         this.updateHUD();
-        this.scene.display();
+        this.getScene().display();
         if (!this.isRunning()){
             this.statsManager.display();
         }

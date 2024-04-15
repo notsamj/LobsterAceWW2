@@ -39,7 +39,7 @@ class Mission extends Gamemode {
 		this.planes = this.createPlanes(missionSetupJSON["users"]);
         this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
         this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
-		this.scene.setEntities(appendLists(this.planes, this.buildings));
+		this.teamCombatManager.setEntities(appendLists(this.planes, this.buildings));
         this.bulletPhysicsEnabled = missionSetupJSON["use_physics_bullets"];
 	}
 
@@ -85,7 +85,7 @@ class Mission extends Gamemode {
         this.lastTickTime = Date.now();
         this.attackerSpawnLock.tick();
         this.defenderSpawnLock.tick();
-        await this.scene.tick();
+        await this.teamCombatManager.tick();
         this.checkSpawn();
         this.checkForEnd();
         this.numTicks++;
@@ -116,7 +116,7 @@ class Mission extends Gamemode {
         Method Return: FighterPlane
     */
     findDeadUserFighterPlane(){
-        for (let plane of scene.getTeamCombatManager().getDeadPlanes()){
+        for (let plane of this.teamCombatManager.getDeadPlanes()){
             if (plane instanceof HumanFighterPlane){
                 return plane;
             }
@@ -133,7 +133,7 @@ class Mission extends Gamemode {
         Method Return: void
     */
     spawnPlanes(side){
-        let existingPlanes = this.scene.getTeamCombatManager().getAllPlanesFromAlliance(this.getAllianceFromSide(side));
+        let existingPlanes = this.teamCombatManager.getAllPlanesFromAlliance(this.getAllianceFromSide(side));
         let countsToSpawn = copyObject(this.planeCounts);
         let planesToSetup = [];
 
@@ -195,7 +195,7 @@ class Mission extends Gamemode {
 
         // Add newly created planes to the scene
         for (let plane of newlyCreatedPlanesToAdd){
-            this.scene.addPlane(plane);
+            this.teamCombatManager.addPlane(plane);
         }
     }
 
@@ -338,7 +338,7 @@ class Mission extends Gamemode {
             let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, 0, true, false) : new HumanBomberPlane(userEntityModel, this, 0, true, false);
             userPlane.setID(user["id"]);
             planes.push(userPlane);
-            this.scene.addPlane(userPlane);
+            this.teamCombatManager.addPlane(userPlane);
             if (this.planeCounts[userEntityModel] == 0){ continue; }
             this.planeCounts[userEntityModel]--;
         }

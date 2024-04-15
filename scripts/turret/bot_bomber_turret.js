@@ -126,7 +126,7 @@ class BotBomberTurret extends BomberTurret {
         // If the distance is acceptable then the shot is good
         if (distanceToEnemy < this.plane.getMaxShootingDistance()){
             // Either physics bullets OR don't shoot past the limit of instant shot
-            if (this.getGamemode().getScene().areBulletPhysicsEnabled() || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
+            if (this.getGamemode().areBulletPhysicsEnabled() || distanceToEnemy < PROGRAM_DATA["settings"]["instant_shot_max_distance"]){
                 return true;
             }
         }

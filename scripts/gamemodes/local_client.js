@@ -19,8 +19,6 @@ class LocalClient extends ClientGamemode {
         this.gamemode.unpause();
     }
 
-
-
     async tick(){
         if (this.isPaused()){ return; }
         await this.gamemode.tick();

@@ -5,8 +5,9 @@
 class ClientGamemode {
     constructor(gamemode){
         this.gamemode = gamemode;
+        this.scene = new PlaneGameScene(this.gamemode);
         this.deadCamera = null; // Used when the user is a plane but is dead so becomes a camera
-        this.gamemode.setClient(this);
+        this.gamemode.attachToClient(this);
     }
 
     display(){
@@ -50,7 +51,7 @@ class ClientGamemode {
     }
 
     getScene(){
-        return this.gamemode.getScene();
+        return this.scene;
     }
 
     getSoundManager(){

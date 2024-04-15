@@ -34,6 +34,24 @@ class TeamCombatManager {
         this.collisionsDisabled = false;
     }
 
+    /*
+        Method Name: setEntities
+        Method Parameters:
+            entities:
+                A list of entities
+        Method Description: Removes all planes and adds a bunch of entities
+        Method Return: void
+    */
+    setEntities(entities){
+        this.clear();
+        for (let entity of entities){
+            // TODO: This is somewhat ugly
+            if (entity instanceof Plane || entity instanceof Bullet || entity instanceof Bomb || entity instanceof Building){
+                this.addEntity(entity);
+            }
+        }
+    }
+
     hasCollisionsDisabled(){
         return this.collisionsDisabled;
     }
@@ -367,7 +385,6 @@ class TeamCombatManager {
             planesRightX = Math.max(plane.getX(), planesRightX);
             planesTopY = Math.max(plane.getY(), planesTopY);
             planesBottomY = Math.min(plane.getY(), planesBottomY);
-            //console.log(planesLeftX,planesRightX,planesTopY,planesBottomY)
         }
 
         // For each team B bullet if far from the border of team A plane then ignore

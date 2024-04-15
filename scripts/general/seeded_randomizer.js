@@ -49,7 +49,8 @@ class SeededRandomizer {
         Method Return: Integer
     */
     getIntInRangeInclusive(start, end){
-        return (this.getBigNumber() % (end - start + 1)) + start;
+        let value = (this.getBigNumber() % (end - start + 1)) + start;
+        return value;
     }
 
     /*

@@ -24,7 +24,9 @@ class RemoteDogfight extends Gamemode {
         this.teamCombatManager.disableCollisions();
     }
 
-    setClient(client){
+    getScene(){ return this.client.getScene(); }
+
+    attachToClient(client){
         this.client = client;
     }
 
@@ -119,7 +121,7 @@ class RemoteDogfight extends Gamemode {
         }else{
             plane = BiasedDogfightBotBomberPlane.fromJSON(planeObject, this, false);
         }
-        this.scene.addPlane(plane);
+        this.teamCombatManager.addPlane(plane);
     }
 
     /*
@@ -129,7 +131,7 @@ class RemoteDogfight extends Gamemode {
         Method Return: void
     */
     display(){
-        this.scene.display();
+        this.getScene().display();
         if (this.isGameOver()){
             this.statsManager.display();
         }
@@ -176,7 +178,7 @@ class RemoteDogfight extends Gamemode {
         }
 
         // Add planes to the scene
-        this.scene.setEntities(this.planes);
+        this.teamCombatManager.setEntities(this.planes);
 
         // If no user then add a freecam
         //console.log("Is user entity null?", this.userEntity)
@@ -190,9 +192,9 @@ class RemoteDogfight extends Gamemode {
             this.userEntity = new SpectatorCamera(this);
             this.userEntity.setCenterX(middleX);
             this.userEntity.setCenterY(middleY);
-            this.scene.addEntity(this.userEntity);
+            this.getScene().addEntity(this.userEntity);
         }
-        this.scene.setFocusedEntity(this.userEntity);
+        this.getScene().setFocusedEntity(this.userEntity);
         this.startTime = state["start_time"];
         this.numTicks = state["num_ticks"];
         this.running = true;

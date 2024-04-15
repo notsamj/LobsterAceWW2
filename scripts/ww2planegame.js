@@ -18,6 +18,7 @@ const MAIL_SERVICE = new MailService();
 const SERVER_CONNECTION = new ServerConnection();
 const PROGRAM_TESTER = new ProgramTester();
 const GAMEMODE_MANAGER = new GamemodeManager();
+const LOCAL_EVENT_HANDLER = new NSEventHandler();
 
 // Register inputs
 USER_INPUT_MANAGER.register("quantity_slider_grab", "mousedown", (event) => { return true; });

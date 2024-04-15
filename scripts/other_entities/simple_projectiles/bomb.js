@@ -49,6 +49,8 @@ class Bomb extends SimpleProjectile {
         Method Return: void
     */
     tick(timePassed){
+        // Remote gamemodes on a local browser do no control these features of the bomb
+        if (!this.gamemode.runsLocally()){ return; }
         // If below ground then die
         if (this.isBelowGround()){
             this.explode();
@@ -144,12 +146,8 @@ class Bomb extends SimpleProjectile {
         Method Description: Set up a bullet based on a json representation
         Method Return: void
     */
-    fromJSON(jsonRepresentation, force=false){
-        if (!this.isDead() && !force){ 
-            return; 
-        }
+    fromJSON(jsonRepresentation){
         // No need to taken info from a dead bomb
-        if (jsonRepresentation["dead"]){ return; }
         this.startX = jsonRepresentation["start_x"];
         this.startY = jsonRepresentation["start_y"];
         this.spawnedTick = jsonRepresentation["spawned_tick"];

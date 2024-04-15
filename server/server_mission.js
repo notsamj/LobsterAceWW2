@@ -89,7 +89,7 @@ class ServerMisson extends Mission {
         this.attackerSpawnLock.tick();
 
         // Tick the scene
-        await this.scene.tick();
+        await this.teamCombatManager.tick();
         this.checkForEnd();
         this.checkSpawn();
         this.numTicks++;

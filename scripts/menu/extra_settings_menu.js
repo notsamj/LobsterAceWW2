@@ -54,7 +54,6 @@ class ExtraSettingsMenu extends Menu {
     */
     createSetting(setting, offSetIndex){
         let settingName = setting["name"];
-        let settingPath = setting["path"];
         let settingType = setting["type"];
         let sectionYSize = 100;
         let settingModifierButtonSize = 50;
@@ -72,32 +71,48 @@ class ExtraSettingsMenu extends Menu {
         this.components.push(new TextComponent(settingName, "#e6f5f4", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, CENTER, CENTER));
 
         if (settingType == "on_off"){
-            this.createOnOffButton(settingPath, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
+            this.createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
         }else if (settingType == "quantity_slider"){
             this.createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
         }
     }
 
-    createOnOffButton(settingPath, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
+    createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
+        let settingName = setting["name"];
+        let settingPath = setting["path"];
         let onOffButtonComponentIndex = this.components.length; // Note: Assumes index never changes
+        let storedValue = getLocalStorage(settingName, null);
+        if (storedValue != null){
+            modifyDataJSONValue(settingPath, storedValue === "true");
+        }
         let startingValue = accessDataJSONValue(settingPath) ? "On" : "Off";
         this.components.push(new RectangleButton(startingValue, "#3bc44b", "#e6f5f4", settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize, settingModifierButtonSize, (menuInstance) => {
             let onOrOff = accessDataJSONValue(settingPath);
             onOrOff = !onOrOff; // Flip it
+            LOCAL_EVENT_HANDLER.emit({"name": settingName, "new_value": onOrOff});
             modifyDataJSONValue(settingPath, onOrOff)
+            setLocalStorage(settingName, onOrOff.toString());
             menuInstance.components[onOffButtonComponentIndex].setText(onOrOff ? "On" : "Off");
         }));
     }
 
     createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
         let quantitySlideXSize = 300;
+        let settingName = setting["name"];
         let settingPath = setting["path"];
+        let storedValue = getLocalStorage(settingName, null);
+        if (storedValue != null){
+            storedValue = setting["uses_float"] ? parseFloat(storedValue) : parseInt(storedValue);
+            modifyDataJSONValue(settingPath, storedValue);
+        }
         let getValueFunction = () => {
             return accessDataJSONValue(settingPath);
         }
 
         let setValueFunction = (newValue) => {
+            LOCAL_EVENT_HANDLER.emit({"name": settingName, "new_value": newValue});
             modifyDataJSONValue(settingPath, newValue);
+            setLocalStorage(settingName, newValue);
         }
         let quantitySlider = new QuantitySlider(settingModifierButtonX, settingModifierButtonY, quantitySlideXSize, settingModifierButtonSize, getValueFunction, setValueFunction, setting["min_value"], setting["max_value"], setting["uses_float"]);
         this.components.push(quantitySlider);

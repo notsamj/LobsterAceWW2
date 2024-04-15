@@ -207,16 +207,32 @@ const PROGRAM_DATA = {
             "name": "moon_phase",
             "path": ["sky_generation", "moon_phase"],
             "type": "quantity_slider",
-            "max_value": 7,
             "min_value": 0,
+            "max_value": 7,
             "uses_float": false
         },
         {
             "name": "current_hour",
             "path": ["sky_generation", "current_hour"],
             "type": "quantity_slider",
-            "max_value": 23,
             "min_value": 0,
+            "max_value": 23,
+            "uses_float": false
+        },
+        {
+            "name": "min_clouds_per_cluster",
+            "path": ["sky_generation", "cloud_generation", "min_clouds_per_cluster"],
+            "type": "quantity_slider",
+            "min_value": 0,
+            "max_value": 70,
+            "uses_float": false
+        },
+        {
+            "name": "max_clouds_per_cluster",
+            "path": ["sky_generation", "cloud_generation", "max_clouds_per_cluster"],
+            "type": "quantity_slider",
+            "min_value": 70,
+            "max_value": 250,
             "uses_float": false
         }
     ],

@@ -1,5 +1,4 @@
 if (typeof window === "undefined"){
-    PlaneGameScene = require("../scene/plane_game_scene.js");
     SoundManager = require("../general/sound_manager.js");
     AfterMatchStats = require("../misc/after_match_stats.js");
     TeamCombatManager = require("../misc/team_combat_manager.js");
@@ -26,7 +25,6 @@ class Gamemode {
         this.tickInProgressLock = new Lock();
         this.lastTickTime = this.startTime;
 
-        this.scene = new PlaneGameScene(this);
         this.soundManager = new SoundManager(this);
         this.statsManager = new AfterMatchStats(this);
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
@@ -47,10 +45,6 @@ class Gamemode {
 
     runsLocally(){
         return false;
-    }
-
-    getScene(){
-        return this.scene;
     }
 
     getSoundManager(){

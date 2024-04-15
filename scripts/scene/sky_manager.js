@@ -14,6 +14,12 @@ class SkyManager {
     constructor(scene){
         this.cloudClusters = new NotSamLinkedList();
         this.scene = scene;
+        LOCAL_EVENT_HANDLER.addHandler("min_clouds_per_cluster", (eventDetails) => {
+            this.cloudClusters.clear();
+        });
+        LOCAL_EVENT_HANDLER.addHandler("max_clouds_per_cluster", (eventDetails) => {
+            this.cloudClusters.clear();
+        });
     }
 
     // TODO: Comments
@@ -76,23 +82,27 @@ class SkyManager {
         
         // Display the moon
         let moonPhase = PROGRAM_DATA["sky_generation"]["moon_phase"];
-        let moonColour = color(PROGRAM_DATA["sky_generation"]["moon_colour"]);
-        let moonDiameter = PROGRAM_DATA["sky_generation"]["moon_diameter"];
-        fill(moonColour);
-        let moonAngleDEG = fixDegrees(90 - 15 * currentHour); 
-        let moonAngleRadians = toRadians(moonAngleDEG);
-        let moonX = Math.cos(moonAngleRadians) * (screenWidth-moonDiameter)/2 + screenWidth/2;
-        let moonY = (Math.sin(moonAngleRadians) * (screenHeight-moonDiameter)/2 * -1) + screenHeight/2;
-        // Only display sun if up
-        if (moonY <= screenHeight/2){
-            circle(moonX, moonY, moonDiameter)
+        // Ignore if new moon
+        if (moonPhase != 4){
+            let moonColour = color(PROGRAM_DATA["sky_generation"]["moon_colour"]);
+            let moonDiameter = PROGRAM_DATA["sky_generation"]["moon_diameter"];
+            fill(moonColour);
+            let moonAngleDEG = fixDegrees(90 - 15 * currentHour); 
+            let moonAngleRadians = toRadians(moonAngleDEG);
+            let moonX = Math.cos(moonAngleRadians) * (screenWidth-moonDiameter)/2 + screenWidth/2;
+            let moonY = (Math.sin(moonAngleRadians) * (screenHeight-moonDiameter)/2 * -1) + screenHeight/2;
+            // Only display sun if up
+            if (moonY <= screenHeight/2){
+                circle(moonX, moonY, moonDiameter)
+            }
+            // Display the moon's shadow
+            fill(skyColour);
+            let shadowOffset = (-1 + 0.25 * moonPhase) * moonDiameter;
+            if (moonY <= screenWidth/2){
+                circle(moonX + shadowOffset, moonY, moonDiameter)
+            }      
         }
-        // Display the moon's shadow
-        fill(skyColour);
-        let shadowOffset = (-1 + 0.25 * moonPhase) * moonDiameter;
-        if (moonY <= screenWidth/2){
-            circle(moonX + shadowOffset, moonY, moonDiameter)
-        }
+
         strokeWeight(1);
     }
 
@@ -245,8 +255,9 @@ class CloudCluster {
         let bottomY = this.quadrantY * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"];
         let seed = this.quadrantX + 2 * this.quadrantY; // TODO: Come up with something better?
         let random = new SeededRandomizer(seed);
-        let numClouds = random.getIntInRangeInclusive(PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_clouds_per_cluster"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_clouds_per_cluster"]);
-        
+        let minClouds = PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_clouds_per_cluster"];
+        let maxClouds = PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_clouds_per_cluster"];
+        let numClouds = random.getIntInRangeInclusive(minClouds, maxClouds);
         // Create as many clouds as chosen
         for (let i = 0; i < numClouds; i++){
             let newCloudX = random.getIntInRangeExclusive(leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2, leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"] - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2);

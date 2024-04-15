@@ -1,7 +1,4 @@
-const PlaneGameScene = require("../scripts/scene/plane_game_scene.js");
 const Dogfight = require("../scripts/gamemodes/dogfight.js");
-const SoundManager = require("../scripts/general/sound_manager.js");
-const AfterMatchStats = require("../scripts/misc/after_match_stats.js");
 const TickScheduler = require("../scripts/misc/tick_scheduler.js");
 const Lock = require("../scripts/general/lock.js");
 const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
@@ -35,7 +32,7 @@ class ServerDogfight extends Dogfight {
         this.bulletPhysicsEnabled = dogfightJSON["bullet_physics_enabled"];
         this.planes = [];
         this.createPlanes(dogfightJSON);
-        this.scene.setEntities(this.planes);
+        this.teamCombatManager.setEntities(this.planes);
 
         this.tickScheduler = new TickScheduler(async () => { await this.tick(); }, PROGRAM_DATA["settings"]["ms_between_ticks"] / 2, Date.now());
         this.userInputLock = new Lock();
@@ -90,7 +87,7 @@ class ServerDogfight extends Dogfight {
         await this.tickInProgressLock.awaitUnlock(true);
 
         // Tick the scene
-        await this.scene.tick();
+        await this.teamCombatManager.tick();
         this.checkForEnd();
         this.numTicks++;
 

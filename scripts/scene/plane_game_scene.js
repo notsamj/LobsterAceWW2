@@ -82,13 +82,10 @@ class PlaneGameScene {
         Method Parameters:
             gamemode:
                 The gamemode using the scene
-            local:
-                Whether the scene is being run in a browser and being displayed
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(gamemode=null, local=false){
-        this.local = local;
+    constructor(gamemode=null){
         this.gamemode = gamemode;
         this.SkyManager = null;
         this.entities = new NotSamLinkedList();
@@ -310,16 +307,6 @@ class PlaneGameScene {
     }
 
     /*
-        Method Name: isLocal
-        Method Parameters: None
-        Method Description: Determines if an scene (instance not other copies) is present in the browser rather than on the NodeJS server 
-        Method Return: Boolean, true -> In a browser, false -> not in a browser (on a server)
-    */
-    isLocal(){
-        return this.local;
-    }
-
-    /*
         Method Name: areBulletPhysicsEnabled
         Method Parameters: None
         Method Description: Checks if bullet physics are enabled
@@ -339,18 +326,6 @@ class PlaneGameScene {
         return this.gamemode.getTeamCombatManager();
     }
 
-    /*
-        Method Name: forceUpdatePlanes
-        Method Parameters:
-            listOfPlaneObjects:
-                A list of all the plane json objects providing information on plane stats
-        Method Description: Forcefully updates all the planes
-        Method Return: void
-    */
-    forceUpdatePlanes(listOfPlaneObjects){
-        this.gamemode.getTeamCombatManager().forceUpdatePlanes(listOfPlaneObjects);
-    }
-    
     /*
         Method Name: getGoodToFollowEntities
         Method Parameters: None
@@ -383,11 +358,10 @@ class PlaneGameScene {
     */
     setEntities(entities){
         this.entities.clear();
-        this.gamemode.getTeamCombatManager().clear();
         for (let entity of entities){
             // TODO: This is somewhat ugly
             if (entity instanceof Plane || entity instanceof Bullet || entity instanceof Bomb || entity instanceof Building){
-                this.gamemode.getTeamCombatManager().addEntity(entity);
+                continue;
             }else{
                 this.addEntity(entity);
             }
@@ -507,7 +481,6 @@ class PlaneGameScene {
         for (let [entity, entityIndex] of this.entities){
             await entity.tick();
         }
-        await this.gamemode.getTeamCombatManager().tick();
         // Delete all dead buildings and bombs and other entities?
         this.entities.deleteWithCondition((entity) => { return entity.isDead(); });
     }

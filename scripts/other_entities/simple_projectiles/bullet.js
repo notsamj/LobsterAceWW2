@@ -196,16 +196,8 @@ class Bullet extends SimpleProjectile {
         Method Description: Sets the attributes of a bullet from a json representation
         Method Return: void
     */
-    fromJSON(jsonRepresentation, force=false){
-        //console.log(this.isDead(), force, jsonRepresentation)
-        // Don't overwrite a living bullet
-        // TODO: Local still kills bullets even without collision right?
-        if (!this.isDead() && !force){ 
-            return; 
-        }
-        // No need to taken info from a dead bullet
-        if (jsonRepresentation["dead"]){ return; }
-        this.dead = false;
+    fromJSON(jsonRepresentation){
+        this.dead = jsonRepresentation["dead"];
         this.startX = jsonRepresentation["start_x"];
         this.startY = jsonRepresentation["start_y"];
         this.spawnedTick = jsonRepresentation["spawned_tick"];

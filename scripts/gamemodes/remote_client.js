@@ -106,6 +106,7 @@ class RemoteClient extends ClientGamemode {
         this.updateCamera();
 
         // Tick the scene
+        await this.gamemode.getTeamCombatManager().tick();
         await this.gamemode.getScene().tick();
         this.gamemode.correctTicks();
 

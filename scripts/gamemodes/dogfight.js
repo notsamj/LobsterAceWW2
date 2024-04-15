@@ -28,7 +28,7 @@ class Dogfight extends Gamemode {
         this.lastTickTime = Date.now();
         // Update camera
         await this.tickInProgressLock.awaitUnlock(true);
-        await this.scene.tick();
+        await this.teamCombatManager.tick();
         this.numTicks++;
         this.checkForEnd();
         this.tickInProgressLock.unlock();

@@ -16,14 +16,17 @@ class LocalDogfight extends Dogfight {
         this.userEntity = null; // Needed so it can provided to the client later
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
         this.planes = [];
-        this.setup(dogfightJSON);
-        this.scene.enable();
+        this.dogfightJSON = dogfightJSON;
         this.isATestSession = this.isThisATestSession();
         this.client = null; // Placeholder
     }
 
-    setClient(client){
+    getScene(){ return this.client.getScene(); }
+
+    attachToClient(client){
         this.client = client;
+        this.setup(this.dogfightJSON);
+        this.getScene().enable();
     }
 
     getUserEntity(){
@@ -45,6 +48,7 @@ class LocalDogfight extends Dogfight {
         // Update camera
         this.client.updateCamera();
         await super.tick();
+        await this.getScene().tick();
     }
 
 
@@ -106,14 +110,14 @@ class LocalDogfight extends Dogfight {
             cam.setCenterY(middleY);
         }
         //scene.addPlane(this.userEntity);
-        this.scene.setFocusedEntity(this.userEntity);
+        this.getScene().setFocusedEntity(this.userEntity);
 
         // Add planes to the scene
-        this.scene.setEntities(this.planes);
+        this.teamCombatManager.setEntities(this.planes);
 
         // Add user entity to scene entities if its a camera
         if (this.userEntity instanceof SpectatorCamera){
-            this.scene.addEntity(this.userEntity);
+            this.getScene().addEntity(this.userEntity);
         }
     }
 
@@ -124,7 +128,7 @@ class LocalDogfight extends Dogfight {
         Method Return: void
     */
     display(){
-        this.scene.display();
+        this.getScene().display();
         if (!this.isRunning()){
             this.statsManager.display();
         }

@@ -28,16 +28,6 @@ class Entity {
     }
 
     /*
-        Method Name: isLocal
-        Method Parameters: None
-        Method Description: Determines if an entity (instance not other copies) is present in the browser rather than on the NodeJS server 
-        Method Return: Boolean, true -> In a browser, false -> not in a browser (on a server)
-    */
-    isLocal(){
-        return this.gamemode.isLocal();
-    }
-
-    /*
         Method Name: calculateInterpolatedCoordinates
         Method Parameters: None
         Method Description: Calculates the x and y coordinates of this object at the current moment

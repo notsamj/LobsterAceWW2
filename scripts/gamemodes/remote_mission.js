@@ -26,7 +26,9 @@ class RemoteMission extends Gamemode {
         this.teamCombatManager.disableCollisions();
     }
 
-    setClient(client){
+    getScene(){ return this.client.getScene(); }
+
+    attachToClient(client){
         this.client = client;
     }
 
@@ -68,7 +70,7 @@ class RemoteMission extends Gamemode {
 
         // Update plane general information
         for (let planeObject of planeData){
-            let plane = this.scene.getTeamCombatManager().getPlane(planeObject["basic"]["id"]);
+            let plane = this.teamCombatManager.getPlane(planeObject["basic"]["id"]);
             // This is more for campaign (because no planes are added in dogfight) but whateverrrrr
             if (plane == null){
                 this.addNewPlane(planeObject);
@@ -130,7 +132,7 @@ class RemoteMission extends Gamemode {
         }else{
             plane = BiasedCampaignBotBomberPlane.fromJSON(planeObject, this, false);
         }
-        this.scene.addPlane(plane);
+        this.teamCombatManager.addPlane(plane);
     }
 
     /*
@@ -140,7 +142,7 @@ class RemoteMission extends Gamemode {
         Method Return: void
     */
     display(){
-        this.scene.display();
+        this.getScene().display();
         if (this.isGameOver()){
             this.statsManager.display();
         }else if (this.isRunning()){
@@ -228,15 +230,15 @@ class RemoteMission extends Gamemode {
         }
 
         // Add planes to the scene
-        this.scene.setEntities(this.planes);
+        this.teamCombatManager.setEntities(this.planes);
 
         // If no user then add a freecam
         //console.log("Is user entity null?", this.userEntity)
         if (this.userEntity == null){
             this.userEntity = new SpectatorCamera(this, (missionObject["start_zone"]["attackers"]["x"] + missionObject["start_zone"]["defenders"]["x"])/2, (missionObject["start_zone"]["attackers"]["y"] + missionObject["start_zone"]["defenders"]["y"])/2);
-            this.scene.addEntity(this.userEntity);
+            this.getScene().addEntity(this.userEntity);
         }
-        this.scene.setFocusedEntity(this.userEntity);
+        this.getScene().setFocusedEntity(this.userEntity);
         this.startTime = state["start_time"];
         this.numTicks = state["num_ticks"];
         this.running = true;
