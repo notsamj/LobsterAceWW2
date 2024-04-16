@@ -4,6 +4,10 @@ if (typeof window === "undefined"){
     NotSamArrayList = require("../general/notsam_array_list.js");
     planeModelToAlliance = require("../general/helper_functions.js").planeModelToAlliance;
     AfterMatchStats = require("./after_match_stats.js");
+    Plane = require("../plane/plane.js");
+    Bomb = require("../other_entities/simple_projectiles/bomb.js");
+    Bullet = require("../other_entities/simple_projectiles/bullet.js");
+    Building = require("../other_entities/building.js");
 }
 /*
     Class Name: TeamCombatManager
