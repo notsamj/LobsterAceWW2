@@ -120,7 +120,9 @@ class Lock {
     */
     awaitUnlock(relock=false){
         if (this.ready){
-            this.lock();
+            if (relock){
+                this.lock();
+            }
             return;
         }
         let instance = this;
