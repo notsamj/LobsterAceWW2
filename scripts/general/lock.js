@@ -119,7 +119,10 @@ class Lock {
         Method Return: Promise
     */
     awaitUnlock(relock=false){
-        if (this.ready){ return; }
+        if (this.ready){
+            this.lock();
+            return;
+        }
         let instance = this;
         return new Promise((resolve, reject) => {
             instance.promiseUnlock.append({"resolve": resolve, "relock": relock});

@@ -123,12 +123,16 @@ class Mailbox {
         Method Return: JSON Object
     */
     async sendJSON(messageJSON, timeout=1000){
+        //let tempNumber = randomNumberInclusive(1,1000);
+        //console.log("Sending", tempNumber, messageJSON)
         if (this.awaiting){
             throw new Error("Mail sent with return address before previous response has returned: " + this.getName());
         }
         this.awaiting = true;
         messageJSON["mail_box"] = this.getName();
-        return await MessageResponse.sendAndReceiveJSON(this, messageJSON, timeout);
+        let result = await MessageResponse.sendAndReceiveJSON(this, messageJSON, timeout);
+        //console.log("Received", tempNumber);
+        return result;
     }
 
     /*

@@ -257,13 +257,16 @@ class ServerConnection {
     */
     async sendHeartBeat(){
         if (!this.heartBeatLock.isReady() || !this.isLoggedIn()){ return; }
+        //console.log("Sending from sendheartbeat", this.heartBeatLock.isLocked())
         await this.heartBeatLock.awaitUnlock(true);
+        //console.log("Now its locked?", this.heartBeatLock.isLocked())
         let response = await MAIL_SERVICE.sendJSON("heart_beat", { "action": "ping" });
         if (!response){
             MENU_MANAGER.addTemporaryMessage("Heartbeat failed.", "red", 10000);
             clearInterval(this.heartBeatInterval);
             this.setup = false;
         }
+        //console.log("Unlocking.....")
         this.heartBeatLock.unlock();
     }
 
