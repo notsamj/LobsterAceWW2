@@ -18,8 +18,22 @@ class LocalMission extends Mission {
         this.missionSetupJSON = missionSetupJSON;
     }
 
+    /*
+        Method Name: getScene
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: PlaneGameScene
+    */
     getScene(){ return this.client.getScene(); }
 
+    /*
+        Method Name: attachToClient
+        Method Parameters:
+            client:
+                A client object associated with this mission
+        Method Description: Attaches the client and sets up the game
+        Method Return: void
+    */
     attachToClient(client){
         this.client = client;
 
@@ -39,10 +53,22 @@ class LocalMission extends Mission {
         }
     }
 
+    /*
+        Method Name: getUserEntity
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Entity
+    */
     getUserEntity(){
         return this.userEntity;
     }
 
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Checks if the gamemode is run locally, true for local dogfight
+        Method Return: Boolean
+    */
     runsLocally(){
         return true;
     }

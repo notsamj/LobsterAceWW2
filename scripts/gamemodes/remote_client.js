@@ -1,4 +1,16 @@
-class RemoteClient extends ClientGamemode {
+/*
+    Class Name: RemoteClient
+    Description: A client for remote gamemodes
+*/
+class RemoteClient extends GamemodeClient {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            gamemode:
+                A gamemode that is run remotely
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(gamemode){
         super(gamemode);
         this.asyncUpdateManager = new AsyncUpdateManager();
@@ -11,10 +23,22 @@ class RemoteClient extends ClientGamemode {
         this.gamemode.startUp(this, this.translator);
     }
 
+    /*
+        Method Name: getAsyncUpdateManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: AsyncUpdateManager
+    */
     getAsyncUpdateManager(){
         return this.asyncUpdateManager;
     }
 
+    /*
+        Method Name: getLastTickTime
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Integer
+    */
     getLastTickTime(){
         return this.lastTickTime;
     }
@@ -34,10 +58,6 @@ class RemoteClient extends ClientGamemode {
         Method Return: Boolean
     */
     isPaused(){ return false; }
-
-    // TODO: Comments
-    pause(){}
-    unpause(){}
 
     /*
         Method Name: end
@@ -119,11 +139,10 @@ class RemoteClient extends ClientGamemode {
     }
 
     /*
-        Method Name: updateCamera
+        Method Name: requestStateFromServer
         Method Parameters: None
-        Method Description: Ensures the scene is focused on either a camera or a living user plane
+        Method Description: Requests a state from the server
         Method Return: void
-        TODO: Merge with other update Camera methods
     */
     async requestStateFromServer(){
         await this.stateLock.awaitUnlock(true);

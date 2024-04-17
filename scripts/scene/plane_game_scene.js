@@ -77,7 +77,7 @@ class PlaneGameScene {
     */
     constructor(gamemode=null){
         this.gamemode = gamemode;
-        this.SkyManager = null;
+        this.skyManager = new SkyManager(this);
         this.entities = new NotSamLinkedList();
         this.focusedEntity = null;
         this.ticksEnabled = true;
@@ -266,12 +266,14 @@ class PlaneGameScene {
         return this.gamemode.getSoundManager();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getSkyManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: SkyManager
+    */
     getSkyManager(){
-        if (this.SkyManager == null){
-            this.SkyManager = new SkyManager(this);
-        }
-        return this.SkyManager;
+        return this.skyManager;
     }
 
     /*

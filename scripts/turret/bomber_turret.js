@@ -34,10 +34,22 @@ class BomberTurret extends Turret {
         this.model = plane.getPlaneClass();
     }
 
+    /*
+        Method Name: isAutonomous
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: Boolean
+    */
     isAutonomous(){
         return this.plane.isAutonomous();
     }
 
+    /*
+        Method Name: getGamemode
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: Gamemode
+    */
     getGamemode(){
         return this.plane.getGamemode();
     }

@@ -39,7 +39,12 @@ class Bullet extends SimpleProjectile {
         this.shooterID = shooterID;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getDamage
+        Method Parameters: None
+        Method Description: Determines the damage of the bullet
+        Method Return: Number
+    */
     getDamage(){
         return PROGRAM_DATA["plane_data"][this.shooterClass]["bullet_damage"];
     }

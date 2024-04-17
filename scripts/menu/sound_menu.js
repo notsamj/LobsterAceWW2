@@ -74,8 +74,6 @@ class SoundMenu extends Menu {
         let soundScaleX = soundLabelX + soundLabelXSize;
         let soundScaleY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
-        // TODO: Like rectangle getX() if x is function...
-
         // Components
 
         // Sound Name

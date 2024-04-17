@@ -3,7 +3,13 @@
     Description: A client for participating in a Mission run by a server.
 */
 class RemoteMissionClient extends RemoteClient {
-       constructor(){
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
+    constructor(){
         super(new RemoteMission());
     }
 }

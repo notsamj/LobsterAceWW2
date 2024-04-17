@@ -30,50 +30,27 @@ class PlaneRadar extends Radar {
         Method Return: void
     */
     update(){
+        // If using NodeJS do not waste time with this code
+        if (!this.plane.isAutonomous()){ return; }
+        
         this.radarData = this.resetRadar();
         // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
         for (let plane of this.plane.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), "#db655c");
+                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyFighterColour, this.fighterWeight);
+            }else if (plane instanceof FighterPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
+                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyFighterColour, this.fighterWeight);
             }else if (plane instanceof BomberPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), "#a6140a");
+                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyBomberColour, this.bomberWeight);
             }else if (plane instanceof BomberPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), "#26940a");
+                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyBomberColour, this.bomberWeight);
             }
         }
 
         // Add all buildings to radar
         for (let [building, bI] of this.plane.getGamemode().getTeamCombatManager().getBuildings()){
             if (building.isDead()){ continue; }
-            this.placeOnRadar(building.getCenterX(), building.getCenterY(), "#919191");
-        }
-    }
-
-    /*
-        Method Name: placeOnRadar
-        Method Parameters:
-            objectX:
-                The x location of an object
-            objectY:
-                The y location of an object
-            colour:
-                Colour of object placed on radar
-        Method Description: Places an object on the radar
-        Method Return: void
-    */
-    placeOnRadar(objectX, objectY, colour){
-        let myX = this.entity.getX();
-        let myY = this.entity.getY();
-        let xOffsetAmount = Math.min(Math.floor(Math.abs(myX-objectX)/this.blipDistance), (this.size - 2)/2);
-        let yOffsetAmount = Math.min(Math.floor(Math.abs(myY-objectY)/this.blipDistance), (this.size - 2)/2);
-        if (objectX < myX && objectY >= myY){
-            this.radarData[this.size/2-1-xOffsetAmount][this.size/2-1-yOffsetAmount] = colour;
-        }else if (objectX < myX && objectY < myY){
-            this.radarData[this.size/2-1-xOffsetAmount][this.size/2+yOffsetAmount] = colour;
-        }else if (objectX >= myX && objectY < myY){
-            this.radarData[this.size/2+xOffsetAmount][this.size/2+yOffsetAmount] = colour;
-        }else{ // if (objectX >= myX && objectY >= myY)
-            this.radarData[this.size/2+xOffsetAmount][this.size/2-1-yOffsetAmount] = colour;
+            this.placeOnRadar(building.getCenterX(), building.getCenterY(), this.buildingColour, this.buildingWeight);
         }
     }
 }

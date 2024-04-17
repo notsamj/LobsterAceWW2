@@ -65,18 +65,42 @@ class Plane extends Entity {
         this.autonomous = value;
     }
 
+    /*
+        Method Name: isAutonomous
+        Method Parameters: None
+        Method Description: Checks if the plane is autonomous
+        Method Return: Boolean
+    */
     isAutonomous(){
         return this.autonomous;
     }
 
+    /*
+        Method Name: getTeamCombatManager
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: TeamCombatManager
+    */
     getTeamCombatManager(){
         return this.gamemode.getTeamCombatManager();
     }
 
+    /*
+        Method Name: getScene
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: PlaneGameScene
+    */
     getScene(){
         return this.gamemode.getScene();
     }
 
+    /*
+        Method Name: getGamemode
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Gamemode
+    */
     getGamemode(){
         return this.gamemode;
     }
@@ -374,7 +398,12 @@ class Plane extends Entity {
         return this.maxSpeed;
     }
 
-    // TODO: Comments
+    /*
+        Method Name: hasNoControl
+        Method Parameters: None
+        Method Description: Determines if the plane can control itself
+        Method Return: Boolean
+    */
     hasNoControl(){
         return this.throttle == 0;
     }

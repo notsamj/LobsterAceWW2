@@ -214,12 +214,6 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             }
             // Make sure you're at top speed heading to the bomber!
             this.decisions["throttle"] = 1;
-            // TODO: Commented code is bad I think because as above comment says...
-            /*if ((this.getX() > bomber.getX() && bomber.isFacingRight()) || (this.getX() < bomber.getX() && !bomber.isFacingRight())){
-                this.decisions["throttle"] = 1;
-            }else{
-                this.decisions["throttle"] = -1;
-            }*/
             return;
         }
         // Else close to the bomber

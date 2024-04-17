@@ -30,7 +30,7 @@ class MainMenu extends Menu {
         this.components.push(new AnimatedCloudBackground())
 
         // Dog Fight
-        let dogFightButtonY = (innerHeight) => { return 927 - gapSize; };
+        let dogFightButtonY = (innerHeight) => { return innerHeight - gapSize; };
         this.components.push(new RectangleButton("Dogfight", "#3bc44b", "#e6f5f4", buttonX, dogFightButtonY, buttonSizeX, buttonSizeY, (menuInstance) => {
             MENU_MANAGER.switchTo("dogfight");
         }));
@@ -42,13 +42,13 @@ class MainMenu extends Menu {
         this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.\nScroll down for controls.", "black", 0, infoY, infoXSize, infoYSize));
 
         // Campaign
-        let campaignButtonY = dogFightButtonY() - buttonSizeY - gapSize;
+        let campaignButtonY = (innerHeight) => { return dogFightButtonY(innerHeight) - buttonSizeY - gapSize; }
         this.components.push(new RectangleButton("Campaign", "#3bc44b", "#e6f5f4", buttonX, campaignButtonY, buttonSizeX, buttonSizeY, (menuInstance) => {
             MENU_MANAGER.switchTo("campaign");
         }));
 
         // Multiplayer
-        let multiplayerButtonY = campaignButtonY - buttonSizeY - gapSize;
+        let multiplayerButtonY = (innerHeight) => { return campaignButtonY(innerHeight) - buttonSizeY - gapSize; }
         let multiplayerButton = new RectangleButton("Multiplayer", "#3bc44b", "#e6f5f4", buttonX, multiplayerButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
             MENU_MANAGER.switchTo("multiplayer");
         });
@@ -60,13 +60,13 @@ class MainMenu extends Menu {
         }
 
         // Sound
-        let soundButtonY = multiplayerButtonY - buttonSizeY - gapSize;
+        let soundButtonY = (innerHeight) => { return multiplayerButtonY(innerHeight) - buttonSizeY - gapSize; }
         this.components.push(new RectangleButton("Sound", "#3bc44b", "#e6f5f4", buttonX, soundButtonY, buttonSizeX, buttonSizeY, async (menuInstance) => {
             MENU_MANAGER.switchTo("sound");
         }));
 
         // Extra Settings
-        let extraSettingsY = soundButtonY - buttonSizeY - gapSize;
+        let extraSettingsY = (innerHeight) => { return soundButtonY(innerHeight) - buttonSizeY - gapSize; }
         this.components.push(new RectangleButton("Settings", "#3bc44b", "#e6f5f4", buttonX, extraSettingsY, buttonSizeX, buttonSizeY, async (menuInstance) => {
             MENU_MANAGER.switchTo("extraSettings");
         }));

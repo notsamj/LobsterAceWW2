@@ -1,3 +1,4 @@
+// If using NodeJS -> Load some required classes
 if (typeof window === "undefined"){
     SoundManager = require("../general/sound_manager.js");
     AfterMatchStats = require("../misc/after_match_stats.js");
@@ -21,7 +22,7 @@ class Gamemode {
         this.winner = null;
         this.numTicks = 0;
         this.startTime = Date.now();
-        this.lastTickTime = Date.now();
+        this.refreshLastTickTime();
         this.tickInProgressLock = new Lock();
         this.lastTickTime = this.startTime;
 
@@ -34,6 +35,17 @@ class Gamemode {
     }
 
     /*
+
+        Method Name: refreshLastTickTime
+        Method Parameters: None
+        Method Description: Record a tick as occuring now
+        Method Return: void
+    */
+    refreshLastTickTime(){
+        this.lastTickTime = Date.now();
+    }
+
+    /*
         Method Name: areBulletPhysicsEnabled
         Method Parameters: None
         Method Description: Provides information about whether bullet physics are enabled in the game
@@ -43,18 +55,42 @@ class Gamemode {
         return this.bulletPhysicsEnabled;
     }
 
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Checks if the gamemode is run locally, false by default
+        Method Return: Boolean
+    */
     runsLocally(){
         return false;
     }
 
+    /*
+        Method Name: getSoundManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: SoundManager
+    */
     getSoundManager(){
         return this.soundManager;
     }
 
+    /*
+        Method Name: getStatsManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: AfterMatchStats
+    */
     getStatsManager(){
         return this.statsManager;
     }
 
+    /*
+        Method Name: getTeamCombatManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: TeamCombatManager
+    */
     getTeamCombatManager(){
         return this.teamCombatManager;
     }
@@ -130,29 +166,6 @@ class Gamemode {
     }
 
     /*
-        Method Name: pause
-        Method Parameters: None
-        Method Description: Puases the game
-        Method Return: void
-    */
-    pause(){
-        this.paused = true;
-    }
-
-    /*
-        Method Name: unpause
-        Method Parameters: None
-        Method Description: Unpauses the game and corrects the ticks to prevent many occuring in quick sucession
-        Method Return: void
-    */
-    unpause(){
-        this.correctTicks();
-        this.lastTickTime = Date.now();
-        //this.numTicks = Math.max(0, this.numTicks-1);
-        this.paused = false;
-    }
-
-    /*
         Method Name: isPaused
         Method Parameters: None
         Method Description: Determines if the game is paused
@@ -170,7 +183,12 @@ class Gamemode {
         return this.running && !this.isGameOver();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: isGameOver
+        Method Parameters: None
+        Method Description: Checks if the game mode has ended
+        Method Return: Boolean
+    */
     isGameOver(){
         return this.gameOver;
     }
@@ -194,6 +212,7 @@ class Gamemode {
     isRunningATestSession(){ return false; }
 
     // Abstract Methods
+
     display(){ throw new Error("This method is expected to be overriden by a sub-class."); }
 }
 // If using NodeJS then export the class

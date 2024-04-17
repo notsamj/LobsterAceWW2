@@ -52,7 +52,7 @@ class Lock {
     }
 
     /*
-        Method Name: TODO
+        Method Name: isLocked
         Method Parameters: None
         Method Description: Determines if the lock is currently locked
         Method Return: Boolean, true if locked, false if unlocked

@@ -35,6 +35,24 @@ class NotSamArrayList {
     }
 
     /*
+        Method Name: countCondition
+        Method Parameters:
+            conditionFunction:
+                A function taking one parameter and returning true or flase
+        Method Description: Counts the number of elements satisfying a condition
+        Method Return: Integer
+    */
+    countCondition(conditionFunction){
+        let count = 0;
+        for (let i = 0; i < this.length; i++){
+            if (conditionFunction(this.array[i])){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /*
         Method Name: clear
         Method Parameters: None
         Method Description: Effectively clear the array of elements (not in terms of actual storage use)

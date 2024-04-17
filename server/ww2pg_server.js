@@ -10,7 +10,6 @@ const ServerMission = require("./server_mission.js");
 /*
     Class Name: WW2PGServer
     Description: A server for hosting games involving World War 2 Plane Game
-    TODO: Comments
 */
 class WW2PGServer {
     /*
@@ -36,6 +35,14 @@ class WW2PGServer {
         });
     }
 
+    /*
+        Method Name: sendAllWithCondition
+        Method Parameters:
+            data:
+                A JSON object to send
+        Method Description: Send a JSON object too all clients who satisfy a provided conditionFunction
+        Method Return: void
+    */
     async sendAllWithCondition(data, conditionFunction){
         for (let [client, clientIndex] of this.clients){
             if (conditionFunction(client)){
@@ -98,8 +105,10 @@ class WW2PGServer {
 
     /*
         Method Name: hasClient
-        Method Parameters: None
-        Method Description: TODO
+        Method Parameters:
+            username:
+                Username of a client
+        Method Description: Checks if a client exists
         Method Return: Boolean, true -> the client exists, false -> the client does not exist
     */
     async hasClient(username){
@@ -121,7 +130,11 @@ class WW2PGServer {
 
     /*
         Method Name: sendToGame
-        Method Parameters: TODO
+        Method Parameters:
+            username:
+                Username of the client to send to the game
+            gameType:
+                The type of game to send them to 
         Method Description: Sends a client to the game from the lobby
         Method Return: void
     */
@@ -500,13 +513,15 @@ class Client {
         Method Return: void
     */
     sendFromLobby(){
-        console.log("Sending go from lobby to", this.username)
+        //console.log("Sending go from lobby to", this.username)
         this.sendJSON({"mail_box": "lobby_end", "message": "lobby_ended"});
     }
 
     /*
         Method Name: sendToGame
-        Method Parameters: TODO
+        Method Parameters:
+            gameType:
+                The type of game to send the client to
         Method Description: Moves a player to the game state and sends them a message informing them
         Method Return: void
     */
@@ -691,7 +706,7 @@ class GameHandler {
     /*
         Method Name: startGame
         Method Parameters: None
-        Method Description: Starts a server dogfight TODO: Mission aswell
+        Method Description: Starts a server gamemode
         Method Return: void
     */
     async startGame(){
@@ -854,10 +869,24 @@ class Lobby {
         this.running = true;
     }
 
+    /*
+        Method Name: getGamemodeSetup
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: GamemodeSetup
+    */
     getGamemodeSetup(){
         return this.gamemodeSetup;
     }
 
+    /*
+        Method Name: sendAllUsers
+        Method Parameters:
+            messageJSON:
+                A JSON object to send
+        Method Description: Sends a json object to all users
+        Method Return: void
+    */
     async sendAllUsers(messageJSON){
         for (let [playerName, playerIndex] of this.participants){
             let client = await SERVER.findClient(playerName);
@@ -866,6 +895,14 @@ class Lobby {
         }
     }
 
+    /*
+        Method Name: sendAllButHost
+        Method Parameters:
+            messageJSON:
+                A JSon object to send
+        Method Description: Sends a message to all users except the host
+        Method Return: void
+    */
     async sendAllButHost(messageJSON){
         for (let [playerName, playerIndex] of this.participants){
             if (playerName == this.host){ continue; }
@@ -920,14 +957,16 @@ class Lobby {
         for (let [playerName, playerIndex] of this.participants){
             SERVER.sendToGame(playerName, this.getType());
         }
-        let details = this.gamemodeSetup.getDetails(this.participants); // TODO
+        let details = this.gamemodeSetup.getDetails(this.participants);
         this.running = false;
         return details;
     }
 
     /*
         Method Name: switchGamemode
-        Method Parameters: TODO
+        Method Parameters:
+            newGameModeName:
+                The name of the new gamemode
         Method Description: Changes the game mode of lobby
         Method Return: void
     */
@@ -943,7 +982,9 @@ class Lobby {
 
     /*
         Method Name: switchMission
-        Method Parameters: TODO
+        Method Parameters:
+            newMissionID:
+                The ID of the new mission
         Method Description: Changes the game mode of lobby
         Method Return: void
     */
@@ -1059,6 +1100,12 @@ class DogfightSetup extends GamemodeSetup {
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
     }
 
+    /*
+        Method Name: getType
+        Method Parameters: None
+        Method Description: Gets the type of gamemode setup
+        Method Return: String
+    */
     getType(){
         return "dogfight";
     }
@@ -1142,7 +1189,9 @@ class DogfightSetup extends GamemodeSetup {
 class MissionSetup extends GamemodeSetup {
     /*
         Method Name: constructor
-        Method Parameters: TODO
+        Method Parameters:
+            lobby:
+                A lobby object
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -1156,20 +1205,50 @@ class MissionSetup extends GamemodeSetup {
         this.bulletPhysicsEnabled = PROGRAM_DATA["settings"]["use_physics_bullets"];
     }
 
+    /*
+        Method Name: getMission
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: JSON Object
+    */
     getMission(){
         return this.mission;
     }
 
+    /*
+        Method Name: create
+        Method Parameters:
+            gameDetails:
+                A JSON obect with details about the mission
+            gameHandler:
+                A game handler obejct
+        Method Description: Creates a new ServerMission
+        Method Return: ServerMission
+    */
     create(gameDetails, gameHandler){
         return new ServerMission(gameDetails, gameHandler, SERVER);
     }
 
+    /*
+        Method Name: switchMission
+        Method Parameters:
+            newMissionID:
+                The id of the new mission
+        Method Description: Switches which mission is being setup
+        Method Return: void
+    */
     switchMission(newMissionID){
-        console.log("Switching to", newMissionID, PROGRAM_DATA["missions"][newMissionID])
+        //console.log("Switching to", newMissionID, PROGRAM_DATA["missions"][newMissionID])
         this.mission = PROGRAM_DATA["missions"][newMissionID];
         this.resetUserType();
     }
 
+    /*
+        Method Name: getType
+        Method Parameters: None
+        Method Description: Gets the type of gamemode
+        Method Return: String
+    */
     getType(){
         return "mission";
     }
@@ -1227,6 +1306,12 @@ class MissionSetup extends GamemodeSetup {
         this.bulletPhysicsEnabled = newSettingsJSON["bullet_physics_enabled"];
     }
 
+    /*
+        Method Name: resetUserType
+        Method Parameters: None
+        Method Description: Tells a user to reset their participant type
+        Method Return: void
+    */
     resetUserType(){
         this.participantTypes = {};
         this.lobby.sendAllButHost({"mail_box": "reset_participant_type", "new_mission_id": this.mission["id"]});

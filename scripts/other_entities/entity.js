@@ -23,6 +23,12 @@ class Entity {
         this.lastInterpolatedFrame = -1;
     }
 
+    /*
+        Method Name: getGamemode
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Gamemode
+    */
     getGamemode(){
         return this.gamemode;
     }

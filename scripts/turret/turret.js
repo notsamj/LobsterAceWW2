@@ -43,15 +43,38 @@ class Turret {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: loadImportantData
+        Method Parameters:
+            rep:
+                A json representation of the turret
+        Method Description: Loads information from the json representation
+        Method Return: void
+    */
     loadImportantData(rep){
         this.shootCD.setTicksLeft(rep["shoot_cd"]);
     }
 
+    /*
+        Method Name: loadDecisions
+        Method Parameters:
+            rep:
+                A json representation of the turret
+        Method Description: Loads decisions from the json representation
+        Method Return: void
+    */
     loadDecisions(rep){
         this.decisions = rep["decisions"];
     }
 
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of the turret
+        Method Description: Loads information from the json representation on first creation
+        Method Return: void
+    */
     initFromJSON(rep){
         this.loadImportantData(rep);
         this.loadDecisions(rep);

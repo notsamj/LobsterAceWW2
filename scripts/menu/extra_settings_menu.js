@@ -77,6 +77,20 @@ class ExtraSettingsMenu extends Menu {
         }
     }
 
+    /*
+        Method Name: createOnOffButton
+        Method Parameters:
+            setting:
+                A JSON object with information about a setting
+            settingModifierButtonX:
+                The x coordinate of the setting modifier button
+            settingModifierButtonY:
+                The y coordinate of the setting modifier button
+            settingModifierButtonSize:
+                The size of the setting modifier button
+        Method Description: Creates an On/Off button
+        Method Return: void
+    */
     createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
         let settingName = setting["name"];
         let settingPath = setting["path"];
@@ -96,6 +110,20 @@ class ExtraSettingsMenu extends Menu {
         }));
     }
 
+    /*
+        Method Name: createSlider
+        Method Parameters:
+            setting:
+                A JSON object with information about a setting
+            settingModifierButtonX:
+                The x coordinate of the setting modifier button
+            settingModifierButtonY:
+                The y coordinate of the setting modifier button
+            settingModifierButtonSize:
+                The size of the setting modifier button
+        Method Description: Creates a quantity slider user interface component
+        Method Return: void
+    */
     createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
         let quantitySlideXSize = 300;
         let settingName = setting["name"];

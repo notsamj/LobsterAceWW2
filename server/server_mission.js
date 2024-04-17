@@ -6,14 +6,20 @@ const helperFunctions = require("../scripts/general/helper_functions.js");
 const Mission = require("../scripts/gamemodes/mission.js");
 const PROGRAM_DATA = require("../data/data_json.js");
 const AsyncUpdateManager = require("../scripts/general/async_update_manager.js");
-// TODO: Comments
+/*
+    Class Name: ServerMisson
+    Description: Subclass of Mission meant for a mission running on a server
+*/
 class ServerMisson extends Mission {
     /*
         Method Name: constructor
         Method Parameters:
             missionSetupJSON:
                 A json object with information on the settings of a dogfight
-            TODO
+            gameHandler:
+                A gamehandler object
+            serverObject:
+                A WW2PGServer object
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -33,6 +39,12 @@ class ServerMisson extends Mission {
         this.running = true;
     }
 
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Determines if the Mission runs locally
+        Method Return: Boolean
+    */
     runsLocally(){
         return true;
     }

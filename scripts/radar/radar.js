@@ -22,8 +22,20 @@ class Radar {
         this.entity = entity;
         this.blipSize = PROGRAM_DATA["radar"]["blip_size"];
         this.radarOutline = getImage("radar_outline");
-        this.blipDistance = PROGRAM_DATA["radar"]["blip_distance"];
+        this.distanceMultiplierA = PROGRAM_DATA["radar"]["distance_multiplier_a"];
+        this.logConstant = Math.log(PROGRAM_DATA["radar"]["base_distance"]);
+        this.borderWidth = PROGRAM_DATA["radar"]["border_width"];
         this.radarData = this.resetRadar();
+        
+        this.fighterWeight = PROGRAM_DATA["radar"]["fighter_weight"];
+        this.bomberWeight = PROGRAM_DATA["radar"]["bomber_weight"];
+        this.buildingWeight = PROGRAM_DATA["radar"]["building_weight"];
+
+        this.friendlyFighterColour = PROGRAM_DATA["radar"]["friendly_fighter_colour"];
+        this.enemyFighterColour = PROGRAM_DATA["radar"]["enemy_fighter_colour"];
+        this.friendlyBomberColour = PROGRAM_DATA["radar"]["friendly_bomber_colour"];
+        this.enemyBomberColour = PROGRAM_DATA["radar"]["enemy_bomber_colour"];
+        this.buildingColour = PROGRAM_DATA["radar"]["building_colour"];
     }
 
     /*
@@ -49,8 +61,8 @@ class Radar {
     /*
         Method Name: drawBlip
         Method Parameters:
-            colour:
-                The colour of the blip
+            blipData:
+                Data about a blip, JSON Object
             screenX:
                 x location to draw the blip
             screenY:
@@ -58,8 +70,15 @@ class Radar {
         Method Description: Draw a blip on the screen
         Method Return: void
     */
-    drawBlip(colour, screenX, screenY){
-        fill(colour);
+    drawBlip(blipData, screenX, screenY){
+        let bestBlipObject = null;
+        for (let blipObject of blipData){
+            if (bestBlipObject == null || bestBlipObject["weight"] < blipObject["weight"]){
+                bestBlipObject = blipObject;
+            }
+        }
+        let blipColour = color(bestBlipObject["colour"]);
+        fill(blipColour);
         rect(screenX, screenY, this.blipSize, this.blipSize);
     }
 
@@ -71,11 +90,10 @@ class Radar {
     */
     display(){
         drawingContext.drawImage(this.radarOutline, this.getScreenX(), this.getScreenY());
-        let borderWidth = PROGRAM_DATA["radar"]["border_width"];
         for (let x = 0; x < this.size; x++){
             for (let y = 0; y < this.size; y++){
-                if (this.radarData[x][y] == null){ continue; }
-                this.drawBlip(this.radarData[x][y], this.getScreenX() + borderWidth + this.blipSize * x, this.getScreenY() + borderWidth + this.blipSize * y);
+                if (this.radarData[x][y].length == 0){ continue; }
+                this.drawBlip(this.radarData[x][y], this.getScreenX() + this.borderWidth + this.blipSize * x, this.getScreenY() + this.borderWidth + this.blipSize * y);
             }
         }
     }
@@ -91,16 +109,82 @@ class Radar {
         for (let i = 0; i < this.size; i++){
             let newRow = [];
             for (let j = 0; j < this.size; j++){
-                newRow.push(null);
+                newRow.push([]);
             }
             array2D.push(newRow);
         }
         return array2D;
     }
 
+    /*
+        Method Name: placeOnRadar
+        Method Parameters:
+            objectX:
+                The x location of an object
+            objectY:
+                The y location of an object
+            colour:
+                Colour of object placed on radar
+            weight:
+                The importance of the object
+        Method Description: Places an object on the radar
+        Method Return: void
+    */
+    placeOnRadar(objectX, objectY, colour, weight=1){
+        let myX = this.entity.getX();
+        let myY = this.entity.getY();
+        let xDistance = Math.abs(myX-objectX);
+        let yDistance = Math.abs(myY-objectY);
+        let adjustedXDistance = xDistance / this.distanceMultiplierA;
+        let adjustedYDistance = yDistance / this.distanceMultiplierA;
+        let logX = Math.log(adjustedXDistance);
+        let logY = Math.log(adjustedYDistance);
+        let xOffsetAmount = Math.min(Math.floor(Math.log(adjustedXDistance) / this.logConstant), (this.size - 2)/2);
+        let yOffsetAmount = Math.min(Math.floor(Math.log(adjustedYDistance) / this.logConstant), (this.size - 2)/2);
+        // If distance is low it's a special case
+        if (xDistance == 0 || logX < 0){
+            xOffsetAmount = 0;
+        }
+
+        // If distance is low it's a special case
+        if (yDistance == 0 || logY < 0){
+            yOffsetAmount = 0;
+        }
+
+        let x;
+        let y;
+
+        // Determine x
+        if (objectX < myX){
+            x = this.size/2-1-xOffsetAmount;
+        }else{ // if (objectX >= myX
+            x = this.size/2+xOffsetAmount;
+        }
+
+        // Determine y
+        if (objectY < myY){
+            y = this.size/2+yOffsetAmount;
+        }else{ // if (objectY >= myY
+            y = this.size/2-1-yOffsetAmount;
+        }
+
+        // Check position for this colour already
+        let alreadyPresent = false;
+        for (let blipObject of this.radarData[x][y]){
+            if (blipObject["colour"] == colour){
+                blipObject["weight"] += weight;
+                alreadyPresent = true;
+                break;
+            }
+        }
+        // If not present already, add
+        if (!alreadyPresent){
+            this.radarData[x][y].push({"colour": colour, "weight": weight});
+        }
+    }
+
     // Abstract
     update(){}
-    placeOnRadar(enemyX, enemyY){}
 }
 
 // If using Node JS -> Export the class

@@ -26,16 +26,30 @@ class RemoteMission extends Gamemode {
         this.teamCombatManager.disableCollisions();
     }
 
+    /*
+        Method Name: getScene
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: PlaneGameScene
+    */
     getScene(){ return this.client.getScene(); }
 
-    attachToClient(client){
-        this.client = client;
-    }
-
+    /*
+        Method Name: getUserEntity
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Entity
+    */
     getUserEntity(){
         return this.userEntity;
     }
 
+    /*
+        Method Name: getLastTickTime
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: Integer
+    */
     getLastTickTime(){
         return this.client.getLastTickTime();
     }
@@ -187,8 +201,10 @@ class RemoteMission extends Gamemode {
     /*
         Method Name: startUp
         Method Parameters:
-            state:
-                Starting state
+            client:
+                A client controlling the remote dogfight
+            translator:
+                A translator for communicating with the server
         Method Description: Prepares the game mode from a state
         Method Return: void
     */

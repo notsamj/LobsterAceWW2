@@ -49,17 +49,29 @@ class TeamCombatManager {
     setEntities(entities){
         this.clear();
         for (let entity of entities){
-            // TODO: This is somewhat ugly
+            // Add only appropriate entities
             if (entity instanceof Plane || entity instanceof Bullet || entity instanceof Bomb || entity instanceof Building){
                 this.addEntity(entity);
             }
         }
     }
 
+    /*
+        Method Name: hasCollisionsDisabled
+        Method Parameters: None
+        Method Description: Checks if collisions are disabled
+        Method Return: Boolean
+    */
     hasCollisionsDisabled(){
         return this.collisionsDisabled;
     }
 
+    /*
+        Method Name: disableCollisions
+        Method Parameters: None
+        Method Description: Disables collisions
+        Method Return: void
+    */
     disableCollisions(){
         this.collisionsDisabled = true;
     }
@@ -472,11 +484,11 @@ class TeamCombatManager {
     getNumberOfEntities(){
         let count = 0;
         for (let team of this.teams){
-            count += this.planes[team].getLength();
-            count += this.bullets[team].getLength();
+            count += this.planes[team].countCondition((plane) => {return plane.isAlive();});
+            count += this.bullets[team].countCondition((bullet) => {return bullet.isAlive();});
         }
-        count += this.bombs.getLength();
-        count += this.buildings.getLength();
+        count += this.bombs.countCondition((bomb) => {return bomb.isAlive();});
+        count += this.buildings.countCondition((building) => {return building.isAlive();});
         return count;
     }
 
@@ -752,7 +764,7 @@ class TeamCombatManager {
                 this.bombs.get(index).fromJSON(bombJSON, false);
             }
         }
-    } m
+    }
     /*
         Method Name: fromBulletJSON
         Method Parameters:

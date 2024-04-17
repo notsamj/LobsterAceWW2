@@ -82,7 +82,7 @@ class Mission extends Gamemode {
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks() || this.isPaused()){ return; }
         await this.tickInProgressLock.awaitUnlock(true);
-        this.lastTickTime = Date.now();
+        this.refreshLastTickTime();
         this.attackerSpawnLock.tick();
         this.defenderSpawnLock.tick();
         await this.teamCombatManager.tick();
@@ -199,12 +199,26 @@ class Mission extends Gamemode {
         }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getSideDifficulty
+        Method Parameters:
+            side:
+                Either allies or axis (String)
+        Method Description: Checks the difficulty of planes on a given side/team
+        Method Return: String
+    */
     getSideDifficulty(side){
-        return side == this.missionObject["attackers"] ? this.getAttackerDifficulty() : this.getDefenderDifficulty();
+        return side == "attackers" ? this.getAttackerDifficulty() : this.getDefenderDifficulty();
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getAllianceFromSide
+        Method Parameters:
+            side:
+                Either allies or axis (String)
+        Method Description: Checks the alliance of planes on a given side/team
+        Method Return: String
+    */
     getAllianceFromSide(side){
         return this.missionObject[side];
     }
@@ -325,7 +339,7 @@ class Mission extends Gamemode {
             userList:
                 List of users and their planes
         Method Description: Creates all the planes at the start of the game
-        Method Return: TODO
+        Method Return: List of planes
     */
     createPlanes(userList){
     	let planes = [];

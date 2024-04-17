@@ -40,7 +40,6 @@ class FighterPlane extends Plane {
         // This is always local being received from the server
         this.health = rep["basic"]["health"];
         this.dead = rep["basic"]["dead"];
-        // Pretty sure don't need this TODO this.decisions = rep["decisions"];
         this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
     }
 

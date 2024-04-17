@@ -23,7 +23,12 @@ class FrameRateCounter {
         for (let i = 0; i < maxFPS; i++){ this.frameTimes.push(0); }
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getFrameIndex
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Integer
+    */
     getFrameIndex(){
         return this.frameIndex;
     }

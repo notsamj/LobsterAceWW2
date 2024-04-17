@@ -167,8 +167,7 @@ class Building extends Entity {
 
     /*
         Method Name: touchesRegion
-        Method Parameters: None
-        Method Description:
+        Method Parameters: 
             lX:
                 Left x of screen in gamemode coordinates
             rX:
@@ -177,7 +176,8 @@ class Building extends Entity {
                 Bottom y of screen in gamemode coordinates
             tY:
                 Top y of screen in gamemode coordinates
-        Method Return: TODO
+        Method Description: Checks if the building is in the specified region or at least touches it
+        Method Return: Boolean
     */
     touchesRegion(lX, rX, bY, tY){
         if (this.x + this.getWidth() < lX){ return false; }

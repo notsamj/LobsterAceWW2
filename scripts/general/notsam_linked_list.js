@@ -5,7 +5,7 @@
     Copy of NotSamSinglyLinkedList but made doubly.
     Also I haven't made a doubly linked list in many many years so this may have many errors because I haven't tested it :)
 */
-class NotSamLinkedList{
+class NotSamLinkedList {
         /*
         Method Name: constructor
         Method Parameters:
@@ -20,6 +20,27 @@ class NotSamLinkedList{
         if (array != null){
             this.convertFromArray(array);
         }
+    }
+
+    /*
+        Method Name: countCondition
+        Method Parameters:
+            conditionFunction:
+                A function taking one parameter and returning true or flase
+        Method Description: Counts the number of elements satisfying a condition
+        Method Return: Integer
+    */
+    countCondition(conditionFunction){
+        let count = 0;
+        let current = this.head;
+        while (current != null){
+            // If value matches condition then add to count
+            if (conditionFunction(current.value)){
+                count++;
+            }
+            current = current.next;
+        }
+        return count;
     }
 
     /*

@@ -22,7 +22,12 @@ class SkyManager {
         });
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getSkyBrightness
+        Method Parameters: None
+        Method Description: Calculates the brightness of the sky
+        Method Return: Number
+    */
     getSkyBrightness(){
         return 1 - Math.abs(PROGRAM_DATA["sky_generation"]["current_hour"] - 12) / 12;
     }

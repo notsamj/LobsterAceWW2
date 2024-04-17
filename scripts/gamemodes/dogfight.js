@@ -1,3 +1,4 @@
+// Load Gamemode if run with NodeJS
 if (typeof window === "undefined"){
     Gamemode = require("./gamemode.js");
 }
@@ -14,7 +15,6 @@ class Dogfight extends Gamemode {
     */
     constructor(){
         super();
-        this.isATestSession = false;
     }
 
     /*
@@ -25,7 +25,7 @@ class Dogfight extends Gamemode {
     */
     async tick(){
         if (this.tickInProgressLock.notReady() || !this.isRunning() || this.numTicks >= this.getExpectedTicks()){ return; }
-        this.lastTickTime = Date.now();
+        this.refreshLastTickTime();
         // Update camera
         await this.tickInProgressLock.awaitUnlock(true);
         await this.teamCombatManager.tick();
@@ -82,6 +82,7 @@ class Dogfight extends Gamemode {
     isThisATestSession(){
         let allyCount = 0;
         let axisCount = 0;
+        // Sometimes freecam is part of this.planes but is not a plane
         for (let entity of this.planes){
             if (entity instanceof Plane){
                 let plane = entity;

@@ -21,7 +21,10 @@ class ServerDogfight extends Dogfight {
         Method Parameters:
             dogfightJSON:
                 A json object with information on the settings of a dogfight
-            TODO
+            gameHandler:
+                A gamehandler object
+            serverObject:
+                A WW2PGServer object
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -43,6 +46,12 @@ class ServerDogfight extends Dogfight {
         this.running = true;
     }
 
+    /*
+        Method Name: runsLocally
+        Method Parameters: None
+        Method Description: Determines if the Mission runs locally
+        Method Return: Boolean
+    */
     runsLocally(){
         return true;
     }

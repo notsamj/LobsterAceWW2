@@ -6,7 +6,6 @@ if (typeof window === "undefined"){
 /*
     Class Name: Bomber
     Description: Bomb dropped from a plane
-    TODO: Comments
 */
 class Bomb extends SimpleProjectile {
     /*
@@ -35,7 +34,12 @@ class Bomb extends SimpleProjectile {
         this.yVI += PROGRAM_DATA["bomb_data"]["initial_y_velocity"];
     }
 
-    // TODO: Comments
+    /*
+        Method Name: getDamage
+        Method Parameters: None
+        Method Description: Determines the damage of the bomb
+        Method Return: Number
+    */
     getDamage(){
         return PROGRAM_DATA["plane_data"][this.bomberClass]["bomb_damage"];
     }
@@ -161,7 +165,8 @@ class Bomb extends SimpleProjectile {
     /*
         Method Name: fromJSON
         Method Parameters:
-            rep: TODO
+            rep:
+                A JSON representation of the bomb
             game:
                 A Game reference that includes the bomb
         Method Description: Creates a Bomb object from a JSON representation

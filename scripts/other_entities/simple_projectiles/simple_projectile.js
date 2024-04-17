@@ -4,7 +4,10 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../../data/data_json.js");
     CircleHitbox = require("../../general/hitboxes.js").CircleHitbox;
 }
-// TODO: Comments
+/*
+    Class Name: SimpleProjectile
+    Description: An abstract class for a projectile
+*/
 class SimpleProjectile extends Entity {
     /*
         Method Name: constructor

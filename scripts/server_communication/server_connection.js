@@ -327,7 +327,7 @@ class ServerConnection {
             message:
                 An error message (String)
         Method Description: Prints an error message to the screen
-        Method Return: TODO
+        Method Return: void
     */
     handleError(message){
         MENU_MANAGER.addTemporaryMessage(message, "red", 10000);
