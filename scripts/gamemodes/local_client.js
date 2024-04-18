@@ -6,6 +6,8 @@ class LocalClient extends GamemodeClient {
     constructor(gamemode){
         super(gamemode);
         this.paused = false;
+        this.timeDebt = 0;
+        this.pausedTime = null;
     }
 
     /*
@@ -25,6 +27,7 @@ class LocalClient extends GamemodeClient {
         Method Return: void
     */
     pause(){
+        this.pausedTime = Date.now();
         this.paused = true;
     }
 
@@ -35,9 +38,12 @@ class LocalClient extends GamemodeClient {
         Method Return: void
     */
     unpause(){
-        this.paused = false;
-        this.gamemode.correctTicks();
+        // Switch to game automatically calls unpause whether its at the start of the game or from the pause method so need to ignore when not actually paused
+        if (!this.isPaused()){ return; }
+        this.timeDebt += (Date.now() - this.pausedTime);
         this.gamemode.refreshLastTickTime();
+        this.gamemode.correctTicks();
+        this.paused = false;
     }
 
     /*
@@ -49,5 +55,15 @@ class LocalClient extends GamemodeClient {
     async tick(){
         if (this.isPaused()){ return; }
         await this.gamemode.tick();
+    }
+
+    /*
+        Method Name: getExpectedTicks
+        Method Parameters: None
+        Method Description: Determines the expected number of ticks that have occured. Overridden here to enable pausing.
+        Method Return: integer
+    */
+    getExpectedTicks(){
+        return Math.floor((Date.now() - this.gamemode.getStartTime() - this.timeDebt) / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 }

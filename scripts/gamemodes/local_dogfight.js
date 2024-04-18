@@ -22,6 +22,16 @@ class LocalDogfight extends Dogfight {
     }
 
     /*
+        Method Name: getExpectedTicks
+        Method Parameters: None
+        Method Description: Determines the expected number of ticks that have occured. Overridden here to enable pausing.
+        Method Return: integer
+    */
+    getExpectedTicks(){
+        return this.client.getExpectedTicks();
+    }
+
+    /*
         Method Name: getScene
         Method Parameters: None
         Method Description: Interface for a function that is associated with a member variable of this class

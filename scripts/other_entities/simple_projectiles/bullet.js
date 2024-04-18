@@ -21,8 +21,8 @@ class Bullet extends SimpleProjectile {
                 The starting x velocity of the bullet
             yVelocity:
                 The starting y velocity of the bullet
-            angle:
-                The angle of the bullet's trajectory (Radians)
+            angleRAD:
+                The angleRAD of the bullet's trajectory (Radians)
             shooterID:
                 The id of the plane that shot the bullet
             shooterClass:
@@ -30,10 +30,10 @@ class Bullet extends SimpleProjectile {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, gamemode, xVelocity, yVelocity, angle, shooterID, shooterClass){
+    constructor(x, y, gamemode, xVelocity, yVelocity, angleRAD, shooterID, shooterClass){
         super(x, y, gamemode, xVelocity, yVelocity, gamemode.getNumTicks(), PROGRAM_DATA["bullet_data"]["radius"]);
-        this.yVI += + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
-        this.xVelocity += Math.cos(angle) * PROGRAM_DATA["bullet_data"]["speed"];
+        this.yVI += Math.sin(angleRAD) * PROGRAM_DATA["bullet_data"]["speed"];
+        this.xVelocity += Math.cos(angleRAD) * PROGRAM_DATA["bullet_data"]["speed"];
         this.shooterClass = shooterClass;
         this.shooterID = shooterID;
     }
@@ -229,6 +229,40 @@ class Bullet extends SimpleProjectile {
         bullet.setDead(bulletJSONObject["dead"]);
         bullet.fromJSON(bulletJSONObject, true);
         return bullet;
+    }
+
+    /*
+        Method Name: display
+        Method Parameters:
+            lX:
+                The bottom left x displayed on the canvas relative to the focused entity
+            bY:
+                The bottom left y displayed on the canvas relative to the focused entity
+            displayTime:
+                Time at which frame is displayed
+        Method Description: Displays a bullet on the screen (if it is within the bounds)
+        Method Return: void
+    */
+    display(lX, bY, displayTime){
+        if (this.isDead()){ return; }
+        let rX = lX + getScreenWidth() - 1;
+        let tY = bY + getScreenHeight() - 1;
+        this.calculateInterpolatedCoordinates(displayTime);
+        // If not on screen then return
+        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+        // Determine the location it will be displayed at
+        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);
+        let rotateX = displayX + this.getWidth() / 2;
+        let rotateY = displayY + this.getHeight() / 2;
+        let angleRAD = displacementToRadians(this.getXVelocity(), this.getYVelocity());
+        // Prepare the display
+        translate(rotateX, rotateY);
+        rotate(-1 * angleRAD);
+        drawingContext.drawImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2);
+        // Reset the rotation and translation
+        rotate(angleRAD);
+        translate(-1 * rotateX, -1 * rotateY);
     }
 }
 // If using Node JS Export the class

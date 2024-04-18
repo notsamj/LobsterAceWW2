@@ -760,13 +760,6 @@ class Plane extends Entity {
         let extraTime = currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
         if (this.throttle > 0){
-            /*let t = this.getAngle() + (this.isFacingRight() ? 1 : -1) * extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"];
-            let e = this.getAngle();
-            this.interpolatedAngle = fixRadians(t); 
-            if (calculateAngleDiffRAD(this.interpolatedAngle, this.getAngle()) > 1){
-                console.log(calculateAngleDiffRAD(this.interpolatedAngle, this.getAngle()), this.interpolatedAngle, this.getAngle())
-                debugger;
-            }*/
             this.interpolatedAngle = fixRadians(this.getAngle() + (this.isFacingRight() ? 1 : -1) * extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"]); 
 
         }else{
@@ -818,6 +811,7 @@ class Plane extends Entity {
         // Prepare the display
         translate(rotateX, rotateY);
         rotate(-1 * interpolatedAngle);
+
         // If facing left then turn around the display
         if (!this.isFacingRight()){
             scale(-1, 1);
@@ -830,6 +824,7 @@ class Plane extends Entity {
         if (!this.isFacingRight()){
             scale(-1, 1);
         }
+
         // Reset the rotation and translation
         rotate(interpolatedAngle);
         translate(-1 * rotateX, -1 * rotateY);
@@ -839,6 +834,7 @@ class Plane extends Entity {
             // Prepare the display
             translate(rotateX, rotateY);
             rotate(-1 * interpolatedAngle);
+
             // If facing left then turn around the display
             if (!this.isFacingRight()){
                 scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
@@ -851,6 +847,7 @@ class Plane extends Entity {
             if (!this.isFacingRight()){
                 scale(-1 * this.getSmokeImage().width / this.getWidth(), this.getSmokeImage().height / this.getHeight());
             }
+            
             // Reset the rotation and translation
             rotate(interpolatedAngle);
             translate(-1 * rotateX, -1 * rotateY);

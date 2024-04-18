@@ -120,10 +120,6 @@ class FighterPlane extends Plane {
 
         // Adjust angle
         if (this.decisions["angle"] != 0){
-            if (toDegrees(this.decisions["angle"] > 5)){
-                console.log("Aaaa", this.decisions["angle"])
-                debugger;
-            }
             this.adjustAngle(this.decisions["angle"]);
         }
 
@@ -186,7 +182,7 @@ class FighterPlane extends Plane {
         Method Return: Number
     */
     getInterpolatedGunX(){
-        let planeAngleRAD = this.getNoseAngle();
+        let planeAngleRAD = this.getInterpolatedAngle();
         if (!this.isFacingRight()){
             planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
@@ -201,7 +197,7 @@ class FighterPlane extends Plane {
         Method Return: Number
     */
     getInterpolatedGunY(){
-        let planeAngleRAD = this.getNoseAngle();
+        let planeAngleRAD = this.getInterpolatedAngle();
         if (!this.isFacingRight()){
             planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
@@ -240,22 +236,26 @@ class FighterPlane extends Plane {
         // If you've previously shot then display a flash to indicate
         if (this.shootLock.notReady()){
             // Display flash
-            let rotateX = this.gamemode.getScene().getDisplayX(this.getInterpolatedGunX(), 0, lX);
-            let rotateY = this.gamemode.getScene().getDisplayY(this.getInterpolatedGunY(), 0, bY);
+            let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedGunX(), 0, lX);
+            let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedGunY(), 0, bY);
+            let rotateX = displayX;
+            let rotateY = displayY;
             let interpolatedAngle = this.getInterpolatedAngle();
-            let flashImageWidth = getImage("flash").width;
-            let flashImageHeight = getImage("flash").height;
+            let image = getImage("flash");
+            let flashImageWidth = image.width;
+            let flashImageHeight = image.height;
 
             // Prepare the display
             translate(rotateX, rotateY);
             rotate(-1 * interpolatedAngle);
+
             // If facing left then turn around the display
             if (!this.isFacingRight()){
                 scale(-1, 1);
             }
 
             // Display flash
-            drawingContext.drawImage(getImage("flash"), 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+            drawingContext.drawImage(image, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){

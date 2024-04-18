@@ -140,7 +140,7 @@ class SimpleProjectile extends Entity {
     */
     getYVelocityAtTick(tick){
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
-        return this.vYI - PROGRAM_DATA["constants"]["gravity"] * seconds;
+        return this.yVI - PROGRAM_DATA["constants"]["gravity"] * seconds;
     }
 
     /*
@@ -172,8 +172,9 @@ class SimpleProjectile extends Entity {
             return;
         }
         this.lastInterpolatedFrame = currentFrameIndex;
-        this.interpolatedX = this.getGameDisplayX(this.gamemode.getNumTicks(), currentTime);
-        this.interpolatedY = this.getGameDisplayY(this.gamemode.getNumTicks(), currentTime);
+        // The -1 is present because say I create bullet at tick=0 then numTicks++ then display well suddenly bullet position is 1 tick further than it should be
+        this.interpolatedX = this.getGameDisplayX(this.gamemode.getNumTicks()-1, currentTime);
+        this.interpolatedY = this.getGameDisplayY(this.gamemode.getNumTicks()-1, currentTime);
     }
 
     /*

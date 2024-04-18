@@ -125,7 +125,7 @@ class BomberTurret extends Turret {
         Method Return: Number
     */
     getInterpolatedX(){
-        let planeAngleRAD = this.plane.getNoseAngle();
+        let planeAngleRAD = this.plane.getInterpolatedAngle();
         if (!this.isFacingRight()){
             planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
         }
@@ -140,7 +140,7 @@ class BomberTurret extends Turret {
         Method Return: Number
     */
     getInterpolatedY(){
-        let planeAngleRAD = this.plane.getNoseAngle();
+        let planeAngleRAD = this.plane.getInterpolatedAngle();
         if (!this.isFacingRight()){
             planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
         }

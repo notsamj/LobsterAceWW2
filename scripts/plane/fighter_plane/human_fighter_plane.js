@@ -290,7 +290,7 @@ class HumanFighterPlane extends FighterPlane {
     */
     checkShoot(){
         let spaceKey = keyIsDown(32);
-        if (!this.shootLock.isReady() || !spaceKey){
+        if (!spaceKey){
             return;
         }
         this.decisions["shoot"] = true;
