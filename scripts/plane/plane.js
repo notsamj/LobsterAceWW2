@@ -7,10 +7,10 @@ if (typeof window === "undefined"){
     toRadians = helperFunctions.toRadians;
     onSameTeam = helperFunctions.onSameTeam;
     getTickMultiplier = helperFunctions.getTickMultiplier;
-    fixDegrees = helperFunctions.fixDegrees;
-    angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
+    fixRadians = helperFunctions.fixRadians;
+    angleBetweenCCWRAD = helperFunctions.angleBetweenCCWRAD;
     safeDivide = helperFunctions.safeDivide;
-    calculateAngleDiffDEG = helperFunctions.calculateAngleDiffDEG;
+    calculateAngleDiffRAD = helperFunctions.calculateAngleDiffRAD;
 }
 /*
     Class Name: Plane
@@ -419,7 +419,6 @@ class Plane extends Entity {
     adjustAngle(amount){
         let newAngle = this.angle;
         if (this.hasNoControl()){ return; }
-
         // Determine angle
         if (this.facingRight){
             newAngle += amount;
@@ -427,14 +426,9 @@ class Plane extends Entity {
             newAngle -= amount;
         }
 
-        // Ensure the angle is between 0 and 360
-        while(newAngle >= 360){
-            newAngle -= 360;
-        }
-        while(newAngle < 0){
-            newAngle += 360;
-        }
-        this.angle = Math.floor(newAngle);
+        // Ensure new angle is within proper range
+        newAngle = fixRadians(newAngle);
+        this.angle = newAngle;
     }
 
     /*
@@ -451,7 +445,7 @@ class Plane extends Entity {
             return;
         }
         if (this.hasNoControl()){ return; }
-        let newAngle = fixDegrees(360 - this.angle);
+        let newAngle = fixRadians(toRadians(360) - this.angle);
         this.angle = newAngle;
         this.facingRight = facingRight;
         this.speed *= (1 - PROGRAM_DATA["settings"]["slow_down_amount"]);
@@ -618,7 +612,7 @@ class Plane extends Entity {
     getXVelocity(speed=this.speed, interpolated=false){
         let angle = interpolated ? this.interpolatedAngle : this.angle;
         let effectiveAngle = this.getEffectiveAngle(angle);
-        let cosAngle = Math.cos(toRadians(effectiveAngle));
+        let cosAngle = Math.cos(effectiveAngle);
         return speed * cosAngle * (!this.facingRight ? -1 : 1);
     }
 
@@ -634,7 +628,7 @@ class Plane extends Entity {
     getYVelocity(speed=this.speed, interpolated=false){
         let angle = interpolated ? this.interpolatedAngle : this.angle;
         let effectiveAngle = this.getEffectiveAngle(angle);
-        let sinAngle = Math.sin(toRadians(effectiveAngle))
+        let sinAngle = Math.sin(effectiveAngle)
         return speed * sinAngle;
     }
 
@@ -646,12 +640,12 @@ class Plane extends Entity {
         Method Description: 
         Determine the effective angle of the plane at the moment, 
         if facing left must be changed to match what it would be if facing right
-        Method Return: int in range [0,360]
+        Method Return: float in range [0,2*PI)
     */
     getEffectiveAngle(angle=this.angle){
         let effectiveAngle = angle;
         if (!this.isFacingRight()){
-            effectiveAngle = fixDegrees(360 - effectiveAngle);
+            effectiveAngle = fixRadians(toRadians(360) - effectiveAngle);
         }
         return effectiveAngle;
     }
@@ -661,10 +655,10 @@ class Plane extends Entity {
         Method Parameters: None
         Method Description: 
         Determine the angle at which bullets shoot out of the plane
-        Method Return: int in range [0,360]
+        Method Return: float in range [0,2*PI)
     */
     getNoseAngle(){
-        return fixDegrees(this.angle + (this.facingRight ? 0 : 180));
+        return fixRadians(this.angle + (this.facingRight ? 0 : toRadians(180)));
     }
 
     /*
@@ -743,7 +737,7 @@ class Plane extends Entity {
         Method Name: getInterpolatedAngle
         Method Parameters: None
         Method Description: Getter
-        Method Return: integer in range [0,359]
+        Method Return: float in range [0, 2*PI)
     */
     getInterpolatedAngle(){
         return this.interpolatedAngle;
@@ -766,9 +760,17 @@ class Plane extends Entity {
         let extraTime = currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime();
         let newPositionValues = this.getNewPositionValues(extraTime);
         if (this.throttle > 0){
-            this.interpolatedAngle = fixDegrees(this.getAngle() + (this.isFacingRight() ? 1 : -1) * Math.floor(extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"])); 
+            /*let t = this.getAngle() + (this.isFacingRight() ? 1 : -1) * extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"];
+            let e = this.getAngle();
+            this.interpolatedAngle = fixRadians(t); 
+            if (calculateAngleDiffRAD(this.interpolatedAngle, this.getAngle()) > 1){
+                console.log(calculateAngleDiffRAD(this.interpolatedAngle, this.getAngle()), this.interpolatedAngle, this.getAngle())
+                debugger;
+            }*/
+            this.interpolatedAngle = fixRadians(this.getAngle() + (this.isFacingRight() ? 1 : -1) * extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"]); 
+
         }else{
-            this.interpolatedAngle = fixDegrees(this.getAngle());
+            this.interpolatedAngle = fixRadians(this.getAngle());
         }
         this.lastInterpolatedFrame = currentFrameIndex;
         this.interpolatedX = newPositionValues["x"];
@@ -815,7 +817,7 @@ class Plane extends Entity {
         
         // Prepare the display
         translate(rotateX, rotateY);
-        rotate(-1 * toRadians(interpolatedAngle));
+        rotate(-1 * interpolatedAngle);
         // If facing left then turn around the display
         if (!this.isFacingRight()){
             scale(-1, 1);
@@ -829,14 +831,14 @@ class Plane extends Entity {
             scale(-1, 1);
         }
         // Reset the rotation and translation
-        rotate(toRadians(interpolatedAngle));
+        rotate(interpolatedAngle);
         translate(-1 * rotateX, -1 * rotateY);
 
         // If smoking then draw a smoke image overtop
         if (this.isSmoking()){
             // Prepare the display
             translate(rotateX, rotateY);
-            rotate(-1 * toRadians(interpolatedAngle));
+            rotate(-1 * interpolatedAngle);
             // If facing left then turn around the display
             if (!this.isFacingRight()){
                 scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
@@ -850,7 +852,7 @@ class Plane extends Entity {
                 scale(-1 * this.getSmokeImage().width / this.getWidth(), this.getSmokeImage().height / this.getHeight());
             }
             // Reset the rotation and translation
-            rotate(toRadians(interpolatedAngle));
+            rotate(interpolatedAngle);
             translate(-1 * rotateX, -1 * rotateY);
         }
     }
@@ -862,20 +864,20 @@ class Plane extends Entity {
                 The x location of the gun
             gunY:
                 The y location of the gun
-            angleDEG:
+            angleRAD:
                 The orientation of the gun
         Method Description: Shots the gun at a target in the direction its facing. The shot moves with infinite speed.
         Method Return: void
     */
-    instantShot(gunX, gunY, angleDEG){
+    instantShot(gunX, gunY, angleRAD){
         // Determine if the plane is facing -x or +x (not proper if plane is perpenticular to the x axis)
-        let xDir = (angleBetweenCCWDEG(angleDEG, 91, 269)) ? -1 : 1;
-        if (angleDEG == 90 || angleDEG == 270){
+        let xDir = (angleBetweenCCWRAD(angleRAD, toRadians(91), toRadians(269))) ? -1 : 1;
+        if (isClose(angleRAD, toRadians(90), 0.01) || isClose(angleRAD, toRadians(270), 0.01)){
             xDir = this.isFacingRight() ? 1 : -1;
         }
 
         // Determine if the plane is facing -y or +y (not proper if plane is perpenticular to the y axis)
-        let yDir = (angleBetweenCCWDEG(angleDEG, 0, 180)) ? 1 : -1;
+        let yDir = (angleBetweenCCWRAD(angleRAD, 0, toRadians(180))) ? 1 : -1;
 
         let bestPlane = null;
         let bestDistance = null;
@@ -922,11 +924,11 @@ class Plane extends Entity {
             // To check if the shot will hit this plane. Check if the shooting angle is between the angle to top of the plane and angle to bottom
             
             // Let theta represent the angle from the gun to the center of the enemy plane's hitbox
-            let theta = displacementToDegrees(plane.getX() - gunX, plane.getY() - gunY);
+            let theta = displacementToRadians(plane.getX() - gunX, plane.getY() - gunY);
             // Let alpha represent the maximum difference of angle allowed at the distance to hit the hitbox
-            let alpha = fixDegrees(toDegrees(Math.asin(safeDivide(planeHitbox.getRadius(), distance, 1, 0))));
+            let alpha = fixRadians(toRadians(Math.asin(safeDivide(planeHitbox.getRadius(), distance, 1, 0))));
             // If the difference is too big then ignore
-            if (calculateAngleDiffDEG(angleDEG, theta) > alpha){
+            if (calculateAngleDiffRAD(angleRAD, theta) > alpha){
                 continue;
             }
             // Otherwise this is currently the plane that will be hit

@@ -161,7 +161,7 @@ class Building extends Entity {
         let displayX = this.gamemode.getScene().getDisplayX(this.x, 0, lX);
         let displayY = this.gamemode.getScene().getDisplayY(this.height, 0, bY);
         // The building is grey
-        fill("#c2c2c4");
+        fill(PROGRAM_DATA["building_data"]["building_colour"]);
         rect(displayX, displayY, this.width, this.height);
     }
 

@@ -429,7 +429,7 @@ class NotSamLinkedList {
     Class Name: DLLNode
     Description: A doubly linked node.
 */
-class DLLNode{
+class DLLNode {
     constructor(previous, value){
         this.value = value;
         this.previous = previous;

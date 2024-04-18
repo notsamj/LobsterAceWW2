@@ -2,7 +2,7 @@
 if (typeof window === "undefined"){
     BomberTurret = require("./bomber_turret.js");
     helperFunctions = require("../general/helper_functions.js");
-    getDegreesFromDisplacement = helperFunctions.getDegreesFromDisplacement;
+    displacementToRadians = helperFunctions.displacementToRadians;
 }
 /*
     Class Name: HumanBomberTurret
@@ -55,7 +55,7 @@ class HumanBomberTurret extends BomberTurret {
         let y = this.getGamemode().getScene().changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
         let x0 = 0;
         let y0 = 0;
-        return getDegreesFromDisplacement(x - x0, y - y0);
+        return displacementToRadians(x - x0, y - y0);
     }
 
     /*
@@ -97,7 +97,7 @@ class HumanBomberTurret extends BomberTurret {
         Method Return: HumanBomberTurret
     */
     static create(gunObject, plane){
-        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], plane);
+        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], toRadians(gunObject["fov_1"]), toRadians(gunObject["fov_2"]), gunObject["rate_of_fire"], plane);
     }
 }
 // If using NodeJS -> Export the class

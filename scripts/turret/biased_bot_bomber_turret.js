@@ -4,7 +4,7 @@ if (typeof window === "undefined"){
     TickLock = require("../general/tick_lock.js");
     BotBomberTurret = require("./bot_bomber_turret.js");
     helperFunctions = require("../general/helper_functions.js");
-    fixDegrees = helperFunctions.fixDegrees;
+    fixRadians = helperFunctions.fixRadians;
 }
 /*
     Class Name: BiasedBotBomberTurret
@@ -50,7 +50,7 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Return: BiasedBotBomberTurret
     */
     static create(gunObject, plane, biases){
-        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], plane, biases);
+        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], toRadians(gunObject["fov_1"]), toRadians(gunObject["fov_2"]), gunObject["rate_of_fire"], plane, biases);
     }
 
     /*
@@ -63,7 +63,7 @@ class BiasedBotBomberTurret extends BotBomberTurret {
     */
     checkShoot(enemyList){
         super.checkShoot(enemyList);
-        this.decisions["angle"] = fixDegrees(this.decisions["angle"] + this.biases["shooting_angle_offset"]);
+        this.decisions["angle"] = fixRadians(this.decisions["angle"] + toRadians(this.biases["shooting_angle_offset"]));
     }
 
 }

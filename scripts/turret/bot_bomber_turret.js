@@ -17,9 +17,9 @@ class BotBomberTurret extends BomberTurret {
             yOfset:
                 The y offset of the turret from the center of the attached plane
             fov1:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within
+                An angle (radians) representing an edge of an angle which the turret can shoot within
             fov2:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
+                An angle (radians) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
             gamemode:
@@ -78,7 +78,7 @@ class BotBomberTurret extends BomberTurret {
         let enemyY = null;
         let enemyXDisplacement = null;
         let enemyYDisplacement = null;
-        let angleDEG = null;
+        let angleRAD = null;
         let distanceToEnemy = null;
         // Look for other enemies that aren't the primary focus and if they are infront of the plane then shoot
         for (let enemy of enemyList){
@@ -88,13 +88,13 @@ class BotBomberTurret extends BomberTurret {
             enemyXDisplacement = enemyX - myX;
             enemyYDisplacement = enemyY - myY;
             // TODO: Maybe use the ANGLE TO ENTITY function?
-            angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
+            angleRAD = displacementToRadians(enemyXDisplacement, enemyYDisplacement);
             distanceToEnemy = enemy.distanceToPoint(myX, myY);
             hasDecidedToFireShot = this.isEnemyClose(distanceToEnemy);
         }
         // If the decision has been made to shoot then record it
         if (hasDecidedToFireShot){
-            this.decisions["angle"] = angleDEG;
+            this.decisions["angle"] = angleRAD;
             this.decisions["shooting"] = true;
         }
     }
@@ -144,7 +144,7 @@ class BotBomberTurret extends BomberTurret {
         Method Return: BotBomberTurret
     */
     static create(gunObject, plane){
-        return new BotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], gunObject["fov_1"], gunObject["fov_2"], gunObject["rate_of_fire"], plane);
+        return new BotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], toRadians(gunObject["fov_1"]), toRadians(gunObject["fov_2"]), gunObject["rate_of_fire"], plane);
     }
 }
 

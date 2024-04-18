@@ -22,7 +22,7 @@ class Bullet extends SimpleProjectile {
             yVelocity:
                 The starting y velocity of the bullet
             angle:
-                The angle of the bullet's trajectory
+                The angle of the bullet's trajectory (Radians)
             shooterID:
                 The id of the plane that shot the bullet
             shooterClass:
@@ -32,7 +32,6 @@ class Bullet extends SimpleProjectile {
     */
     constructor(x, y, gamemode, xVelocity, yVelocity, angle, shooterID, shooterClass){
         super(x, y, gamemode, xVelocity, yVelocity, gamemode.getNumTicks(), PROGRAM_DATA["bullet_data"]["radius"]);
-        angle = toRadians(angle); // Convert the angle to radians so it can be used in calculations
         this.yVI += + Math.sin(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.xVelocity += Math.cos(angle) * PROGRAM_DATA["bullet_data"]["speed"];
         this.shooterClass = shooterClass;

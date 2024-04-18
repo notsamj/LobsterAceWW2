@@ -5,7 +5,6 @@ if (typeof window === "undefined"){
     BomberPlane = require("./bomber_plane.js");
     HumanBomberTurret = require("../../turret/human_bomber_turret.js");
     helperFunctions = require("../../general/helper_functions.js");
-    calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
 }
 /*
     Class Name: HumanBomberPlane
@@ -175,7 +174,6 @@ class HumanBomberPlane extends BomberPlane {
         for (let gun of this.guns){
             gun.tick();
         }
-        //console.log(this.isFacingRight(), this.angle)
         this.updateRadar();
         super.tick();
     }
@@ -313,8 +311,8 @@ class HumanBomberPlane extends BomberPlane {
         Method Return: void
     */
     checkUpDown(){
-        let wKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("w").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
-        let sKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("s").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
+        let wKeyCount = USER_INPUT_MANAGER.getTickedAggregator("w").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"];
+        let sKeyCount = USER_INPUT_MANAGER.getTickedAggregator("s").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"];
         let numKeysDown = 0;
         numKeysDown += wKeyCount > 0 ? 1 : 0;
         numKeysDown += sKeyCount > 0 ? 1 : 0;
@@ -326,9 +324,9 @@ class HumanBomberPlane extends BomberPlane {
             return;
         }
         if (wKeyCount > 0){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], wKeyCount);
+            this.decisions["angle"] = -1 * toRadians(Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], wKeyCount));
         }else if (sKeyCount > 0){
-            this.decisions["angle"] = Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], sKeyCount);
+            this.decisions["angle"] = toRadians(Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], sKeyCount));
         }
     }
 

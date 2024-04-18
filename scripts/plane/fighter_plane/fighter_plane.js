@@ -120,6 +120,10 @@ class FighterPlane extends Plane {
 
         // Adjust angle
         if (this.decisions["angle"] != 0){
+            if (toDegrees(this.decisions["angle"] > 5)){
+                console.log("Aaaa", this.decisions["angle"])
+                debugger;
+            }
             this.adjustAngle(this.decisions["angle"]);
         }
 
@@ -152,9 +156,9 @@ class FighterPlane extends Plane {
         Method Return: float
     */
     getGunX(){
-        let planeAngleRAD = toRadians(this.getNoseAngle());
+        let planeAngleRAD = this.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
         let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getX();
         return rotatedX;
@@ -167,9 +171,9 @@ class FighterPlane extends Plane {
         Method Return: float
     */
     getGunY(){
-        let planeAngleRAD = toRadians(this.getNoseAngle());
+        let planeAngleRAD = this.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
         let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getY();
         return rotatedY;
@@ -182,9 +186,9 @@ class FighterPlane extends Plane {
         Method Return: Number
     */
     getInterpolatedGunX(){
-        let planeAngleRAD = toRadians(this.getNoseAngle());
+        let planeAngleRAD = this.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
         let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getInterpolatedX();
         return rotatedX;
@@ -197,9 +201,9 @@ class FighterPlane extends Plane {
         Method Return: Number
     */
     getInterpolatedGunY(){
-        let planeAngleRAD = toRadians(this.getNoseAngle());
+        let planeAngleRAD = this.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
         let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getInterpolatedY();
         return rotatedY;
@@ -244,7 +248,7 @@ class FighterPlane extends Plane {
 
             // Prepare the display
             translate(rotateX, rotateY);
-            rotate(-1 * toRadians(interpolatedAngle));
+            rotate(-1 * interpolatedAngle);
             // If facing left then turn around the display
             if (!this.isFacingRight()){
                 scale(-1, 1);
@@ -258,7 +262,7 @@ class FighterPlane extends Plane {
                 scale(-1, 1);
             }
             // Reset the rotation and translation
-            rotate(toRadians(interpolatedAngle));
+            rotate(interpolatedAngle);
             translate(-1 * rotateX, -1 * rotateY);
         }
     }

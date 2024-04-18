@@ -68,9 +68,9 @@ class BomberPlane extends Plane {
         Method Return: float
     */
     getBombBayX(){
-        let planeAngleRAD = toRadians(this.getNoseAngle());
+        let planeAngleRAD = this.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
         let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_x"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_y"] + this.getX();
         return rotatedX;
@@ -83,9 +83,9 @@ class BomberPlane extends Plane {
         Method Return: float
     */
     getBombBayY(){
-        let planeAngleRAD = toRadians(this.getNoseAngle());
+        let planeAngleRAD = this.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
         }
         let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_x"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bomb_offset_y"] + this.getY();
         return rotatedY;
@@ -142,7 +142,7 @@ class BomberPlane extends Plane {
 
                 // Prepare the display
                 translate(rotateX, rotateY);
-                rotate(-1 * toRadians(interpolatedAngle));
+                rotate(-1 * interpolatedAngle);
                 // If facing left then turn around the display
                 if (!this.isFacingRight()){
                     scale(-1, 1);
@@ -156,7 +156,7 @@ class BomberPlane extends Plane {
                     scale(-1, 1);
                 }
                 // Reset the rotation and translation
-                rotate(toRadians(interpolatedAngle));
+                rotate(interpolatedAngle);
                 translate(-1 * rotateX, -1 * rotateY);
             }
         }

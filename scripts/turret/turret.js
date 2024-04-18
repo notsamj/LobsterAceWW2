@@ -1,9 +1,6 @@
 // When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../data/data_json.js");
-    helperFunctions = require("../general/helper_functions.js");
-    angleBetweenCWDEG = helperFunctions.angleBetweenCWDEG;
-    Bullet = require("../other_entities/simple_projectiles/bullet.js");
 }
 /*
     Class Name: Turret
@@ -19,9 +16,9 @@ class Turret {
             y:
                 The y location of the turret
             fov1:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within
+                An angle (radians) representing an edge of an angle which the turret can shoot within
             fov2:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
+                An angle (radians) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
             gamemode:
@@ -39,7 +36,7 @@ class Turret {
         this.model = "turret";
         this.decisions = {
             "shooting": false, // true -> shooting, false -> not shooting
-            "angle": null // angle in degrees [0,359]
+            "angle": null // angle in radians [0,2*PI)
         }
     }
 

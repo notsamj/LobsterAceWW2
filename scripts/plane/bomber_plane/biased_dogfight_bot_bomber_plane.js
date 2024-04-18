@@ -7,11 +7,11 @@ if (typeof window === "undefined"){
     BiasedBotBomberTurret = require("../../turret/biased_bot_bomber_turret.js");
     BiasedBotBomberPlane = require("./biased_bot_bomber_plane.js");
     helperFunctions = require("../../general/helper_functions.js");
-    displacementToDegrees = helperFunctions.displacementToDegrees;
-    angleBetweenCCWDEG = helperFunctions.angleBetweenCCWDEG;
-    calculateAngleDiffDEG = helperFunctions.calculateAngleDiffDEG;
-    calculateAngleDiffDEGCW = helperFunctions.calculateAngleDiffDEGCW;
-    calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
+    displacementToRadians = helperFunctions.displacementToRadians;
+    angleBetweenCCWRAD = helperFunctions.angleBetweenCCWRAD;
+    calculateAngleDiffRAD = helperFunctions.calculateAngleDiffRAD;
+    calculateAngleDiffCWRAD = helperFunctions.calculateAngleDiffCWRAD;
+    calculateAngleDiffCCWRAD = helperFunctions.calculateAngleDiffCCWRAD;
 }
 
 /*
@@ -36,7 +36,6 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     constructor(planeClass, gamemode, biases, autonomous=true){
         super(planeClass, gamemode, biases, autonomous);
         this.currentEnemy = null;
-        this.udLock = new TickLock(40 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.enemyList = [];
     }
@@ -50,9 +49,6 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     toJSON(){
         let rep = {};
         rep["decisions"] = this.decisions;
-        rep["locks"] = {
-            "ud_lock": this.udLock.getTicksLeft()
-        }
         rep["biases"] = this.biases;
         rep["basic"] = {
             "id": this.id,
@@ -149,7 +145,6 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         Method Return: void
     */
     tick(){
-        this.udLock.tick();
         this.updateEnemyLock.tick();
         for (let gun of this.guns){
             gun.tick();
@@ -173,8 +168,8 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
             let distance = this.distanceToPoint(centerOfFriendyMass["centerX"], centerOfFriendyMass["centerY"]);
             // If we are far from friendlies then move to their center
             if (distance > PROGRAM_DATA["settings"]["bomber_distance_from_friendlies_dogfight"]){
-                let angleDEG = displacementToDegrees(centerOfFriendyMass["centerX"] - this.x, centerOfFriendyMass["centerY"] - this.y);
-                this.turnInDirection(angleDEG);
+                let angleRAD = displacementToRadians(centerOfFriendyMass["centerX"] - this.x, centerOfFriendyMass["centerY"] - this.y);
+                this.turnInDirection(angleRAD);
             }
         }
         // Otherwise we are just looking for enemies
@@ -188,8 +183,8 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
             let enemy = this.currentEnemy;
             this.handleEnemy(enemy);
         }else{ // No enemy -> make sure not to crash into the ground
-            if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
-                this.turnInDirection(90);
+            if (this.closeToGround() && angleBetweenCCWRAD(this.getNoseAngle(), toRadians(180.01), toRadians(359.99))){
+                this.turnInDirection(toRadians(90));
             }
         }
 
@@ -224,10 +219,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
 
         // Adjust angle
         if (this.decisions["angle"] != 0){
-            if (this.udLock.isReady()){
-                this.udLock.lock();
-                this.adjustAngle(this.decisions["angle"]);
-            }
+            this.adjustAngle(this.decisions["angle"]);
         }
 
         // Let guns shoot
@@ -349,18 +341,17 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         }
         // Otherwise enemy is not too much "on top" of the bot
         let shootingAngle = this.getNoseAngle();
-        let angleDEG = displacementToDegrees(enemyXDisplacement, enemyYDisplacement);
-        let angleDifference = calculateAngleDiffDEG(shootingAngle, angleDEG);
+        let angleRAD = displacementToRadians(enemyXDisplacement, enemyYDisplacement);
 
         // Give information to handleMovement and let it decide how to move
-        this.handleMovement(angleDEG, distanceToEnemy, enemy);
+        this.handleMovement(angleRAD, distanceToEnemy, enemy);
     }
 
     /*
         Method Name: handleMovement
         Method Parameters:
-            anlgeDEG:
-                An angle from the current location to that of the enemy
+            angleRAD:
+                An angle from the current location to that of the enemy (Radians)
             distance:
                 The current distance from the current location to the enemy
             enemy:
@@ -368,15 +359,15 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         Method Description: Decide how to move given the presence of an enemy.
         Method Return: void
     */
-    handleMovement(angleDEG, distance, enemy){
+    handleMovement(angleRAD, distance, enemy){
         // If facing downwards and close to the ground then turn upwards
-        if (this.closeToGround() && angleBetweenCCWDEG(this.getNoseAngle(), 180, 359)){
-            this.turnInDirection(90);
+        if (this.closeToGround() && angleBetweenCCWRAD(this.getNoseAngle(), toRadians(180.01), toRadians(359.99))){
+            this.turnInDirection(toRadians(90));
             return;
         }
 
         // Point to enemy I guess. It's a silly situation, no good answer
-        this.turnInDirection(angleDEG);
+        this.turnInDirection(angleRAD);
     }
 
     /*
@@ -392,56 +383,49 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     /*
         Method Name: turnInDirection
         Method Parameters:
-            angleDEG:
-                The angle to turn to (degrees)
+            angleRAD:
+                The angle to turn to (angle)
         Method Description: Turn the plane in a given direction
         Method Return: void
     */
-    turnInDirection(angleDEG){
+    turnInDirection(angleRAD){
         // Determine if we need to switch from left to right
         let myAngle = this.getNoseAngle();
         // If facing right and the angle to turn to is very far but close if the plane turned left
-        if (this.facingRight && angleBetweenCCWDEG(angleDEG, 135, 225) && angleBetweenCCWDEG(myAngle, 315, 45)){
+        if (this.facingRight && angleBetweenCCWRAD(angleRAD, 135, 225) && angleBetweenCCWRAD(angleRAD, 315, 45)){
             this.decisions["face"] = 0;
             return;
         }
         // If facing left and the angle to turn to is very far but close if the plane turned right
-        else if (!this.facingRight && angleBetweenCCWDEG(angleDEG, 295, 45) && angleBetweenCCWDEG(angleDEG, 135, 225)){
+        else if (!this.facingRight && angleBetweenCCWRAD(angleRAD, 295, 45) && angleBetweenCCWRAD(angleRAD, 135, 225)){
             this.decisions["face"] = 1;
             return;
         }
 
-        if (this.udLock.notReady()){ return; }
-        this.udLock.lock();
-        let newAngleCW = fixDegrees(this.getNoseAngle() + 1);
-        let newAngleCCW = fixDegrees(this.getNoseAngle() - 1);
-        let dCW = calculateAngleDiffDEGCW(newAngleCW, angleDEG);
-        let dCCW = calculateAngleDiffDEGCCW(newAngleCCW, angleDEG);
-        let angleDiff = calculateAngleDiffDEG(angleDEG, this.getNoseAngle());
+        let noseAngle = this.getNoseAngle()
+        let dCWRAD = angleBetweenCWRAD(noseAngle, angleRAD);
+        let dCCWRAD = angleBetweenCCWRAD(noseAngle, angleRAD);
+        let calculateAngleDiffRAD = calculateAngleDiffRAD(angleRAD, this.getNoseAngle());
 
-        // If the angle of the plane currently is very close to the desired angle, not worth moving
-        if (calculateAngleDiffDEG(newAngleCW, angleDEG) < PROGRAM_DATA["settings"]["min_angle_to_adjust"] && calculateAngleDiffDEG(newAngleCCW, angleDEG) < PROGRAM_DATA["settings"]["min_angle_to_adjust"]){
-            return;
-        }
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
-        if (dCW < dCCW && this.facingRight){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
+        if (dCWRAD < dCCWRAD && this.facingRight){
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], calculateAngleDiffRAD);
         }
         // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
-        else if (dCW < dCCW && !this.facingRight){
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
+        else if (dCWRAD < dCCWRAD && !this.facingRight){
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], calculateAngleDiffRAD);
         }
         // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
-        else if (dCCW < dCW && this.facingRight){
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
+        else if (dCCWRAD < dCWRAD && this.facingRight){
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], calculateAngleDiffRAD);
         }
         // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
-        else if (dCCW < dCW && !this.facingRight){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
+        else if (dCCWRAD < dCWRAD && !this.facingRight){
+            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], calculateAngleDiffRAD);
         }
         // Otherwise just turn clockwise (Shouldn't actually be possible?)
         else{
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], Math.floor(angleDiff));
+            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"], calculateAngleDiffRAD);
         }
     }
 

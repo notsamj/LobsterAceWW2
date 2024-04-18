@@ -237,8 +237,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkUpDown(){
-        let wKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("w").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
-        let sKeyCount = Math.floor(USER_INPUT_MANAGER.getTickedAggregator("s").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"]);
+        let wKeyCount = USER_INPUT_MANAGER.getTickedAggregator("w").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"];
+        let sKeyCount = USER_INPUT_MANAGER.getTickedAggregator("s").getPressTime() / PROGRAM_DATA["controls"]["angle_change_ms"];
         let numKeysDown = 0;
         numKeysDown += wKeyCount > 0 ? 1 : 0;
         numKeysDown += sKeyCount > 0 ? 1 : 0;
@@ -250,9 +250,9 @@ class HumanFighterPlane extends FighterPlane {
             return;
         }
         if (wKeyCount > 0){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"], wKeyCount);
+            this.decisions["angle"] = -1 * toRadians(Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"], wKeyCount));
         }else if (sKeyCount > 0){
-            this.decisions["angle"] = Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"], sKeyCount);
+            this.decisions["angle"] = toRadians(Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"]), sKeyCount);
         }
     }
 

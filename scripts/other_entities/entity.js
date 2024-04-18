@@ -321,15 +321,15 @@ class Entity {
     hasRadar(){ return false; }
 
     /*
-        Method Name: angleToOtherDEG
+        Method Name: angleToOtherRAD
         Method Parameters:
             otherEntity:
                 Other entity to find an angle to
-        Method Description: Determine the angle between two entities. In degrees.
-        Method Return: Integer
+        Method Description: Determine the angle between two entities. In radians.
+        Method Return: Float
     */
-    angleToOtherDEG(otherEntity){
-        return displacementToDegrees(otherEntity.getX() - this.getX(), otherEntity.getY() - this.getY());
+    angleToOtherRAD(otherEntity){
+        return displacementToRadians(otherEntity.getX() - this.getX(), otherEntity.getY() - this.getY());
     }
 
     // Abstract Methods

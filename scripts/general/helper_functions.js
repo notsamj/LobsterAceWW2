@@ -370,6 +370,22 @@ function listMedian(list){
 }
 
 /*
+    Method Name: isClose
+    Method Parameters:
+        num1:
+            A number
+        num2:
+            A number
+        closeNumber:
+            A small number
+    Method Description: Converts degrees to radians
+    Method Return: float
+*/
+function isClose(num1, num2, closeNumber){
+    return Math.abs(num1 - num2) < closeNumber;
+}
+
+/*
     Method Name: toRadians
     Method Parameters:
         degrees:
@@ -380,6 +396,7 @@ function listMedian(list){
 function toRadians(degrees){
     return degrees * Math.PI / 180;
 }
+
 
 /*
     Method Name: toDegrees
@@ -424,9 +441,21 @@ function fixRadians(angle){
         angle += 2 * Math.PI;
     }
     while (angle >= 2 * Math.PI){
-        angle -= Math.PI;
+        angle -= 2 * Math.PI;
     }
     return angle;
+}
+
+/*
+    Method Name: fixRadians
+    Method Parameters:
+        angle:
+            An angle to "fix"
+    Method Description: Converts to degrees and fixes an angle to the range [0,2*PI)
+    Method Return: float
+*/
+function toFixedRadians(angleDEG){
+    return fixRadians(toRadians(angleDEG));
 }
 
 /*
@@ -440,11 +469,11 @@ function fixRadians(angle){
     Method Return: int
 */
 function displacementToDegrees(dX, dY){
-    return fixDegrees(toDegrees(displacmentToRadians(dX, dY)));
+    return fixDegrees(toDegrees(displacementToRadians(dX, dY)));
 }
 
 /*
-    Method Name: displacmentToRadians
+    Method Name: displacementToRadians
     Method Parameters:
         dX:
             The displacement in x
@@ -452,8 +481,8 @@ function displacementToDegrees(dX, dY){
             The displacement in y
     Method Description: Converts displacement in x, y to an angle in radians
     Method Return: float
-*/
-function displacmentToRadians(dX, dY){
+*/       
+function displacementToRadians(dX, dY){
     // Handle incredibly small displacements
     if (Math.abs(dY) < 1){
         return (dX >= 0) ? toRadians(0) : toRadians(180);
@@ -536,6 +565,24 @@ function calculateAngleDiffDEG(angle1, angle2){
 }
 
 /*
+    Method Name: calculateAngleDiffRAD
+    Method Parameters:
+        angle1:
+            An angle in degrees
+        angle2:
+            An angle in degrees
+    Method Description: Calculates the difference between two angles in radians
+    Method Return: int
+*/
+function calculateAngleDiffRAD(angle1, angle2){
+    let diff = Math.max(angle1, angle2) - Math.min(angle1, angle2);
+    if (diff > Math.PI){
+        diff = 2*Math.PI - diff;
+    }
+    return diff;
+}
+
+/*
     Method Name: calculateAngleDiffDEGCCW
     Method Parameters:
         angle1:
@@ -600,6 +647,20 @@ function rotateCWDEG(angle, amount){
 }
 
 /*
+    Method Name: rotateCWRAD
+    Method Parameters:
+        angle:
+            Angle to rotate
+        amount:
+            Amount to rotate by
+    Method Description: Rotates an angle clockwise by an amount
+    Method Return: float
+*/
+function rotateCWRAD(angle, amount){
+    return fixRadians(angle - amount);
+}
+
+/*
     Method Name: rotateCCWDEG
     Method Parameters:
         angle:
@@ -614,6 +675,20 @@ function rotateCCWDEG(angle, amount){
 }
 
 /*
+    Method Name: rotateCCWRAD
+    Method Parameters:
+        angle:
+            Angle to rotate
+        amount:
+            Amount to rotate by
+    Method Description: Rotates an angle counter clockwise by an amount
+    Method Return: float
+*/
+function rotateCCWRAD(angle, amount){
+    return fixRadians(angle + amount);
+}
+
+/*
     Method Name: angleBetweenCCWDEG
     Method Parameters:
         angle:
@@ -622,7 +697,7 @@ function rotateCCWDEG(angle, amount){
             An angle on one edge of a range
         eAngle2:
             An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction (inclusive)
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction (inclusive)
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
@@ -643,6 +718,90 @@ function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
         }
     }
     return false;
+}
+
+/*
+    Method Name: angleBetweenCWRAD
+    Method Parameters:
+        angle:
+            An angle in radians
+        eAngle1:
+            An angle on one edge of a range (radians)
+        eAngle2:
+            An angle on the other edge of a range (radians)
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction
+    Method Return: boolean, true -> angle is between, false -> angle is not between
+*/
+function angleBetweenCWRAD(angle, eAngle1, eAngle2){
+    if (angle > eAngle1){
+        angle -= 2 * Math.PI;
+    }
+    if (eAngle2 > eAngle1){
+        eAngle2 -= 2 * Math.PI;
+    }
+    let distanceFromEAngle1ToAngleCW = (angle - eAngle1) / -1;
+    let distanceFromEAngle1ToEAngle2CW = (eAngle2 - eAngle1) / -1;
+    return distanceFromEAngle1ToAngleCW <= distanceFromEAngle1ToEAngle2CW;
+}
+
+/*
+    Method Name: angleBetweenCCWRAD
+    Method Parameters:
+        angle:
+            An angle in radians
+        eAngle1:
+            An angle on one edge of a range (radians)
+        eAngle2:
+            An angle on the other edge of a range (radians)
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction
+    Method Return: boolean, true -> angle is between, false -> angle is not between
+*/
+function angleBetweenCCWRAD(angle, eAngle1, eAngle2){
+    if (angle < eAngle1){
+        angle += 2 * Math.PI;
+    }
+    if (eAngle2 < eAngle1){
+        eAngle2 += 2 * Math.PI;
+    }
+    let distanceFromEAngle1ToAngleCCW = angle - eAngle1;
+    let distanceFromEAngle1ToEAngle2CCW = eAngle2 - eAngle1;
+    return distanceFromEAngle1ToAngleCCW <= distanceFromEAngle1ToEAngle2CCW;
+}
+
+/*
+    Method Name: calculateAngleDiffCWRAD
+    Method Parameters:
+        angle1:
+            An angle in radians
+        angle2:
+            An angle in radians
+    Method Description: Calculate the distance in radians from angle1 to angle2
+    Method Return: Float
+*/
+function calculateAngleDiffCWRAD(angle1, angle2){
+    if (angle2 > angle1){
+        angle2 -= 2 * Math.PI;
+    }
+    let difference = (angle2 - angle1) / -1;
+    return difference;
+}
+
+/*
+    Method Name: calculateAngleDiffCCWRAD
+    Method Parameters:
+        angle1:
+            An angle in radians
+        angle2:
+            An angle in radians
+    Method Description: Calculate the distance in radians from angle1 to angle2
+    Method Return: Float
+*/
+function calculateAngleDiffCCWRAD(angle1, angle2){
+    if (angle2 < angle1){
+        angle2 += 2 * Math.PI;
+    }
+    let difference = angle2 - angle1;
+    return difference;
 }
 
 /*
@@ -804,7 +963,7 @@ if (typeof window === "undefined"){
         fixDegrees,
         fixRadians,
         displacementToDegrees,
-        displacmentToRadians,
+        displacementToRadians,
         randomNumberInclusive,
         randomNumber,
         onSameTeam,
@@ -840,6 +999,13 @@ if (typeof window === "undefined"){
         getDegreesFromDisplacement,
         planeModelToType,
         copyArray,
-        getImage
+        getImage,
+        toFixedRadians,
+        calculatedAngleDiffRAD,
+        rotateCWRAD,
+        rotateCCWRAD,
+        angleBetweenCWRAD,
+        angleBetweenCCWRAD,
+        calculateAngleDiffCCWRAD
     }
 }

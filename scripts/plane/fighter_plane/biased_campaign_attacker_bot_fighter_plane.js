@@ -3,8 +3,8 @@ if (typeof window === "undefined"){
     PROGRAM_DATA = require("../../../data/data_json.js");
     BiasedBotFighterPlane = require("./biased_bot_fighter_plane.js");
     helperFunctions = require("../../general/helper_functions.js");
-    calculateAngleDiffDEGCW = helperFunctions.calculateAngleDiffDEGCW;
-    calculateAngleDiffDEGCCW = helperFunctions.calculateAngleDiffDEGCCW;
+    calculateAngleDiffCWRAD = helperFunctions.calculateAngleDiffCWRAD;
+    calculateAngleDiffCCWRAD = helperFunctions.calculateAngleDiffCCWRAD;
 }
 /*
     Class Name: BiasedCampaignAttackerBotFighterPlane
@@ -199,18 +199,13 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
             if (bomber.isFacingRight() != this.isFacingRight()){
                 this.decisions["face"] = this.isFacingRight() ? 1 : -1;
             }
-            let angleToBomberDEG = this.angleToOtherDEG(bomber);
-            let dCW = calculateAngleDiffDEGCW(this.angle, angleToBomberDEG);
-            let dCCW = calculateAngleDiffDEGCCW(this.angle, angleToBomberDEG);
-            let minDiff = Math.min(dCW, dCCW);
-
-            // Don't both changing the angle if the difference is very little
-            if (minDiff < 1){
-                // pass;
-            }else if (dCW < dCCW){
-                this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(dCW));
-            }else if (dCCW < dCW){
-                this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(dCCW));
+            let angleToBomberRAD = this.angleToOtherRAD(bomber);
+            let dCWRAD = calculateAngleDiffCWRAD(this.angle, angleToBomberRAD);
+            let dCCWRAD = calculateAngleDiffCCWRAD(this.angle, angleToBomberRAD);
+            if (dCWRAD < dCCWRAD){
+                this.decisions["angle"] = -1 * Math.min(toFixedRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]), dCWRAD);
+            }else if (dCCWRAD < dCWRAD){
+                this.decisions["angle"] = 1 * Math.min(toFixedRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]), dCCWRAD);
             }
             // Make sure you're at top speed heading to the bomber!
             this.decisions["throttle"] = 1;
@@ -225,21 +220,46 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
         }
 
         // Adjust angle to match bomber's angle
-        let bomberAngle = bomber.getAngle();
-        let dCW = calculateAngleDiffDEGCW(this.angle, bomberAngle);
-        let dCCW = calculateAngleDiffDEGCCW(this.angle, bomberAngle);
-        let angleDiff = calculateAngleDiffDEG(this.angle, bomberAngle);
-        if (dCW < dCCW){
-            this.decisions["angle"] = -1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleDiff));
-        }else if (dCCW < dCW){
-            this.decisions["angle"] = 1 * Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_time"], Math.floor(angleDiff));
+        let bomberAngleRAD = bomber.getAngle();
+        let dCWRAD = calculateAngleDiffCWRAD(this.angle, bomberAngleRAD);
+        let dCCWRAD = calculateAngleDiffCCWRAD(this.angle, bomberAngleRAD);
+        let angleDiffRAD = calculateAngleDiffRAD(this.angle, bomberAngleRAD);
+        if (dCWRAD < dCCWRAD){
+            this.decisions["angle"] = -1 * Math.min(toFixedRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]), angleDiffRAD);
+        }else if (dCCWRAD < dCWRAD){
+            this.decisions["angle"] = 1 * Math.min(toFixedRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]), angleDiffRAD);
         }
         // Speed up or slow down depending on bomber's speed
         let desiredThrottle = Math.floor(this.calculateThrottleToMatchSpeed(bomber.getSpeed() + PROGRAM_DATA["ai"]["fighter_plane"]["bomber_cruise_speed_following_offset"]));
-        if (this.throttle > desiredThrottle){
+        let requiredThrottle = this.calculateThrottleToRealisticallyMatchSpeed(desiredThrottle, bomber.getX(), bomber.getSpeed() + PROGRAM_DATA["ai"]["fighter_plane"]["bomber_cruise_speed_following_offset"]);
+        if (this.throttle > requiredThrottle){
             this.decisions["throttle"] = -1;
-        }else if (this.throttle < desiredThrottle){
+        }else if (this.throttle < requiredThrottle){
             this.decisions["throttle"] = 1;
+        }
+    }
+
+    /*
+        Method Name: calculateThrottleToRealisticallyMatchSpeed
+        Method Parameters:
+            desiredThrottle:
+                The throttle desired by the fighter plane to match the bomber's speed
+            bomberX:
+                The x location of the friendly bomber
+            bomberSpeed:
+                The speed of the friendly bomber
+        Method Description: Determines what throttle this plane should use to match the speed of a bomber but taking into account more information than calculateThrottleToMatchSpeed
+        Method Return: Number
+    */
+    calculateThrottleToRealisticallyMatchSpeed(desiredThrottle, bomberX, bomberSpeed){
+        let displacementToBomber = bomberX - this.getX();
+        // If fairly close to bomber then use the desired throttle
+        if (Math.abs(displacementToBomber) < PROGRAM_DATA["ai"]["fighter_plane"]["max_x_distance_from_bomber_cruising_campaign"] / 8 || this.getSpeed() < bomberSpeed * 0.9){
+            return desiredThrottle;
+        }else if (displacementToBomber > 0){
+            return desiredThrottle * 1.05;
+        }else{
+            return desiredThrottle * 0.15;
         }
     }
 
