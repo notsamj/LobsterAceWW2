@@ -35,6 +35,8 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     */
     tick(){
         this.bombLock.tick();
+
+        // Tick guns (just decreases the tick lock in this case)
         for (let gun of this.guns){
             gun.tick();
         }
@@ -163,17 +165,25 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     }
 
     /*
-        Method Name: executeDecisions
+        Method Name: executeMainDecisions
         Method Parameters: None
         Method Description: Take actions based on saved decisions
         Method Return: void
     */
-    executeDecisions(){
+    executeMainDecisions(){
         // Change facing direction
         if (this.decisions["face"] != 0){
             this.face(this.decisions["face"] == 1 ? true : false);
         }
+    }
 
+    /*
+        Method Name: executeAttackingDecisions
+        Method Parameters: None
+        Method Description: Decide whether or not to shoot
+        Method Return: void
+    */
+    executeAttackingDecisions(){
         // Drop bombs
         if (this.decisions["bombing"]){
             if (this.bombLock.isReady()){

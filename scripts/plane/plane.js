@@ -525,12 +525,15 @@ class Plane extends Entity {
             this.die();
             return;
         }
-        this.executeDecisions();
+         // Then do things like move
+        this.executeMainDecisions();
+        // Move the plane
         let newPositionValues = this.getNewPositionValues(PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.x = newPositionValues["x"];
         this.y = newPositionValues["y"];
         this.speed = newPositionValues["speed"];
         this.gamemode.getSoundManager().play("engine", this.x, this.y);
+        this.executeAttackingDecisions();
         this.makeDecisions();
     }
 
@@ -761,7 +764,6 @@ class Plane extends Entity {
         let newPositionValues = this.getNewPositionValues(extraTime);
         if (this.throttle > 0){
             this.interpolatedAngle = fixRadians(this.getAngle() + (this.isFacingRight() ? 1 : -1) * extraTime / PROGRAM_DATA["settings"]["ms_between_ticks"] * this.decisions["angle"]); 
-
         }else{
             this.interpolatedAngle = fixRadians(this.getAngle());
         }

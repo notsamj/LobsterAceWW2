@@ -35,6 +35,16 @@ class BomberTurret extends Turret {
     }
 
     /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    tick(){
+        this.shootCD.tick();
+    }
+
+    /*
         Method Name: isAutonomous
         Method Parameters: None
         Method Description: Interface for a function that is associated with a member variable of this class
@@ -75,7 +85,7 @@ class BomberTurret extends Turret {
     */
     shoot(){
         if (!this.readyToShoot()){ return; }
-        let shootingAngleRAD = this.decisions["angle"];
+        let shootingAngleRAD = this.getShootingAngle();
         if (!angleBetweenCWRAD(shootingAngleRAD, this.getFov1(), this.getFov2())){ 
             return; 
         }
@@ -126,9 +136,6 @@ class BomberTurret extends Turret {
     */
     getInterpolatedX(){
         let planeAngleRAD = this.plane.getInterpolatedAngle();
-        if (!this.isFacingRight()){
-            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
-        }
         let rotatedX = Math.cos(planeAngleRAD) * this.getXOffset() - Math.sin(planeAngleRAD) * this.getYOffset() + this.plane.getInterpolatedX();
         return rotatedX;
     }
@@ -141,9 +148,6 @@ class BomberTurret extends Turret {
     */
     getInterpolatedY(){
         let planeAngleRAD = this.plane.getInterpolatedAngle();
-        if (!this.isFacingRight()){
-            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
-        }
         let rotatedY = Math.sin(planeAngleRAD) * this.getXOffset() + Math.cos(planeAngleRAD) * this.getYOffset() + this.plane.getInterpolatedY();
         return rotatedY;
     }
@@ -233,6 +237,63 @@ class BomberTurret extends Turret {
         Method Return: String
     */
     getID(){ return this.plane.getID(); }
+
+    /*
+        Method Name: getShootingAngle
+        Method Parameters: None
+        Method Description: Provides the current shooting angle
+        Method Return: Float
+    */
+    getShootingAngle(){
+        let shootingAngle = this.angle;
+        // If facing left, adjust
+        if (!this.isFacingRight()){
+            shootingAngle = 2 * Math.PI - shootingAngle;
+        }
+        shootingAngle = fixRadians(shootingAngle + this.plane.getNoseAngle());
+        return shootingAngle;
+    }
+
+    /*
+        Method Name: adjustAngleToMatch
+        Method Parameters:
+            newShootingAngle:
+                A new shooting angle to try and match
+        Method Description: Adjusts the current angle to match a provided angle
+        Method Return: void
+    */
+    adjustAngleToMatch(newShootingAngle){
+        let currentShootingAngle = this.getShootingAngle();
+        // Don't adjust if the same
+        if (currentShootingAngle == newShootingAngle){ return; }
+        let diffCW = calculateAngleDiffCWRAD(currentShootingAngle, newShootingAngle); 
+        let diffCCW = calculateAngleDiffCCWRAD(currentShootingAngle, newShootingAngle);
+        let rotateCW = (diffCW < diffCCW && this.isFacingRight()) || (diffCW > diffCCW && !this.isFacingRight())
+        //console.log("currently: %d\nnew: %d\ndiffCW: %d\ndiffCCW: %d\nrotateCW:", toDegrees(currentShootingAngle), toDegrees(newShootingAngle), toDegrees(diffCW), toDegrees(diffCCW), rotateCW)
+        // Rotate based on determination
+        if (rotateCW){
+            this.angle = rotateCWRAD(this.angle, diffCW);
+        }else{
+            this.angle = rotateCCWRAD(this.angle, diffCCW);
+        }
+    }
+
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Takes actions based on decisions
+        Method Return: void
+    */
+    executeDecisions(){
+        // If decided to shoot
+        if (this.decisions["shooting"]){
+            if (this.shootCD.isReady() && this.getGamemode().runsLocally()){
+                this.shoot();
+            }
+        }
+        // Move turret to match angle
+        this.adjustAngleToMatch(this.decisions["angle"]);
+    }
 }
 
 // If using NodeJS -> Export the class

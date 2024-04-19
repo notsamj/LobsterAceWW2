@@ -36,16 +36,6 @@ class BotBomberTurret extends BomberTurret {
     }
 
     /*
-        Method Name: tick
-        Method Parameters: None
-        Method Description: Conduct decisions to do each tick
-        Method Return: void
-    */
-    tick(){
-        this.shootCD.tick();
-    }
-
-    /*
         Method Name: makeDecisions
         Method Parameters:
             enemyList:
@@ -80,37 +70,32 @@ class BotBomberTurret extends BomberTurret {
         let enemyYDisplacement = null;
         let angleRAD = null;
         let distanceToEnemy = null;
+        let fov1 = this.getFov1();
+        let fov2 = this.getFov2();
+
         // Look for other enemies that aren't the primary focus and if they are infront of the plane then shoot
         for (let enemy of enemyList){
-            if (hasDecidedToFireShot){ break; }
             enemyX = enemy.getX();
             enemyY = enemy.getY();
             enemyXDisplacement = enemyX - myX;
             enemyYDisplacement = enemyY - myY;
             // TODO: Maybe use the ANGLE TO ENTITY function?
             angleRAD = displacementToRadians(enemyXDisplacement, enemyYDisplacement);
+            //console.log("angle", toDegrees(angleRAD), angleBetweenCWRAD(angleRAD, fov1, fov2));
+            // Ignore planes that aren't in line of sight
+            if (!angleBetweenCWRAD(angleRAD, fov1, fov2)){ 
+                continue; 
+            }
             distanceToEnemy = enemy.distanceToPoint(myX, myY);
             hasDecidedToFireShot = this.isEnemyClose(distanceToEnemy);
+            if (hasDecidedToFireShot){ break; }
         }
+
         // If the decision has been made to shoot then record it
         if (hasDecidedToFireShot){
+            //console.log("Decided on", toDegrees(angleRAD))
             this.decisions["angle"] = angleRAD;
             this.decisions["shooting"] = true;
-        }
-    }
-
-    /*
-        Method Name: executeDecisions
-        Method Parameters: None
-        Method Description: Takes actions based on decisions
-        Method Return: void
-    */
-    executeDecisions(){
-        // If decided to shoot
-        if (this.decisions["shooting"]){
-            if (this.shootCD.isReady() && this.getGamemode().runsLocally()){
-                this.shoot();
-            }
         }
     }
 

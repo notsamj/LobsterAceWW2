@@ -25,7 +25,7 @@ class FighterPlane extends Plane {
     */
     constructor(planeClass, gamemode, autonomous){
         super(planeClass, gamemode, autonomous);
-        this.shootLock = new TickLock(PROGRAM_DATA["settings"]["plane_shoot_gap_ms"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.shootLock = new TickLock(PROGRAM_DATA["plane_data"][planeClass]["rate_of_fire"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
     /*
@@ -99,20 +99,12 @@ class FighterPlane extends Plane {
     }
 
     /*
-        Method Name: executeDecisions
+        Method Name: executeMainDecisions
         Method Parameters: None
         Method Description: Take actions based on saved decisions
         Method Return: void
     */
-    executeDecisions(){
-        // Check shooting
-        if (this.decisions["shoot"]){
-            if (this.shootLock.isReady() && this.gamemode.runsLocally()){
-                this.shootLock.lock();
-                this.shoot();
-            }
-        }
-
+    executeMainDecisions(){
         // Change facing direction
         if (this.decisions["face"] != 0){
             this.face(this.decisions["face"] == 1 ? true : false);
@@ -126,6 +118,22 @@ class FighterPlane extends Plane {
         // Adjust throttle
         if (this.decisions["throttle"] != 0){
             this.adjustThrottle(this.decisions["throttle"]);
+        }
+    }
+    
+    /*
+        Method Name: executeAttackingDecisions
+        Method Parameters: None
+        Method Description: Decide whether or not to shoot
+        Method Return: void
+    */
+    executeAttackingDecisions(){
+        // Check shooting
+        if (this.decisions["shoot"]){
+            if (this.shootLock.isReady() && this.gamemode.runsLocally()){
+                this.shootLock.lock();
+                this.shoot();
+            }
         }
     }
 
@@ -183,9 +191,6 @@ class FighterPlane extends Plane {
     */
     getInterpolatedGunX(){
         let planeAngleRAD = this.getInterpolatedAngle();
-        if (!this.isFacingRight()){
-            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
-        }
         let rotatedX = Math.cos(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) - Math.sin(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getInterpolatedX();
         return rotatedX;
     }
@@ -198,9 +203,6 @@ class FighterPlane extends Plane {
     */
     getInterpolatedGunY(){
         let planeAngleRAD = this.getInterpolatedAngle();
-        if (!this.isFacingRight()){
-            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180));
-        }
         let rotatedY = Math.sin(planeAngleRAD) * (PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_x"] * (this.isFacingRight() ? 1 : -1)) + Math.cos(planeAngleRAD) * PROGRAM_DATA["plane_data"][this.getPlaneClass()]["gun_offset_y"] + this.getInterpolatedY();
         return rotatedY;
     }

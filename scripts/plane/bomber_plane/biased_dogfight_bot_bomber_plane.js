@@ -146,10 +146,14 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     */
     tick(){
         this.updateEnemyLock.tick();
+        
+        // Do movement stuff
+        super.tick();
+        
+        // Guns come last so bullets in proper position
         for (let gun of this.guns){
             gun.tick();
         }
-        super.tick();
     }
 
     /*
@@ -206,12 +210,12 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     }
 
     /*
-        Method Name: executeDecisions
+        Method Name: executeMainDecisions
         Method Parameters: None
         Method Description: Take actions based on saved decisions
         Method Return: void
     */
-    executeDecisions(){
+    executeMainDecisions(){
         // Change facing direction
         if (this.decisions["face"] != 0){
             this.face(this.decisions["face"] == 1 ? true : false);
@@ -221,7 +225,15 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         if (this.decisions["angle"] != 0){
             this.adjustAngle(this.decisions["angle"]);
         }
+    }
 
+    /*
+        Method Name: executeAttackingDecisions
+        Method Parameters: None
+        Method Description: Decide whether or not to shoot
+        Method Return: void
+    */
+    executeAttackingDecisions(){
         // Let guns shoot
         for (let gun of this.guns){
             gun.executeDecisions();

@@ -45,12 +45,12 @@ class HumanBomberTurret extends BomberTurret {
     }
     
     /*
-        Method Name: getShootingAngle
+        Method Name: getMouseAngle
         Method Parameters: None
         Method Description: Determines the shooting angle of the turret by looking at the position of the user's mouse.
         Method Return: int
     */
-    getShootingAngle(){
+    getMouseAngle(){
         let x = window.mouseX - getScreenWidth() / 2;
         let y = this.getGamemode().getScene().changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
         let x0 = 0;
@@ -66,23 +66,13 @@ class HumanBomberTurret extends BomberTurret {
     */
     checkShoot(){
         if (USER_INPUT_MANAGER.isActivated("bomber_shoot_input")){
-            this.decisions["shooting"] = true;
-            this.decisions["angle"] = this.getShootingAngle();
-        }
-    }
-
-    /*
-        Method Name: executeDecisions
-        Method Parameters: None
-        Method Description: Take actions based on decisions
-        Method Return: void
-    */
-    executeDecisions(){
-        // If decided to shoot
-        if (this.decisions["shooting"]){
-            if (this.shootCD.isReady() && this.getGamemode().runsLocally()){
-                this.shoot();
+            let mouseAngle = this.getMouseAngle();
+            // Ignore planes that aren't in line of sight
+            if (!angleBetweenCWRAD(mouseAngle, this.getFov1(), this.getFov2())){
+                return; 
             }
+            this.decisions["shooting"] = true;
+            this.decisions["angle"] = mouseAngle;
         }
     }
 

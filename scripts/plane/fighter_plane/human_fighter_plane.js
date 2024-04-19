@@ -161,7 +161,6 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     makeDecisions(){
-        //console.log("Go", this.isAutonomous())
         // Sometimes the human will be controlled by the external input so don't make decisions
         if (!this.isAutonomous()){
             return;

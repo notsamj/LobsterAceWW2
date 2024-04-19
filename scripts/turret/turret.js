@@ -34,10 +34,23 @@ class Turret {
         this.fov2 = fov2;
         this.gamemode = gamemode;
         this.model = "turret";
+        this.startingAngle = (fov1 + fov2)/2;
+        this.angle = this.startingAngle;
         this.decisions = {
             "shooting": false, // true -> shooting, false -> not shooting
-            "angle": null // angle in radians [0,2*PI)
+            "angle": this.startingAngle // angle in radians [0,2*PI)
         }
+    }
+
+    /*
+        Method Name: getShootingAngle
+        Method Parameters: None
+        Method Description: Provides the current shooting angle
+        Method Return: Float
+    */
+
+    getShootingAngle(){
+        return this.angle;
     }
 
     /*
@@ -86,8 +99,8 @@ class Turret {
     */
     tick(){
         this.shootCD.tick();
-        this.makeDecisions();
         this.executeDecisions();
+        this.makeDecisions();
     }
 
     // Abstract
@@ -102,6 +115,7 @@ class Turret {
     */
     resetDecisions(){
         this.decisions["shooting"] = false;
+        this.decisions["angle"] = this.getShootingAngle(); // Don't move
     }
 
     /*
@@ -174,8 +188,6 @@ class Turret {
         return this.shootCD.isReady();
     }
 
-    // Abstract
-    getShootingAngle(){}
     getID(){}
 }
 

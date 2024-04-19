@@ -171,6 +171,7 @@ class HumanBomberPlane extends BomberPlane {
     tick(){
         this.radarLock.tick();
         this.bombLock.tick();
+        // Tick guns just does the shoot lock stuff
         for (let gun of this.guns){
             gun.tick();
         }
@@ -193,7 +194,7 @@ class HumanBomberPlane extends BomberPlane {
         this.checkUpDown();
         this.checkThrottle();
         this.checkBomb();
-
+        // Make gun decisions
         for (let gun of this.guns){
             gun.makeDecisions();
         }
@@ -217,12 +218,12 @@ class HumanBomberPlane extends BomberPlane {
     }
 
     /*
-        Method Name: executeDecisions
+        Method Name: executeMainDecisions
         Method Parameters: None
         Method Description: Take actions based on saved decisions
         Method Return: void
     */
-    executeDecisions(){
+    executeMainDecisions(){
         // Change facing direction
         if (this.decisions["face"] != 0){
             this.face(this.decisions["face"] == 1 ? true : false);
@@ -237,7 +238,15 @@ class HumanBomberPlane extends BomberPlane {
         if (this.decisions["throttle"] != 0){
             this.adjustThrottle(this.decisions["throttle"]);
         }
+    }
 
+    /*
+        Method Name: executeAttackingDecisions
+        Method Parameters: None
+        Method Description: Decide whether or not to shoot and bomb
+        Method Return: void
+    */
+    executeAttackingDecisions(){
         // Drop bombs
         if (this.decisions["bombing"]){
             if (this.bombLock.isReady() && this.gamemode.runsLocally()){

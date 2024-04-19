@@ -583,7 +583,7 @@ function calculateAngleDiffRAD(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCCW
+    Method Name: calculateAngleDiffCCWDEG
     Method Parameters:
         angle1:
             An angle in degrees
@@ -592,7 +592,7 @@ function calculateAngleDiffRAD(angle1, angle2){
     Method Description: Calculates the difference between two angles in degrees (in the counter clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCCW(angle1, angle2){
+function calculateAngleDiffCCWDEG(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -608,7 +608,7 @@ function calculateAngleDiffDEGCCW(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCW
+    Method Name: calculateAngleDiffCWDEG
     Method Parameters:
         angle1:
             An angle in degrees
@@ -617,7 +617,7 @@ function calculateAngleDiffDEGCCW(angle1, angle2){
     Method Description: Calculates the difference between two angles in degrees (in the clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCW(angle1, angle2){
+function calculateAngleDiffCWDEG(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -968,8 +968,8 @@ if (typeof window === "undefined"){
         randomNumber,
         onSameTeam,
         calculateAngleDiffDEG,
-        calculateAngleDiffDEGCW,
-        calculateAngleDiffDEGCCW,
+        calculateAngleDiffCWDEG,
+        calculateAngleDiffCCWDEG,
         rotateCWDEG,
         rotateCCWDEG,
         angleBetweenCWDEG,

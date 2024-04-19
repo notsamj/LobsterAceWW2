@@ -25,7 +25,7 @@ class BomberPlane extends Plane {
     constructor(planeClass, gamemode, autonomous){
         super(planeClass, gamemode, autonomous);
         this.decisions["bombing"] = false;
-        this.bombLock = new TickLock(750 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.bombLock = new TickLock(PROGRAM_DATA["bomb_data"]["bomb_gap_ms"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
     /*
@@ -136,7 +136,7 @@ class BomberPlane extends Plane {
                 // Display flash
                 let rotateX = this.gamemode.getScene().getDisplayX(gun.getInterpolatedX(), 0, lX);
                 let rotateY = this.gamemode.getScene().getDisplayY(gun.getInterpolatedY(), 0, bY);
-                let interpolatedAngle = this.getInterpolatedAngle();
+                let interpolatedAngle = gun.getShootingAngle();
                 let flashImage = getImage("flash");
                 let flashImageWidth = flashImage.width;
                 let flashImageHeight = flashImage.height;
