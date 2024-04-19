@@ -32,9 +32,8 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Return: Constructor
     */
     constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, biases){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
+        super(xOffset, yOffset, fov1, fov2, rateOfFire * biases["rate_of_fire_multiplier"], plane);
         this.biases = biases;
-        this.shootCD = new TickLock(this.shootCD.getCooldown() * this.biases["rate_of_fire_multiplier"]);
     }
 
     /*
@@ -62,7 +61,11 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Return: void
     */
     checkShoot(enemyList){
+        let angleBefore = this.decisions["angle"];
         super.checkShoot(enemyList);
+        let angleNow = this.decisions["angle"];
+        // Ignore if angle doesn't change the bias only affects changes
+        if (angleBefore == angleNow){ return; }
         this.decisions["angle"] = fixRadians(this.decisions["angle"] + toRadians(this.biases["shooting_angle_offset"]));
     }
 
@@ -74,23 +77,6 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Description: Adjusts the current angle to match a provided angle
         Method Return: void
     */
-    /*adjustAngleToMatch(newShootingAngle){
-        let currentShootingAngle = this.getShootingAngle();
-        // Don't adjust if the same
-        if (currentShootingAngle == newShootingAngle){ return; }
-        let diffCW = calculateAngleDiffCWRAD(getShootingAngle, newShootingAngle); 
-        let diffCCW = calculateAngleDiffCCWRAD(getShootingAngle, newShootingAngle);
-        let rotateCW = (diffCW < diffCCW && this.isFacingRight()) || (diffCW > diffCCW && !this.isFacingRight())
-        console.log("c: %d\nn: %d\ndcw: %d\ndccw: %d\nrotateCW:", currentShootingAngle, newShootingAngle, diffCW, diffCCW, rotateCW)
-        // Rotate based on determination
-        if (rotateCW){
-            console.log("Rotating clockwise", toDegrees(diffCW), "old", toDegrees(this.angle), "new", toDegrees(rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW))))
-            this.angle = rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW));
-        }else{
-            console.log("Rotating counterclockwise", toDegrees(diffCCW), "old", toDegrees(this.angle), "new", toDegrees(rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW))))
-            this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
-        }
-    }*/
     adjustAngleToMatch(newShootingAngle){
         let currentShootingAngle = this.getShootingAngle();
         // Don't adjust if the same
@@ -104,6 +90,7 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         }else{
             this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
         }
+        //console.log("I want to aim at: %d\nI am now aiming at: %d\nI will now aim at: %d", toDegrees(newShootingAngle), toDegrees(currentShootingAngle), toDegrees(this.getShootingAngle()));
     }
 
 }

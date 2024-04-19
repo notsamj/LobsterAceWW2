@@ -59,7 +59,6 @@ class BotBomberTurret extends BomberTurret {
         Method Return: void
     */
     checkShoot(enemyList){
-        if (this.shootCD.notReady()){ return; }
         // Shoot if the enemy is in front
         let hasDecidedToFireShot = false;
         let myX = this.getX();

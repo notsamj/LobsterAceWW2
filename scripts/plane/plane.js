@@ -248,17 +248,17 @@ class Plane extends Entity {
     goodToFollow(){ return true; }
 
     /*
-        Method Name: getSmokeNumber
+        Method Name: getSmokeStage
         Method Parameters: None
         Method Description: Provides information about what state of decay the plane is in
         Method Return: an integer number in range [0, Number of smoke images]
     */
-    getSmokeNumber(){
+    getSmokeStage(){
         let hpMissingProportion = (this.startingHealth - this.health) / this.startingHealth;
-        let phaseTotal = PROGRAM_DATA["smoke_images"].length + 1;
+        let phaseTotal = PROGRAM_DATA["plane_smoke"]["number_of_stages"] + 1;
         let phaseIntervalSize = 1 / phaseTotal;
-        let smokeNumber = Math.floor(hpMissingProportion / phaseIntervalSize);
-        return smokeNumber;
+        let smokeStage = Math.floor(hpMissingProportion / phaseIntervalSize);
+        return smokeStage;
     }
 
     /*
@@ -268,18 +268,19 @@ class Plane extends Entity {
         Method Return: Boolean, true -> smoking, false -> not smoking
     */
     isSmoking(){
-        return this.getSmokeNumber() > 0;
+        return this.getSmokeStage() > 0;
     }
 
     /*
-        Method Name: getSmokeImage
+        Method Name: displaySmoke
         Method Parameters: None
-        Method Description: Finds the appropriate smoke image for a plane
-        Method Return: Image
-        Note: Assumes smoke number is in range [1,MAX_SMOKE_NUMBER]
+        Method Description: Displays smoke if this plane is sufficiently damaged
+        Method Return: void
     */
-    getSmokeImage(){
-        return IMAGES["smoke_" + this.getSmokeNumber()];
+    displaySmoke(){
+        if (!this.isSmoking()){ return; }
+        let smokeStage = this.getSmokeStage();
+        this.gamemode.getVisualEffectManager().addPlaneSmoke(this.getID(), smokeStage, this.getPlaneClass(), (this instanceof BomberPlane) ? 2 : 1, this.getInterpolatedX(), this.getInterpolatedY(), this.getInterpolatedAngle(), this.isFacingRight());
     }
 
     /*
@@ -799,9 +800,6 @@ class Plane extends Entity {
 
         // If dead then draw the explosion instead
         if (this.isDead()){
-            scale(this.getWidth() / getImage("explosion").width, this.getHeight() / getImage("explosion").height);
-            drawingContext.drawImage(getImage("explosion"), displayX  / (this.getWidth() / getImage("explosion").width), displayY / (this.getHeight() / getImage("explosion").height));
-            scale(getImage("explosion").width / this.getWidth(),getImage("explosion").height / this.getHeight()); 
             return; 
         }
 
@@ -831,29 +829,8 @@ class Plane extends Entity {
         rotate(interpolatedAngle);
         translate(-1 * rotateX, -1 * rotateY);
 
-        // If smoking then draw a smoke image overtop
-        if (this.isSmoking()){
-            // Prepare the display
-            translate(rotateX, rotateY);
-            rotate(-1 * interpolatedAngle);
-
-            // If facing left then turn around the display
-            if (!this.isFacingRight()){
-                scale(-1 * this.getWidth() / this.getSmokeImage().width, this.getHeight() / this.getSmokeImage().height);
-            }
-
-            // Display smoke
-            drawingContext.drawImage(this.getSmokeImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
-
-            // If facing left then turn around the display (reset)
-            if (!this.isFacingRight()){
-                scale(-1 * this.getSmokeImage().width / this.getWidth(), this.getSmokeImage().height / this.getHeight());
-            }
-            
-            // Reset the rotation and translation
-            rotate(interpolatedAngle);
-            translate(-1 * rotateX, -1 * rotateY);
-        }
+        // Display Smoke
+        this.displaySmoke();
     }
 
     /*

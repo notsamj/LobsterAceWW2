@@ -85,11 +85,6 @@ async function loadExtraImages(){
     for (let imageName of PROGRAM_DATA["extra_images_to_load"]){
         await loadToImages(imageName);
     }
-
-    // Load all the smoke images
-    for (let imageName of PROGRAM_DATA["smoke_images"]){
-        await loadToImages(imageName);
-    }
 }
 
 /*

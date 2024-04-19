@@ -29,6 +29,7 @@ class Gamemode {
         this.soundManager = new SoundManager(this);
         this.statsManager = new AfterMatchStats(this);
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
+        this.visualEffectManager = new VisualEffectManager(this);
 
         // Default Values subject to change
         this.bulletPhysicsEnabled = false;
@@ -93,6 +94,16 @@ class Gamemode {
     */
     getTeamCombatManager(){
         return this.teamCombatManager;
+    }
+
+    /*
+        Method Name: getVisualEffectManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: VisualEffectManager
+    */
+    getVisualEffectManager(){
+        return this.visualEffectManager;
     }
 
     /*

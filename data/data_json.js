@@ -14,6 +14,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 126-64,
             "gun_offset_y": 64-61,
+            "tail_offset_x": 8-64,
+            "tail_offset_y": 64-35,
             "bullet_damage": 1.35,
             "rate_of_fire": 60
         },
@@ -25,6 +27,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 89-64,
             "gun_offset_y": 64-78,
+            "tail_offset_x": 14-64,
+            "tail_offset_y": 64-36,
             "bullet_damage": 1.2,
             "rate_of_fire": 80
         },
@@ -36,6 +40,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 84-64,
             "gun_offset_y": 64-75,
+            "tail_offset_x": 13-64,
+            "tail_offset_y": 64-23,
             "bullet_damage": 1.15,
             "rate_of_fire": 75
         },
@@ -47,6 +53,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 60-64,
             "gun_offset_y": 64-86,
+            "tail_offset_x": 14-64,
+            "tail_offset_y": 64-1,
             "bullet_damage": 1.2,
             "rate_of_fire": 100
         },
@@ -58,6 +66,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 86-64,
             "gun_offset_y": 64-78,
+            "tail_offset_x": 6-64,
+            "tail_offset_y": 64-26,
             "bullet_damage": 1.5,
             "rate_of_fire": 100
         },
@@ -69,6 +79,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 81-64,
             "gun_offset_y": 64-74,
+            "tail_offset_x": 10-64,
+            "tail_offset_y": 64-30,
             "bullet_damage": 1.1,
             "rate_of_fire": 100
         },
@@ -80,6 +92,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 87-64,
             "gun_offset_y": 64-85,
+            "tail_offset_x": 6-64,
+            "tail_offset_y": 64-46,
             "bullet_damage": 1,
             "rate_of_fire": 50
         },
@@ -91,6 +105,8 @@ const PROGRAM_DATA = {
             "type": "Fighter",
             "gun_offset_x": 88-64,
             "gun_offset_y": 64-65,
+            "tail_offset_x": 6-64,
+            "tail_offset_y": 64-37,
             "bullet_damage": 1,
             "rate_of_fire": 100
         },
@@ -102,6 +118,8 @@ const PROGRAM_DATA = {
             "type": "Bomber",
             "bomb_offset_x": 123-128,
             "bomb_offset_y": 128-136,
+            "tail_offset_x": 23-128,
+            "tail_offset_y": 128-83,
             "bullet_damage": 4,
             "bomb_damage": 1,
             "guns": [
@@ -159,8 +177,8 @@ const PROGRAM_DATA = {
         "size": 34,
         "blip_size": 5,
         "border_width": 2,
-        "distance_multiplier_a": 500,
-        "base_distance": 1.3112,
+        "distance_multiplier_a": 100,
+        "base_distance": 1.45,
         "fighter_weight": 1,
         "bomber_weight": 4,
         "building_weight": 10,
@@ -210,7 +228,8 @@ const PROGRAM_DATA = {
         "max_expected_screen_height": 2160,
         "max_cloud_animation_speed_y": 0.5,
         "max_cloud_animation_speed_x": 0.5,
-        "max_tick_deficit": 100
+        "max_tick_deficit": 100,
+        "expected_plane_size": 64
     },
     "constants": {
         "gravity": 9.81
@@ -303,17 +322,107 @@ const PROGRAM_DATA = {
         "bomb",
         "dirt",
         "above_ground",
-        "clouds",
         "freecam",
-        "explosion",
         "flash"
     ],
 
-    "smoke_images": [
-        "smoke_1",
-        "smoke_2",
-        "smoke_3"
-    ],
+    "other_effects": {
+        "building_collapse": {
+            "fake_building": {
+                "life_span_ms": 2000,
+            },
+            "inside_smoke": {
+                "colour": "#909091",
+                "number": 20,
+                "diameter": 5,
+                "life_span_ms": 4000
+            },
+            "runaway_smoke": {
+                "colour": "#a8aaad",
+                "number": 40,
+                "diameter": 5,
+                "life_span_ms": 2000,
+                "y_position": 0.25,
+                "max_speed": 50
+            }
+        },
+
+        "explosion": {
+            "center_ball": {
+                "start_diamater": 5,
+                "end_diameter": 10,
+                "colour": "#ff000b",
+                "life_span_ms": 1000
+            },
+            "secondary_ball": {
+                "start_diamater": 8,
+                "end_diameter": 16,
+                "colour": "#ff5400",
+                "life_span_ms": 1000
+                "delay": 500
+            },
+            "smoke": {
+                "number": 16,
+                "diameter": 4,
+                "colour": "#404040",
+                "delay": 750,
+                "life_span_ms": 10000
+            }
+        }
+    }
+
+    "plane_smoke": {
+        "number_of_stages": 3,
+        "plane_smoke_interval_ms": 600, // 1400 was ok....
+        "smoke_life_length_ms": 2000,
+        "stage_details": [
+            // 1
+            [
+                {
+                    "colour": "#dee3e0",
+                    "number": 3,
+                    "spread": 7,
+                    "diameter": 6
+                }
+            ],
+            // 2
+            [
+                {
+                    "colour": "#707070",
+                    "number": 6,
+                    "spread": 7,
+                    "diameter": 6
+                }
+            ],
+            // 3
+            [
+                {
+                    "colour": "#2e2d2d",
+                    "number": 8,
+                    "spread": 8,
+                    "diameter": 7
+                },
+                {
+                    "colour": "#3b3939",
+                    "number": 8,
+                    "spread": 8,
+                    "diameter": 7
+                },
+                {
+                    "colour": "#d10808",
+                    "number": 3,
+                    "spread": 8,
+                    "diameter": 5
+                },
+                {
+                    "colour": "#ff5226",
+                    "number": 3,
+                    "spread": 8,
+                    "diameter": 6
+                }
+            ]
+        ]
+    },
 
     "team_to_colour": {
         // General

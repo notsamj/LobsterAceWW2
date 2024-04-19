@@ -129,39 +129,42 @@ class BomberPlane extends Plane {
         if (this.isDead()){
             return;
         }
-
         // For each gun, if on shooting cooldown then show the flash image
         for (let gun of this.guns){
-            if (!gun.readyToShoot()){
-                // Display flash
-                let rotateX = this.gamemode.getScene().getDisplayX(gun.getInterpolatedX(), 0, lX);
-                let rotateY = this.gamemode.getScene().getDisplayY(gun.getInterpolatedY(), 0, bY);
-                let interpolatedAngle = gun.getShootingAngle();
-                let flashImage = getImage("flash");
-                let flashImageWidth = flashImage.width;
-                let flashImageHeight = flashImage.height;
-
-                // Prepare the display
-                translate(rotateX, rotateY);
-                rotate(-1 * interpolatedAngle);
-
-                // If facing left then turn around the display
-                if (!this.isFacingRight()){
-                    scale(-1, 1);
-                }
-
-                // Display flash
-                drawingContext.drawImage(flashImage, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
-
-                // If facing left then turn around the display (reset)
-                if (!this.isFacingRight()){
-                    scale(-1, 1);
-                }
-                
-                // Reset the rotation and translation
-                rotate(interpolatedAngle);
-                translate(-1 * rotateX, -1 * rotateY);
+            if (gun.readyToShoot() && gun.decisions["shooting"]){
+                //console.log("why/???")
             }
+            // Don't display if ready to shoot
+            if (gun.readyToShoot()){ continue; }
+
+            // Display flash
+            let rotateX = this.gamemode.getScene().getDisplayX(gun.getInterpolatedX(), 0, lX);
+            let rotateY = this.gamemode.getScene().getDisplayY(gun.getInterpolatedY(), 0, bY);
+            let interpolatedAngle = gun.getShootingAngle();
+            let flashImage = getImage("flash");
+            let flashImageWidth = flashImage.width;
+            let flashImageHeight = flashImage.height;
+
+            // Prepare the display
+            translate(rotateX, rotateY);
+            rotate(-1 * interpolatedAngle);
+
+            // If facing left then turn around the display
+            if (!this.isFacingRight()){
+                scale(-1, 1);
+            }
+
+            // Display flash
+            drawingContext.drawImage(flashImage, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+
+            // If facing left then turn around the display (reset)
+            if (!this.isFacingRight()){
+                scale(-1, 1);
+            }
+            
+            // Reset the rotation and translation
+            rotate(interpolatedAngle);
+            translate(-1 * rotateX, -1 * rotateY);
         }
     }
 }

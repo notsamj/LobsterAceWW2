@@ -146,14 +146,13 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     */
     tick(){
         this.updateEnemyLock.tick();
-        
-        // Do movement stuff
-        super.tick();
-        
-        // Guns come last so bullets in proper position
+        // Tick the locks on the guns
         for (let gun of this.guns){
             gun.tick();
         }
+
+        // Do movement stuff
+        super.tick();
     }
 
     /*

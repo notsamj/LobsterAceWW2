@@ -72,16 +72,29 @@ class PlaneGameScene {
         Method Parameters:
             gamemode:
                 The gamemode using the scene
+            visualEffectManager:
+                A maanger of visual effects
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(gamemode=null){
+    constructor(gamemode=null, visualEffectManager=null){
         this.gamemode = gamemode;
         this.skyManager = new SkyManager(this);
+        this.visualEffectManager = visualEffectManager;
         this.entities = new NotSamLinkedList();
         this.focusedEntity = null;
         this.ticksEnabled = true;
         this.displayEnabled = true;
+    }
+
+    /*
+        Method Name: hasVisualEffectManager
+        Method Parameters: None
+        Method Description: Checks whether this has a visual effect manager
+        Method Return: Boolean
+    */
+    hasVisualEffectManager(){
+        return this.visualEffectManager != null;
     }
 
     /*
@@ -541,8 +554,7 @@ class PlaneGameScene {
         Method Return: void
     */
     displayBackground(lX, bY){
-        let SkyManager = this.getSkyManager();
-        SkyManager.displaySky();
+        this.skyManager.displaySky();
         let lXP = Math.floor(lX);
         let bYP = Math.floor(bY);
         let groundImage = IMAGES[PROGRAM_DATA["background"]["ground"]["picture"]];
@@ -620,7 +632,12 @@ class PlaneGameScene {
         }
 
         // Display Clouds over entities
-        this.getSkyManager().displayClouds(lX, bY);
+        this.skyManager.displayClouds(lX, bY);
+
+        // Display visual effects
+        if (this.hasVisualEffectManager()){
+            this.visualEffectManager.display(this, lX, bY);
+        }
 
         // Display the HUD
         this.displayHUD();

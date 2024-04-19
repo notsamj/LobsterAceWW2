@@ -13,7 +13,7 @@ class GamemodeClient {
     */
     constructor(gamemode){
         this.gamemode = gamemode;
-        this.scene = new PlaneGameScene(this.gamemode);
+        this.scene = new PlaneGameScene(this.gamemode, this.gamemode.getVisualEffectManager());
         this.deadCamera = null; // Used when the user is a plane but is dead so becomes a camera
         this.gamemode.attachToClient(this);
     }

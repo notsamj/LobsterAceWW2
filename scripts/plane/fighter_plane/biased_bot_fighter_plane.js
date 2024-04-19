@@ -410,10 +410,6 @@ class BiasedBotFighterPlane extends FighterPlane {
         else{
             this.decisions["angle"] = 1 * Math.min(toFixedRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]), angleDifferenceRAD);
         }
-
-        if (this.planeClass == "spitfire"){
-            console.log("diff between my angle and enemy angle %f\nmy angle %f\nangle to enemy %f\nmy angle change %f\ndcW %f\ndccw %f\nfacingright", toDegrees(angleDifferenceRAD), toDegrees(myAngle), toDegrees(angleRAD), toDegrees(this.decisions["angle"]), toDegrees(dCW), toDegrees(dCCW), this.facingRight)
-        }
     }
 
     /*
@@ -430,8 +426,8 @@ class BiasedBotFighterPlane extends FighterPlane {
     */
     tryToShootAtEnemy(angleDifferenceRAD, enemyRadius, distanceToEnemy){
         let angleAllowanceAtRangeRAD = Math.abs(Math.atan(enemyRadius / distanceToEnemy));
-        // If ready to shoot and the angle & distance are acceptable then shoot
-        if (this.shootLock.isReady() && angleDifferenceRAD < fixRadians(angleAllowanceAtRangeRAD + toRadians(this.biases["angle_allowance_at_range"])) && distanceToEnemy < this.getMaxShootingDistance()){
+        // If the angle & distance are acceptable then shoot
+        if (angleDifferenceRAD < fixRadians(angleAllowanceAtRangeRAD + toRadians(this.biases["angle_allowance_at_range"])) && distanceToEnemy < this.getMaxShootingDistance()){
             this.decisions["shoot"] = true;
             return true;
         }

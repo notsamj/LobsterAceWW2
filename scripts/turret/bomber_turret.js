@@ -84,10 +84,10 @@ class BomberTurret extends Turret {
         Method Return: void
     */
     shoot(){
-        if (!this.readyToShoot()){ return; }
         let shootingAngleRAD = this.getShootingAngle();
-        if (!angleBetweenCWRAD(shootingAngleRAD, this.getFov1(), this.getFov2())){ 
-            return; 
+        // If not within the area then don't shoot
+        if (!angleBetweenCWRAD(shootingAngleRAD, this.getFov1(), this.getFov2())){
+            return;
         }
         this.shootCD.lock();
         this.getGamemode().getSoundManager().play("shoot", this.getX(), this.getY());

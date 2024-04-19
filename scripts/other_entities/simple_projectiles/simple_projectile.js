@@ -1,4 +1,4 @@
-getXAtTick// When this is opened in NodeJS, import the required files
+// When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     Entity = require("../entity.js");
     PROGRAM_DATA = require("../../../data/data_json.js");
