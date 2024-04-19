@@ -1,4 +1,4 @@
-// When this is opened in NodeJS, import the required files
+getXAtTick// When this is opened in NodeJS, import the required files
 if (typeof window === "undefined"){
     Entity = require("../entity.js");
     PROGRAM_DATA = require("../../../data/data_json.js");
@@ -79,6 +79,10 @@ class SimpleProjectile extends Entity {
         Method Return: Number
     */
     getXAtTick(tick){
+        // Handle asking for old information that doesn't exist
+        if (tick < this.spawnedTick){
+            return this.startX;
+        }
         return this.startX + this.xVelocity * ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
     }
 
@@ -103,6 +107,10 @@ class SimpleProjectile extends Entity {
         Method Return: Number
     */
     getY(){
+        // Handle asking for old information that doesn't exist
+        if (tick < this.spawnedTick){
+            return this.startY;
+        }
         return this.getYAtTick(this.gamemode.getNumTicks());
     }
 
