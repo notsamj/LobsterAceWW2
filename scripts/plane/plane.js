@@ -139,6 +139,7 @@ class Plane extends Entity {
         Method Return: void
     */
     die(){
+        this.gamemode.getSoundManager().play("explode", this.getX(), this.getY());
         this.gamemode.getEventHandler().emit({
             "name": "explode",
             "size": this.getWidth(),
@@ -389,7 +390,6 @@ class Plane extends Entity {
         this.gamemode.getSoundManager().play("damage", this.x, this.y);
         this.health -= amount * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"];
         if (this.health <= 0){
-            this.gamemode.getSoundManager().play("explode", this.x, this.y);
             this.die();
         }
     }

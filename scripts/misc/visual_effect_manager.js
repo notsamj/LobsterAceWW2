@@ -157,9 +157,12 @@ class Explosion extends TemporaryVisualEffect {
             let screenY = scene.getDisplayY(circleJSON["y"], 0, bY, false);
             let diameter = objectHasKey(circleJSON, "start_diameter") ? ((circleJSON["end_diameter"] - circleJSON["start_diameter"]) * Math.min(timePassedAdjustedMS, circleJSON["growing_time_ms"]) / circleJSON["growing_time_ms"] + circleJSON["start_diameter"]) : circleJSON["diameter"];
             let opacity = TemporaryVisualEffect.calculateOpacity(this.createdTime, circleJSON["life_span_ms"], circleJSON["delay_ms"]);
-            colour.setAlpha(opacity);
-            fill(colour);
-            circle(screenX, screenY, diameter);
+            // Sometimes circles with opacity <= 0 will be found these should be ignored
+            if (opacity > 0){
+                colour.setAlpha(opacity);
+                fill(colour);
+                circle(screenX, screenY, diameter);
+            }
         }
 
         // Display Falling Building if still around
@@ -262,9 +265,12 @@ class BuildingCollapse extends TemporaryVisualEffect {
             let screenX = scene.getDisplayX(x, 0, lX, false);
             let screenY = scene.getDisplayY(y, 0, bY, false);
             let opacity = TemporaryVisualEffect.calculateOpacity(this.createdTime, circleJSON["life_span_ms"], circleJSON["delay_ms"]);
-            colour.setAlpha(opacity);
-            fill(colour);
-            circle(screenX, screenY, circleJSON["diameter"]);
+            // Sometimes circles with opacity <= 0 will be found these should be ignored
+            if (opacity > 0){
+                colour.setAlpha(opacity);
+                fill(colour);
+                circle(screenX, screenY, circleJSON["diameter"]);
+            }
         }
 
         strokeWeight(1);

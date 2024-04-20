@@ -288,7 +288,7 @@ class SimpleProjectile extends Entity {
         Method Return: Boolean, true -> collision, false -> not collision
     */
     static checkForProjectileLinearCollision(projectile, linearMovingObject, previousTick){
-       let timeProportion = PROGRAM_DATA["settings"]["ms_between_ticks"];
+       let timeProportion = PROGRAM_DATA["settings"]["ms_between_ticks"]/1000;
        let h1 = projectile.getHitbox();
        let h2 = linearMovingObject.getHitbox();
        let h1Details = {
@@ -352,6 +352,8 @@ class SimpleProjectile extends Entity {
                 leftObject.update(leftObjectX, leftObjectY);
                 rightObject.update(rightObjectX, rightObjectY);
                 if (leftObject.collidesWith(rightObject)){
+
+                    debugger;
                     return true;
                 }
             }

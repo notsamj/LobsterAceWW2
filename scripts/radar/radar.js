@@ -139,16 +139,21 @@ class Radar {
         let adjustedYDistance = yDistance / this.distanceMultiplierA;
         let logX = Math.log(adjustedXDistance);
         let logY = Math.log(adjustedYDistance);
-        let xOffsetAmount = Math.min(Math.floor(Math.log(adjustedXDistance) / this.logConstant), (this.size - 2)/2);
-        let yOffsetAmount = Math.min(Math.floor(Math.log(adjustedYDistance) / this.logConstant), (this.size - 2)/2);
+        let xOffsetAmount;
+        let yOffsetAmount;
+
         // If distance is low it's a special case
         if (xDistance == 0 || logX < 0){
             xOffsetAmount = 0;
+        }else{
+            xOffsetAmount = Math.min(Math.floor(logX / this.logConstant), (this.size - 1)/2);
         }
 
         // If distance is low it's a special case
         if (yDistance == 0 || logY < 0){
             yOffsetAmount = 0;
+        }else{
+            yOffsetAmount = Math.min(Math.floor(logY / this.logConstant), (this.size - 1)/2);
         }
 
         let x;
@@ -156,21 +161,25 @@ class Radar {
 
         // Determine x
         if (objectX < myX){
-            x = this.size/2-1-xOffsetAmount;
+            x = Math.floor(this.size/2)+1 - xOffsetAmount;
         }else{ // if (objectX >= myX
-            x = this.size/2+xOffsetAmount;
+            x = Math.floor(this.size/2)+1 + xOffsetAmount;
         }
 
         // Determine y
         if (objectY < myY){
-            y = this.size/2-1-yOffsetAmount;
+            y = Math.floor(this.size/2)+1 + yOffsetAmount;
         }else{ // if (objectY >= myY
-            y = this.size/2+yOffsetAmount;
+            y = Math.floor(this.size/2)+1 - yOffsetAmount;
         }
+
+        // Convert to index
+        let xI = x - 1;
+        let yI = y - 1;
 
         // Check position for this colour already
         let alreadyPresent = false;
-        for (let blipObject of this.radarData[x][y]){
+        for (let blipObject of this.radarData[xI][yI]){
             if (blipObject["colour"] == colour){
                 blipObject["weight"] += weight;
                 alreadyPresent = true;
@@ -179,7 +188,7 @@ class Radar {
         }
         // If not present already, add
         if (!alreadyPresent){
-            this.radarData[x][y].push({"colour": colour, "weight": weight});
+            this.radarData[xI][yI].push({"colour": colour, "weight": weight});
         }
     }
 

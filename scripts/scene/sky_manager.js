@@ -76,6 +76,7 @@ class SkyManager {
         let sunColour = color(PROGRAM_DATA["sky_generation"]["sun_colour"]);
         let sunDiameter = PROGRAM_DATA["sky_generation"]["sun_diameter"];
         fill(sunColour);
+        
         let sunAngleDEG = fixDegrees(270 - 15 * currentHour);
         let sunAngleRadians = toRadians(sunAngleDEG);
         let sunX = Math.cos(sunAngleRadians) * (screenWidth-sunDiameter)/2 + screenWidth/2;

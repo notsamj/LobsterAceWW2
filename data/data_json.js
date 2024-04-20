@@ -1,9 +1,8 @@
 const PROGRAM_DATA = {
     "controls": {
-        "max_angle_change_per_tick_fighter_plane": 5,
-        "max_angle_change_per_tick_bomber_plane": 2,
+        "max_angle_change_per_tick_fighter_plane": 3.75,
+        "max_angle_change_per_tick_bomber_plane": 1.25,
         "spectator_cam_speed": 1000,
-        "angle_change_ms": 10
     },
     "plane_data": {
         "spitfire": {
@@ -17,7 +16,7 @@ const PROGRAM_DATA = {
             "tail_offset_x": 8-64,
             "tail_offset_y": 64-35,
             "bullet_damage": 1.35,
-            "rate_of_fire": 60
+            "rate_of_fire": 80
         },
         "a6m_zero": {
             "radius": 64,
@@ -43,7 +42,7 @@ const PROGRAM_DATA = {
             "tail_offset_x": 13-64,
             "tail_offset_y": 64-23,
             "bullet_damage": 1.15,
-            "rate_of_fire": 75
+            "rate_of_fire": 80
         },
         "me_bf_109": {
             "radius": 64,
@@ -94,8 +93,8 @@ const PROGRAM_DATA = {
             "gun_offset_y": 64-85,
             "tail_offset_x": 6-64,
             "tail_offset_y": 64-46,
-            "bullet_damage": 1,
-            "rate_of_fire": 50
+            "bullet_damage": 3,
+            "rate_of_fire": 80
         },
         "me_309": {
             "radius": 64,
@@ -120,7 +119,7 @@ const PROGRAM_DATA = {
             "bomb_offset_y": 128-136,
             "tail_offset_x": 23-128,
             "tail_offset_y": 128-83,
-            "bullet_damage": 4,
+            "bullet_damage": 8,
             "bomb_damage": 1,
             "guns": [
                 { // Front gun
@@ -128,28 +127,28 @@ const PROGRAM_DATA = {
                     "y_offset": 128-132,
                     "fov_1": 40,
                     "fov_2": 320,
-                    "rate_of_fire": 150
+                    "rate_of_fire": 300
                 },
                 { // Top gun front
                     "x_offset": 149-128,
                     "y_offset": 128-93,
                     "fov_1": 170,
                     "fov_2": 10,
-                    "rate_of_fire": 150
+                    "rate_of_fire": 300
                 },
                 { // Back bottom gun
                     "x_offset": 110-128,
                     "y_offset": 128-130,
                     "fov_1": 260,
                     "fov_2": 175,
-                    "rate_of_fire": 150
+                    "rate_of_fire": 300
                 },
                 { // Top gun back
                     "x_offset": 27-128,
                     "y_offset": 128-89,
                     "fov_1": 190,
                     "fov_2": 10,
-                    "rate_of_fire": 150
+                    "rate_of_fire": 300
                 }
             ]
         }
@@ -175,11 +174,11 @@ const PROGRAM_DATA = {
     },
 
     "radar": {
-        "size": 34,
+        "size": 37,
         "blip_size": 5,
         "border_width": 2,
-        "distance_multiplier_a": 100,
-        "base_distance": 1.45,
+        "distance_multiplier_a": 250,
+        "base_distance": 1.3,
         "fighter_weight": 1,
         "bomber_weight": 4,
         "building_weight": 10,
@@ -207,7 +206,7 @@ const PROGRAM_DATA = {
         "min_velocity_assumption": 0.01,
         "max_throttle": 100,
         "fall_speed": 1200,
-        "slow_down_amount": 0.1,
+        "slow_down_amount": 0.05, // used 0.1 for a while
         "expected_canvas_width": 1920,
         "expected_canvas_height": 927,
         "frame_rate": 100, // 60
@@ -217,7 +216,6 @@ const PROGRAM_DATA = {
         "max_bullets": 2000,
         "max_bombs": 500,
         "keep_alive_interval": 5000,
-        "time_to_ready_up": 5000, // 5000
         "multiplayer_disabled": false,
         "bomber_distance_from_friendlies_dogfight": 2000,
         "bullet_reduction_coefficient": 1,
@@ -448,7 +446,8 @@ const PROGRAM_DATA = {
             { "name": "explode", "type": "discrete" },
             { "name": "damage", "type": "discrete" },
             { "name": "engine", "type": "ongoing" },
-            { "name": "bomb", "type": "discrete" }
+            { "name": "bomb", "type": "discrete" },
+            { "name": "building_collapse", "type": "discrete" }
         ],
         "url": "./sounds",
         "file_type": ".mp3"

@@ -63,7 +63,7 @@ class SoundMenu extends Menu {
     createSoundSettings(soundName, offSetIndex){
         let width = 200;
         let height = 50;
-        let sectionYSize = 150;
+        let sectionYSize = 100;
         let sectionYStart = sectionYSize * offSetIndex;
 
         let soundLabelXSize = 300;

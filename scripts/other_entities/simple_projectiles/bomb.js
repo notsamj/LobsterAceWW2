@@ -46,14 +46,12 @@ class Bomb extends SimpleProjectile {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timePassed:
-                The time between ticks (in MS)
+        Method Parameters: None
         Method Description: Determine movement and death each tick
         Method Return: void
     */
-    tick(timePassed){
-        // Remote gamemodes on a local browser do no control these features of the bomb
+    tick(){
+        //  gamemodes on a local browser do no control these features of the bomb
         if (!this.gamemode.runsLocally()){ return; }
         // If below ground then die
         if (this.isBelowGround()){
@@ -86,7 +84,7 @@ class Bomb extends SimpleProjectile {
         Method Return: void
     */
     die(){
-        this.gamemode.getSoundManager().play("explode", this.x, this.y);
+        this.gamemode.getSoundManager().play("explode", this.getX(), this.getY());
 
         // Note: I know its weird I use explode to mean 2 differnet things with bomb :(
         this.gamemode.getEventHandler().emit({

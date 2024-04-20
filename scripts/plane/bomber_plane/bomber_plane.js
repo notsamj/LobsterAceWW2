@@ -98,7 +98,7 @@ class BomberPlane extends Plane {
         Method Return: void
     */
     dropBomb(){
-        this.gamemode.getSoundManager().play("bomb", this.x, this.y);
+        this.gamemode.getSoundManager().play("bomb", this.getX(), this.getY());
         this.gamemode.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.gamemode.getNumTicks(), this.planeClass));
     }
 

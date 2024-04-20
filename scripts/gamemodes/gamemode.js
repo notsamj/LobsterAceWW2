@@ -34,6 +34,13 @@ class Gamemode {
 
         // Default Values subject to change
         this.bulletPhysicsEnabled = false;
+
+        // Some needed events
+        this.eventHandler.addHandler("building_collapse", (eventDetails) => {
+            let x = eventDetails["x"] + eventDetails["building_x_size"]/2;
+            let y = eventDetails["building_y_size"]/2;
+            this.soundManager.play("building_collapse", x, y);
+        });
     }
 
     /*

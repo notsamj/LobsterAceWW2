@@ -144,7 +144,7 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     shoot(){
-        this.gamemode.getSoundManager().play("shoot", this.x, this.y);
+        this.gamemode.getSoundManager().play("shoot", this.getX(), this.getY());
         // If using physical bullets then do it this way
         if (this.gamemode.areBulletPhysicsEnabled()){
             this.gamemode.getTeamCombatManager().addBullet(new Bullet(this.getGunX(), this.getGunY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass()));
