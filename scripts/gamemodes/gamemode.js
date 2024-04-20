@@ -26,6 +26,7 @@ class Gamemode {
         this.tickInProgressLock = new Lock();
         this.lastTickTime = this.startTime;
 
+        this.eventHandler = new NSEventHandler();
         this.soundManager = new SoundManager(this);
         this.statsManager = new AfterMatchStats(this);
         this.teamCombatManager = new TeamCombatManager(PROGRAM_DATA["teams"], this);
@@ -104,6 +105,16 @@ class Gamemode {
     */
     getVisualEffectManager(){
         return this.visualEffectManager;
+    }
+
+    /*
+        Method Name: getEventHandler
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: NSEventHandler
+    */
+    getEventHandler(){
+        return this.eventHandler;
     }
 
     /*

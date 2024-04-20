@@ -71,6 +71,7 @@ class Bomb extends SimpleProjectile {
     explode(){
         // Loop through and damage all nearby buildings
         for (let [building, bI] of this.gamemode.getTeamCombatManager().getBuildings()){
+            if (building.isDead()) { return; }
             if (building.distance(this) < PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]){
                 building.damage(this.getDamage());
             }
@@ -86,6 +87,14 @@ class Bomb extends SimpleProjectile {
     */
     die(){
         this.gamemode.getSoundManager().play("explode", this.x, this.y);
+
+        // Note: I know its weird I use explode to mean 2 differnet things with bomb :(
+        this.gamemode.getEventHandler().emit({
+            "name": "explode",
+            "size": PROGRAM_DATA["bomb_data"]["explosion_visual_size"],
+            "x": this.getX(),
+            "y": this.getY()
+        });
         super.die();
     }
 

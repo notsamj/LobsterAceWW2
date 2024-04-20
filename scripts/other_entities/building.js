@@ -89,6 +89,22 @@ class Building extends Entity {
     }
 
     /*
+        Method Name: die
+        Method Parameters: None
+        Method Description: Handles the death of a building
+        Method Return: void
+    */
+    die(){
+        this.gamemode.getEventHandler().emit({
+            "name": "building_collapse",
+            "x": this.x,
+            "building_x_size": this.width,
+            "building_y_size": this.height
+        });
+        super.die();
+    }
+
+    /*
         Method Name: getCenterX
         Method Parameters: None
         Method Description: Determines the x coordinate of the building center

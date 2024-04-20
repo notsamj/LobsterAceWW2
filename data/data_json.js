@@ -165,6 +165,7 @@ const PROGRAM_DATA = {
         "picture": "bomb",
         "bomb_gap_ms": 750,
         "radius": 8,
+        "explosion_visual_size": 24,
         "initial_y_velocity": -300,
         "bomb_explosion_radius": 200
     },
@@ -333,48 +334,50 @@ const PROGRAM_DATA = {
             },
             "inside_smoke": {
                 "colour": "#909091",
-                "number": 20,
-                "diameter": 5,
+                "number": 40,
+                "diameter": 20,
                 "life_span_ms": 4000
             },
             "runaway_smoke": {
                 "colour": "#a8aaad",
-                "number": 40,
-                "diameter": 5,
-                "life_span_ms": 2000,
-                "y_position": 0.25,
-                "max_speed": 50
+                "number": 80,
+                "diameter": 20,
+                "life_span_ms": 4000,
+                "y_position": 0.15,
+                "max_speed": 500
             }
         },
 
         "explosion": {
             "center_ball": {
-                "start_diamater": 5,
-                "end_diameter": 10,
+                "start_diameter": 20/64,
+                "end_diameter": 40/64,
                 "colour": "#ff000b",
-                "life_span_ms": 1000
+                "growing_time_ms": 500, // 500
+                "life_span_ms": 1000 // 1000
             },
             "secondary_ball": {
-                "start_diamater": 8,
-                "end_diameter": 16,
+                "start_diameter": 30/64,
+                "end_diameter": 60/64,
                 "colour": "#ff5400",
-                "life_span_ms": 1000
-                "delay": 500
+                "growing_time_ms": 250, // 250
+                "life_span_ms": 1000, // 1000
+                "delay_ms": 500 // 500
             },
             "smoke": {
                 "number": 16,
-                "diameter": 4,
+                "diameter": 20/64,
                 "colour": "#404040",
-                "delay": 750,
-                "life_span_ms": 10000
+                "delay_ms": 750, // 750
+                "life_span_ms": 10000 // 10000
             }
         }
-    }
+    },
 
     "plane_smoke": {
         "number_of_stages": 3,
         "plane_smoke_interval_ms": 600, // 1400 was ok....
-        "smoke_life_length_ms": 2000,
+        "smoke_life_span_ms": 2000,
         "stage_details": [
             // 1
             [

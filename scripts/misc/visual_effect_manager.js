@@ -6,6 +6,16 @@ class VisualEffectManager {
 
         // Plane Smoke
         this.planeSmokeLocks = {};
+
+        // Register events
+        this.gamemode.getEventHandler().addHandler("building_collapse", (eventDetails) => {
+            this.addBuildingCollapse(eventDetails["x"], eventDetails["building_x_size"], eventDetails["building_y_size"]);
+        });
+
+
+        this.gamemode.getEventHandler().addHandler("explode", (eventDetails) => {
+            this.addExplosion(eventDetails["size"], eventDetails["x"], eventDetails["y"]);
+        });
     }
 
     display(scene, lX, bY){
@@ -38,9 +48,14 @@ class VisualEffectManager {
         this.visualEffects.push(new PlaneSmoke(smokeMiddleX, smokeMiddleY, smokeStage, sizeMultiplier));
     }
 
+    addBuildingCollapse(buildingX, buildingXSize, buildingYSize){
+        this.visualEffects.push(new BuildingCollapse(buildingX, buildingXSize, buildingYSize));
+    }
 
-    addPlaneExplosion(){
-        // TODO
+
+    // Size expected: 64 for fighter, 128 for bomber, 8 for bomb?
+    addExplosion(size, x, y){
+        this.visualEffects.push(new Explosion(size, x, y));
     }
 }
 
@@ -56,11 +71,11 @@ class TemporaryVisualEffect {
     }
 
     getOpacity(){
-        return TemporaryVisualEffect.getOpacity(this.createdTime, this.expireyTimeMS - this.createdTime);
+        return TemporaryVisualEffect.calculateOpacity(this.createdTime, this.expireyTimeMS - this.createdTime);
     }
 
-    static getOpacity(createdTime, lifeLengthMS, delay=0){
-        return 255 - 255 * (Date.now() - createdTime) / lifeLengthMS;
+    static calculateOpacity(createdTime, lifeLengthMS, delay=0){
+        return 255 - 255 * (Date.now() - createdTime - delay) / lifeLengthMS;
     }
 
     isExpired(){
@@ -73,6 +88,89 @@ class TemporaryVisualEffect {
 
     // Abstract
     display(scene, lX, rX, bY, tY){}
+}
+
+class Explosion extends TemporaryVisualEffect {
+    constructor(size, x, y){
+        super(Math.max(PROGRAM_DATA["other_effects"]["explosion"]["secondary_ball"]["life_span_ms"] + PROGRAM_DATA["other_effects"]["explosion"]["secondary_ball"]["delay_ms"], PROGRAM_DATA["other_effects"]["explosion"]["smoke"]["life_span_ms"] + PROGRAM_DATA["other_effects"]["explosion"]["smoke"]["delay_ms"]));
+        this.centerX = x;
+        this.centerY = y;
+        this.size = size;
+        this.circles = [];
+        this.generateCircles();
+    }
+
+    generateCircles(){
+        let dataJSON = PROGRAM_DATA["other_effects"]["explosion"];
+
+        // Secondary Ball
+        let secondaryBallStartDiameter = dataJSON["secondary_ball"]["start_diameter"]*this.size;
+        let secondaryBallEndDiameter = dataJSON["secondary_ball"]["end_diameter"]*this.size;
+        let secondaryBallGrowingTimeMS = dataJSON["secondary_ball"]["growing_time_ms"];
+        let secondaryBallColour = dataJSON["secondary_ball"]["colour"];
+        let secondaryBallLifeSpan = dataJSON["secondary_ball"]["life_span_ms"];
+        let secondaryBallDelayMS = dataJSON["secondary_ball"]["delay_ms"];
+        this.circles.push({"x": this.centerX, "y": this.centerY, "growing_time_ms": secondaryBallGrowingTimeMS, "start_diameter": secondaryBallStartDiameter, "end_diameter": secondaryBallEndDiameter, "delay_ms": secondaryBallDelayMS, "life_span_ms": secondaryBallLifeSpan, "colour": secondaryBallColour});
+        
+        // Center Ball
+        let centerBallStartDiameter = dataJSON["center_ball"]["start_diameter"]*this.size;
+        let centerBallEndDiameter = dataJSON["center_ball"]["end_diameter"]*this.size;
+        let centerBallGrowingTimeMS = dataJSON["center_ball"]["growing_time_ms"];
+        let centerBallColour = dataJSON["center_ball"]["colour"];
+        let centerBallLifeSpan = dataJSON["center_ball"]["life_span_ms"];
+        this.circles.push({"x": this.centerX, "y": this.centerY, "growing_time_ms": centerBallGrowingTimeMS, "start_diameter": centerBallStartDiameter, "end_diameter": centerBallEndDiameter, "delay_ms": 0, "life_span_ms": centerBallLifeSpan, "colour": centerBallColour});
+
+        // Smoke
+        let smokeDiameter = dataJSON["smoke"]["diameter"]*this.size;
+        let smokeLifeSpanMS = dataJSON["smoke"]["life_span_ms"];
+        let smokeDelay = dataJSON["smoke"]["delay_ms"];
+        let smokeColour = dataJSON["smoke"]["colour"];
+        for (let i = 0; i < dataJSON["smoke"]["number"]; i++){
+            let angle = toRadians(randomNumberInclusive(0,359));
+            let x = this.centerX + Math.cos(angle) * secondaryBallEndDiameter/2;
+            let y = this.centerY + Math.sin(angle) * secondaryBallEndDiameter/2;
+            this.circles.push({"x": x, "y": y, "diameter": smokeDiameter, "delay_ms": smokeDelay, "colour": smokeColour, "life_span_ms": smokeLifeSpanMS});
+        }
+
+        // Calculate max edges
+        this.bottomY = this.centerY - dataJSON["secondary_ball"]["end_diameter"]*this.size/2 - dataJSON["smoke"]["diameter"]*this.size/2;
+        this.topY = this.centerY + dataJSON["secondary_ball"]["end_diameter"]*this.size/2 + dataJSON["smoke"]["diameter"]*this.size/2;
+        this.leftX = this.centerX - dataJSON["secondary_ball"]["end_diameter"]*this.size/2 - dataJSON["smoke"]["diameter"]*this.size/2;
+        this.rightX = this.centerX + dataJSON["secondary_ball"]["end_diameter"]*this.size/2 + dataJSON["smoke"]["diameter"]*this.size/2;
+    }
+
+    display(scene, lX, rX, bY, tY){
+        // Don't display if too far away
+        if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+        strokeWeight(0);
+
+        let currentTime = Date.now();
+        let timePassedMS = currentTime - this.createdTime;
+
+        // Display All Circles
+        for (let circleJSON of this.circles){
+            // Ignore smoke that hasn't yet been produced
+            if (timePassedMS < circleJSON["delay_ms"]){ continue; }
+            let timePassedAdjustedMS = timePassedMS - circleJSON["delay_ms"];
+            let colour = color(circleJSON["colour"]);
+            let screenX = scene.getDisplayX(circleJSON["x"], 0, lX, false);
+            let screenY = scene.getDisplayY(circleJSON["y"], 0, bY, false);
+            let diameter = objectHasKey(circleJSON, "start_diameter") ? ((circleJSON["end_diameter"] - circleJSON["start_diameter"]) * Math.min(timePassedAdjustedMS, circleJSON["growing_time_ms"]) / circleJSON["growing_time_ms"] + circleJSON["start_diameter"]) : circleJSON["diameter"];
+            let opacity = TemporaryVisualEffect.calculateOpacity(this.createdTime, circleJSON["life_span_ms"], circleJSON["delay_ms"]);
+            colour.setAlpha(opacity);
+            fill(colour);
+            circle(screenX, screenY, diameter);
+        }
+
+        // Display Falling Building if still around
+        if (timePassedMS < this.buildingLifeSpan){
+            let buildingYLeft = (1 - timePassedMS / this.buildingLifeSpan) * this.buildingYSize;
+            let topY = buildingYLeft;
+            fill(this.buildingColour);
+            rect(this.buildingX, topY, this.buildingXSize, buildingYLeft);
+        }
+        strokeWeight(1);
+    }
 }
 
 class BuildingCollapse extends TemporaryVisualEffect {
@@ -101,7 +199,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
         for (let i = 0; i < dataJSON["inside_smoke"]["number"]; i++){
             let x = this.buildingX + randomNumberInclusive(insideSmokeRadius, this.buildingXSize - insideSmokeRadius);
             let y = this.buildingY - randomNumberInclusive(insideSmokeRadius, this.buildingYSize - insideSmokeRadius);
-            this.circles.push({"type": "circle", "x": x, "y": y, "diameter": insideSmokeDiameter, "delay": 0, "life_length_ms": insideSmokeLifeLength, "colour": insideSmokeColour});
+            this.circles.push({"x": x, "y": y, "diameter": insideSmokeDiameter, "delay_ms": 0, "life_span_ms": insideSmokeLifeLength, "colour": insideSmokeColour});
         }
 
         // Since all inside smoke is by definition inside we can just use building dimensions for this
@@ -112,13 +210,13 @@ class BuildingCollapse extends TemporaryVisualEffect {
 
         // Runaway Smoke
         let runawaySmokeDiameter = dataJSON["runaway_smoke"]["diameter"];
-        let runawaySmokeRadius = runawaySmokeRadius/2;
+        let runawaySmokeRadius = runawaySmokeDiameter/2;
         let runawaySmokeColour = dataJSON["runaway_smoke"]["colour"];
         let runawaySmokeLifeLength = dataJSON["runaway_smoke"]["life_span_ms"];
         let runawaySmokeYPosition = dataJSON["runaway_smoke"]["y_position"];
         let runawaySmokeMaxSpeed = dataJSON["runaway_smoke"]["max_speed"];
-        let runawaySmokeDelay = dataJSON["building_collapse"]["life_span_ms"];
-        for (let i = 0; i < dataJSON["inside_smoke"]["number"]; i++){
+        let runawaySmokeDelayMS = dataJSON["fake_building"]["life_span_ms"];
+        for (let i = 0; i < dataJSON["runaway_smoke"]["number"]; i++){
             let x = this.buildingX + randomNumberInclusive(insideSmokeRadius, this.buildingXSize - insideSmokeRadius);
             let y = this.buildingY * runawaySmokeYPosition - randomNumberInclusive(insideSmokeRadius, this.buildingYSize * runawaySmokeYPosition - insideSmokeRadius);
             let xVelocity = randomNumberInclusive(-1 * runawaySmokeMaxSpeed, runawaySmokeMaxSpeed);
@@ -132,45 +230,61 @@ class BuildingCollapse extends TemporaryVisualEffect {
             let borderLeftXVelocity = xVelocity < 0 ? xVelocity : 0;
             this.leftX = Math.min(this.leftX , x - runawaySmokeRadius + borderLeftXVelocity / 1000 * runawaySmokeLifeLength);
             this.rightX = Math.max(this.rightX, x + runawaySmokeRadius + borderRightXVelocity / 1000 * runawaySmokeLifeLength);
-            this.circles.push({"x": x, "y": y, "diameter": runawaySmokeDiameter, "delay": runawaySmokeDelay, "life_length_ms": runawaySmokeLifeLength, "colour": runawaySmokeColour, "x_velocity": xVelocity, "y_velocity": yVelocity});
+            this.circles.push({"x": x, "y": y, "diameter": runawaySmokeDiameter, "delay_ms": runawaySmokeDelayMS, "life_span_ms": runawaySmokeLifeLength, "colour": runawaySmokeColour, "x_velocity": xVelocity, "y_velocity": yVelocity});
         }
     }
+
 
     display(scene, lX, rX, bY, tY){
         // Don't display if too far away
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+
         strokeWeight(0);
 
         let currentTime = Date.now();
-        let timePassed = currentTime - this.createdTime;
+        let timePassedMS = currentTime - this.createdTime;
 
-        // Display Smoke
+        // Display All Smoke
         for (let circleJSON of this.circles){
             // Ignore smoke that hasn't yet been produced
-            if (timePassed < circleJSON["delay"]){ continue; }
+            if (timePassedMS < circleJSON["delay_ms"]){ continue; }
             let colour = color(circleJSON["colour"]);
-            let screenX = scene.getDisplayX(circleJSON["x"], 0, lX, false);
-            let screenY = scene.getDisplayY(circleJSON["y"], 0, bY, false);
-            let opacity = 5; // TODO
+            let x = circleJSON["x"];
+            let y = circleJSON["y"];
+            // Move if has velocity
+            if (objectHasKey(circleJSON, "x_velocity")){
+                x += circleJSON["x_velocity"] * (timePassedMS - circleJSON["delay_ms"]) / 1000;
+            }
+            // Move if has velocity
+            if (objectHasKey(circleJSON, "y_velocity")){
+                y += circleJSON["y_velocity"] * (timePassedMS - circleJSON["delay_ms"]) / 1000;
+            }
+            let screenX = scene.getDisplayX(x, 0, lX, false);
+            let screenY = scene.getDisplayY(y, 0, bY, false);
+            let opacity = TemporaryVisualEffect.calculateOpacity(this.createdTime, circleJSON["life_span_ms"], circleJSON["delay_ms"]);
             colour.setAlpha(opacity);
             fill(colour);
             circle(screenX, screenY, circleJSON["diameter"]);
         }
 
-        // Display Building if still around
-        if (timePassed < this.buildingLifeSpan){
-            let buildingYLeft = this.buildingYSize - timePassed / this.buildingLifeSpan * this.buildingYSize;
+        strokeWeight(1);
+
+        // Display Falling Building if still around
+        if (timePassedMS < this.buildingLifeSpan){
+            let buildingYLeft = (1 - timePassedMS / this.buildingLifeSpan) * this.buildingYSize;
             let topY = buildingYLeft;
             fill(this.buildingColour);
-            rect(this.buildingX, topY, this.buildingXSize, buildingYLeft);
+            let screenX = scene.getDisplayX(this.buildingX, 0, lX, false);
+            let screenY = scene.getDisplayY(topY, 0, bY, false);
+            rect(screenX, screenY, this.buildingXSize, buildingYLeft);
         }
-        strokeWeight(1);
     }
+
 }
 
 class PlaneSmoke extends TemporaryVisualEffect {
     constructor(smokeMiddleX, smokeMiddleY, smokeStage, sizeMultiplier){
-        super(PROGRAM_DATA["plane_smoke"]["smoke_life_length_ms"]);
+        super(PROGRAM_DATA["plane_smoke"]["smoke_life_span_ms"]);
         this.circles = [];
         this.generateCircles(smokeMiddleX, smokeMiddleY, smokeStage, sizeMultiplier);
     }

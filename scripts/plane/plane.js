@@ -133,6 +133,22 @@ class Plane extends Entity {
     }
 
     /*
+        Method Name: die
+        Method Parameters: None
+        Method Description: Handle the death of a plane
+        Method Return: void
+    */
+    die(){
+        this.gamemode.getEventHandler().emit({
+            "name": "explode",
+            "size": this.getWidth(),
+            "x": this.getX(),
+            "y": this.getY()
+        });
+        super.die();
+    }
+
+    /*
         Method Name: getCurrentTicks
         Method Parameters: None
         Method Description: Get the current tick count of the gamemode mode

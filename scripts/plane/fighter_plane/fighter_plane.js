@@ -132,7 +132,6 @@ class FighterPlane extends Plane {
         if (this.decisions["shoot"]){
             if (this.shootLock.isReady() && this.gamemode.runsLocally()){
                 this.shootLock.lock();
-                return;
                 this.shoot();
             }
         }
