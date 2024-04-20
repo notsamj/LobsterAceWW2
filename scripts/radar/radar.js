@@ -163,9 +163,9 @@ class Radar {
 
         // Determine y
         if (objectY < myY){
-            y = this.size/2+yOffsetAmount;
-        }else{ // if (objectY >= myY
             y = this.size/2-1-yOffsetAmount;
+        }else{ // if (objectY >= myY
+            y = this.size/2+yOffsetAmount;
         }
 
         // Check position for this colour already
