@@ -641,6 +641,11 @@ class PlaneGameScene {
 
         // Display the HUD
         this.displayHUD();
+        
+        // Display the focused entities own hud
+        if (this.hasEntityFocused()){
+            this.focusedEntity.displayHUD(displayTime);
+        }
     }
     
     /*

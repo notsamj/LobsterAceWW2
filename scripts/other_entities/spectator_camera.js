@@ -31,6 +31,21 @@ class SpectatorCamera extends Entity {
         this.switchTeamLock = new Lock();
     }
 
+    /*
+        Method Name: displayHUD
+        Method Parameters:
+            displayTime:
+                The current time in miliseconds
+        Method Description: Display the HUD of the entity that the camera is spectating
+        Method Return: void
+    */
+    displayHUD(displayTime){
+        if (!this.isFollowing()){
+            return;
+        }
+        this.followingEntity.displayHUD(displayTime);
+    }
+
 
     /*
         Method Name: getID

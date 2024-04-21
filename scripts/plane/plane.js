@@ -35,6 +35,7 @@ class Plane extends Entity {
         this.facingRight = true;
         this.angle = 0;
         this.throttle = PROGRAM_DATA["settings"]["max_throttle"];
+        this.startingThrottle = this.throttle;
         this.maxSpeed = PROGRAM_DATA["plane_data"][planeClass]["max_speed"];
         this.speed = this.maxSpeed;
         this.hitBox = new CircleHitbox(PROGRAM_DATA["plane_data"][planeClass]["radius"]);
@@ -279,6 +280,16 @@ class Plane extends Entity {
     }
 
     /*
+        Method Name: getMaxThrottle
+        Method Parameters: None
+        Method Description: Determine the maximum throttle of a plane based on its health
+        Method Return: Integer in range [0,100]
+    */
+    getMaxThrottle(){
+        return Math.floor(this.startingThrottle * (1 - PROGRAM_DATA["settings"]["health_effect_on_throttle"] * (this.startingHealth - this.health) / this.startingHealth));
+    }
+
+    /*
         Method Name: isSmoking
         Method Parameters: None
         Method Description: Determines if the plane is damaged enough to start smoking
@@ -389,6 +400,8 @@ class Plane extends Entity {
     damage(amount){
         this.gamemode.getSoundManager().play("damage", this.x, this.y);
         this.health -= amount * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"];
+        this.throttle = Math.min(this.throttle, this.getMaxThrottle());
+        this.decisions["last_movement_mod_tick"] = this.getCurrentTicks();
         if (this.health <= 0){
             this.die();
         }
@@ -701,6 +714,7 @@ class Plane extends Entity {
         return this.throttle;
     }
 
+
     /*
         Method Name: adjustThrottle
         Method Parameters:
@@ -710,7 +724,7 @@ class Plane extends Entity {
         Method Return: void
     */
     adjustThrottle(amt){
-        this.throttle = Math.min(Math.max(0, this.throttle + amt), PROGRAM_DATA["settings"]["max_throttle"]);
+        this.throttle = Math.min(Math.max(0, this.throttle + amt), this.getMaxThrottle());
     }
 
     /*

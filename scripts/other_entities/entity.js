@@ -54,6 +54,7 @@ class Entity {
     // Abstract
     getInterpolatedX(){}
     getInterpolatedY(){}
+    displayHUD(){}
 
     /*
         Method Name: canRotate

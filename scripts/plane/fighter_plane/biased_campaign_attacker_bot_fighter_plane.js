@@ -84,18 +84,6 @@ class BiasedCampaignAttackerBotFighterPlane extends BiasedBotFighterPlane {
     }
 
     /*
-        Method Name: adjustThrottle
-        Method Parameters:
-            amt:
-                Amount by which the throttle is changed (can be pos/neg)
-        Method Description: Conduct decisions to do each tick
-        Method Return: void
-    */
-    adjustThrottle(amt){
-        this.throttle = Math.min(Math.max(1, this.throttle + amt), this.startingThrottle);
-    }
-
-    /*
         Method Name: initFromJSON
         Method Parameters:
             rep:

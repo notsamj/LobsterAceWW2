@@ -25,6 +25,7 @@ class FighterPlane extends Plane {
     */
     constructor(planeClass, gamemode, autonomous){
         super(planeClass, gamemode, autonomous);
+        this.gunHeatManager = new GunHeatManager(PROGRAM_DATA["plane_data"][planeClass]["bullet_heat_capacity"], PROGRAM_DATA["plane_data"][planeClass]["cooling_time_ms"])
         this.shootLock = new TickLock(PROGRAM_DATA["plane_data"][planeClass]["rate_of_fire"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
     }
 
@@ -63,6 +64,7 @@ class FighterPlane extends Plane {
     */
     tick(){
         this.shootLock.tick();
+        this.gunHeatManager.tick();
         super.tick();
     }
 
@@ -130,8 +132,9 @@ class FighterPlane extends Plane {
     executeAttackingDecisions(){
         // Check shooting
         if (this.decisions["shoot"]){
-            if (this.shootLock.isReady() && this.gamemode.runsLocally()){
+            if (this.shootLock.isReady() && this.gunHeatManager.canShoot() && this.gamemode.runsLocally()){
                 this.shootLock.lock();
+                this.gunHeatManager.shoot();
                 this.shoot();
             }
         }
@@ -267,6 +270,17 @@ class FighterPlane extends Plane {
             rotate(interpolatedAngle);
             translate(-1 * rotateX, -1 * rotateY);
         }
+    }
+    /*
+        Method Name: displayHUD
+        Method Parameters:
+            displayTime:
+                The current time in miliseconds
+        Method Description: Display the HUD of the fighter plane
+        Method Return: void
+    */
+    displayHUD(displayTime){
+        this.gunHeatManager.display(displayTime - this.gamemode.getLastTickTime());
     }
 
 }

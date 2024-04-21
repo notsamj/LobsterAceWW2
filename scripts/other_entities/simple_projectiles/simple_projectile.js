@@ -352,8 +352,6 @@ class SimpleProjectile extends Entity {
                 leftObject.update(leftObjectX, leftObjectY);
                 rightObject.update(rightObjectX, rightObjectY);
                 if (leftObject.collidesWith(rightObject)){
-
-                    debugger;
                     return true;
                 }
             }
