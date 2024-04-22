@@ -1,12 +1,23 @@
 class GunHeatManager {
-    constructor(bulletHeatCapacity, coolingSpeed){
+    constructor(bulletHeatCapacity, coolingTimeMS){
         this.bulletHeatCapacity = bulletHeatCapacity;
         this.maxCoolingDelayTicks = Math.ceil(PROGRAM_DATA["heat_bar"]["cooling_delay_ms"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.coolingDelayTicks = 0;
-        this.coolingSpeed = coolingSpeed;
+        this.coolingTimeMS = coolingTimeMS;
         this.heat = 0;
         this.emergencyCooling = false;
         this.activelyShooting = false;
+    }
+
+    getThreshold(){
+        let heatPercentage = this.heat/this.bulletHeatCapacity;
+        if (heatPercentage > PROGRAM_DATA["heat_bar"]["threshold_3"]){
+            return "threshold_3";
+        }else if (heatPercentage > PROGRAM_DATA["heat_bar"]["threshold_2"]){
+            return "threshold_2";
+        }else{
+            return "threshold_1";
+        }
     }
 
     tick(){
@@ -20,7 +31,7 @@ class GunHeatManager {
 
         // Reduce heat if not actively shooting
         if (!this.isActivelyShooting()){
-            this.heat = Math.max(0, this.heat - this.bulletHeatCapacity *  PROGRAM_DATA["settings"]["ms_between_ticks"] / this.coolingSpeed);
+            this.heat = Math.max(0, this.heat - this.bulletHeatCapacity *  PROGRAM_DATA["settings"]["ms_between_ticks"] / this.coolingTimeMS);
             // Determine whether to cancel cooling
             if (this.isCooling() && this.heat / this.bulletHeatCapacity < PROGRAM_DATA["heat_bar"]["threshold_3"]){
                 this.emergencyCooling = false;
@@ -37,7 +48,7 @@ class GunHeatManager {
     getInterpolatedHeat(timePassed){
         // Don't interpolated if still on cooling delay
         if (this.coolingDelayTicks > 0){ return this.heat; }
-        return Math.max(0, this.heat - this.bulletHeatCapacity *  timePassed / this.coolingSpeed);
+        return Math.max(0, this.heat - this.bulletHeatCapacity *  timePassed / this.coolingTimeMS);
     }
 
     isCooling(){
@@ -59,7 +70,8 @@ class GunHeatManager {
         return !this.isCooling();
     }
 
-    display(timePassed){
+    display(timePassed, offset=0){
+        let shareBorderOffset = offset > 0 ? 1 : 0; 
         let displayHeat = this.getInterpolatedHeat(timePassed);
         // No need to display if no heat
         if (displayHeat == 0){
@@ -95,17 +107,17 @@ class GunHeatManager {
 
         // Top Border
         fill(PROGRAM_DATA["heat_bar"]["border_colour"])
-        rect(0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
+        rect(0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
         // Bottom Border
-        rect(0, screenHeight - 1 - heatBarBorderThickness + 1, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
+        rect(0, screenHeight - 1 - heatBarBorderThickness + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
         // Left Border
-        rect(0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
+        rect(0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
         // Right Border
-        rect(heatBarWidth + 2 * heatBarBorderThickness - 1, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
+        rect(heatBarWidth + 2 * heatBarBorderThickness - 1, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1- (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
         
         // Display Heat
         fill(heatBarColour)
-        rect(heatBarBorderThickness, screenHeight - heatBarHeight - heatBarBorderThickness, heatBarWidth*interpolatedHeatPercentage, heatBarHeight);
+        rect(heatBarBorderThickness, screenHeight - heatBarHeight - heatBarBorderThickness - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth*interpolatedHeatPercentage, heatBarHeight);
 
         strokeWeight(1);
     }

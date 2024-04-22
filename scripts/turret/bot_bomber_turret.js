@@ -26,13 +26,15 @@ class BotBomberTurret extends BomberTurret {
                 A gamemode object involving the bot bomber turret
             plane:
                 The bomber plane which the turret is attached to
-            autonomous:
-                Whether or not the turret may control itself
+            bulletHeatCapacity:
+                The heat capacity of the turret
+            coolingTimeMS:
+                The time in miliseconds for the turret to fully cool down
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, plane){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
+    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS);
     }
 
     /*
@@ -92,9 +94,17 @@ class BotBomberTurret extends BomberTurret {
 
         // If the decision has been made to shoot then record it
         if (hasDecidedToFireShot){
-            //console.log("Decided on", toDegrees(angleRAD))
+            // Check gun heat
+            let blockedByGunHeat = false;
+            let currentThreshold = this.turretHeatManager.getThreshold();
+            // Bots won't shoot far away enemies if their gun is too hot, its a waste
+            if (currentThreshold == "threshold_3"){
+                blockedByGunHeat = distanceToEnemy >= PROGRAM_DATA["ai"]["threshold_3_distance"];
+            }else if (currentThreshold == "threshold_2"){
+                blockedByGunHeat = distanceToEnemy >= PROGRAM_DATA["ai"]["threshold_2_distance"];
+            }
             this.decisions["angle"] = angleRAD;
-            this.decisions["shooting"] = true;
+            this.decisions["shooting"] = !blockedByGunHeat;
         }
     }
 

@@ -23,13 +23,18 @@ class Turret {
                 The number of milliseconds between shots that the turret can take
             gamemode:
                 A gamemode object related to the turret
+            bulletHeatCapacity:
+                The heat capacity of the turret
+            coolingTimeMS:
+                The time in miliseconds for the turret to fully cool down
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, fov1, fov2, rateOfFire, gamemode){
+    constructor(x, y, fov1, fov2, rateOfFire, gamemode, bulletHeatCapacity, coolingTimeMS){
         this.x = x;
         this.y = y;
         this.shootCD = new TickLock(rateOfFire * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.turretHeatManager = new GunHeatManager(bulletHeatCapacity, coolingTimeMS);
         this.fov1 = fov1;
         this.fov2 = fov2;
         this.gamemode = gamemode;

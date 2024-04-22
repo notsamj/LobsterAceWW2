@@ -414,9 +414,9 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         }
 
         let noseAngle = this.getNoseAngle()
-        let dCWRAD = angleBetweenCWRAD(noseAngle, angleRAD);
-        let dCCWRAD = angleBetweenCCWRAD(noseAngle, angleRAD);
-        let angleDiffRAD = calculateAngleDiffRAD(angleRAD, this.getNoseAngle());
+        let dCWRAD = calculateAngleDiffCWRAD(noseAngle, angleRAD);
+        let dCCWRAD = calculateAngleDiffCCWRAD(noseAngle, angleRAD);
+        let angleDiffRAD = calculateAngleDiffRAD(angleRAD, noseAngle);
 
         // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
         if (dCWRAD < dCCWRAD && this.facingRight){
@@ -438,7 +438,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         else{
             this.decisions["angle"] = 1 * Math.min(toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"]), angleDiffRAD);
         }
-        //console.log("Angle to enemy: %d\nAngle rn: %d\nAnlge Diff: %d\nAngle change: %d", toDegrees(angleRAD), toDegrees(myAngle), toDegrees(angleDiffRAD), toDegrees(this.decisions["angle"]));
+        //console.log("Angle to enemy: %d\nAngle rn: %d\nAngle Diff CW: %d\nAngle Diff CCW:%d\nAngle Diff: %d\nAngle change: %d", toDegrees(angleRAD), toDegrees(myAngle), toDegrees(dCWRAD), toDegrees(dCCWRAD), toDegrees(angleDiffRAD), toDegrees(this.decisions["angle"]));
     }
 
     /*

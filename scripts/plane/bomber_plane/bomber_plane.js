@@ -102,6 +102,22 @@ class BomberPlane extends Plane {
         this.gamemode.getTeamCombatManager().addBomb(new Bomb(this.getBombBayX(), this.getBombBayY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.gamemode.getNumTicks(), this.planeClass));
     }
 
+     /*
+        Method Name: displayHUD
+        Method Parameters:
+            displayTime:
+                The current time in miliseconds
+        Method Description: Display the HUD of the bomber plane
+        Method Return: void
+    */
+    displayHUD(displayTime){
+        let i = 0;
+        for (let gun of this.guns){
+            gun.displayHUD(displayTime - this.gamemode.getLastTickTime(), i);
+            i++;
+        }
+    }
+
     /*
         Method Name: display
         Method Parameters:
@@ -131,9 +147,6 @@ class BomberPlane extends Plane {
         }
         // For each gun, if on shooting cooldown then show the flash image
         for (let gun of this.guns){
-            if (gun.readyToShoot() && gun.decisions["shooting"]){
-                //console.log("why/???")
-            }
             // Don't display if ready to shoot
             if (gun.readyToShoot()){ continue; }
 

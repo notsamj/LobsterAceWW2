@@ -12,7 +12,7 @@ if (typeof window === "undefined"){
     rotateCCWRAD = helperFunctions.rotateCCWRAD;
     randomNumberInclusive = helperFunctions.randomNumberInclusive;
     randomFloatBetween = helperFunctions.randomFloatBetween;
-    toDegrees = helperFunctions.toDegrees;
+    toRadians = helperFunctions.toRadians;
     fixRadians = helperFunctions.fixRadians;
     copyObject = helperFunctions.copyObject;
 }
@@ -40,7 +40,8 @@ class BiasedBotFighterPlane extends FighterPlane {
         super(planeClass, gamemode, autonomous);
         this.currentEnemy = null;
         this.turningDirection = null;
-        this.ticksOnCourse = 0;
+        this.evasiveTicksCD = 0;
+        this.ticksOnAttack = 0;
         this.tickCD = 0;
         this.biases = biases;
         this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
@@ -299,7 +300,7 @@ class BiasedBotFighterPlane extends FighterPlane {
     /*
         Method Name: handleClose
         Method Parameters:
-            angleRAD:
+            angleFromMeToEnemyRAD:
                 An angle from the current location to that of the enemy
             distance:
                 The current distance from the current location to the enemy
@@ -308,13 +309,20 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Description: Decide how to handle an enemy is that very close by
         Method Return: void
     */
-    handleClose(angleRAD, distance, enemy){
-        let myAngle = this.getNoseAngle();
-        // If enemy is behind, then do evasive manuevers
-        if (angleBetweenCWDEG(angleRAD, rotateCWRAD(myAngle, fixRadians(135 + toRadians(this.biases["enemy_behind_angle"]))), rotateCCWRAD(myAngle, fixRadians(135 + toRadians(this.biases["enemy_behind_angle"])))) && distance < this.getMaxSpeed() * PROGRAM_DATA["settings"]["evasive_speed_diff"] + this.biases["enemy_close_distance"]){
+    handleClose(angleFromMeToEnemyRAD, distance, enemy){
+        let myAngleRAD = this.getNoseAngle();
+        let enemyAngleRAD = enemy.getNoseAngle();
+        let enemyIsBehindMe = angleBetweenCCWRAD(angleFromMeToEnemyRAD, rotateCCWRAD(myAngleRAD, fixRadians(toRadians(135) + toRadians(this.biases["enemy_behind_angle"]))), rotateCWRAD(myAngleRAD, fixRadians(toRadians(135) + toRadians(this.biases["enemy_behind_angle"]))));
+        let enemyAngleToMe = enemy.angleToOtherRAD(this);
+        let enemyIsFacingMe = angleBetweenCCWRAD(enemyAngleRAD, rotateCCWRAD(enemyAngleToMe, toRadians(10)), rotateCWRAD(enemyAngleToMe, toRadians(10)));
+        
+        // If continuing evasive OR (enemy is behind me, facing me, and close) then do evasive manuevers
+        let continueEvasive = this.evasiveTicksCD-- > 0;
+        if (continueEvasive || (enemyIsBehindMe && enemyIsFacingMe && distance < this.getMaxSpeed() * PROGRAM_DATA["settings"]["evasive_speed_diff"] + this.biases["enemy_close_distance"])){
             this.evasiveManeuver();
             return;
         }
+
         // If on a movement cooldown then return because nothing to do
         if (this.tickCD-- > 0){
             return;
@@ -323,13 +331,14 @@ class BiasedBotFighterPlane extends FighterPlane {
         // Not doing evausive maneuevers
 
         // If we have been chasing the enemy non-stop for too long at a close distance then move away (circles)
-        if (this.ticksOnCourse >= PROGRAM_DATA["ai"]["fighter_plane"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
+        if (this.ticksOnAttack >= PROGRAM_DATA["ai"]["fighter_plane"]["max_ticks_on_course"] + this.biases["max_ticks_on_course"]){
             this.tickCD = PROGRAM_DATA["ai"]["fighter_plane"]["tick_cd"] + this.biases["ticks_cooldown"];
-            this.ticksOnCourse = 0;
+            this.ticksOnAttack = 0;
         }
+
         this.turningDirection = null;
-        this.ticksOnCourse += 1;
-        this.turnInDirection(angleRAD);
+        this.ticksOnAttack += 1;
+        this.turnInDirection(angleFromMeToEnemyRAD);
     }
 
     /*
@@ -342,6 +351,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         if (this.turningDirection == null){
             this.turningDirection = this.comeUpWithEvasiveTurningDirection();
         }
+        this.evasiveTicksCD = PROGRAM_DATA["ai"]["fighter_plane"]["evasive_ticks_cd"];
         this.decisions["angle"] = this.turningDirection * toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]);
     }
 
@@ -369,7 +379,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         Method Name: turnInDirection
         Method Parameters:
             angleRAD:
-                The angle to turn to (degrees)
+                The angle to turn to (radians)
         Method Description: Turn the plane in a given direction
         Method Return: void
     */
@@ -406,7 +416,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         else if (dCCW < dCW && !this.facingRight){
             this.decisions["angle"] = -1 * Math.min(toFixedRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]), angleDifferenceRAD);
         }
-        // Otherwise just turn clockwise (Shouldn't actually be possible?)
+        // Otherwise just turn clockwise dCW && dCCW are equal?
         else{
             this.decisions["angle"] = 1 * Math.min(toFixedRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]), angleDifferenceRAD);
         }
@@ -428,7 +438,16 @@ class BiasedBotFighterPlane extends FighterPlane {
         let angleAllowanceAtRangeRAD = Math.abs(Math.atan(enemyRadius / distanceToEnemy));
         // If the angle & distance are acceptable then shoot
         if (angleDifferenceRAD < fixRadians(angleAllowanceAtRangeRAD + toRadians(this.biases["angle_allowance_at_range"])) && distanceToEnemy < this.getMaxShootingDistance()){
-            this.decisions["shoot"] = true;
+            // Check gun heat
+            let blockedByGunHeat = false;
+            let currentThreshold = this.gunHeatManager.getThreshold();
+            // Bots won't shoot far away enemies if their gun is too hot, its a waste
+            if (currentThreshold == "threshold_3"){
+                blockedByGunHeat = distanceToEnemy >= PROGRAM_DATA["ai"]["threshold_3_distance"];
+            }else if (currentThreshold == "threshold_2"){
+                blockedByGunHeat = distanceToEnemy >= PROGRAM_DATA["ai"]["threshold_2_distance"];
+            }
+            this.decisions["shoot"] = !blockedByGunHeat;
             return true;
         }
         return false;

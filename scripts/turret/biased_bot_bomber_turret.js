@@ -28,11 +28,15 @@ class BiasedBotBomberTurret extends BotBomberTurret {
                 The bomber plane which the turret is attached to
             biases:
                 An object containing keys and bias values
+            bulletHeatCapacity:
+                The heat capacity of the turret
+            coolingTimeMS:
+                The time in miliseconds for the turret to fully cool down
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, biases){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire * biases["rate_of_fire_multiplier"], plane);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, biases, bulletHeatCapacity, coolingTimeMS){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire * biases["rate_of_fire_multiplier"], plane, bulletHeatCapacity, coolingTimeMS);
         this.biases = biases;
     }
 
@@ -49,7 +53,7 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         Method Return: BiasedBotBomberTurret
     */
     static create(gunObject, plane, biases){
-        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], toRadians(gunObject["fov_1"]), toRadians(gunObject["fov_2"]), gunObject["rate_of_fire"], plane, biases);
+        return new BiasedBotBomberTurret(gunObject["x_offset"], gunObject["y_offset"], toRadians(gunObject["fov_1"]), toRadians(gunObject["fov_2"]), gunObject["rate_of_fire"], plane, biases, gunObject["bullet_heat_capacity"], gunObject["cooling_time_ms"]);
     }
 
     /*

@@ -24,12 +24,16 @@ class HumanBomberTurret extends BomberTurret {
                 The number of milliseconds between shots that the turret can take
             plane:
                 The bomber plane which the turret is attached to
+            bulletHeatCapacity:
+                The heat capacity of the turret
+            coolingTimeMS:
+                The time in miliseconds for the turret to fully cool down
         Method Description: Constructor
         Method Return: Constructor
     */
 
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS);
     }
 
     /*
@@ -87,7 +91,7 @@ class HumanBomberTurret extends BomberTurret {
         Method Return: HumanBomberTurret
     */
     static create(gunObject, plane){
-        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], toRadians(gunObject["fov_1"]), toRadians(gunObject["fov_2"]), gunObject["rate_of_fire"], plane);
+        return new HumanBomberTurret(gunObject["x_offset"], gunObject["y_offset"], toRadians(gunObject["fov_1"]), toRadians(gunObject["fov_2"]), gunObject["rate_of_fire"], plane, gunObject["bullet_heat_capacity"], gunObject["cooling_time_ms"]);
     }
 }
 // If using NodeJS -> Export the class

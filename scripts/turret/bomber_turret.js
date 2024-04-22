@@ -23,15 +23,33 @@ class BomberTurret extends Turret {
                 The number of milliseconds between shots that the turret can take
             plane:
                 The bomber plane which the turret is attached to
+            bulletHeatCapacity:
+                The heat capacity of the turret
+            coolingTimeMS:
+                The time in miliseconds for the turret to fully cool down
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane){
-        super(null, null, fov1, fov2, rateOfFire, plane.getGamemode());
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS){
+        super(null, null, fov1, fov2, rateOfFire, plane.getGamemode(), bulletHeatCapacity, coolingTimeMS);
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.plane = plane;
         this.model = plane.getPlaneClass();
+    }
+
+    /*
+        Method Name: displayHUD
+        Method Parameters:
+            timePassed:
+                The time passed since the last tick (MS)
+            offset:
+                The offset of the gun UI
+        Method Description: Display the HUD of the bomber plane
+        Method Return: void
+    */
+    displayHUD(timePassed, offset){
+        this.turretHeatManager.display(timePassed, offset);
     }
 
     /*
@@ -42,6 +60,7 @@ class BomberTurret extends Turret {
     */
     tick(){
         this.shootCD.tick();
+        this.turretHeatManager.tick();
     }
 
     /*
@@ -90,6 +109,7 @@ class BomberTurret extends Turret {
             return;
         }
         this.shootCD.lock();
+        this.turretHeatManager.shoot();
         this.getGamemode().getSoundManager().play("shoot", this.getX(), this.getY());
         if (this.getGamemode().areBulletPhysicsEnabled()){
             this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), shootingAngleRAD, this.getID(), this.model));
@@ -287,7 +307,7 @@ class BomberTurret extends Turret {
     executeDecisions(){
         // If decided to shoot
         if (this.decisions["shooting"]){
-            if (this.shootCD.isReady() && this.getGamemode().runsLocally()){
+            if (this.shootCD.isReady() && this.turretHeatManager.canShoot() && this.getGamemode().runsLocally()){
                 this.shoot();
             }
         }
