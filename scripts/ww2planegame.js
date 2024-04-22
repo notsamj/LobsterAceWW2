@@ -100,6 +100,12 @@ async function tick(){
     // Draw frame
     if (FRAME_COUNTER.ready()){
         FRAME_COUNTER.countFrame();
+        let canvas = document.getElementById("canvas");
+        // Update Canvas size if applicable
+        if (getScreenWidth() != canvas.width || getScreenHeight() != canvas.height){
+            canvas.width = getScreenWidth();
+            canvas.height = getScreenHeight();
+        }
         draw();
     }
     MAIN_TICK_LOCK.unlock();
@@ -131,14 +137,10 @@ async function setup() {
     let canvasDOM = document.getElementById("canvas");
     canvasDOM.width = getScreenWidth();
     canvasDOM.height = getScreenHeight();
+    // Set global variable drawingContext
     drawingContext = canvasDOM.getContext("2d");
-    window.onresize = function(event) {
-        canvasDOM.width = getScreenWidth();
-        canvasDOM.height = getScreenHeight();
-    };
 
     window.onerror = (event) => {
-        console.log(event);
         programOver = true;
     };
 

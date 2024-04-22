@@ -5,6 +5,10 @@ const BOTTOM = "bottom";
 const RIGHT = "right";
 const CENTER = "center";
 
+/*
+    Class Name: TODO
+    Description: TODO
+*/
 class Colour {
     constructor(r,g,b,a=1){
         this.red = r;
@@ -13,20 +17,45 @@ class Colour {
         this.alpha = a;
     }
 
+    /*
+        Method Name: constructor
+        Method Parameters:
+            multiplier:
+                TODO
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     modifyBrightness(multiplier){
         this.red = Math.min(255, this.red * multiplier);
         this.green = Math.min(255, this.green * multiplier);
         this.blue = Math.min(255, this.blue * multiplier);
     }
 
+    /*
+        Method Name: TODO
+        Method Parameters:
+            TODO:
+                TODO
+        Method Description: TODO
+        Method Return: TODO
+    */
     setAlpha(newAlphaValue){
         this.alpha = newAlphaValue;
     }
+
 
     toString(){
         return `rgba(${this.red},${this.green},${this.blue},${this.alpha})`
     }
 
+    /*
+        Method Name: TODO
+        Method Parameters:
+            TODO:
+                TODO
+        Method Description: TODO
+        Method Return: TODO
+    */
     static fromCode(code){
         let red = Number("0x" + code.charAt(1) + code.charAt(2));
         let green = Number("0x" + code.charAt(3) + code.charAt(4));
@@ -35,18 +64,50 @@ class Colour {
     }
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function translate(x, y){
     drawingContext.translate(x,y);
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function rotate(rads){
     drawingContext.rotate(rads);
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function scale(x, y){
     drawingContext.scale(x,y);
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function strokeRectangle(colourObject, x, y, width, height){
     updateFillColour(colourObject);
     drawingContext.beginPath();
@@ -55,6 +116,14 @@ function strokeRectangle(colourObject, x, y, width, height){
     drawingContext.fill();
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function noStrokeRectangle(colourObject, x, y, width, height){
     updateFillColour(colourObject);
     drawingContext.beginPath();
@@ -62,6 +131,14 @@ function noStrokeRectangle(colourObject, x, y, width, height){
     drawingContext.fill();
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function strokeCircle(colourObject, x, y, diameter){
     updateFillColour(colourObject);
     drawingContext.beginPath();
@@ -70,6 +147,14 @@ function strokeCircle(colourObject, x, y, diameter){
     drawingContext.fill();
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function noStrokeCircle(colourObject, x, y, diameter){
     updateFillColour(colourObject);
     drawingContext.beginPath();
@@ -77,26 +162,78 @@ function noStrokeCircle(colourObject, x, y, diameter){
     drawingContext.fill();
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function updateFontSize(newTextSize){
     drawingContext.font = newTextSize.toString() + "px " + PROGRAM_DATA["ui"]["font_family"];
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function measureTextWidth(line){
     return drawingContext.measureText(line).width;
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function updateFillColour(colourObject){
     drawingContext.fillStyle = colourObject.toString();
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function makeText(textStr, screenX, screenY, boxWidth, boxHeight, textColour, textSize, alignLR, alignTB){
     updateFontSize(textSize);
     updateFillColour(textColour);
+    let currentSpaceOccupied = textSize;
     drawingContext.textAlign = alignLR;
     drawingContext.textBaseline = alignTB;
-    drawingContext.fillText(textStr, screenX, screenY, boxWidth);
+    let lines = textStr.split("\n");
+    // Display line by line
+    let i = 0;
+    for (let line of lines){
+        drawingContext.fillText(line, screenX, screenY+textSize * i, boxWidth);
+        currentSpaceOccupied += textSize;
+        i++;
+        // Stop once reached limit much
+        if (currentSpaceOccupied > boxHeight){
+            break;
+        }
+    }
 }
 
+/*
+    Method Name: TODO
+    Method Parameters:
+        TODO:
+            TODO
+    Method Description: TODO
+    Method Return: TODO
+*/
 function displayImage(image, x, y){
     drawingContext.drawImage(image, x, y);
 }

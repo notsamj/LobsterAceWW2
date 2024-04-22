@@ -181,7 +181,7 @@ const PROGRAM_DATA = {
     "bullet_data": {
         "speed": 900, // was using 1600 for a long time
         "picture": "bullet",
-        "radius": 1
+        "radius": 3
     },
 
     "bomb_data": {

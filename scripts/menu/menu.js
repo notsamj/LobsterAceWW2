@@ -64,7 +64,7 @@ class Menu {
         strokeRectangle(rectColour, screenX, screenY, width, height);
 
         // Make the text
-        Menu.makeText(textStr, textColour, x+width/2, y, width, height, CENTER, CENTER);
+        Menu.makeText(textStr, textColour, x+width/2, y-height/2, width, height, CENTER, "middle");
     }
 
     /*

@@ -35,6 +35,8 @@ class DogfightMenu extends Menu {
     */
     setup(){
         let addRemoveButtonSize = 50;
+        let currentCountTextXSize = 50;
+        let currentCountTextYSize = 50;
 
         // Background
         this.components.push(new AnimatedCloudBackground())
@@ -99,14 +101,12 @@ class DogfightMenu extends Menu {
             this.modifyDisplayedBotPlaneCount("Allies", -1);
         }));
 
-        let alliedCurrentCountTextXSize = 50;
-        let alliedCurrentCountTextYSize = 50;
-        let alliedCurrentCountTextX = (innerWidth) => { return alliedMinus1ButtonX(innerWidth) + addRemoveButtonSize + alliedCurrentCountTextXSize/2; }
-        let alliedCurrentCountTextY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
-        this.currentAlliedPlaneCountComponent = new TextComponent("0", PROGRAM_DATA["team_to_colour"]["Allies"], alliedCurrentCountTextX, alliedCurrentCountTextY, alliedCurrentCountTextXSize, alliedCurrentCountTextYSize, CENTER, CENTER);
+        let alliedCurrentCountTextX = (innerWidth) => { return alliedMinus1ButtonX(innerWidth) + addRemoveButtonSize + currentCountTextXSize/2; }
+        let alliedCurrentCountTextY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight() - currentCountTextYSize/2; }
+        this.currentAlliedPlaneCountComponent = new TextComponent("0", PROGRAM_DATA["team_to_colour"]["Allies"], alliedCurrentCountTextX, alliedCurrentCountTextY, currentCountTextXSize, currentCountTextYSize, CENTER, "middle");
         this.components.push(this.currentAlliedPlaneCountComponent);
 
-        let alliedPlus1ButtonX = (innerWidth) => { return alliedMinus1ButtonX(innerWidth) + alliedCurrentCountTextXSize + addRemoveButtonSize; }
+        let alliedPlus1ButtonX = (innerWidth) => { return alliedMinus1ButtonX(innerWidth) + currentCountTextXSize + addRemoveButtonSize; }
         let alliedPlus1ButtonY = (innerHeight) => { return alliedPlaneScreenY(innerHeight) - alliedPlane.getHeight(); }
         this.components.push(new RectangleButton("+1", PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", alliedPlus1ButtonX, alliedPlus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Allies", 1);
@@ -151,11 +151,11 @@ class DogfightMenu extends Menu {
         this.components.push(new RectangleButton("-1", PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisMinus1ButtonX, axisMinus1ButtonY, addRemoveButtonSize, addRemoveButtonSize, (instance) => {
             this.modifyDisplayedBotPlaneCount("Axis", -1);
         }));
-        let axisCurrentCountTextX = (innerWidth) => { return axisMinus1ButtonX(innerWidth) + addRemoveButtonSize + alliedCurrentCountTextXSize/2; }
-        let axisCurrentCountTextY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight(); }
+        let axisCurrentCountTextX = (innerWidth) => { return axisMinus1ButtonX(innerWidth) + addRemoveButtonSize + currentCountTextXSize/2; }
+        let axisCurrentCountTextY = (innerHeight) => { return axisPlaneScreenY(innerHeight) - axisPlane.getHeight() - currentCountTextYSize/2; }
         let axisCurrentCountTextXSize = 50;
         let axisCurrentCountTextYSize = 50;
-        this.currentAxisPlaneCountComponent = new TextComponent("0", PROGRAM_DATA["team_to_colour"]["Axis"], axisCurrentCountTextX, axisCurrentCountTextY, axisCurrentCountTextXSize, axisCurrentCountTextYSize, CENTER, CENTER);
+        this.currentAxisPlaneCountComponent = new TextComponent("0", PROGRAM_DATA["team_to_colour"]["Axis"], axisCurrentCountTextX, axisCurrentCountTextY, axisCurrentCountTextXSize, axisCurrentCountTextYSize, CENTER, "middle");
         this.components.push(this.currentAxisPlaneCountComponent);
 
         let axisPlus1ButtonX = (innerWidth) => { return axisMinus1ButtonX(innerWidth) + addRemoveButtonSize + axisCurrentCountTextXSize; }
