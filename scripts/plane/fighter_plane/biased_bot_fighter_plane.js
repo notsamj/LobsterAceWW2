@@ -318,6 +318,9 @@ class BiasedBotFighterPlane extends FighterPlane {
         
         // If continuing evasive OR (enemy is behind me, facing me, and close) then do evasive manuevers
         let continueEvasive = this.evasiveTicksCD-- > 0;
+        if (this.planeClass == "a6m_zero"){
+            console.log(this.evasiveTicksCD)
+        }
         if (continueEvasive || (enemyIsBehindMe && enemyIsFacingMe && distance < this.getMaxSpeed() * PROGRAM_DATA["settings"]["evasive_speed_diff"] + this.biases["enemy_close_distance"])){
             this.evasiveManeuver();
             return;

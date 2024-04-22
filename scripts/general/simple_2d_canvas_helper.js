@@ -1,15 +1,23 @@
 // Note: I originally used p5 for this project. I realized after a few months it was unnecessary so I created this to replace it.
-const LEFT = "left";
-const TOP = "top";
-const BOTTOM = "bottom";
-const RIGHT = "right";
-const CENTER = "center";
-
 /*
-    Class Name: TODO
-    Description: TODO
+    Class Name: Colour
+    Description: A representation of a colour
 */
 class Colour {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            r:
+                The red value, integer in range [0,255]
+            g:
+                The green value, integer in range [0,255]
+            b:
+                The blue value, integer in range [0,255]
+            a:
+                The alpha value, float in range [0,1]
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(r,g,b,a=1){
         this.red = r;
         this.green = g;
@@ -18,43 +26,78 @@ class Colour {
     }
 
     /*
-        Method Name: constructor
-        Method Parameters:
-            multiplier:
-                TODO
-        Method Description: Constructor
-        Method Return: Constructor
+        Method Name: getRed
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Integer in range [0,255]
     */
-    modifyBrightness(multiplier){
-        this.red = Math.min(255, this.red * multiplier);
-        this.green = Math.min(255, this.green * multiplier);
-        this.blue = Math.min(255, this.blue * multiplier);
+    getRed(){
+        return this.red;
     }
 
     /*
-        Method Name: TODO
+        Method Name: getBlue
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Integer in range [0,255]
+    */
+    getBlue(){
+        return this.blue;
+    }
+
+    /*
+        Method Name: getGreen
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Integer in range [0,255]
+    */
+    getGreen(){
+        return this.green;
+    }
+
+    /*
+        Method Name: modifyBrightness
         Method Parameters:
-            TODO:
-                TODO
-        Method Description: TODO
-        Method Return: TODO
+            multiplier:
+                The multiplier to multiply the brightness by
+        Method Description: Modifies the brightness of the colour
+        Method Return: void
+    */
+    modifyBrightness(multiplier){
+        this.red = Math.floor(Math.min(255, this.red * multiplier));
+        this.green = Math.floor(Math.min(255, this.green * multiplier));
+        this.blue = Math.floor(Math.min(255, this.blue * multiplier));
+    }
+
+    /*
+        Method Name: setAlpha
+        Method Parameters:
+            newAlphaValue:
+                The new opacity
+        Method Description: Setter
+        Method Return: void
     */
     setAlpha(newAlphaValue){
         this.alpha = newAlphaValue;
     }
 
-
+    /*
+        Method Name: toString
+        Method Parameters: None
+        Method Description: Creates a string representation of the colour
+        Method Return: String
+    */
     toString(){
         return `rgba(${this.red},${this.green},${this.blue},${this.alpha})`
     }
 
     /*
-        Method Name: TODO
+        Method Name: fromCode
         Method Parameters:
-            TODO:
-                TODO
-        Method Description: TODO
-        Method Return: TODO
+            code:
+                A hexidecimal colour code string. e.g. "#ff00ff" = 255 red 0 blue 255 green 1 alpha
+        Method Description: Creates a Colour instance from a colour code
+        Method Return: Colour
     */
     static fromCode(code){
         let red = Number("0x" + code.charAt(1) + code.charAt(2));
@@ -62,51 +105,77 @@ class Colour {
         let blue = Number("0x" + code.charAt(5) + code.charAt(6));
         return new Colour(red, green, blue);
     }
+
+    /*
+        Method Name: addColour
+        Method Parameters:
+            colour:
+                A Colour instance
+        Method Description: Modifies a colour by adding another to it. Does not affect the opacity.
+        Method Return: void
+    */
+    addColour(colour){
+        this.red = Math.min(255, this.red + colour.getRed());
+        this.green = Math.min(255, this.green + colour.getGreen());
+        this.blue = Math.min(255, this.blue + colour.getBlue());
+    }
 }
 
 /*
-    Method Name: TODO
+    Method Name: translate
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        x:
+            The x value of the translation
+        y:
+            The y value of the translation
+    Method Description: Translates the origin in 2d
+    Method Return: void
 */
 function translate(x, y){
     drawingContext.translate(x,y);
 }
 
 /*
-    Method Name: TODO
+    Method Name: rotate
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        rads:
+            The number of radians to rotate
+    Method Description: rotates the origin in 2d
+    Method Return: void
 */
 function rotate(rads){
     drawingContext.rotate(rads);
 }
 
 /*
-    Method Name: TODO
+    Method Name: scale
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        x:
+            The x factor to scale
+        y:
+            The y factor to scale
+    Method Description: Changes the scale of the canvas drawing context
+    Method Return: void
 */
 function scale(x, y){
     drawingContext.scale(x,y);
 }
 
 /*
-    Method Name: TODO
+    Method Name: strokeRectangle
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        colourObject:
+            A colour instance that will fill in the rectangle
+        x:
+            The x location (in screen coordinates) of the left of the rectangle
+        y:
+            The y location (in screen coordinates) of the top of the rectangle
+        width:
+            The width of the rectangle (pixels)
+        height:
+            The height of the rectangle (pixels)
+    Method Description: Creates a rectangle with a stroke border around it
+    Method Return: void
 */
 function strokeRectangle(colourObject, x, y, width, height){
     updateFillColour(colourObject);
@@ -117,12 +186,20 @@ function strokeRectangle(colourObject, x, y, width, height){
 }
 
 /*
-    Method Name: TODO
+    Method Name: noStrokeRectangle
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        colourObject:
+            A colour instance that will fill in the rectangle
+        x:
+            The x location (in screen coordinates) of the left of the rectangle
+        y:
+            The y location (in screen coordinates) of the top of the rectangle
+        width:
+            The width of the rectangle (pixels)
+        height:
+            The height of the rectangle (pixels)
+    Method Description: Creates a rectangle
+    Method Return: void
 */
 function noStrokeRectangle(colourObject, x, y, width, height){
     updateFillColour(colourObject);
@@ -132,12 +209,18 @@ function noStrokeRectangle(colourObject, x, y, width, height){
 }
 
 /*
-    Method Name: TODO
+    Method Name: strokeCircle
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        colourObject:
+            A colour instance that will fill in the rectangle
+        x:
+            The x location (in screen coordinates) of the center of the circle
+        y:
+            The y location (in screen coordinates) of the center of the circle
+        diameter:
+            The diameter (in pixels) of the circle
+    Method Description: Creates a circle with a stroke around it on the canvas
+    Method Return: void
 */
 function strokeCircle(colourObject, x, y, diameter){
     updateFillColour(colourObject);
@@ -148,12 +231,18 @@ function strokeCircle(colourObject, x, y, diameter){
 }
 
 /*
-    Method Name: TODO
+    Method Name: strokeCircle
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        colourObject:
+            A colour instance that will fill in the rectangle
+        x:
+            The x location (in screen coordinates) of the center of the circle
+        y:
+            The y location (in screen coordinates) of the center of the circle
+        diameter:
+            The diameter (in pixels) of the circle
+    Method Description: Creates a circle on the canvas
+    Method Return: void
 */
 function noStrokeCircle(colourObject, x, y, diameter){
     updateFillColour(colourObject);
@@ -163,48 +252,64 @@ function noStrokeCircle(colourObject, x, y, diameter){
 }
 
 /*
-    Method Name: TODO
+    Method Name: updateFontSize
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        newTextSize:
+            The new text size, an integer
+    Method Description: Updates the current font size / text size of the drawing context
+    Method Return: void
 */
 function updateFontSize(newTextSize){
     drawingContext.font = newTextSize.toString() + "px " + PROGRAM_DATA["ui"]["font_family"];
 }
 
 /*
-    Method Name: TODO
+    Method Name: measureTextWidth
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        line:
+            A string of text
+    Method Description: Calculates the pixel width of a piece of text with the given font & font size
+    Method Return: Integer
 */
 function measureTextWidth(line){
     return drawingContext.measureText(line).width;
 }
 
 /*
-    Method Name: TODO
+    Method Name: updateFillColour
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        colourObject:
+            A Colour instance
+    Method Description: Updates the current fill colour of the drawing context
+    Method Return: void
 */
 function updateFillColour(colourObject){
     drawingContext.fillStyle = colourObject.toString();
 }
 
 /*
-    Method Name: TODO
+    Method Name: makeText
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        textStr:
+            The text string
+        screenX:
+            The screen x coordinate of the left side of the text box
+        screenY:
+            The screen y coordinate of the top of the text box
+        boxWidth:
+            The width of the text box in pixels
+        boxHeight:
+            The height of the text box in pixels
+        textColour:
+            The colour of the text (Colour instance)
+        textSize:
+            The size of the text (integer)
+        alignLR:
+            A string specifying the horizontal alignment of the text
+        alignTB:
+            A string specifing the vertical alignment of the text
+    Method Description: Creates text on the screen
+    Method Return: void
 */
 function makeText(textStr, screenX, screenY, boxWidth, boxHeight, textColour, textSize, alignLR, alignTB){
     updateFontSize(textSize);
@@ -227,12 +332,16 @@ function makeText(textStr, screenX, screenY, boxWidth, boxHeight, textColour, te
 }
 
 /*
-    Method Name: TODO
+    Method Name: displayImage
     Method Parameters:
-        TODO:
-            TODO
-    Method Description: TODO
-    Method Return: TODO
+        image:
+            An Image instance
+        x:
+            The screen coordinate x of the left of the image in its intended place
+        y:
+            The screen coordinate y of the top of the image in its intended place
+    Method Description: Displays an image on the screen
+    Method Return: void
 */
 function displayImage(image, x, y){
     drawingContext.drawImage(image, x, y);

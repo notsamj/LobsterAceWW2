@@ -583,7 +583,7 @@ class PlaneGameScene {
             for (let y = bottomDisplayGroundY; y <= 0; y += groundImageHeight){
                 for (let x = bottomDisplayGroundX; x < this.getWidth() + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
                     let displayX = x-lXP;
-                    drawingContext.drawImage(groundImage, displayX, this.getDisplayY(0, 0, bYP));
+                    displayImage(groundImage, displayX, this.getDisplayY(0, 0, bYP));
                 }
             }
         }

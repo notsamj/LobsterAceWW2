@@ -64,7 +64,7 @@ class Menu {
         strokeRectangle(rectColour, screenX, screenY, width, height);
 
         // Make the text
-        Menu.makeText(textStr, textColour, x+width/2, y-height/2, width, height, CENTER, "middle");
+        Menu.makeText(textStr, textColour, x+width/2, y-height/2, width, height, "center", "middle");
     }
 
     /*
@@ -118,7 +118,7 @@ class Menu {
         Method Description: Create text box filled with text
         Method Return: void
     */
-    static makeText(textStr, textColour, x, y, boxWidth, boxHeight, alignLR=LEFT, alignTB=TOP){
+    static makeText(textStr, textColour, x, y, boxWidth, boxHeight, alignLR="left", alignTB="top"){
         if (textStr == ""){ return; }
         let splitByLine = textStr.split("\n");
         let numLines = splitByLine.length;

@@ -88,7 +88,7 @@ class Radar {
         Method Return: void
     */
     display(){
-        drawingContext.drawImage(this.radarOutline, this.getScreenX(), this.getScreenY());
+        displayImage(this.radarOutline, this.getScreenX(), this.getScreenY());
         for (let x = 0; x < this.size; x++){
             for (let y = 0; y < this.size; y++){
                 if (this.radarData[x][y].length == 0){ continue; }

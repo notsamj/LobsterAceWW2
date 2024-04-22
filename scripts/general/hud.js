@@ -134,9 +134,9 @@ class HUDElement {
     */
     display(x, y){
         let key = this.name + ": ";
-        makeText(key, x, y, getScreenWidth(), getScreenHeight(), Colour.fromCode(PROGRAM_DATA["hud"]["key_colour"]), PROGRAM_DATA["hud"]["text_size"], LEFT, TOP);
+        makeText(key, x, y, getScreenWidth(), getScreenHeight(), Colour.fromCode(PROGRAM_DATA["hud"]["key_colour"]), PROGRAM_DATA["hud"]["text_size"], "left", "top");
         let xOffset = measureTextWidth(key);
-        makeText(`${this.value}`, x + xOffset, y, getScreenWidth(), getScreenHeight(), Colour.fromCode(PROGRAM_DATA["hud"]["value_colour"]), PROGRAM_DATA["hud"]["text_size"], LEFT, TOP);
+        makeText(`${this.value}`, x + xOffset, y, getScreenWidth(), getScreenHeight(), Colour.fromCode(PROGRAM_DATA["hud"]["value_colour"]), PROGRAM_DATA["hud"]["text_size"], "left", "top");
         this.readyToDisplay = false;
         this.extraTimeLock.lock();
     }

@@ -259,7 +259,7 @@ class Bullet extends SimpleProjectile {
         // Prepare the display
         translate(rotateX, rotateY);
         rotate(-1 * angleRAD);
-        drawingContext.drawImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2);
+        displayImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2);
         // Reset the rotation and translation
         rotate(angleRAD);
         translate(-1 * rotateX, -1 * rotateY);

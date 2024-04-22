@@ -33,6 +33,27 @@ class SkyManager {
     }
 
     /*
+        Method Name: getSkyTint
+        Method Parameters: None
+        Method Description: Determines the sky tint
+        Method Return: Colour
+    */
+    getSkyTint(){
+        let currentHour = PROGRAM_DATA["sky_generation"]["current_hour"];
+        let colour;
+        if (currentHour >= PROGRAM_DATA["sky_generation"]["sunrise_start"] && currentHour <= PROGRAM_DATA["sky_generation"]["sunrise_end"]){
+            colour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["sunrise_colour"])
+            colour.modifyBrightness(PROGRAM_DATA["sky_generation"]["sunrise_modifier"]);
+        }else if (currentHour >= PROGRAM_DATA["sky_generation"]["sunset_start"] && currentHour <= PROGRAM_DATA["sky_generation"]["sunset_end"]){
+            colour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["sunset_colour"])
+            colour.modifyBrightness(PROGRAM_DATA["sky_generation"]["sunset_modifier"]);
+        }else{
+            colour = new Colour(0,0,0,0);
+        }
+        return colour;
+    }
+
+    /*
         Method Name: display
         Method Parameters:
             lX:
@@ -61,7 +82,11 @@ class SkyManager {
         // Fill the entire screen with the sky background
         let skyColour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["sky_colour"]);
         let skyBrightness = this.getSkyBrightness();
+        let skyTint = this.getSkyTint();
+
+        // Change brightness and tint
         skyColour.modifyBrightness(skyBrightness);
+        skyColour.addColour(skyTint);
 
         let screenWidth = getScreenWidth();
         let screenHeight = getScreenHeight();

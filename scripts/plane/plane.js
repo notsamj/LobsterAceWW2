@@ -848,7 +848,7 @@ class Plane extends Entity {
         }
 
         // Display plane
-        drawingContext.drawImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
+        displayImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
 
         // If facing left then turn around the display (reset)
         if (!this.isFacingRight()){

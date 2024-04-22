@@ -260,7 +260,7 @@ class FighterPlane extends Plane {
             }
 
             // Display flash
-            drawingContext.drawImage(image, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+            displayImage(image, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){

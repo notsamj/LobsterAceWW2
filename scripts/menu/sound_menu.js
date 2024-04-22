@@ -77,7 +77,7 @@ class SoundMenu extends Menu {
         // Components
 
         // Sound Name
-        this.components.push(new TextComponent(soundName, "#f5d442", soundLabelX, soundLabelY, soundLabelXSize, soundLabelYSize, CENTER, "middle"));
+        this.components.push(new TextComponent(soundName, "#f5d442", soundLabelX, soundLabelY, soundLabelXSize, soundLabelYSize, "center", "middle"));
 
         let getValueFunction = () => {
             return SOUND_MANAGER.getVolume(soundName);

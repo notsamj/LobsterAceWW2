@@ -272,7 +272,7 @@ class TemporaryMessage {
         Method Return: void
     */
     display(){
-        Menu.makeText(this.message, this.colour, 0, getScreenHeight(), getScreenWidth(), getScreenHeight(), CENTER, "middle");
+        Menu.makeText(this.message, this.colour, 0, getScreenHeight(), getScreenWidth(), getScreenHeight(), "center", "middle");
     }
 
     /*

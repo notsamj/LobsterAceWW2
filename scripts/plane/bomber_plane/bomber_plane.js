@@ -168,7 +168,7 @@ class BomberPlane extends Plane {
             }
 
             // Display flash
-            drawingContext.drawImage(flashImage, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+            displayImage(flashImage, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){

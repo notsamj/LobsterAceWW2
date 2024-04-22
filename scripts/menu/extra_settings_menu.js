@@ -68,7 +68,7 @@ class ExtraSettingsMenu extends Menu {
         let settingModifierButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
         // Components
-        this.components.push(new TextComponent(settingName, "#e6f5f4", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, CENTER, "middle"));
+        this.components.push(new TextComponent(settingName, "#e6f5f4", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, "center", "top"));
 
         if (settingType == "on_off"){
             this.createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);

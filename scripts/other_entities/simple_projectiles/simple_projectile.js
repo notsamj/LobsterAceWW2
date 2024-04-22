@@ -272,7 +272,7 @@ class SimpleProjectile extends Entity {
         // Determine the location it will be displayed at
         let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
         let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);
-        drawingContext.drawImage(this.getImage(), displayX, displayY); 
+        displayImage(this.getImage(), displayX, displayY); 
     }
 
     /*

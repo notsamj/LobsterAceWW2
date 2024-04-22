@@ -21,7 +21,7 @@ class TextComponent extends Component {
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(textStr, textColour, x, y, width, height, alignLR=LEFT, alignTB=TOP){
+    constructor(textStr, textColour, x, y, width, height, alignLR="left", alignTB="top"){
         super();
         this.textStr = textStr;
         this.textColour = textColour;
