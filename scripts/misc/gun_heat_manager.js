@@ -166,26 +166,23 @@ class GunHeatManager {
             heatBarColour = PROGRAM_DATA["heat_bar"]["threshold_1_colour"];
         }
 
+        // Change from code to colour object
+        heatBarColour = Colour.fromCode(heatBarColour);
+
         let screenHeight = getScreenHeight();
 
-        strokeWeight(0);
-
         // Display borders
-
+        let borderColour = Colour.fromCode(PROGRAM_DATA["heat_bar"]["border_colour"]);
         // Top Border
-        fill(PROGRAM_DATA["heat_bar"]["border_colour"])
-        rect(0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
+        noStrokeRectangle(borderColour, 0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
         // Bottom Border
-        rect(0, screenHeight - 1 - heatBarBorderThickness + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
+        noStrokeRectangle(borderColour, 0, screenHeight - 1 - heatBarBorderThickness + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth + 2 * heatBarBorderThickness, heatBarBorderThickness);
         // Left Border
-        rect(0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
+        noStrokeRectangle(borderColour, 0, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1 - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
         // Right Border
-        rect(heatBarWidth + 2 * heatBarBorderThickness - 1, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1- (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
+        noStrokeRectangle(borderColour, heatBarWidth + 2 * heatBarBorderThickness - 1, screenHeight - 1 - heatBarHeight - heatBarBorderThickness * 2 + 1- (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarBorderThickness, heatBarHeight + 2 * heatBarBorderThickness);
         
         // Display Heat
-        fill(heatBarColour)
-        rect(heatBarBorderThickness, screenHeight - heatBarHeight - heatBarBorderThickness - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth*interpolatedHeatPercentage, heatBarHeight);
-
-        strokeWeight(1);
+        noStrokeRectangle(heatBarColour, heatBarBorderThickness, screenHeight - heatBarHeight - heatBarBorderThickness - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth*interpolatedHeatPercentage, heatBarHeight);
     }
 }

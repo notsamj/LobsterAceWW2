@@ -77,9 +77,8 @@ class Radar {
                 bestBlipObject = blipObject;
             }
         }
-        let blipColour = color(bestBlipObject["colour"]);
-        fill(blipColour);
-        rect(screenX, screenY, this.blipSize, this.blipSize);
+        let blipColour = Colour.fromCode(bestBlipObject["colour"]);
+        strokeRectangle(blipColour, screenX, screenY, this.blipSize, this.blipSize);
     }
 
     /*

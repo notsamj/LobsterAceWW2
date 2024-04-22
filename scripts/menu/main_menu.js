@@ -39,7 +39,7 @@ class MainMenu extends Menu {
         let infoY = 250;
         let infoXSize = (PROGRAM_DATA["settings"]["expected_canvas_width"] - buttonSizeX)/2;
         let infoYSize = 200;
-        this.components.push(new TextComponent("Made by notsamj. Using p5js version 1.5.\nScroll down for controls.", "black", 0, infoY, infoXSize, infoYSize));
+        this.components.push(new TextComponent("Made by notsamj.\nScroll down for controls.", "#000000", 0, infoY, infoXSize, infoYSize));
 
         // Campaign
         let campaignButtonY = (innerHeight) => { return dogFightButtonY(innerHeight) - buttonSizeY - gapSize; }

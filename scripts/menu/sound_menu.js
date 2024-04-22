@@ -46,7 +46,7 @@ class SoundMenu extends Menu {
         let infoY = 700;
         let infoXSize = 600;
         let infoYSize = 400;
-        this.components.push(new TextComponent("Note: I must caution the use of sounds.\nI find them useful, however,\n these are of poor quality\nand may be loud and annoying.\nThis is why I have\n disabled them by default.", "black", 20, infoY, infoXSize, infoYSize));
+        this.components.push(new TextComponent("Note: I must caution the use of sounds.\nI find them useful, however,\n these are of poor quality\nand may be loud and annoying.\nThis is why I have\n disabled them by default.", "#000000", 20, infoY, infoXSize, infoYSize));
         
     }
 
@@ -87,7 +87,7 @@ class SoundMenu extends Menu {
             SOUND_MANAGER.updateVolume(soundName, newVolume);
         }
 
-        let quantitySlider = new QuantitySlider(soundScaleX, soundScaleY, width, height, getValueFunction, setValueFunction, 0, 100, false, "black", "#f5d442", "#f5d442");
+        let quantitySlider = new QuantitySlider(soundScaleX, soundScaleY, width, height, getValueFunction, setValueFunction, 0, 100, false, "#000000", "#f5d442", "#f5d442");
         this.components.push(quantitySlider);
     }
 

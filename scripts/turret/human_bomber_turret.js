@@ -55,8 +55,8 @@ class HumanBomberTurret extends BomberTurret {
         Method Return: int
     */
     getMouseAngle(){
-        let x = window.mouseX - getScreenWidth() / 2;
-        let y = this.getGamemode().getScene().changeFromScreenY(window.mouseY) - getScreenHeight() / 2;
+        let x = mouseX - getScreenWidth() / 2;
+        let y = this.getGamemode().getScene().changeFromScreenY(mouseY) - getScreenHeight() / 2;
         let x0 = 0;
         let y0 = 0;
         return displacementToRadians(x - x0, y - y0);

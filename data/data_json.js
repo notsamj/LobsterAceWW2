@@ -193,6 +193,10 @@ const PROGRAM_DATA = {
         "bomb_explosion_radius": 200
     },
 
+    "ui": {
+        "font_family": "arial"
+    },
+
     "building_data": {
         "building_colour": "#c2c2c4"
     },
@@ -752,7 +756,7 @@ const PROGRAM_DATA = {
     "sky_generation": {
         "sky_colour": "#5bb8ff",
         "sun_colour": "#fdb813",
-        "moon_colour": "f6f1d5",
+        "moon_colour": "#f6f1d5",
         "sun_diameter": 300,
         "moon_diameter": 150,
         "moon_phase": 5, // Allowed range [0, 7]

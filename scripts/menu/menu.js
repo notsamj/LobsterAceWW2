@@ -60,18 +60,11 @@ class Menu {
         let screenY = MENU_MANAGER.changeToScreenY(y);
 
         // Make the rectangle
-        rectMode(CORNER);
-        fill(colour);
-        rect(screenX, screenY, width, height);
-        // Here I'm testing what would happen if I removed p5
-        /*drawingContext.beginPath();
-        drawingContext.rect(screenX, screenY, width, height);
-        drawingContext.strokeRect(screenX, screenY, width, height);
-        drawingContext.fillStyle = colour;
-        drawingContext.fill();*/
+        let rectColour = Colour.fromCode(colour);
+        strokeRectangle(rectColour, screenX, screenY, width, height);
 
         // Make the text
-        Menu.makeText(textStr, textColour, x, y, width, height, CENTER, CENTER);
+        Menu.makeText(textStr, textColour, x+width/2, y, width, height, CENTER, CENTER);
     }
 
     /*
@@ -86,13 +79,13 @@ class Menu {
     */
     static determineMaxTextSizeByWidth(textLines, boxWidth){
         let currentTextSize = 10; // Using as a standard
-        textSize(currentTextSize)
+        updateFontSize(currentTextSize);
         let longestLine = textLines[0];
-        let longestLineWidth = textWidth(longestLine);
+        let longestLineWidth = measureTextWidth(longestLine);
         
         // Find the longest line
         for (let i = 0; i < textLines.length; i++){
-            let currentLineWidth = textWidth(textLines[i])
+            let currentLineWidth = measureTextWidth(textLines[i]);
             if (currentLineWidth > longestLineWidth){
                 longestLine = textLines[i];
                 longestLineWidth = currentLineWidth;
@@ -100,8 +93,8 @@ class Menu {
         }
 
         // Loop until the text is too big
-        while (textWidth(longestLine) + PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxWidth < boxWidth){
-            textSize(++currentTextSize);
+        while (measureTextWidth(longestLine) + PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxWidth < boxWidth){
+            updateFontSize(++currentTextSize);
         }
         return currentTextSize - 1; // -1 because we've established that this is 1 size too big for the width
     }
@@ -135,11 +128,7 @@ class Menu {
         let maxTextSizeH = Math.floor((boxHeight - PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxHeight) / numLines);
         let calculatedTextSize = Math.min(maxTextSizeW, maxTextSizeH);
         calculatedTextSize = Math.max(calculatedTextSize, 1);
-        textSize(calculatedTextSize);
-        textFont("Arial")
-        fill(textColour);
-        textAlign(alignLR, alignTB);
-        text(textStr, screenX, screenY, boxWidth, boxHeight);
+        makeText(textStr, screenX, screenY, boxWidth, boxHeight, textColour, calculatedTextSize, alignLR, alignTB);
     }
 
     /*
@@ -169,7 +158,6 @@ class Menu {
     click(x, y){
         for (let i = this.components.length - 1; i >= 0; i--){
             let component = this.components[i];
-            //console.log("Checking", component, component.covers(x, y))
             if (component.covers(x, y) && !component.isDisabled()){
                 component.clicked(this);
                 break;

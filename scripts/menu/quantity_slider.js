@@ -25,15 +25,15 @@ class QuantitySlider extends Component {
             usingFloat:
                 Whether using floats rather than integers
             backgroundBarColour:
-                Colour of the bar background
+                Colour of the bar background (code)
             sliderColour:
-                Colour of the slider
+                Colour of the slider (code)
             textColour:
-                Colour of the text
+                Colour of the text (code)
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, width, height, getValueFunction, setValueFunction, minValue, maxValue, usingFloat=false, backgroundBarColour="black", sliderColour="white", textColour="black"){
+    constructor(x, y, width, height, getValueFunction, setValueFunction, minValue, maxValue, usingFloat=false, backgroundBarColour="#000000", sliderColour="#ffffff", textColour="#000000"){
         super();
         this.x = x;
         this.y = y;
@@ -47,8 +47,8 @@ class QuantitySlider extends Component {
         this.setValueFunction = setValueFunction;
         this.sliding = false;
         this.usingFloat = usingFloat;
-        this.backgroundBarColour = backgroundBarColour;
-        this.sliderColour = sliderColour;
+        this.backgroundBarColour = Colour.fromCode(backgroundBarColour);
+        this.sliderColour = Colour.fromCode(sliderColour);
         this.textColour = textColour;
     }
 
@@ -105,12 +105,10 @@ class QuantitySlider extends Component {
         
         // Background Rectangle
         let screenYForRects = MENU_MANAGER.changeToScreenY(this.getY()-this.height);
-        fill(this.backgroundBarColour);
-        rect(this.getX(), screenYForRects, this.width, this.height);
+        noStrokeRectangle(this.backgroundBarColour, this.getX(), screenYForRects, this.width, this.height);
     
         // Slider
-        fill(this.sliderColour);
-        rect(this.sliderX, screenYForRects, this.sliderWidth, this.height);
+        noStrokeRectangle(this.sliderColour, this.sliderX, screenYForRects, this.sliderWidth, this.height);
 
         // Text
         Menu.makeText(this.accessValue().toString(), this.textColour, this.getX(), this.getY(), this.width, this.height);
@@ -133,8 +131,8 @@ class QuantitySlider extends Component {
         Method Return: void
     */
     tick(){
-        let hasMouseOnY = this.coveredByY(MENU_MANAGER.changeFromScreenY(window.mouseY));
-        let hasMouseOn = this.covers(window.mouseX, MENU_MANAGER.changeFromScreenY(window.mouseY));
+        let hasMouseOnY = this.coveredByY(MENU_MANAGER.changeFromScreenY(mouseY));
+        let hasMouseOn = this.covers(mouseX, MENU_MANAGER.changeFromScreenY(mouseY));
         let activated = USER_INPUT_MANAGER.isActivated("quantity_slider_grab");
 
         // If currently sliding and either the user is not clicking OR mouse if off it in y axis
@@ -151,7 +149,7 @@ class QuantitySlider extends Component {
         if (!this.isSliding()){ return; }
 
         // Sliding
-        this.moveToX(window.mouseX);
+        this.moveToX(mouseX);
     }
 
     /*

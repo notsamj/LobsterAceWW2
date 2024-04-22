@@ -2,6 +2,9 @@
 var programOver = false;
 var debug = false;
 var runningTicksBehind = 0;
+var drawingContext = null;
+var mouseX = 0;
+var mouseY = 0;
 
 const IMAGES = {};
 
@@ -27,8 +30,38 @@ USER_INPUT_MANAGER.register("quantity_slider_grab", "mouseup", (event) => { retu
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
 
-USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true)
-USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 84; }, false)
+USER_INPUT_MANAGER.register("t", "keydown", (event) => { return event.keyCode == 84; }, true);
+USER_INPUT_MANAGER.register("t", "keyup", (event) => { return event.keyCode == 84; }, false);
+
+USER_INPUT_MANAGER.register("plane_turn_left", "keydown", (event) => { return event.keyCode == 65; }, true);
+USER_INPUT_MANAGER.register("plane_turn_left", "keyup", (event) => { return event.keyCode == 65; }, false);
+
+USER_INPUT_MANAGER.register("plane_turn_right", "keydown", (event) => { return event.keyCode == 68; }, true);
+USER_INPUT_MANAGER.register("plane_turn_right", "keyup", (event) => { return event.keyCode == 68; }, false);
+
+USER_INPUT_MANAGER.register("plane_throttle_down", "keydown", (event) => { return event.keyCode == 70; }, true);
+USER_INPUT_MANAGER.register("plane_throttle_down", "keyup", (event) => { return event.keyCode == 70; }, false);
+
+USER_INPUT_MANAGER.register("plane_throttle_up", "keydown", (event) => { return event.keyCode == 82; }, true);
+USER_INPUT_MANAGER.register("plane_throttle_up", "keyup", (event) => { return event.keyCode == 82; }, false);
+
+USER_INPUT_MANAGER.register("fighter_plane_shooting", "keydown", (event) => { return event.keyCode == 32; }, true);
+USER_INPUT_MANAGER.register("fighter_plane_shooting", "keyup", (event) => { return event.keyCode == 32; }, false);
+
+USER_INPUT_MANAGER.register("spectator_follow", "keydown", (event) => { return event.keyCode == 70; }, true);
+USER_INPUT_MANAGER.register("spectator_follow", "keyup", (event) => { return event.keyCode == 70; }, false);
+
+USER_INPUT_MANAGER.register("spectator_spectate_left", "keydown", (event) => { return event.keyCode == 37; }, true);
+USER_INPUT_MANAGER.register("spectator_spectate_left", "keyup", (event) => { return event.keyCode == 37; }, false);
+
+USER_INPUT_MANAGER.register("spectator_spectate_right", "keydown", (event) => { return event.keyCode == 39; }, true);
+USER_INPUT_MANAGER.register("spectator_spectate_right", "keyup", (event) => { return event.keyCode == 39; }, false);
+
+USER_INPUT_MANAGER.register("spectator_spectate_up", "keydown", (event) => { return event.keyCode == 38; }, true);
+USER_INPUT_MANAGER.register("spectator_spectate_up", "keyup", (event) => { return event.keyCode == 38; }, false);
+
+USER_INPUT_MANAGER.register("spectator_spectate_down", "keydown", (event) => { return event.keyCode == 40; }, true);
+USER_INPUT_MANAGER.register("spectator_spectate_down", "keyup", (event) => { return event.keyCode == 40; }, false);
 
 USER_INPUT_MANAGER.registerTickedAggregator("w", "keydown", (event) => { return event.keyCode == 87; }, "keyup", (event) => { return event.keyCode == 87; });
 USER_INPUT_MANAGER.registerTickedAggregator("s", "keydown", (event) => { return event.keyCode == 83; }, "keyup", (event) => { return event.keyCode == 83; });
@@ -95,15 +128,24 @@ async function loadExtraImages(){
 */
 async function setup() {
     // Create Canvas
-    createCanvas(getScreenWidth(), getScreenHeight());
+    let canvasDOM = document.getElementById("canvas");
+    canvasDOM.width = getScreenWidth();
+    canvasDOM.height = getScreenHeight();
+    drawingContext = canvasDOM.getContext("2d");
     window.onresize = function(event) {
-        resizeCanvas(getScreenWidth(), getScreenHeight());
+        canvasDOM.width = getScreenWidth();
+        canvasDOM.height = getScreenHeight();
     };
-    frameRate(0);
+
     window.onerror = (event) => {
         console.log(event);
         programOver = true;
     };
+
+    window.onmousemove = (event) => {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+    }
 
     // Prevent auto page scrolling
     document.addEventListener("keydown", (event) => {
@@ -142,9 +184,13 @@ async function setup() {
     Method Return: void
 */
 function draw() {
-    clear();
     if (GAMEMODE_MANAGER.hasActiveGamemode()){
         GAMEMODE_MANAGER.getActiveGamemode().display();
     }
     MENU_MANAGER.display();
 }
+
+// Start Up
+window.addEventListener("load", () => {
+    setup();
+});

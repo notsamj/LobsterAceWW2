@@ -48,15 +48,12 @@ class HUD {
         Method Return: void
     */
     display(){
-        let sizeOfText = PROGRAM_DATA["hud"]["text_size"];
-        textSize(sizeOfText);
-        textAlign(LEFT, TOP);
         let i = 1;
         for (let element of this.hudElements){
             if (!element.isReadyToDisplay()){
                 continue;
             }
-            element.display(10, i * sizeOfText);
+            element.display(10, i * PROGRAM_DATA["hud"]["text_size"]);
             i++;
         }
     }
@@ -136,12 +133,10 @@ class HUDElement {
         Method Return: void
     */
     display(x, y){
-        fill(PROGRAM_DATA["hud"]["key_colour"]);
         let key = this.name + ": ";
-        text(key, x, y);
-        let xOffset = textWidth(key);
-        fill(PROGRAM_DATA["hud"]["value_colour"]);
-        text(`${this.value}`, x + xOffset, y);
+        makeText(key, x, y, getScreenWidth(), getScreenHeight(), Colour.fromCode(PROGRAM_DATA["hud"]["key_colour"]), PROGRAM_DATA["hud"]["text_size"], LEFT, TOP);
+        let xOffset = measureTextWidth(key);
+        makeText(`${this.value}`, x + xOffset, y, getScreenWidth(), getScreenHeight(), Colour.fromCode(PROGRAM_DATA["hud"]["value_colour"]), PROGRAM_DATA["hud"]["text_size"], LEFT, TOP);
         this.readyToDisplay = false;
         this.extraTimeLock.lock();
     }

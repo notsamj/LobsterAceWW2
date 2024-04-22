@@ -129,7 +129,7 @@ class ServerConnection {
             console.error("Received unknown data:", decryptedData);
         });
         this.socket.addEventListener("error", (event) => {
-            MENU_MANAGER.addTemporaryMessage("Connection to server failed.", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Connection to server failed.", "#ff0000", 5000);
             this.openedLock.unlock();
             this.loggedIn = false;
             this.connected = false;
@@ -146,9 +146,9 @@ class ServerConnection {
             let response = await MAIL_SERVICE.sendJSON("setup", { "username": USER_DATA["name"] });
             // If null -> no response
             if (response == null){
-                MENU_MANAGER.addTemporaryMessage("No response from the server.", "red", 5000);
+                MENU_MANAGER.addTemporaryMessage("No response from the server.", "#ff0000", 5000);
             }else if (response["success"] == false){
-                MENU_MANAGER.addTemporaryMessage("Failed to connect: " + response["reason"], "red", 5000);
+                MENU_MANAGER.addTemporaryMessage("Failed to connect: " + response["reason"], "#ff0000", 5000);
             }else{
                 // Else working
                 this.loggedIn = true;
@@ -262,7 +262,7 @@ class ServerConnection {
         //console.log("Now its locked?", this.heartBeatLock.isLocked())
         let response = await MAIL_SERVICE.sendJSON("heart_beat", { "action": "ping" });
         if (!response){
-            MENU_MANAGER.addTemporaryMessage("Heartbeat failed.", "red", 10000);
+            MENU_MANAGER.addTemporaryMessage("Heartbeat failed.", "#ff0000", 10000);
             clearInterval(this.heartBeatInterval);
             this.setup = false;
         }
@@ -330,7 +330,7 @@ class ServerConnection {
         Method Return: void
     */
     handleError(message){
-        MENU_MANAGER.addTemporaryMessage(message, "red", 10000);
+        MENU_MANAGER.addTemporaryMessage(message, "#ff0000", 10000);
     }
 
     /*

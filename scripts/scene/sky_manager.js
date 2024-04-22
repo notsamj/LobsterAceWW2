@@ -58,24 +58,22 @@ class SkyManager {
         Method Return: void
     */
     displaySky(){
-        strokeWeight(0);
         // Fill the entire screen with the sky background
-        let skyColour = color(PROGRAM_DATA["sky_generation"]["sky_colour"]);
+        let skyColour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["sky_colour"]);
         let skyBrightness = this.getSkyBrightness();
-        skyColour.levels[0] *= skyBrightness;
-        skyColour.levels[1] *= skyBrightness;
-        skyColour.levels[2] *= skyBrightness;
-        fill(skyColour);
+        skyColour.modifyBrightness(skyBrightness);
+
         let screenWidth = getScreenWidth();
         let screenHeight = getScreenHeight();
-        rect(0, 0, screenWidth, screenHeight);
+
+        // Fill screen with sky colour
+        noStrokeRectangle(skyColour, 0, 0, screenWidth, screenHeight);
         
         let currentHour = PROGRAM_DATA["sky_generation"]["current_hour"];
 
         // Display the sun
-        let sunColour = color(PROGRAM_DATA["sky_generation"]["sun_colour"]);
+        let sunColour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["sun_colour"]);
         let sunDiameter = PROGRAM_DATA["sky_generation"]["sun_diameter"];
-        fill(sunColour);
         
         let sunAngleDEG = fixDegrees(270 - 15 * currentHour);
         let sunAngleRadians = toRadians(sunAngleDEG);
@@ -83,33 +81,30 @@ class SkyManager {
         let sunY = (Math.sin(sunAngleRadians) * (screenHeight-sunDiameter)/2 * -1) + screenHeight/2;
         // Only display sun if up
         if (sunY <= screenHeight/2){
-            circle(sunX, sunY, sunDiameter)
+            noStrokeCircle(sunColour, sunX, sunY, sunDiameter)
         }
         
         // Display the moon
         let moonPhase = PROGRAM_DATA["sky_generation"]["moon_phase"];
         // Ignore if new moon
         if (moonPhase != 4){
-            let moonColour = color(PROGRAM_DATA["sky_generation"]["moon_colour"]);
+            let moonColour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["moon_colour"]);
             let moonDiameter = PROGRAM_DATA["sky_generation"]["moon_diameter"];
-            fill(moonColour);
             let moonAngleDEG = fixDegrees(90 - 15 * currentHour); 
             let moonAngleRadians = toRadians(moonAngleDEG);
             let moonX = Math.cos(moonAngleRadians) * (screenWidth-moonDiameter)/2 + screenWidth/2;
             let moonY = (Math.sin(moonAngleRadians) * (screenHeight-moonDiameter)/2 * -1) + screenHeight/2;
             // Only display sun if up
             if (moonY <= screenHeight/2){
-                circle(moonX, moonY, moonDiameter)
+                //console.log(moonColour)
+                noStrokeCircle(moonColour, moonX, moonY, moonDiameter)
             }
             // Display the moon's shadow
-            fill(skyColour);
             let shadowOffset = (-1 + 0.25 * moonPhase) * moonDiameter;
             if (moonY <= screenWidth/2){
-                circle(moonX + shadowOffset, moonY, moonDiameter)
+                noStrokeCircle(skyColour, moonX + shadowOffset, moonY, moonDiameter)
             }      
         }
-
-        strokeWeight(1);
     }
 
     /*
@@ -325,12 +320,12 @@ class Cloud {
         for (let circleObject of this.circles){
             let screenX = this.scene.getDisplayX(circleObject["x"], 0, lX, false);
             let screenY = this.scene.getDisplayY(circleObject["y"], 0, bY, false);
-            strokeWeight(0);
-            let cloudColour = color(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_colour"]);
-            cloudColour.setAlpha(Math.floor(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_opacity"]/100*255));
-            fill(cloudColour);
-            circle(screenX, screenY, circleObject["radius"]*2);
-            strokeWeight(1);
+            let cloudColour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_colour"]);
+            cloudColour.setAlpha(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_opacity"]/100);
+            
+            // Display the circle
+
+            noStrokeCircle(cloudColour, screenX, screenY, circleObject["radius"]*2);
         }
     }
 

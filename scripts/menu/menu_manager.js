@@ -121,10 +121,9 @@ class MenuManager {
         Method Return: void
     */
     static setupClickListener(){
-        document.getElementById("defaultCanvas0").addEventListener("click", (event) => {
+        document.getElementById("canvas").addEventListener("click", (event) => {
             MENU_MANAGER.click(event.clientX, event.clientY);
         });
-
         document.onkeydown = (event) => {
             if (event.key === "Escape"){
                 MENU_MANAGER.escapeKey();

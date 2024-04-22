@@ -205,8 +205,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkMoveLeftRight(){
-        let aKey = keyIsDown(65);
-        let dKey = keyIsDown(68);
+        let aKey = USER_INPUT_MANAGER.isActivated("plane_turn_left");
+        let dKey = USER_INPUT_MANAGER.isActivated("plane_turn_right");
         let numKeysDown = 0;
         numKeysDown += aKey ? 1 : 0;
         numKeysDown += dKey ? 1 : 0;
@@ -263,8 +263,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkThrottle(){
-        let rKey = keyIsDown(82);
-        let fKey = keyIsDown(70);
+        let rKey = USER_INPUT_MANAGER.isActivated("plane_throttle_up");
+        let fKey = USER_INPUT_MANAGER.isActivated("plane_throttle_down");
         let numKeysDown = 0;
         numKeysDown += rKey ? 1 : 0;
         numKeysDown += fKey ? 1 : 0;
@@ -289,7 +289,7 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkShoot(){
-        let spaceKey = keyIsDown(32);
+        let spaceKey = USER_INPUT_MANAGER.isActivated("fighter_plane_shooting");
         if (!spaceKey){
             return;
         }

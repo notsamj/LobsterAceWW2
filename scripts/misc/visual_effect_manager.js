@@ -290,8 +290,6 @@ class Explosion extends TemporaryVisualEffect {
         // Don't display if too far away
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
-        strokeWeight(0);
-
         let currentTime = Date.now();
         let timePassedMS = currentTime - this.createdTime;
 
@@ -300,7 +298,7 @@ class Explosion extends TemporaryVisualEffect {
             // Ignore smoke that hasn't yet been produced
             if (timePassedMS < circleJSON["delay_ms"]){ continue; }
             let timePassedAdjustedMS = timePassedMS - circleJSON["delay_ms"];
-            let colour = color(circleJSON["colour"]);
+            let colour = Colour.fromCode(circleJSON["colour"]);
             let screenX = scene.getDisplayX(circleJSON["x"], 0, lX, false);
             let screenY = scene.getDisplayY(circleJSON["y"], 0, bY, false);
             let diameter = objectHasKey(circleJSON, "start_diameter") ? ((circleJSON["end_diameter"] - circleJSON["start_diameter"]) * Math.min(timePassedAdjustedMS, circleJSON["growing_time_ms"]) / circleJSON["growing_time_ms"] + circleJSON["start_diameter"]) : circleJSON["diameter"];
@@ -308,8 +306,7 @@ class Explosion extends TemporaryVisualEffect {
             // Sometimes circles with opacity <= 0 will be found these should be ignored
             if (opacity > 0){
                 colour.setAlpha(opacity);
-                fill(colour);
-                circle(screenX, screenY, diameter);
+                noStrokeCircle(colour, screenX, screenY, diameter);
             }
         }
 
@@ -317,11 +314,8 @@ class Explosion extends TemporaryVisualEffect {
         if (timePassedMS < this.buildingLifeSpan){
             let buildingYLeft = (1 - timePassedMS / this.buildingLifeSpan) * this.buildingYSize;
             let topY = buildingYLeft;
-            fill(this.buildingColour);
-            rect(this.buildingX, topY, this.buildingXSize, buildingYLeft);
+            noStrokeRectangle(this.buildingColour, this.buildingX, topY, this.buildingXSize, buildingYLeft);
         }
-
-        strokeWeight(1);
     }
 }
 
@@ -350,7 +344,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
         this.buildingY = buildingYSize;
         this.buildingYSize = buildingYSize;
         this.buildingLifeSpan = PROGRAM_DATA["other_effects"]["building_collapse"]["fake_building"]["life_span_ms"];
-        this.buildingColour = PROGRAM_DATA["building_data"]["building_colour"];
+        this.buildingColour = Colour.fromCode(PROGRAM_DATA["building_data"]["building_colour"]);
         // Smoke
         this.circles = [];
         this.generateCircles();
@@ -428,8 +422,6 @@ class BuildingCollapse extends TemporaryVisualEffect {
         // Don't display if too far away
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
-        strokeWeight(0);
-
         let currentTime = Date.now();
         let timePassedMS = currentTime - this.createdTime;
 
@@ -437,7 +429,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
         for (let circleJSON of this.circles){
             // Ignore smoke that hasn't yet been produced
             if (timePassedMS < circleJSON["delay_ms"]){ continue; }
-            let colour = color(circleJSON["colour"]);
+            let colour = Colour.fromCode(circleJSON["colour"]);
             let x = circleJSON["x"];
             let y = circleJSON["y"];
             // Move if has velocity
@@ -454,21 +446,17 @@ class BuildingCollapse extends TemporaryVisualEffect {
             // Sometimes circles with opacity <= 0 will be found these should be ignored
             if (opacity > 0){
                 colour.setAlpha(opacity);
-                fill(colour);
-                circle(screenX, screenY, circleJSON["diameter"]);
+                noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]);
             }
         }
-
-        strokeWeight(1);
 
         // Display Falling Building if still around
         if (timePassedMS < this.buildingLifeSpan){
             let buildingYLeft = (1 - timePassedMS / this.buildingLifeSpan) * this.buildingYSize;
             let topY = buildingYLeft;
-            fill(this.buildingColour);
             let screenX = scene.getDisplayX(this.buildingX, 0, lX, false);
             let screenY = scene.getDisplayY(topY, 0, bY, false);
-            rect(screenX, screenY, this.buildingXSize, buildingYLeft);
+            noStrokeRectangle(this.buildingColour, screenX, screenY, this.buildingXSize, buildingYLeft);
         }
     }
 
@@ -553,15 +541,12 @@ class PlaneSmoke extends TemporaryVisualEffect {
         // Don't display if too far away
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
         let opacity = this.getOpacity();
-        strokeWeight(0);
         for (let circleJSON of this.circles){
-            let colour = color(circleJSON["colour"]);
+            let colour = Colour.fromCode(circleJSON["colour"]);
             colour.setAlpha(opacity);
-            fill(colour);
             let screenX = scene.getDisplayX(circleJSON["x"], 0, lX, false);
             let screenY = scene.getDisplayY(circleJSON["y"], 0, bY, false);
-            circle(screenX, screenY, circleJSON["diameter"]);
+            noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]);
         }
-        strokeWeight(1);
     }
 }

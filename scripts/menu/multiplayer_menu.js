@@ -141,9 +141,9 @@ class MultiplayerMenu extends Menu {
             MENU_MANAGER.getMenuByName("participant").resetSettings();
             MENU_MANAGER.switchTo("participant");
         }else if (response){
-            MENU_MANAGER.addTemporaryMessage("Failed to join: " + response["reason"], "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to join: " + response["reason"], "#ff0000", 5000);
         }else{
-            MENU_MANAGER.addTemporaryMessage("Failed to get join response", "red", 5000);
+            MENU_MANAGER.addTemporaryMessage("Failed to get join response", "#ff0000", 5000);
         }
     }
 }

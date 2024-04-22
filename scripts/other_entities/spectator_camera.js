@@ -263,14 +263,14 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     checkFollowToggle(){
-        if (keyIsDown(70) && this.followToggleLock.isReady()){
+        if (USER_INPUT_MANAGER.isActivated("spectator_follow") && this.followToggleLock.isReady()){
             this.followToggleLock.lock();
             if (this.followingEntity == null){
                 this.spectateNextEntity();
             }else{
                 this.followingEntity = null;
             }
-        }else if (!keyIsDown(70) && !this.followToggleLock.isReady()){
+        }else if (!USER_INPUT_MANAGER.isActivated("spectator_follow") && !this.followToggleLock.isReady()){
             this.followToggleLock.unlock();
         }
     }
@@ -282,8 +282,8 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     checkLeftRight(){
-        let leftKey = keyIsDown(37);
-        let rightKey = keyIsDown(39);
+        let leftKey = USER_INPUT_MANAGER.isActivated("spectator_spectate_left");
+        let rightKey = USER_INPUT_MANAGER.isActivated("spectator_spectate_right");
         let numKeysDown = 0;
         numKeysDown += leftKey ? 1 : 0;
         numKeysDown += rightKey ? 1 : 0;
@@ -321,8 +321,8 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     checkMoveX(){
-        let leftKey = keyIsDown(37);
-        let rightKey = keyIsDown(39);
+        let leftKey = USER_INPUT_MANAGER.isActivated("spectator_spectate_left");
+        let rightKey = USER_INPUT_MANAGER.isActivated("spectator_spectate_right");
         let numKeysDown = 0;
         numKeysDown += leftKey ? 1 : 0;
         numKeysDown += rightKey ? 1 : 0;
@@ -344,8 +344,8 @@ class SpectatorCamera extends Entity {
         Method Return: void
     */
     checkMoveY(){
-        let upKey = keyIsDown(38);
-        let downKey = keyIsDown(40);
+        let upKey = USER_INPUT_MANAGER.isActivated("spectator_spectate_up");
+        let downKey = USER_INPUT_MANAGER.isActivated("spectator_spectate_down");
         let numKeysDown = 0;
         numKeysDown += upKey ? 1 : 0;
         numKeysDown += downKey ? 1 : 0;
