@@ -63,12 +63,18 @@ class Menu {
         rectMode(CORNER);
         fill(colour);
         rect(screenX, screenY, width, height);
+        // Here I'm testing what would happen if I removed p5
+        /*drawingContext.beginPath();
+        drawingContext.rect(screenX, screenY, width, height);
+        drawingContext.strokeRect(screenX, screenY, width, height);
+        drawingContext.fillStyle = colour;
+        drawingContext.fill();*/
 
         // Make the text
         Menu.makeText(textStr, textColour, x, y, width, height, CENTER, CENTER);
     }
 
-        /*
+    /*
         Method Name: determineMaxTextSizeByWidth
         Method Parameters:
         textLines:

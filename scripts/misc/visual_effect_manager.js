@@ -1,5 +1,16 @@
-// TODO: Comments
+/*
+    Class Name: VisualEffectManager
+    Description: Manages visual effects in the game space
+*/
 class VisualEffectManager {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            gamemode:
+                The gamemode associated with the visual effects
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(gamemode){
         this.gamemode = gamemode;
         this.visualEffects = new NotSamLinkedList();
@@ -18,9 +29,18 @@ class VisualEffectManager {
         });
     }
 
+    /*
+        Method Name: display
+        Method Parameters:
+            scene:
+                The scene to display visual effects on
+        Method Description: Displays visual effects on the screen
+        Method Return: void
+    */
     display(scene, lX, bY){
         let rX = lX + getScreenWidth() - 1;
         let tY = bY + getScreenHeight() - 1;
+        
         // Delete all expired effects
         this.visualEffects.deleteWithCondition((visualEffect) => { return visualEffect.isExpired(); });
     
@@ -30,6 +50,20 @@ class VisualEffectManager {
         }
     }
 
+    /*
+        Method Name: addPlaneSmoke
+        Method Parameters:
+            id:
+                The id of the plane that is smoking
+            smokeStage:
+                The stage of destruction of the plane
+            planeClass:
+                The class of the plane that is smoking
+            sizeMultiplier:
+                The size multiplier of the plane (1 for 64x64 fighter plane, 2 for 128x128 bomber plane)
+        Method Description: Adds plane smoke coming out of a plane
+        Method Return: void
+    */
     addPlaneSmoke(id, smokeStage, planeClass, sizeMultiplier, x, y, planeAngleRAD, planeFacingRight){
         // Create lock if doesn't exist
         if (!objectHasKey(this.planeSmokeLocks, id)){
@@ -45,22 +79,59 @@ class VisualEffectManager {
         let planeTailOffsetY = PROGRAM_DATA["plane_data"][planeClass]["tail_offset_y"];
         let smokeMiddleX = Math.cos(planeAngleRAD) * (planeTailOffsetX * (planeFacingRight ? 1 : -1)) - Math.sin(planeAngleRAD) * planeTailOffsetY + x;
         let smokeMiddleY = Math.sin(planeAngleRAD) * (planeTailOffsetX * (planeFacingRight ? 1 : -1)) + Math.cos(planeAngleRAD) * planeTailOffsetY + y;
+        
+        // Create the plane smoke
         this.visualEffects.push(new PlaneSmoke(smokeMiddleX, smokeMiddleY, smokeStage, sizeMultiplier));
     }
 
+    /*
+        Method Name: addBuildingCollapse
+        Method Parameters:
+            buildingX:
+                The x location of the building
+            buildingXSize:
+                The x size of the building
+            buildingYSize:
+                The y size of the building
+        Method Description: Adds a building collapse effect
+        Method Return: void
+    */
     addBuildingCollapse(buildingX, buildingXSize, buildingYSize){
         this.visualEffects.push(new BuildingCollapse(buildingX, buildingXSize, buildingYSize));
     }
 
 
-    // Size expected: 64 for fighter, 128 for bomber, 8 for bomb?
+    /*
+        Method Name: addExplosion
+        Method Parameters:
+            size:
+                The size of the explosion
+            x:
+                The x location of the explosion
+            y:
+                The y location of the explosion
+        Method Description: Creates an explosion of a given size at a given point
+        Method Return: void
+        Note: 64 for fighter, 128 for bomber, 8 for bomb?
+    */
     addExplosion(size, x, y){
         this.visualEffects.push(new Explosion(size, x, y));
     }
 }
 
-// TODO: Comments
+/*
+    Class Name: TemporaryVisualEffect
+    Description: A visual effect that gives for a set amount of time
+*/
 class TemporaryVisualEffect {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            lifeLengthMS:
+                The length of life of the effect
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(lifeLengthMS){
         this.createdTime = Date.now();
         this.expireyTimeMS = this.createdTime + lifeLengthMS;
@@ -70,18 +141,56 @@ class TemporaryVisualEffect {
         this.bottomY = Number.MAX_SAFE_INTEGER; // Placeholder will 100% be overwritten
     }
 
+    /*
+        Method Name: getOpacity
+        Method Parameters: None
+        Method Description: Determines the opacity of the effect assuming a linear decline from creation to end
+        Method Return: Float
+    */
     getOpacity(){
         return TemporaryVisualEffect.calculateOpacity(this.createdTime, this.expireyTimeMS - this.createdTime);
     }
 
+    /*
+        Method Name: calculateOpacity
+        Method Parameters:
+            createdTime:
+                The time the effect was created
+            lifeLengthMS:
+                The lifespan in ms of the effect
+            delay:
+                The delay between the creation time and the actual appearance of the effect
+        Method Description: Determines the opacity of the effect assuming a linear decline from creation to end with an optional delay
+        Method Return: Float
+    */
     static calculateOpacity(createdTime, lifeLengthMS, delay=0){
         return 255 - 255 * (Date.now() - createdTime - delay) / lifeLengthMS;
     }
 
+    /*
+        Method Name: isExpired
+        Method Parameters: None
+        Method Description: Checks if the effect is expired
+        Method Return: Boolean
+    */
     isExpired(){
         return Date.now() >= this.expireyTimeMS;
     }
 
+    /*
+        Method Name: touchesRegion
+        Method Parameters:
+            lX:
+                The game x of the left side of the screen
+            rX:
+                The game x of the right side of the screen
+            bY:
+                The game y of the bottom of the screen
+            tY:
+                The game y of the top of the screen
+        Method Description: Checks if the screen represented by four integers covers part of this effect
+        Method Return: Boolean
+    */
     touchesRegion(lX, rX, bY, tY){
         return !(this.bottomY > tY || this.topY < bY || this.leftX > rX || this.rightX < lX);
     }
@@ -90,7 +199,23 @@ class TemporaryVisualEffect {
     display(scene, lX, rX, bY, tY){}
 }
 
+/*
+    Class Name: Explosion
+    Description: A type of TemporaryVisualEffect that represents an explosion
+*/
 class Explosion extends TemporaryVisualEffect {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            size:
+                The size of the explosion
+            x:
+                The x coordinate of the explosion
+            y:
+                The y coordinate of the explosion
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(size, x, y){
         super(Math.max(PROGRAM_DATA["other_effects"]["explosion"]["secondary_ball"]["life_span_ms"] + PROGRAM_DATA["other_effects"]["explosion"]["secondary_ball"]["delay_ms"], PROGRAM_DATA["other_effects"]["explosion"]["smoke"]["life_span_ms"] + PROGRAM_DATA["other_effects"]["explosion"]["smoke"]["delay_ms"]));
         this.centerX = x;
@@ -100,6 +225,12 @@ class Explosion extends TemporaryVisualEffect {
         this.generateCircles();
     }
 
+    /*
+        Method Name: generateCircles
+        Method Parameters: None
+        Method Description: Creates the circles that represent the explosion
+        Method Return: void
+    */
     generateCircles(){
         let dataJSON = PROGRAM_DATA["other_effects"]["explosion"];
 
@@ -139,9 +270,26 @@ class Explosion extends TemporaryVisualEffect {
         this.rightX = this.centerX + dataJSON["secondary_ball"]["end_diameter"]*this.size/2 + dataJSON["smoke"]["diameter"]*this.size/2;
     }
 
+    /*
+        Method Name: display
+        Method Parameters:
+            scene:
+                The scene that the effect will be displayed on
+            lX:
+                The game x of the left side of the screen
+            rX:
+                The game x of the right side of the screen
+            bY:
+                The game y of the bottom of the screen
+            tY:
+                The game y of the top of the screen
+        Method Description: Displays the effect on the screen
+        Method Return: void
+    */
     display(scene, lX, rX, bY, tY){
         // Don't display if too far away
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+
         strokeWeight(0);
 
         let currentTime = Date.now();
@@ -172,11 +320,28 @@ class Explosion extends TemporaryVisualEffect {
             fill(this.buildingColour);
             rect(this.buildingX, topY, this.buildingXSize, buildingYLeft);
         }
+
         strokeWeight(1);
     }
 }
 
+/*
+    Class Name: BuildingCollapse
+    Description: A TemporaryVisualEffect. Represents the collapse of a building.
+*/
 class BuildingCollapse extends TemporaryVisualEffect {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            buildingX:
+                The x location of the building
+            buildingXSize:
+                The x size of the building
+            buildingYSize:
+                The y size of the building
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(buildingX, buildingXSize, buildingYSize){
         super(Math.max(PROGRAM_DATA["other_effects"]["building_collapse"]["inside_smoke"]["life_span_ms"], PROGRAM_DATA["other_effects"]["building_collapse"]["fake_building"]["life_span_ms"] + PROGRAM_DATA["other_effects"]["building_collapse"]["runaway_smoke"]["life_span_ms"]));
         // Fake Building
@@ -191,6 +356,12 @@ class BuildingCollapse extends TemporaryVisualEffect {
         this.generateCircles();
     }
 
+    /*
+        Method Name: generateCircles
+        Method Parameters: None
+        Method Description: Creates the circles that represent the smoke of the collapse
+        Method Return: void
+    */
     generateCircles(){
         let dataJSON = PROGRAM_DATA["other_effects"]["building_collapse"];
 
@@ -237,7 +408,22 @@ class BuildingCollapse extends TemporaryVisualEffect {
         }
     }
 
-
+    /*
+        Method Name: display
+        Method Parameters:
+            scene:
+                The scene that the effect will be displayed on
+            lX:
+                The game x of the left side of the screen
+            rX:
+                The game x of the right side of the screen
+            bY:
+                The game y of the bottom of the screen
+            tY:
+                The game y of the top of the screen
+        Method Description: Displays the effect on the screen
+        Method Return: void
+    */
     display(scene, lX, rX, bY, tY){
         // Don't display if too far away
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
@@ -288,13 +474,45 @@ class BuildingCollapse extends TemporaryVisualEffect {
 
 }
 
+/*
+    Class Name: PlaneSmoke
+    Description: A TemporaryVisualEffect. Represents smoke coming out of a damaged plane.
+*/
 class PlaneSmoke extends TemporaryVisualEffect {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            smokeMiddleX:
+                The x of the center of the smoke cloud
+            smokeMiddleY:
+                THe y of the center of the smoke cloud
+            smokeStage:
+                The stage of destruction of the associated plane
+            sizeMultiplier:
+                The size multiplier of the smoke (1 for 64size fighter planes, 2 for 128size bomber planes)
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(smokeMiddleX, smokeMiddleY, smokeStage, sizeMultiplier){
         super(PROGRAM_DATA["plane_smoke"]["smoke_life_span_ms"]);
         this.circles = [];
         this.generateCircles(smokeMiddleX, smokeMiddleY, smokeStage, sizeMultiplier);
     }
 
+    /*
+        Method Name: generateCircles
+        Method Parameters:
+            smokeMiddleX:
+                The x of the center of the smoke cloud
+            smokeMiddleY:
+                THe y of the center of the smoke cloud
+            smokeStage:
+                The stage of destruction of the associated plane
+            sizeMultiplier:
+                The size multiplier of the smoke (1 for 64size fighter planes, 2 for 128size bomber planes)
+        Method Description: Generates the circles that represent the plane smoke
+        Method Return: void
+    */
     generateCircles(smokeMiddleX, smokeMiddleY, smokeStage, sizeMultiplier){
         let smokeStageInfo = PROGRAM_DATA["plane_smoke"]["stage_details"][smokeStage-1];
         for (let circleTypeJSON of smokeStageInfo){
@@ -315,6 +533,22 @@ class PlaneSmoke extends TemporaryVisualEffect {
         }
     }
 
+    /*
+        Method Name: display
+        Method Parameters:
+            scene:
+                The scene that the effect will be displayed on
+            lX:
+                The game x of the left side of the screen
+            rX:
+                The game x of the right side of the screen
+            bY:
+                The game y of the bottom of the screen
+            tY:
+                The game y of the top of the screen
+        Method Description: Displays the effect on the screen
+        Method Return: void
+    */
     display(scene, lX, rX, bY, tY){
         // Don't display if too far away
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }

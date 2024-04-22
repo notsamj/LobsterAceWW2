@@ -1,4 +1,18 @@
+/*
+    Class Name: GunHeatManager
+    Description: Manages the heat of a gun and whether or not it can shoot
+*/
 class GunHeatManager {
+    /*
+        Method Name: constructor
+        Method Parameters:
+            bulletHeatCapacity:
+                The number of bullets it takes to reach heat capacity with no cooling
+            coolingTimeMS:
+                The time it takes the gun to go from full heat to zero
+        Method Description: Constructor
+        Method Return: Constructor
+    */
     constructor(bulletHeatCapacity, coolingTimeMS){
         this.bulletHeatCapacity = bulletHeatCapacity;
         this.maxCoolingDelayTicks = Math.ceil(PROGRAM_DATA["heat_bar"]["cooling_delay_ms"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
@@ -9,6 +23,12 @@ class GunHeatManager {
         this.activelyShooting = false;
     }
 
+    /*
+        Method Name: getThreshold
+        Method Parameters: None
+        Method Description: Determines which threshold is met by the current heat
+        Method Return: String
+    */
     getThreshold(){
         let heatPercentage = this.heat/this.bulletHeatCapacity;
         if (heatPercentage > PROGRAM_DATA["heat_bar"]["threshold_3"]){
@@ -20,6 +40,12 @@ class GunHeatManager {
         }
     }
 
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Handles the cooling that takes place
+        Method Return: void
+    */
     tick(){
         // If on cooling delay
         if (this.coolingDelayTicks > 0){
@@ -41,21 +67,47 @@ class GunHeatManager {
         this.activelyShooting = false;
     }
 
+    /*
+        Method Name: isActivelyShooting
+        Method Parameters: None
+        Method Description: Checks if the turret is actively shooting
+        Method Return: Boolean
+    */
     isActivelyShooting(){
         return this.activelyShooting;
     }
 
+    /*
+        Method Name: getInterpolatedHeat
+        Method Parameters:
+            timePassed:
+                The milliseconds since the last tick
+        Method Description: Determines the heat of the gun at a given time after the last tick
+        Method Return: Float
+    */
     getInterpolatedHeat(timePassed){
         // Don't interpolated if still on cooling delay
         if (this.coolingDelayTicks > 0){ return this.heat; }
         return Math.max(0, this.heat - this.bulletHeatCapacity *  timePassed / this.coolingTimeMS);
     }
 
+    /*
+        Method Name: TODO
+        Method Parameters: None
+        Method Description: TODO
+        Method Return: TODO
+    */
     isCooling(){
         return this.emergencyCooling;
     }
 
-    // Assumes allowShoot has been checked
+    /*
+        Method Name: shoot
+        Method Parameters: None
+        Method Description: Increases the heat as a shot has occured
+        Method Return: void
+        Note: Assumes canShoot has been checked
+    */
     shoot(){
         this.activelyShooting = true;
         this.heat = Math.min(this.bulletHeatCapacity, this.heat+1);
@@ -66,10 +118,26 @@ class GunHeatManager {
         }
     }
 
+    /*
+        Method Name: canShoot
+        Method Parameters: None
+        Method Description: Checks if the gun can shoot based on its heat
+        Method Return: Boolean
+    */
     canShoot(){
         return !this.isCooling();
     }
 
+    /*
+        Method Name: display
+        Method Parameters:
+            timePassed:
+                The time in milliseconds since the last tick
+            offset:
+                The offset of the turret heat indicator on the screen 0 -> first indicator to display, 1 -> indicator displayed above zero, etc...
+        Method Description: Displays the heat bar on the screen
+        Method Return: void
+    */
     display(timePassed, offset=0){
         let shareBorderOffset = offset > 0 ? 1 : 0; 
         let displayHeat = this.getInterpolatedHeat(timePassed);
@@ -97,7 +165,6 @@ class GunHeatManager {
         }else{
             heatBarColour = PROGRAM_DATA["heat_bar"]["threshold_1_colour"];
         }
-        
 
         let screenHeight = getScreenHeight();
 
