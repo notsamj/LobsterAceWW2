@@ -230,7 +230,7 @@ function setLocalStorage(key, value){
     Method Return: void
 */
 function getScreenWidth(){
-    return window.innerWidth * window.devicePixelRatio; // * pixelSomething density in the future?
+    return window.innerWidth; // * pixelSomething density in the future?
 }
 /*
     Method Name: getScreenHeight
@@ -239,7 +239,7 @@ function getScreenWidth(){
     Method Return: void
 */
 function getScreenHeight(){
-    return window.innerHeight * window.devicePixelRatio;
+    return window.innerHeight;
 }
 
 /*
