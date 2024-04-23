@@ -6,11 +6,11 @@ Select your chosen plane (or Camera) by clicking on the image under the heading 
 
 (Optional) Select an allied bot plane by clicking on the image under the heading "Allies" \
 
-    - Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight.</li>
+    - Add as many of these as you want by clicking on the "+1" or "+5" yellow buttons. They will be bots fighting in the dogfight.
 
 (Optional). Select an axis plane by clicking on the image under the heading "Axis" \
 
-    - Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight.</li>
+    - Add as many of these as you want by clicking on the "+1" or "+5" purple buttons. They will be bots fighting in the dogfight.
 
 Review the bots that will be participating in the dogfight under the "Bot Details" header and remove as you see fit. You are recommended to use 40 or fewer planes for a dogfight, however, it varies with PC performance. \
 
