@@ -62,13 +62,13 @@ class ExtraSettingsMenu extends Menu {
         let settingLabelXSize = 300;
         let settingLabelX = 600;
         let settingLabelYSize = 100;
-        let settingLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart + settingModifierButtonSize/2; }
+        let settingLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart - settingModifierButtonSize/2; }
 
         let settingModifierButtonX = settingLabelX + settingLabelXSize;
         let settingModifierButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
         // Components
-        this.components.push(new TextComponent(settingName, "#e6f5f4", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, "center", "top"));
+        this.components.push(new TextComponent(settingName, "#108700", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, "center", "middle"));
 
         if (settingType == "on_off"){
             this.createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
@@ -142,7 +142,7 @@ class ExtraSettingsMenu extends Menu {
             modifyDataJSONValue(settingPath, newValue);
             setLocalStorage(settingName, newValue);
         }
-        let quantitySlider = new QuantitySlider(settingModifierButtonX, settingModifierButtonY, quantitySlideXSize, settingModifierButtonSize, getValueFunction, setValueFunction, setting["min_value"], setting["max_value"], setting["uses_float"]);
+        let quantitySlider = new QuantitySlider(settingModifierButtonX, settingModifierButtonY, quantitySlideXSize, settingModifierButtonSize, getValueFunction, setValueFunction, setting["min_value"], setting["max_value"], setting["uses_float"], undefined, "#108700");
         this.components.push(quantitySlider);
     }
 

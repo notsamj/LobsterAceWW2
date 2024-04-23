@@ -290,14 +290,14 @@ const PROGRAM_DATA = {
             "path": ["sky_generation", "cloud_generation", "min_clouds_per_cluster"],
             "type": "quantity_slider",
             "min_value": 0,
-            "max_value": 70,
+            "max_value": 40,
             "uses_float": false
         },
         {
             "name": "max_clouds_per_cluster",
             "path": ["sky_generation", "cloud_generation", "max_clouds_per_cluster"],
             "type": "quantity_slider",
-            "min_value": 70,
+            "min_value": 40,
             "max_value": 250,
             "uses_float": false
         }
@@ -779,7 +779,7 @@ const PROGRAM_DATA = {
             "max_radius": 80,
             "min_circles_per_cloud": 3,
             "max_circles_per_cloud": 7,
-            "min_clouds_per_cluster": 50,
+            "min_clouds_per_cluster": 40,
             "max_clouds_per_cluster": 70,
         }
     },
