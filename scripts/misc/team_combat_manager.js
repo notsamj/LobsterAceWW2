@@ -33,7 +33,7 @@ class TeamCombatManager {
         this.gamemode = game;
         for (let team of teams){
             this.planes[team] = new NotSamLinkedList();
-            this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets"]);
+            this.bullets[team] = new NotSamArrayList(null, PROGRAM_DATA["settings"]["max_bullets_per_team"]);
         }
         this.collisionsDisabled = false;
     }
@@ -237,7 +237,7 @@ class TeamCombatManager {
                 bomb.setID("b" + "_" + index);
                 bomb.setIndex(index);
                 bombArray.put(index, bomb);
-                return;
+                return true;
             }
         }
         // No empty spaces found...
@@ -246,7 +246,9 @@ class TeamCombatManager {
             bomb.setID("bomb"+ "_" + bombIndex);
             bomb.setIndex(bombIndex);
             bombArray.append(bomb);
+            return true;
         }
+        return false;
     }
 
     /*
@@ -265,7 +267,7 @@ class TeamCombatManager {
                 bullet.setID("b" + "_" + bullet.getAlliance() + "_" + index);
                 bullet.setIndex(index);
                 bulletArray.put(index, bullet);
-                return;
+                return true;
             }
         }
         // No empty spaces found...
@@ -274,7 +276,9 @@ class TeamCombatManager {
             bullet.setID("b"+ "_" + bullet.getAlliance() + "_" + bulletIndex);
             bullet.setIndex(bulletIndex);
             bulletArray.append(bullet);
+            return true;
         }
+        return false;
     }
 
     /*

@@ -27,11 +27,13 @@ class BomberTurret extends Turret {
                 The heat capacity of the turret
             coolingTimeMS:
                 The time in miliseconds for the turret to fully cool down
+            bulletDamage:
+                The damage of bullets shot from this turret
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS){
-        super(null, null, fov1, fov2, rateOfFire, plane.getGamemode(), bulletHeatCapacity, coolingTimeMS);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS, bulletDamage){
+        super(null, null, fov1, fov2, rateOfFire, plane.getGamemode(), bulletHeatCapacity, coolingTimeMS, bulletDamage);
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.plane = plane;
@@ -112,9 +114,9 @@ class BomberTurret extends Turret {
         this.turretHeatManager.shoot();
         this.getGamemode().getSoundManager().play("shoot", this.getX(), this.getY());
         if (this.getGamemode().areBulletPhysicsEnabled()){
-            this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), shootingAngleRAD, this.getID(), this.model));
+            this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), shootingAngleRAD, this.getID(), this.model, this.damage));
         }else{ // Fake bullets
-            this.plane.instantShot(this.getX(), this.getY(), shootingAngleRAD);
+            this.plane.instantShot(this.getX(), this.getY(), shootingAngleRAD, new Bullet(null, null, this.plane.getGamemode(), null, null, null, this.plane.getID(), this.plane.getPlaneClass(), this.damage));
         }
     }
 

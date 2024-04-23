@@ -30,11 +30,13 @@ class BotBomberTurret extends BomberTurret {
                 The heat capacity of the turret
             coolingTimeMS:
                 The time in miliseconds for the turret to fully cool down
+            bulletDamage:
+                The damage of bullets shot from this turret
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS){
-        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS);
+    constructor(xOffset, yOffset,fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS, bulletDamage){
+        super(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS, bulletDamage);
     }
 
     /*

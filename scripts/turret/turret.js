@@ -27,10 +27,12 @@ class Turret {
                 The heat capacity of the turret
             coolingTimeMS:
                 The time in miliseconds for the turret to fully cool down
+            bulletDamage:
+                The damage of bullets shoot from this turret
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, fov1, fov2, rateOfFire, gamemode, bulletHeatCapacity, coolingTimeMS){
+    constructor(x, y, fov1, fov2, rateOfFire, gamemode, bulletHeatCapacity, coolingTimeMS, bulletDamage){
         this.x = x;
         this.y = y;
         this.shootCD = new TickLock(rateOfFire * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
@@ -41,6 +43,7 @@ class Turret {
         this.model = "turret";
         this.startingAngle = (fov1 + fov2)/2;
         this.angle = this.startingAngle;
+        this.damage = bulletDamage;
         this.decisions = {
             "shooting": false, // true -> shooting, false -> not shooting
             "angle": this.startingAngle // angle in radians [0,2*PI)

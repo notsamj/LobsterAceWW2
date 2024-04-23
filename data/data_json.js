@@ -11,10 +11,10 @@ const PROGRAM_DATA = {
             "health": 12*5,
             "country": "Britain",
             "type": "Fighter",
-            "gun_offset_x": 126-64,
-            "gun_offset_y": 64-61,
-            "tail_offset_x": 8-64,
-            "tail_offset_y": 64-35,
+            "gun_offset_x": 110-64,
+            "gun_offset_y": 64-90,
+            "tail_offset_x": 6-64,
+            "tail_offset_y": 64-44,
             "bullet_damage": 1.35,
             "bullet_heat_capacity": 40,
             "cooling_time_ms": 7500,
@@ -135,7 +135,6 @@ const PROGRAM_DATA = {
             "bomb_offset_y": 128-136,
             "tail_offset_x": 23-128,
             "tail_offset_y": 128-83,
-            "bullet_damage": 8,
             "bomb_damage": 1,
             "guns": [
                 { // Front gun
@@ -145,34 +144,175 @@ const PROGRAM_DATA = {
                     "fov_2": 320,
                     "bullet_heat_capacity": 16,
                     "cooling_time_ms": 10000,
-                    "rate_of_fire": 300
+                    "rate_of_fire": 300,
+                    "bullet_damage": 8
                 },
                 { // Top gun front
                     "x_offset": 149-128,
                     "y_offset": 128-93,
                     "fov_1": 170,
                     "fov_2": 10,
-                    "bullet_heat_capacity": 16,
+                    "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
-                    "rate_of_fire": 300
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
                 },
                 { // Back bottom gun
                     "x_offset": 110-128,
                     "y_offset": 128-130,
                     "fov_1": 260,
                     "fov_2": 175,
-                    "bullet_heat_capacity": 16,
+                    "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
-                    "rate_of_fire": 300
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
                 },
                 { // Top gun back
                     "x_offset": 27-128,
                     "y_offset": 128-89,
                     "fov_1": 190,
                     "fov_2": 10,
+                    "bullet_heat_capacity": 48,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
+                }
+            ]
+        },
+        "short_stirling": {
+            "radius": 128,
+            "max_speed": 434,
+            "health": 50*5,
+            "country": "Britain",
+            "type": "Bomber",
+            "bomb_offset_x": 142-128,
+            "bomb_offset_y": 128-144,
+            "tail_offset_x": 16-128,
+            "tail_offset_y": 128-48,
+            "bomb_damage": 1,
+            "guns": [
+                { // Front gun
+                    "x_offset": 253-128,
+                    "y_offset": 128-118,
+                    "fov_1": 70,
+                    "fov_2": 330,
                     "bullet_heat_capacity": 16,
                     "cooling_time_ms": 10000,
-                    "rate_of_fire": 300
+                    "rate_of_fire": 300,
+                    "bullet_damage": 8
+                },
+                { // Top gun front
+                    "x_offset": 149-128,
+                    "y_offset": 128-93,
+                    "fov_1": 160,
+                    "fov_2": 20,
+                    "bullet_heat_capacity": 48,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
+                },
+                { // Top gun back
+                    "x_offset": 27-128,
+                    "y_offset": 128-89,
+                    "fov_1": 200,
+                    "fov_2": 120,
+                    "bullet_heat_capacity": 48,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
+                }
+            ]
+        },
+        "junkers_ju_88": {
+            "radius": 128, // Using this value from a prototype according to Wikipedia but this is just for fun I don't care all that much about realism
+            "max_speed": 580, 
+            "health": 50*5,
+            "country": "Germany",
+            "type": "Bomber",
+            "bomb_offset_x": 135-128,
+            "bomb_offset_y": 128-153,
+            "tail_offset_x": 24-128,
+            "tail_offset_y": 128-95,
+            "bomb_damage": 1,
+            "guns": [
+                { // Top gun front
+                    "x_offset": 216-128,
+                    "y_offset": 128-115,
+                    "fov_1": 70,
+                    "fov_2": 10,
+                    "bullet_heat_capacity": 48,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
+                },
+                { // Top gun front facing back
+                    "x_offset": 149-128,
+                    "y_offset": 128-93,
+                    "fov_1": 170,
+                    "fov_2": 70,
+                    "bullet_heat_capacity": 48,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
+                },
+                { // Bottom gun front
+                    "x_offset": 27-128,
+                    "y_offset": 128-89,
+                    "fov_1": 350,
+                    "fov_2": 300,
+                    "bullet_heat_capacity": 16,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 300,
+                    "bullet_damage": 8
+                }
+            ]
+        },
+        /*
+            Note about this plane: I based this off a couple black and white photos. I usually try and avoid looking at pictures of these planes that are recreations so
+            I had to use some creative liberty to try and make this different. Also for the purpose of this game I'm treating this as a German plane loaned to the Japanese so I can
+            use it for the Japanese bombing missions since I could not find any appropriate Japanese bomber to use.
+        */
+        "me_264": {
+            "radius": 128,
+            "max_speed": 560,
+            "health": 50*5,
+            "country": "Germany",
+            "type": "Bomber",
+            "bomb_offset_x": 135-128,
+            "bomb_offset_y": 128-153,
+            "tail_offset_x": 24-128,
+            "tail_offset_y": 128-95,
+            "bomb_damage": 1,
+            "guns": [
+                { // Top gun back
+                    "x_offset": 91-128,
+                    "y_offset": 128-41,
+                    "fov_1": 70,
+                    "fov_2": 10,
+                    "bullet_heat_capacity": 48,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
+                },
+                { // Front bottom
+                    "x_offset": 240-128,
+                    "y_offset": 128-106,
+                    "fov_1": 170,
+                    "fov_2": 70,
+                    "bullet_heat_capacity": 16,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 300,
+                    "bullet_damage": 8
+                },
+                { // Back bottom
+                    "x_offset": 83-128,
+                    "y_offset": 128-103,
+                    "fov_1": 350,
+                    "fov_2": 300,
+                    "bullet_heat_capacity": 48,
+                    "cooling_time_ms": 10000,
+                    "rate_of_fire": 100,
+                    "bullet_damage": 2
                 }
             ]
         }
@@ -241,7 +381,7 @@ const PROGRAM_DATA = {
         "tick_rate": 20, // 100
         "ms_between_ticks": 50, // 10
         "max_bullet_y_velocity_multiplier": 2/800,
-        "max_bullets": 2000,
+        "max_bullets_per_team": 2000,
         "max_bombs": 500,
         "keep_alive_interval": 5000,
         "multiplayer_disabled": false,
@@ -717,6 +857,538 @@ const PROGRAM_DATA = {
                 "defender_plane_counts": {
                     "a6m_zero": 5, // was working with 12 for a while but too op suddenly
                     "kawasaki_ki_45": 5 // was working with 12 for a while but too op suddenly
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 40, // 20?
+                    "min_health": 3,
+                    "max_health": 6 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 50e3, // 70e3?
+                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                },
+                "bomber_hp_multiplier": 4 // Based on attacker difficulty
+            },
+            "start_zone": {
+                "attackers": {
+                    "x": 0,
+                    "y": 10e3
+                },
+                "defenders": {
+                    "x": 45e3, // used 65e3 for a while
+                    "y": 200
+                },
+                "offsets": {
+                    "x": 2500,
+                    "y": 9000
+                }
+            },
+            "buildings": {
+                "start_x": 30e3, // used 50e3 for a while
+                "min_gap": 50,
+                "max_gap": 200,
+                "min_height": 60,
+                "max_height": 300,
+                "min_width": 50,
+                "max_width": 150,
+            }
+        },
+        {
+            "id": 2,
+            "description": "Mission 3\nA British assault on German positions in France.",
+            "user_planes": [
+                "spitfire",
+                "hawker_sea_fury",
+                "short_stirling",
+                "me_309",
+                "me_bf_109"
+            ],
+            "attacker_planes": [
+                "spitfire",
+                "hawker_sea_fury",
+                "short_stirling"
+            ],
+            "defender_planes": [
+                "me_309",
+                "me_bf_109"
+            ],
+            "attackers": "Allies",
+            "defenders": "Axis",
+            "easy": {
+                "max_planes": 40,
+                "attacker_plane_counts": {
+                    "hawker_sea_fury": 3, // 5?
+                    "spitfire": 3, // 5?
+                    "short_stirling": 1
+                },
+                "defender_plane_counts": {
+                    "me_309": 3,
+                    "me_bf_109": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "medium": {
+                "max_planes": 50,
+                "attacker_plane_counts": {
+                    "hawker_sea_fury": 3, // 5?
+                    "spitfire": 3, // 5?
+                    "short_stirling": 1
+                },
+                "defender_plane_counts": {
+                    "me_309": 3,
+                    "me_bf_109": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hard": {
+                "max_planes": 60,
+                "attacker_plane_counts": {
+                    "hawker_sea_fury": 5,
+                    "spitfire": 5,
+                    "short_stirling": 2
+                },
+                "defender_plane_counts": {
+                    "me_309": 6,
+                    "me_bf_109": 6
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 30, // 20?
+                    "min_health": 2,
+                    "max_health": 4 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hardest": {
+                "max_planes": 70,
+                "attacker_plane_counts": {
+                    "hawker_sea_fury": 8,
+                    "spitfire": 8,
+                    "short_stirling": 4
+                },
+                "defender_plane_counts": {
+                    "me_309": 5, // was working with 12 for a while but too op suddenly
+                    "me_bf_109": 5 // was working with 12 for a while but too op suddenly
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 40, // 20?
+                    "min_health": 3,
+                    "max_health": 6 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 50e3, // 70e3?
+                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                },
+                "bomber_hp_multiplier": 4 // Based on attacker difficulty
+            },
+            "start_zone": {
+                "attackers": {
+                    "x": 0,
+                    "y": 10e3
+                },
+                "defenders": {
+                    "x": 45e3, // used 65e3 for a while
+                    "y": 200
+                },
+                "offsets": {
+                    "x": 2500,
+                    "y": 9000
+                }
+            },
+            "buildings": {
+                "start_x": 30e3, // used 50e3 for a while
+                "min_gap": 50,
+                "max_gap": 200,
+                "min_height": 60,
+                "max_height": 300,
+                "min_width": 50,
+                "max_width": 150,
+            }
+        },
+        {
+            "id": 3,
+            "description": "Mission 4\nA German bombing run on Cambridge.",
+            "user_planes": [
+                "spitfire",
+                "hawker_sea_fury",
+                "junkers_ju_88",
+                "me_309",
+                "me_bf_109"
+            ],
+            "attacker_planes": [
+                "me_309",
+                "me_bf_109",
+                "junkers_ju_88"
+            ],
+            "defender_planes": [
+                "spitfire",
+                "hawker_sea_fury"
+            ],
+            "attackers": "Axis",
+            "defenders": "Allies",
+            "easy": {
+                "max_planes": 40,
+                "attacker_plane_counts": {
+                    "me_309": 3, // 5?
+                    "me_bf_109": 3, // 5?
+                    "junkers_ju_88": 1
+                },
+                "defender_plane_counts": {
+                    "spitfire": 3,
+                    "hawker_sea_fury": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "medium": {
+                "max_planes": 50,
+                "attacker_plane_counts": {
+                    "me_309": 3, // 5?
+                    "me_bf_109": 3, // 5?
+                    "junkers_ju_88": 1
+                },
+                "defender_plane_counts": {
+                    "spitfire": 3,
+                    "hawker_sea_fury": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hard": {
+                "max_planes": 60,
+                "attacker_plane_counts": {
+                    "me_309": 5,
+                    "me_bf_109": 5,
+                    "junkers_ju_88": 2
+                },
+                "defender_plane_counts": {
+                    "spitfire": 6,
+                    "hawker_sea_fury": 6
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 30, // 20?
+                    "min_health": 2,
+                    "max_health": 4 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hardest": {
+                "max_planes": 70,
+                "attacker_plane_counts": {
+                    "me_309": 8,
+                    "me_bf_109": 8,
+                    "junkers_ju_88": 4
+                },
+                "defender_plane_counts": {
+                    "spitfire": 5, // was working with 12 for a while but too op suddenly
+                    "hawker_sea_fury": 5 // was working with 12 for a while but too op suddenly
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 40, // 20?
+                    "min_health": 3,
+                    "max_health": 6 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 50e3, // 70e3?
+                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                },
+                "bomber_hp_multiplier": 4 // Based on attacker difficulty
+            },
+            "start_zone": {
+                "attackers": {
+                    "x": 0,
+                    "y": 10e3
+                },
+                "defenders": {
+                    "x": 45e3, // used 65e3 for a while
+                    "y": 200
+                },
+                "offsets": {
+                    "x": 2500,
+                    "y": 9000
+                }
+            },
+            "buildings": {
+                "start_x": 30e3, // used 50e3 for a while
+                "min_gap": 50,
+                "max_gap": 200,
+                "min_height": 60,
+                "max_height": 300,
+                "min_width": 50,
+                "max_width": 150,
+            }
+        },
+        {
+            "id": 4,
+            "description": "Mission 5\nA Japanese assault on San Francisco\nin an alternate reality where Japan has the capacity to conduct such an attack.\nThe Japanese bomber is on loan from the Germans in this scenario.",
+            "user_planes": [
+                "republic_p_47",
+                "p51_mustang",
+                "me_264",
+                "a6m_zero",
+                "kawasaki_ki_45"
+            ],
+            "attacker_planes": [
+                "a6m_zero",
+                "kawasaki_ki_45",
+                "me_264"
+            ],
+            "defender_planes": [
+                "republic_p_47",
+                "p51_mustang"
+            ],
+            "attackers": "Axis",
+            "defenders": "Allies",
+            "easy": {
+                "max_planes": 40,
+                "attacker_plane_counts": {
+                    "a6m_zero": 3, // 5?
+                    "kawasaki_ki_45": 3, // 5?
+                    "me_264": 1
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 3,
+                    "p51_mustang": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "medium": {
+                "max_planes": 50,
+                "attacker_plane_counts": {
+                    "a6m_zero": 3, // 5?
+                    "kawasaki_ki_45": 3, // 5?
+                    "me_264": 1
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 3,
+                    "p51_mustang": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hard": {
+                "max_planes": 60,
+                "attacker_plane_counts": {
+                    "a6m_zero": 5,
+                    "kawasaki_ki_45": 5,
+                    "me_264": 2
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 6,
+                    "p51_mustang": 6
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 30, // 20?
+                    "min_health": 2,
+                    "max_health": 4 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hardest": {
+                "max_planes": 70,
+                "attacker_plane_counts": {
+                    "a6m_zero": 8,
+                    "kawasaki_ki_45": 8,
+                    "me_264": 4
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 5, // was working with 12 for a while but too op suddenly
+                    "republic_p_47": 5 // was working with 12 for a while but too op suddenly
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 40, // 20?
+                    "min_health": 3,
+                    "max_health": 6 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 50e3, // 70e3?
+                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                },
+                "bomber_hp_multiplier": 4 // Based on attacker difficulty
+            },
+            "start_zone": {
+                "attackers": {
+                    "x": 0,
+                    "y": 10e3
+                },
+                "defenders": {
+                    "x": 45e3, // used 65e3 for a while
+                    "y": 200
+                },
+                "offsets": {
+                    "x": 2500,
+                    "y": 9000
+                }
+            },
+            "buildings": {
+                "start_x": 30e3, // used 50e3 for a while
+                "min_gap": 50,
+                "max_gap": 200,
+                "min_height": 60,
+                "max_height": 300,
+                "min_width": 50,
+                "max_width": 150,
+            }
+        },
+        {
+            "id": 5,
+            "description": "Mission 6\nA German counter offensive against Americans in France.",
+            "user_planes": [
+                "me_309",
+                "me_bf_109",
+                "junkers_ju_88",
+                "republic_p_47",
+                "p51_mustang"
+            ],
+            "attacker_planes": [
+                "me_309",
+                "me_bf_109",
+                "junkers_ju_88"
+            ],
+            "defender_planes": [
+                "republic_p_47",
+                "p51_mustang"
+            ],
+            "attackers": "Axis",
+            "defenders": "Allies",
+            "easy": {
+                "max_planes": 40,
+                "attacker_plane_counts": {
+                    "me_309": 3, // 5?
+                    "me_bf_109": 3, // 5?
+                    "junkers_ju_88": 1
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 3,
+                    "p51_mustang": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "medium": {
+                "max_planes": 50,
+                "attacker_plane_counts": {
+                    "me_309": 3, // 5?
+                    "me_bf_109": 3, // 5?
+                    "junkers_ju_88": 1
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 3,
+                    "p51_mustang": 3
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 20, // 20?
+                    "min_health": 1,
+                    "max_health": 2 // 5? 10?f
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hard": {
+                "max_planes": 60,
+                "attacker_plane_counts": {
+                    "me_309": 5,
+                    "me_bf_109": 5,
+                    "junkers_ju_88": 2
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 6,
+                    "p51_mustang": 6
+                },
+                "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
+                    "count": 30, // 20?
+                    "min_health": 2,
+                    "max_health": 4 // 5? 10?
+                },
+                "respawn_times": {
+                    "attackers": 70e3, // 70e3?
+                    "defenders": 25e3 // 30e3?
+                },
+                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+            },
+            "hardest": {
+                "max_planes": 70,
+                "attacker_plane_counts": {
+                    "me_309": 8,
+                    "me_bf_109": 8,
+                    "junkers_ju_88": 4
+                },
+                "defender_plane_counts": {
+                    "republic_p_47": 5, // was working with 12 for a while but too op suddenly
+                    "p51_mustang": 5 // was working with 12 for a while but too op suddenly
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
