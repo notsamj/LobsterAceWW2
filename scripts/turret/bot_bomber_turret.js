@@ -80,9 +80,7 @@ class BotBomberTurret extends BomberTurret {
             enemyY = enemy.getY();
             enemyXDisplacement = enemyX - myX;
             enemyYDisplacement = enemyY - myY;
-            // TODO: Maybe use the ANGLE TO ENTITY function?
             angleRAD = displacementToRadians(enemyXDisplacement, enemyYDisplacement);
-            //console.log("angle", toDegrees(angleRAD), angleBetweenCWRAD(angleRAD, fov1, fov2));
             // Ignore planes that aren't in line of sight
             if (!angleBetweenCWRAD(angleRAD, fov1, fov2)){ 
                 continue; 

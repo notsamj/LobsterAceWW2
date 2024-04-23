@@ -317,10 +317,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         let enemyIsFacingMe = angleBetweenCCWRAD(enemyAngleRAD, rotateCCWRAD(enemyAngleToMe, toRadians(10)), rotateCWRAD(enemyAngleToMe, toRadians(10)));
         
         // If continuing evasive OR (enemy is behind me, facing me, and close) then do evasive manuevers
-        let continueEvasive = this.evasiveTicksCD-- > 0;
-        if (this.planeClass == "a6m_zero"){
-            console.log(this.evasiveTicksCD)
-        }
+        let continueEvasive = (this.evasiveTicksCD == 0) ? false : (this.evasiveTicksCD-- > 0);
         if (continueEvasive || (enemyIsBehindMe && enemyIsFacingMe && distance < this.getMaxSpeed() * PROGRAM_DATA["settings"]["evasive_speed_diff"] + this.biases["enemy_close_distance"])){
             this.evasiveManeuver();
             return;
@@ -353,8 +350,8 @@ class BiasedBotFighterPlane extends FighterPlane {
     evasiveManeuver(){
         if (this.turningDirection == null){
             this.turningDirection = this.comeUpWithEvasiveTurningDirection();
+            this.evasiveTicksCD = PROGRAM_DATA["ai"]["fighter_plane"]["evasive_ticks_cd"];
         }
-        this.evasiveTicksCD = PROGRAM_DATA["ai"]["fighter_plane"]["evasive_ticks_cd"];
         this.decisions["angle"] = this.turningDirection * toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"] - this.biases["rotation_angle_debuff"]);
     }
 

@@ -164,7 +164,7 @@ class TemporaryVisualEffect {
         Method Return: Float
     */
     static calculateOpacity(createdTime, lifeLengthMS, delay=0){
-        return 255 - 255 * (Date.now() - createdTime - delay) / lifeLengthMS;
+        return 1 - (Date.now() - createdTime - delay) / lifeLengthMS;
     }
 
     /*

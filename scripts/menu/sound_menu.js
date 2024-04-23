@@ -69,7 +69,7 @@ class SoundMenu extends Menu {
         let soundLabelXSize = 300;
         let soundLabelX = 600;
         let soundLabelYSize = 100;
-        let soundLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart + height/2; }
+        let soundLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart - sectionYSize/2 - height/2; }
 
         let soundScaleX = soundLabelX + soundLabelXSize;
         let soundScaleY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
