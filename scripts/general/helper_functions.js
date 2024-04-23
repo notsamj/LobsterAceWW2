@@ -1,6 +1,95 @@
 // If using NodeJS then do required imports
 if (typeof window === "undefined"){
-    FILE_DATA = require("../data/data_json.js");
+    PROGRAM_DATA = require("../../data/data_json.js");
+}
+
+/*
+    Method Name: modifyDataJSONValue
+    Method Parameters:
+        path:
+            A list of strings representing a path through the PROGRAM_DATA JSON Object
+        newValue:
+            new value to place in the JSON OBject
+    Method Description: Finds a JSON object with a given path
+    Method Return: JSON Object
+*/
+function modifyDataJSONValue(path, newValue){
+    path = copyArray(path);
+    let finalKey = path[path.length-1];
+    getDataJSONObjAtPath(path)[finalKey] = newValue;
+}
+
+/*
+    Method Name: getDataJSONObjAtPath
+    Method Parameters:
+        path:
+            A list of strings representing a path through the PROGRAM_DATA JSON Object
+    Method Description: Finds a value at a given path through the PROGRAM_DATA JSON Object
+    Method Return: Unknown
+*/
+function accessDataJSONValue(path){
+    path = copyArray(path);
+    let finalKey = path[path.length-1];
+    return getDataJSONObjAtPath(path)[finalKey];
+}
+
+/*
+    Method Name: getDataJSONObjAtPath
+    Method Parameters:
+        path:
+            A list of strings representing a path through the PROGRAM_DATA JSON Object
+    Method Description: Finds a JSON object with a given path
+    Method Return: JSON Object
+*/
+function getDataJSONObjAtPath(path){
+    let obj = PROGRAM_DATA;
+    while (path.length > 1){
+        obj = obj[path.shift()];
+    }
+    return obj;
+}
+
+/*
+    Method Name: getImage
+    Method Parameters:
+        imageName:
+            Name of the image to retrive from the global images variable
+    Method Description: Attempts to retrive an image from storage. *Does not work with nodeJS, returns null
+    Method Return: Image
+*/
+function getImage(imageName){
+    // If using Node JS return null
+    if (typeof window === "undefined"){
+        return null;
+    }
+    return IMAGES[imageName];
+}
+
+/*
+    Method Name: getTickMultiplier
+    Method Parameters: None
+    Method Description: Returns how many times slower the tick rate is than a tickrate of 100 (previously the standard tickrate)
+    Method Return: Number
+*/
+function getTickMultiplier(){
+    return 100 / PROGRAM_DATA["settings"]["tick_rate"];
+}
+
+/*
+    Method Name: objectHasKey
+    Method Parameters:
+        obj:
+            A json object
+        key:
+            A key
+    Method Description: Determines if a JSON object has a given key
+    Method Return: Boolean
+*/
+function objectHasKey(obj, key){
+    for (let foundKey of Object.keys(obj)){
+        if (foundKey == key){ return true; }
+    }
+    return false;
 }
 
 /*
@@ -107,6 +196,8 @@ function safeDivide(numerator, denominator, closeToZeroAmount, valueIfCloseToZer
     Method Return: void
 */
 function getLocalStorage(key, valueIfNotFound=null){
+    // In node js, you can't access this storage
+    if (typeof window === "undefined"){ return valueIfNotFound; }
     let value = localStorage.getItem(key);
     if (value == null){
         return valueIfNotFound;
@@ -125,6 +216,8 @@ function getLocalStorage(key, valueIfNotFound=null){
     Method Return: void
 */
 function setLocalStorage(key, value){
+    // In node js, you can't access this storage
+    if (typeof window === "undefined"){ return; }
     try {
         localStorage.setItem(key, value);
     }catch(e){}
@@ -189,7 +282,7 @@ function getDegreesFromDisplacement(dX, dY){
     Method Return: String
 */
 function planeModelToType(model){
-    return FILE_DATA["plane_data"][model]["type"];
+    return PROGRAM_DATA["plane_data"][model]["type"];
 }
 
 /*
@@ -277,6 +370,22 @@ function listMedian(list){
 }
 
 /*
+    Method Name: isClose
+    Method Parameters:
+        num1:
+            A number
+        num2:
+            A number
+        closeNumber:
+            A small number
+    Method Description: Converts degrees to radians
+    Method Return: float
+*/
+function isClose(num1, num2, closeNumber){
+    return Math.abs(num1 - num2) < closeNumber;
+}
+
+/*
     Method Name: toRadians
     Method Parameters:
         degrees:
@@ -287,6 +396,7 @@ function listMedian(list){
 function toRadians(degrees){
     return degrees * Math.PI / 180;
 }
+
 
 /*
     Method Name: toDegrees
@@ -331,9 +441,21 @@ function fixRadians(angle){
         angle += 2 * Math.PI;
     }
     while (angle >= 2 * Math.PI){
-        angle -= Math.PI;
+        angle -= 2 * Math.PI;
     }
     return angle;
+}
+
+/*
+    Method Name: fixRadians
+    Method Parameters:
+        angle:
+            An angle to "fix"
+    Method Description: Converts to degrees and fixes an angle to the range [0,2*PI)
+    Method Return: float
+*/
+function toFixedRadians(angleDEG){
+    return fixRadians(toRadians(angleDEG));
 }
 
 /*
@@ -347,11 +469,11 @@ function fixRadians(angle){
     Method Return: int
 */
 function displacementToDegrees(dX, dY){
-    return fixDegrees(toDegrees(displacmentToRadians(dX, dY)));
+    return fixDegrees(toDegrees(displacementToRadians(dX, dY)));
 }
 
 /*
-    Method Name: displacmentToRadians
+    Method Name: displacementToRadians
     Method Parameters:
         dX:
             The displacement in x
@@ -359,8 +481,8 @@ function displacementToDegrees(dX, dY){
             The displacement in y
     Method Description: Converts displacement in x, y to an angle in radians
     Method Return: float
-*/
-function displacmentToRadians(dX, dY){
+*/       
+function displacementToRadians(dX, dY){
     // Handle incredibly small displacements
     if (Math.abs(dY) < 1){
         return (dX >= 0) ? toRadians(0) : toRadians(180);
@@ -421,7 +543,7 @@ function randomNumber(maxExclusive){
     Method Return: boolean, True -> On same team, False -> Not on the same team
 */
 function onSameTeam(class1, class2){
-    return countryToAlliance(FILE_DATA["plane_data"][class1]["country"]) == countryToAlliance(FILE_DATA["plane_data"][class2]["country"]);
+    return countryToAlliance(PROGRAM_DATA["plane_data"][class1]["country"]) == countryToAlliance(PROGRAM_DATA["plane_data"][class2]["country"]);
 }
 
 /*
@@ -443,7 +565,25 @@ function calculateAngleDiffDEG(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCCW
+    Method Name: calculateAngleDiffRAD
+    Method Parameters:
+        angle1:
+            An angle in degrees
+        angle2:
+            An angle in degrees
+    Method Description: Calculates the difference between two angles in radians
+    Method Return: int
+*/
+function calculateAngleDiffRAD(angle1, angle2){
+    let diff = Math.max(angle1, angle2) - Math.min(angle1, angle2);
+    if (diff > Math.PI){
+        diff = 2*Math.PI - diff;
+    }
+    return diff;
+}
+
+/*
+    Method Name: calculateAngleDiffCCWDEG
     Method Parameters:
         angle1:
             An angle in degrees
@@ -452,7 +592,7 @@ function calculateAngleDiffDEG(angle1, angle2){
     Method Description: Calculates the difference between two angles in degrees (in the counter clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCCW(angle1, angle2){
+function calculateAngleDiffCCWDEG(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -468,7 +608,7 @@ function calculateAngleDiffDEGCCW(angle1, angle2){
 }
 
 /*
-    Method Name: calculateAngleDiffDEGCW
+    Method Name: calculateAngleDiffCWDEG
     Method Parameters:
         angle1:
             An angle in degrees
@@ -477,7 +617,7 @@ function calculateAngleDiffDEGCCW(angle1, angle2){
     Method Description: Calculates the difference between two angles in degrees (in the clockwise direction)
     Method Return: int
 */
-function calculateAngleDiffDEGCW(angle1, angle2){
+function calculateAngleDiffCWDEG(angle1, angle2){
     angle1 = Math.floor(angle1);
     angle2 = Math.floor(angle2);
     let diff = 0;
@@ -507,6 +647,20 @@ function rotateCWDEG(angle, amount){
 }
 
 /*
+    Method Name: rotateCWRAD
+    Method Parameters:
+        angle:
+            Angle to rotate
+        amount:
+            Amount to rotate by
+    Method Description: Rotates an angle clockwise by an amount
+    Method Return: float
+*/
+function rotateCWRAD(angle, amount){
+    return fixRadians(angle - amount);
+}
+
+/*
     Method Name: rotateCCWDEG
     Method Parameters:
         angle:
@@ -521,6 +675,20 @@ function rotateCCWDEG(angle, amount){
 }
 
 /*
+    Method Name: rotateCCWRAD
+    Method Parameters:
+        angle:
+            Angle to rotate
+        amount:
+            Amount to rotate by
+    Method Description: Rotates an angle counter clockwise by an amount
+    Method Return: float
+*/
+function rotateCCWRAD(angle, amount){
+    return fixRadians(angle + amount);
+}
+
+/*
     Method Name: angleBetweenCCWDEG
     Method Parameters:
         angle:
@@ -529,7 +697,7 @@ function rotateCCWDEG(angle, amount){
             An angle on one edge of a range
         eAngle2:
             An angle on the other edge of a range
-    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction (inclusive)
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction (inclusive)
     Method Return: boolean, true -> angle is between, false -> angle is not between
 */
 function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
@@ -550,6 +718,90 @@ function angleBetweenCCWDEG(angle, eAngle1, eAngle2){
         }
     }
     return false;
+}
+
+/*
+    Method Name: angleBetweenCWRAD
+    Method Parameters:
+        angle:
+            An angle in radians
+        eAngle1:
+            An angle on one edge of a range (radians)
+        eAngle2:
+            An angle on the other edge of a range (radians)
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the clockwise direction
+    Method Return: boolean, true -> angle is between, false -> angle is not between
+*/
+function angleBetweenCWRAD(angle, eAngle1, eAngle2){
+    if (angle > eAngle1){
+        angle -= 2 * Math.PI;
+    }
+    if (eAngle2 > eAngle1){
+        eAngle2 -= 2 * Math.PI;
+    }
+    let distanceFromEAngle1ToAngleCW = (angle - eAngle1) / -1;
+    let distanceFromEAngle1ToEAngle2CW = (eAngle2 - eAngle1) / -1;
+    return distanceFromEAngle1ToAngleCW <= distanceFromEAngle1ToEAngle2CW;
+}
+
+/*
+    Method Name: angleBetweenCCWRAD
+    Method Parameters:
+        angle:
+            An angle in radians
+        eAngle1:
+            An angle on one edge of a range (radians)
+        eAngle2:
+            An angle on the other edge of a range (radians)
+    Method Description: Determines if angle is between eAngle1 and eAngle2 in the counter clockwise direction
+    Method Return: boolean, true -> angle is between, false -> angle is not between
+*/
+function angleBetweenCCWRAD(angle, eAngle1, eAngle2){
+    if (angle < eAngle1){
+        angle += 2 * Math.PI;
+    }
+    if (eAngle2 < eAngle1){
+        eAngle2 += 2 * Math.PI;
+    }
+    let distanceFromEAngle1ToAngleCCW = angle - eAngle1;
+    let distanceFromEAngle1ToEAngle2CCW = eAngle2 - eAngle1;
+    return distanceFromEAngle1ToAngleCCW <= distanceFromEAngle1ToEAngle2CCW;
+}
+
+/*
+    Method Name: calculateAngleDiffCWRAD
+    Method Parameters:
+        angle1:
+            An angle in radians
+        angle2:
+            An angle in radians
+    Method Description: Calculate the distance in radians from angle1 to angle2
+    Method Return: Float
+*/
+function calculateAngleDiffCWRAD(angle1, angle2){
+    if (angle2 > angle1){
+        angle2 -= 2 * Math.PI;
+    }
+    let difference = (angle2 - angle1) / -1;
+    return difference;
+}
+
+/*
+    Method Name: calculateAngleDiffCCWRAD
+    Method Parameters:
+        angle1:
+            An angle in radians
+        angle2:
+            An angle in radians
+    Method Description: Calculate the distance in radians from angle1 to angle2
+    Method Return: Float
+*/
+function calculateAngleDiffCCWRAD(angle1, angle2){
+    if (angle2 < angle1){
+        angle2 += 2 * Math.PI;
+    }
+    let difference = angle2 - angle1;
+    return difference;
 }
 
 /*
@@ -663,7 +915,7 @@ function randomFloatBetween(lowerBound, upperBound){
     Method Return: String
 */
 function countryToAlliance(country){
-    return FILE_DATA["country_to_alliance"][country];
+    return PROGRAM_DATA["country_to_alliance"][country];
 }
 
 /*
@@ -675,7 +927,7 @@ function countryToAlliance(country){
     Method Return: String
 */
 function planeModelToCountry(planeModel){
-    return FILE_DATA["plane_data"][planeModel]["country"];
+    return PROGRAM_DATA["plane_data"][planeModel]["country"];
 }
 
 /*
@@ -711,17 +963,17 @@ if (typeof window === "undefined"){
         fixDegrees,
         fixRadians,
         displacementToDegrees,
-        displacmentToRadians,
+        displacementToRadians,
         randomNumberInclusive,
         randomNumber,
         onSameTeam,
         calculateAngleDiffDEG,
-        calculateAngleDiffDEGCW,
-        calculateAngleDiffDEGCCW,
+        calculateAngleDiffCWDEG,
+        calculateAngleDiffCCWDEG,
         rotateCWDEG,
         rotateCCWDEG,
         angleBetweenCWDEG,
-        angleBetweenCWDEG,
+        angleBetweenCCWDEG,
         lessThanDir,
         lessThanEQDir,
         nextIntInDir,
@@ -733,6 +985,27 @@ if (typeof window === "undefined"){
         listMean,
         listMedian,
         listMin,
-        listMax
+        listMax,
+        getTickMultiplier,
+        objectHasKey,
+        mergeCopyObjects,
+        copyObject,
+        appendLists,
+        safeDivide,
+        getLocalStorage,
+        setLocalStorage,
+        getScreenWidth,
+        getScreenHeight,
+        getDegreesFromDisplacement,
+        planeModelToType,
+        copyArray,
+        getImage,
+        toFixedRadians,
+        calculatedAngleDiffRAD,
+        rotateCWRAD,
+        rotateCCWRAD,
+        angleBetweenCWRAD,
+        angleBetweenCCWRAD,
+        calculateAngleDiffCCWRAD
     }
 }

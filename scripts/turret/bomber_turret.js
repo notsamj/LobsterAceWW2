@@ -1,3 +1,8 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    Turret = require("./turret.js");
+    Bullet = require("../other_entities/simple_projectiles/bullet.js");
+}
 /*
     Class Name: BomberTurret
     Description: Abstract class representing a Turret attached to a Bomber plane
@@ -11,24 +16,84 @@ class BomberTurret extends Turret {
             yOfset:
                 The y offset of the turret from the center of the attached plane
             fov1:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within
+                An angle (radians) representing an edge of an angle which the turret can shoot within
             fov2:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
+                An angle (radians) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            scene:
-                A Scene object related to the fighter plane
             plane:
                 The bomber plane which the turret is attached to
+            bulletHeatCapacity:
+                The heat capacity of the turret
+            coolingTimeMS:
+                The time in miliseconds for the turret to fully cool down
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, scene, plane){
-        super(null, null, fov1, fov2, rateOfFire, scene);
+    constructor(xOffset, yOffset, fov1, fov2, rateOfFire, plane, bulletHeatCapacity, coolingTimeMS){
+        super(null, null, fov1, fov2, rateOfFire, plane.getGamemode(), bulletHeatCapacity, coolingTimeMS);
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.plane = plane;
         this.model = plane.getPlaneClass();
+    }
+
+    /*
+        Method Name: displayHUD
+        Method Parameters:
+            timePassed:
+                The time passed since the last tick (MS)
+            offset:
+                The offset of the gun UI
+        Method Description: Display the HUD of the bomber plane
+        Method Return: void
+    */
+    displayHUD(timePassed, offset){
+        this.turretHeatManager.display(timePassed, offset);
+    }
+
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Conduct decisions to do each tick
+        Method Return: void
+    */
+    tick(){
+        this.shootCD.tick();
+        this.turretHeatManager.tick();
+    }
+
+    /*
+        Method Name: isAutonomous
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: Boolean
+    */
+    isAutonomous(){
+        return this.plane.isAutonomous();
+    }
+
+    /*
+        Method Name: getGamemode
+        Method Parameters: None
+        Method Description: Interface for a function that is associated with a member variable of this class
+        Method Return: Gamemode
+    */
+    getGamemode(){
+        return this.plane.getGamemode();
+    }
+
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the turret
+        Method Return: JSON Object
+    */
+    toJSON(){
+        let rep = {};
+        rep["decisions"] = this.decisions;
+        rep["shoot_cd"] = this.shootCD.getTicksLeft();
+        return rep;
     }
 
     /*
@@ -38,16 +103,18 @@ class BomberTurret extends Turret {
         Method Return: void
     */
     shoot(){
-        if (!this.readyToShoot()){ return; }
-        let shootingAngle = this.getShootingAngle();
-        if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
+        let shootingAngleRAD = this.getShootingAngle();
+        // If not within the area then don't shoot
+        if (!angleBetweenCWRAD(shootingAngleRAD, this.getFov1(), this.getFov2())){
+            return;
+        }
         this.shootCD.lock();
-        SOUND_MANAGER.play("shoot", this.getX(), this.getY());
-        if (FILE_DATA["constants"]["USE_PHYSICS_BULLETS"]){
-            this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
+        this.turretHeatManager.shoot();
+        this.getGamemode().getSoundManager().play("shoot", this.getX(), this.getY());
+        if (this.getGamemode().areBulletPhysicsEnabled()){
+            this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), shootingAngleRAD, this.getID(), this.model));
         }else{ // Fake bullets
-            //console.log("Shooting @", this.getShootingAngle(), this.shootCD.getTicksLeft());
-            this.plane.instantShot(this.getX(), this.getY(), this.getShootingAngle());
+            this.plane.instantShot(this.getX(), this.getY(), shootingAngleRAD);
         }
     }
 
@@ -58,9 +125,9 @@ class BomberTurret extends Turret {
         Method Return: float
     */
     getX(){
-        let planeAngleRAD = toRadians(this.plane.getNoseAngle());
+        let planeAngleRAD = this.plane.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
         }
         let rotatedX = Math.cos(planeAngleRAD) * this.getXOffset() - Math.sin(planeAngleRAD) * this.getYOffset() + this.plane.getX();
         return rotatedX;
@@ -73,11 +140,35 @@ class BomberTurret extends Turret {
         Method Return: float
     */
     getY(){
-        let planeAngleRAD = toRadians(this.plane.getNoseAngle());
+        let planeAngleRAD = this.plane.getNoseAngle();
         if (!this.isFacingRight()){
-            planeAngleRAD -= toRadians(180);
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
         }
         let rotatedY = Math.sin(planeAngleRAD) * this.getXOffset() + Math.cos(planeAngleRAD) * this.getYOffset() + this.plane.getY();
+        return rotatedY;
+    }
+
+    /*
+        Method Name: getInterpolatedX
+        Method Parameters: None
+        Method Description: Calculates the interpolated x of the turret
+        Method Return: Number
+    */
+    getInterpolatedX(){
+        let planeAngleRAD = this.plane.getInterpolatedAngle();
+        let rotatedX = Math.cos(planeAngleRAD) * this.getXOffset() - Math.sin(planeAngleRAD) * this.getYOffset() + this.plane.getInterpolatedX();
+        return rotatedX;
+    }
+
+    /*
+        Method Name: getInterpolatedY
+        Method Parameters: None
+        Method Description: Calculates the interpolated y of the turret
+        Method Return: Number
+    */
+    getInterpolatedY(){
+        let planeAngleRAD = this.plane.getInterpolatedAngle();
+        let rotatedY = Math.sin(planeAngleRAD) * this.getXOffset() + Math.cos(planeAngleRAD) * this.getYOffset() + this.plane.getInterpolatedY();
         return rotatedY;
     }
 
@@ -118,11 +209,11 @@ class BomberTurret extends Turret {
         Method Return: int
     */
     getFov1(){
-        let adjustedFov = !this.isFacingRight() ? (180 - this.fov2) : this.fov1;
+        let adjustedFov = !this.isFacingRight() ? (toRadians(180) - this.fov2) : this.fov1;
         if (!this.isFacingRight()){
-            adjustedFov += 180;
+            adjustedFov = fixRadians(adjustedFov + toRadians(180))
         }
-        return fixDegrees(adjustedFov + this.plane.getNoseAngle());
+        return fixRadians(adjustedFov + this.plane.getNoseAngle());
     }
 
     /*
@@ -132,11 +223,11 @@ class BomberTurret extends Turret {
         Method Return: int
     */
     getFov2(){
-        let adjustedFov = !this.isFacingRight() ? (180 - this.fov1) : this.fov2;
+        let adjustedFov = !this.isFacingRight() ? (toRadians(180) - this.fov1) : this.fov2;
         if (!this.isFacingRight()){
-            adjustedFov += 180;
+            adjustedFov = fixRadians(adjustedFov + toRadians(180))
         }
-        return fixDegrees(adjustedFov + this.plane.getNoseAngle());
+        return fixRadians(adjustedFov + this.plane.getNoseAngle());
     }
 
     /*
@@ -166,4 +257,66 @@ class BomberTurret extends Turret {
         Method Return: String
     */
     getID(){ return this.plane.getID(); }
+
+    /*
+        Method Name: getShootingAngle
+        Method Parameters: None
+        Method Description: Provides the current shooting angle
+        Method Return: Float
+    */
+    getShootingAngle(){
+        let shootingAngle = this.angle;
+        // If facing left, adjust
+        if (!this.isFacingRight()){
+            shootingAngle = 2 * Math.PI - shootingAngle;
+        }
+        shootingAngle = fixRadians(shootingAngle + this.plane.getNoseAngle());
+        return shootingAngle;
+    }
+
+    /*
+        Method Name: adjustAngleToMatch
+        Method Parameters:
+            newShootingAngle:
+                A new shooting angle to try and match
+        Method Description: Adjusts the current angle to match a provided angle
+        Method Return: void
+    */
+    adjustAngleToMatch(newShootingAngle){
+        let currentShootingAngle = this.getShootingAngle();
+        // Don't adjust if the same
+        if (currentShootingAngle == newShootingAngle){ return; }
+        let diffCW = calculateAngleDiffCWRAD(currentShootingAngle, newShootingAngle); 
+        let diffCCW = calculateAngleDiffCCWRAD(currentShootingAngle, newShootingAngle);
+        let rotateCW = (diffCW < diffCCW && this.isFacingRight()) || (diffCW > diffCCW && !this.isFacingRight())
+        //console.log("currently: %d\nnew: %d\ndiffCW: %d\ndiffCCW: %d\nrotateCW:", toDegrees(currentShootingAngle), toDegrees(newShootingAngle), toDegrees(diffCW), toDegrees(diffCCW), rotateCW)
+        // Rotate based on determination
+        if (rotateCW){
+            this.angle = rotateCWRAD(this.angle, diffCW);
+        }else{
+            this.angle = rotateCCWRAD(this.angle, diffCCW);
+        }
+    }
+
+    /*
+        Method Name: executeDecisions
+        Method Parameters: None
+        Method Description: Takes actions based on decisions
+        Method Return: void
+    */
+    executeDecisions(){
+        // If decided to shoot
+        if (this.decisions["shooting"]){
+            if (this.shootCD.isReady() && this.turretHeatManager.canShoot() && this.getGamemode().runsLocally()){
+                this.shoot();
+            }
+        }
+        // Move turret to match angle
+        this.adjustAngleToMatch(this.decisions["angle"]);
+    }
+}
+
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = BomberTurret;
 }

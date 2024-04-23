@@ -30,7 +30,7 @@ class CampaignMenu extends Menu {
         let backButtonXSize = 200;
         let backButtonYSize = 76;
         this.components.push(new RectangleButton("Main Menu", "#3bc44b", "#e6f5f4", backButtonX, backButtonY, backButtonXSize, backButtonYSize, (menuInstance) => {
-            menuManager.switchTo("main");
+            MENU_MANAGER.switchTo("main");
         }));
 
         // Current mission being examined
@@ -40,12 +40,12 @@ class CampaignMenu extends Menu {
         let nextPreviousButtonY = (innerHeight) => { return innerHeight / 2 + nextPreviousButtonSize/2; }
             
         // Previous Button
-        this.components.push(new RectangleButton("Previous", (FILE_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", 0, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
+        this.components.push(new RectangleButton("Previous", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", 0, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
             menuInstance.previous();
         }));
 
         // Next Button
-        this.components.push(new RectangleButton("Next", (FILE_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", (innerWidth) => { return innerWidth - nextPreviousButtonSize; }, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
+        this.components.push(new RectangleButton("Next", (PROGRAM_DATA["missions"].length > 1 ? "#3bc44b" : "#ebebed"), "#e6f5f4", (innerWidth) => { return innerWidth - nextPreviousButtonSize; }, nextPreviousButtonY, nextPreviousButtonSize, nextPreviousButtonSize, (menuInstance) => {
             menuInstance.next();
         }));
 
@@ -55,8 +55,8 @@ class CampaignMenu extends Menu {
         let startMissionButtonX = (innerWidth) => { return innerWidth / 2 - startMissionButtonXSize /2; }
         let startMissionButtonY = startMissionButtonYSize;
         this.components.push(new RectangleButton("Select Mission", "#3bc44b", "#e6f5f4", startMissionButtonX, startMissionButtonY, startMissionButtonXSize, startMissionButtonYSize, (menuInstance) => {
-            menuManager.getMenuByName("missionStart").loadMission(this.missionIndex);
-            menuManager.switchTo("missionStart");
+            MENU_MANAGER.getMenuByName("missionStart").loadMission(this.missionIndex);
+            MENU_MANAGER.switchTo("missionStart");
         }));
 
         // Mission Details
@@ -78,7 +78,8 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     next(){
-        this.missionIndex = (this.missionIndex + 1) % FILE_DATA["missions"].length;
+        if (PROGRAM_DATA["missions"].length < 2){ return; }
+        this.missionIndex = (this.missionIndex + 1) % PROGRAM_DATA["missions"].length;
         this.loadCurrentMission();
     }
 
@@ -89,7 +90,8 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     previous(){
-        this.missionIndex = this.missionIndex == 0 ? FILE_DATA["missions"].length - 1 : (this.missionIndex - 1);
+        if (PROGRAM_DATA["missions"].length < 2){ return; }
+        this.missionIndex = this.missionIndex == 0 ? PROGRAM_DATA["missions"].length - 1 : (this.missionIndex - 1);
         this.loadCurrentMission();
     }
 
@@ -100,7 +102,7 @@ class CampaignMenu extends Menu {
         Method Return: void
     */
     loadCurrentMission(){
-        this.missionDetailsTextComponent.setText(FILE_DATA["missions"][this.missionIndex]["description"]);
+        this.missionDetailsTextComponent.setText(PROGRAM_DATA["missions"][this.missionIndex]["description"]);
     }
 
 }

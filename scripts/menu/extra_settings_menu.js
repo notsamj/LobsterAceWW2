@@ -37,86 +37,113 @@ class ExtraSettingsMenu extends Menu {
 
         // Interface for changing settings
         let i = 0;
-        for (let setting of FILE_DATA["extra_settings"]){
-            this.createSetting(setting["name"], setting["path"], i++);
+        for (let setting of PROGRAM_DATA["extra_settings"]){
+            this.createSetting(setting, i++);
         }
     }
 
     /*
         Method Name: createSetting
         Method Parameters:
-            settingName:
-                Name of the setting
-            settingPath:
-                Series of keys to lead from FILE_DATA to the value
+            setting:
+                Setting object
             offSetIndex:
                 The index of the setting used to offset its y position
         Method Description: Creates a setting in the menu
         Method Return: void
     */
-    createSetting(settingName, settingPath, offSetIndex){
+    createSetting(setting, offSetIndex){
+        let settingName = setting["name"];
+        let settingType = setting["type"];
         let sectionYSize = 100;
-        let onOffButtonSize = 50;
+        let settingModifierButtonSize = 50;
         let sectionYStart = sectionYSize * offSetIndex;
 
         let settingLabelXSize = 300;
         let settingLabelX = 600;
         let settingLabelYSize = 100;
-        let settingLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart + onOffButtonSize/2; }
+        let settingLabelY = (innerHeight) => { return innerHeight - 27 - sectionYStart - settingModifierButtonSize/2; }
 
-        let settingOnOffButtonX = settingLabelX + settingLabelXSize;
-        let settingOnOffButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
+        let settingModifierButtonX = settingLabelX + settingLabelXSize;
+        let settingModifierButtonY = (innerHeight) => { return innerHeight - 27 - sectionYStart; }
 
         // Components
+        this.components.push(new TextComponent(settingName, "#108700", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, "center", "middle"));
 
-        this.components.push(new TextComponent(settingName, "#e6f5f4", settingLabelX, settingLabelY, settingLabelXSize, settingLabelYSize, CENTER, CENTER));
+        if (settingType == "on_off"){
+            this.createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
+        }else if (settingType == "quantity_slider"){
+            this.createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
+        }
+    }
 
+    /*
+        Method Name: createOnOffButton
+        Method Parameters:
+            setting:
+                A JSON object with information about a setting
+            settingModifierButtonX:
+                The x coordinate of the setting modifier button
+            settingModifierButtonY:
+                The y coordinate of the setting modifier button
+            settingModifierButtonSize:
+                The size of the setting modifier button
+        Method Description: Creates an On/Off button
+        Method Return: void
+    */
+    createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
+        let settingName = setting["name"];
+        let settingPath = setting["path"];
         let onOffButtonComponentIndex = this.components.length; // Note: Assumes index never changes
-        let startingValue = this.getSettingValue(settingName, settingPath) ? "On" : "Off";
-        this.components.push(new RectangleButton(startingValue, "#3bc44b", "#e6f5f4", settingOnOffButtonX, settingOnOffButtonY, onOffButtonSize, onOffButtonSize, (menuInstance) => {
-            let onOrOff = menuInstance.getSettingValue(settingName, settingPath);
+        let storedValue = getLocalStorage(settingName, null);
+        if (storedValue != null){
+            modifyDataJSONValue(settingPath, storedValue === "true");
+        }
+        let startingValue = accessDataJSONValue(settingPath) ? "On" : "Off";
+        this.components.push(new RectangleButton(startingValue, "#3bc44b", "#e6f5f4", settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize, settingModifierButtonSize, (menuInstance) => {
+            let onOrOff = accessDataJSONValue(settingPath);
             onOrOff = !onOrOff; // Flip it
-            menuInstance.setSettingValue(settingName, settingPath, onOrOff);
+            LOCAL_EVENT_HANDLER.emit({"name": settingName, "new_value": onOrOff});
+            modifyDataJSONValue(settingPath, onOrOff)
+            setLocalStorage(settingName, onOrOff.toString());
             menuInstance.components[onOffButtonComponentIndex].setText(onOrOff ? "On" : "Off");
         }));
     }
 
     /*
-        Method Name: getSettingValue
+        Method Name: createSlider
         Method Parameters:
-            settingName:
-                Name of the setting
-            path:
-                Sequence of keys to navigate to the setting in FILE_DATA
-        Method Description: Find the value for a setting
-        Method Return: Variable
-    */
-    getSettingValue(settingName, path){
-        let currentJSONObject = FILE_DATA;
-        for (let key of path){
-            currentJSONObject = currentJSONObject[key];
-        }
-        return currentJSONObject[settingName];
-    }
-
-    /*
-        Method Name: setSettingValue
-        Method Parameters:
-            settingName:
-                Name of the setting
-            settingPath:
-                Series of keys to lead from FILE_DATA to the value
-            value:
-                Value of the setting
-        Method Description: Sets the value of a setting
+            setting:
+                A JSON object with information about a setting
+            settingModifierButtonX:
+                The x coordinate of the setting modifier button
+            settingModifierButtonY:
+                The y coordinate of the setting modifier button
+            settingModifierButtonSize:
+                The size of the setting modifier button
+        Method Description: Creates a quantity slider user interface component
         Method Return: void
     */
-    setSettingValue(settingName, path, value){
-        let currentJSONObject = FILE_DATA;
-        for (let key of path){
-            currentJSONObject = currentJSONObject[key];
+    createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
+        let quantitySlideXSize = 300;
+        let settingName = setting["name"];
+        let settingPath = setting["path"];
+        let storedValue = getLocalStorage(settingName, null);
+        if (storedValue != null){
+            storedValue = setting["uses_float"] ? parseFloat(storedValue) : parseInt(storedValue);
+            modifyDataJSONValue(settingPath, storedValue);
         }
-        currentJSONObject[settingName] = value;
+        let getValueFunction = () => {
+            return accessDataJSONValue(settingPath);
+        }
+
+        let setValueFunction = (newValue) => {
+            LOCAL_EVENT_HANDLER.emit({"name": settingName, "new_value": newValue});
+            modifyDataJSONValue(settingPath, newValue);
+            setLocalStorage(settingName, newValue);
+        }
+        let quantitySlider = new QuantitySlider(settingModifierButtonX, settingModifierButtonY, quantitySlideXSize, settingModifierButtonSize, getValueFunction, setValueFunction, setting["min_value"], setting["max_value"], setting["uses_float"], undefined, "#108700");
+        this.components.push(quantitySlider);
     }
 
     /*
@@ -126,6 +153,6 @@ class ExtraSettingsMenu extends Menu {
         Method Return: void
     */
     goToMainMenu(){
-        menuManager.switchTo("main");
+        MENU_MANAGER.switchTo("main");
     }
 }

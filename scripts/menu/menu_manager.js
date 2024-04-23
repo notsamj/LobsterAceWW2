@@ -10,6 +10,9 @@ class MenuManager {
         Method Return: Constructor
     */
     constructor(){
+    }
+
+    setup(){
         this.mainMenu = new MainMenu();
         this.multiplayerMenu = new MultiplayerMenu();
         this.pauseMenu = new PauseMenu();
@@ -17,8 +20,11 @@ class MenuManager {
         this.soundMenu = new SoundMenu();
         this.missionStartMenu = new MissionStartMenu();
         this.campaignMenu = new CampaignMenu();
+        this.participantMenu = new ParticipantMenu();
+        this.hostMenu = new HostMenu();
         this.extraSettingsMenu = new ExtraSettingsMenu();
         this.activeMenu = this.mainMenu;
+        this.temporaryMessages = new NotSamLinkedList();
     }
 
     /*
@@ -54,12 +60,21 @@ class MenuManager {
     /*
         Method Name: display
         Method Parameters: None
-        Method Description: Display the active menu on the screen
+        Method Description: Display the active menu on the screen and temporary messages
         Method Return: void
     */
     display(){
         if (!this.hasActiveMenu()){ return; }
+
+        // Dispaly the menu
         this.activeMenu.display();
+
+        // Display all temporary messages
+        for (let [temporaryMessage, messageIndex] of this.temporaryMessages){
+            temporaryMessage.display();
+        }
+
+        this.temporaryMessages.deleteWithCondition((temporaryMessage) => { return temporaryMessage.isExpired(); });
     }
 
     /*
@@ -106,13 +121,12 @@ class MenuManager {
         Method Return: void
     */
     static setupClickListener(){
-        document.getElementById("defaultCanvas0").addEventListener("click", (event) => {
-            menuManager.click(event.clientX, event.clientY);
+        document.getElementById("canvas").addEventListener("click", (event) => {
+            MENU_MANAGER.click(event.clientX, event.clientY);
         });
-
         document.onkeydown = (event) => {
             if (event.key === "Escape"){
-                menuManager.escapeKey();
+                MENU_MANAGER.escapeKey();
             }
         };
     }
@@ -157,10 +171,11 @@ class MenuManager {
         }else if (newMenu == "dogfight"){
             this.activeMenu = this.dogfightMenu;
         }else if (newMenu == "pauseMenu"){
-            scene.disableTicks();
+            GAMEMODE_MANAGER.getActiveGamemode().pause();
             this.activeMenu = this.pauseMenu;
         }else if (newMenu == "game"){
-            scene.enable();
+            GAMEMODE_MANAGER.getActiveGamemode().unpause();
+            GAMEMODE_MANAGER.getActiveGamemode().getScene().enableDisplay();
             this.activeMenu = null;
         }else if (newMenu == "multiplayer"){
             this.activeMenu = this.multiplayerMenu;
@@ -172,6 +187,10 @@ class MenuManager {
             this.activeMenu = this.missionStartMenu;
         }else if (newMenu == "extraSettings"){
             this.activeMenu = this.extraSettingsMenu;
+        }else if (newMenu == "participant"){
+            this.activeMenu = this.participantMenu;
+        }else if (newMenu == "host"){
+            this.activeMenu = this.hostMenu;
         }else{
             this.activeMenu = null;
         }
@@ -202,10 +221,67 @@ class MenuManager {
             return this.missionStartMenu;
         }else if (menuName == "extraSettings"){
             return this.extraSettingsMenu;
+        }else if (menuName == "participant"){
+            return this.participantMenu;
+        }else if (menuName == "host"){
+            return this.hostMenu;
         }
         // Else
         return null;
     }
 
+    /*
+        Method Name: addTemporaryMessage
+        Method Parameters:
+            message:
+                A message to show on the screen
+            colour:
+                Colour of the temporary message
+            timeMS:
+                The time that the message appears on screen
+        Method Description: Adds a temporary message onto the screen
+        Method Return: void
+    */
+    addTemporaryMessage(message, colour, timeMS=Infinity){
+        this.temporaryMessages.add(new TemporaryMessage(message, colour, timeMS));
+    }
+}
 
+/*
+    Class Name: TemporaryMessage
+    Description: A temporary message that pops up on the screen
+*/
+class TemporaryMessage {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
+    constructor(message, colour, timeMS){
+        this.message = message;
+        this.colour = colour;
+        this.expiryLock = new CooldownLock(timeMS);
+        this.expiryLock.lock();
+    }
+
+    /*
+        Method Name: display
+        Method Parameters: None
+        Method Description: Displays the message on the screen
+        Method Return: void
+    */
+    display(){
+        Menu.makeText(this.message, this.colour, 0, getScreenHeight(), getScreenWidth(), getScreenHeight(), "center", "middle");
+    }
+
+    /*
+        Method Name: isExpired
+        Method Parameters: None
+        Method Description: Checks if the message is expired
+        Method Return: Boolean
+    */
+    isExpired(){
+        return this.expiryLock.isReady();
+    }
 }

@@ -142,8 +142,8 @@ class ValueHistoryManager {
     */
     async fromJSON(jsonOBJ){
         for (let nodeOBJ of jsonOBJ["data"]){
-            if (this.has(nodeOBJ["id"], nodeOBJ["numTicks"])){
-                this.modify(nodeOBJ["id"], nodeOBJ["numTicks"], nodeOBJ);
+            if (this.has(nodeOBJ["id"], nodeOBJ["num_ticks"])){
+                this.modify(nodeOBJ["id"], nodeOBJ["num_ticks"], nodeOBJ);
             }else{
                 await this.syncLock.awaitUnlock(true);
                 this.data.append(ValueHistoryNode.fromJSON(nodeOBJ));
@@ -328,7 +328,7 @@ class ValueHistoryNode {
         Method Return: JSON Object
     */
     toJSON(){
-        return { "id": this.id, "numTicks": this.numTicks, "value": this.value, "canBeOverwritten": this.canBeOverwritten };
+        return { "id": this.id, "num_ticks": this.numTicks, "value": this.value, "can_be_overwritten": this.canBeOverwritten };
     }
 
     /*
@@ -344,9 +344,9 @@ class ValueHistoryNode {
             return;
         }
         this.id = jsonOBJ["id"];
-        this.numTicks = jsonOBJ["numTicks"];
+        this.numTicks = jsonOBJ["num_ticks"];
         this.value = jsonOBJ["value"];
-        this.canBeOverwritten = jsonOBJ["canBeOverwritten"];
+        this.canBeOverwritten = jsonOBJ["can_be_overwritten"];
     }
 
     /*
@@ -358,7 +358,7 @@ class ValueHistoryNode {
         Method Return: ValueHistoryNode
     */
     static fromJSON(jsonOBJ){
-        return new ValueHistoryNode(jsonOBJ["id"], jsonOBJ["numTicks"], jsonOBJ["value"], jsonOBJ["canBeOverwritten"])
+        return new ValueHistoryNode(jsonOBJ["id"], jsonOBJ["num_ticks"], jsonOBJ["value"], jsonOBJ["can_be_overwritten"])
     }
 }
 // If using NodeJS -> export the class

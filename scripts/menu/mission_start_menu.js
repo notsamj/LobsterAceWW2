@@ -26,12 +26,12 @@ class MissionStartMenu extends Menu {
         Method Return: void
     */
     loadMission(missionIndex){
-        this.mission = FILE_DATA["missions"][missionIndex];
+        this.mission = PROGRAM_DATA["missions"][missionIndex];
         this.userPlanes = this.createUserPlaneSelection();
         this.allyDifficulty = "easy";
         this.axisDifficulty = "easy";
         this.userPlaneIndex = 0;
-        this.userPlane.setImage(images[this.userPlanes[this.userPlaneIndex]]); 
+        this.userPlane.setImage(IMAGES[this.userPlanes[this.userPlaneIndex]]); 
     }
 
     /*
@@ -59,7 +59,7 @@ class MissionStartMenu extends Menu {
         let startButtonXSize = (innerWidth) => { return innerWidth-50*2; }
         let startButtonYSize = 200;
         this.components.push(new RectangleButton("Start", "#c72d12", "#e6f5f4", startButtonX, startButtonY, startButtonXSize, startButtonYSize, (instance) => {
-            activeGameMode = new Mission(this.mission, this.userPlanes[this.userPlaneIndex]);
+            GAMEMODE_MANAGER.setActiveGamemode(new LocalMissionClient(this.mission, this.createJSONRep()));
             this.goToGame();
         }));
 
@@ -73,7 +73,7 @@ class MissionStartMenu extends Menu {
 
         let userPlaneX = () => { return 350; };
         let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        this.userPlane = new StaticImage(images[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
+        this.userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
         let userPlaneImage = this.userPlane;
         this.userPlane.setOnClick(() => {
             userPlaneImage.setImage(this.switchPlanes()); 
@@ -85,11 +85,11 @@ class MissionStartMenu extends Menu {
         let alliesHeaderY = (innerHeight) => { return innerHeight - 27; }
         let alliesHeaderXSize = 270;
         let alliesHeaderYSize = 100;
-        this.components.push(new TextComponent("Allies", FILE_DATA["team_to_colour"]["Allies"], alliesHeaderX, alliesHeaderY, alliesHeaderXSize, alliesHeaderYSize));
+        this.components.push(new TextComponent("Allied Difficulty", PROGRAM_DATA["team_to_colour"]["Allies"], alliesHeaderX, alliesHeaderY, alliesHeaderXSize, alliesHeaderYSize));
 
         let allyDifficultyButtonX = (innerWidth) => { return alliesHeaderX(innerWidth); }
         let allyDifficultyButtonY = (innerHeight) => { return alliesHeaderY(innerHeight) - difficultyButtonSize; }
-        this.components.push(new RectangleButton(() => { return this.getAllyDifficulty(); }, FILE_DATA["team_to_colour"]["Allies"], "#e6f5f4", allyDifficultyButtonX, allyDifficultyButtonY, difficultyButtonSize, difficultyButtonSize, (instance) => {
+        this.components.push(new RectangleButton(() => { return this.getAllyDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Allies"], "#e6f5f4", allyDifficultyButtonX, allyDifficultyButtonY, difficultyButtonSize, difficultyButtonSize, (instance) => {
             this.cycleAllyDifficulty();
         }));
 
@@ -98,13 +98,36 @@ class MissionStartMenu extends Menu {
         let axisHeaderY = (innerHeight) => { return innerHeight - 27; }
         let axisHeaderXSize = 200;
         let axisHeaderYSize = 100;
-        this.components.push(new TextComponent("Axis", FILE_DATA["team_to_colour"]["Axis"], axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize));
+        this.components.push(new TextComponent("Axis Difficulty", PROGRAM_DATA["team_to_colour"]["Axis"], axisHeaderX, axisHeaderY, axisHeaderXSize, axisHeaderYSize));
 
         let axisDifficultyButtonX = (innerWidth) => { return axisHeaderX(innerWidth); }
         let axisDifficultyButtonY = (innerHeight) => { return axisHeaderY(innerHeight) - difficultyButtonSize; }
-        this.components.push(new RectangleButton(() => { return this.getAxisDifficulty(); }, FILE_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisDifficultyButtonX, axisDifficultyButtonY, difficultyButtonSize, difficultyButtonSize, (instance) => {
+        this.components.push(new RectangleButton(() => { return this.getAxisDifficulty(); }, PROGRAM_DATA["team_to_colour"]["Axis"], "#e6f5f4", axisDifficultyButtonX, axisDifficultyButtonY, difficultyButtonSize, difficultyButtonSize, (instance) => {
             this.cycleAxisDifficulty();
         }));
+    }
+
+    /*
+        Method Name: createJSONRep
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the mission customized by the user
+        Method Return: JSON Object
+    */
+    createJSONRep(){
+        let jsonRep = {};
+        jsonRep["users"] = [];
+        let userEntityType = this.userPlanes[this.userPlaneIndex];
+        // If not a freecam, then add to users list
+        if (userEntityType != "freecam"){
+            jsonRep["users"].push({
+                "model": userEntityType,
+                "id": USER_DATA["name"]
+            });
+        }
+        jsonRep["ally_difficulty"] = this.allyDifficulty;
+        jsonRep["axis_difficulty"] = this.axisDifficulty;
+        jsonRep["use_physics_bullets"] = PROGRAM_DATA["settings"]["use_physics_bullets"];
+        return jsonRep;
     }
 
     /*
@@ -116,7 +139,7 @@ class MissionStartMenu extends Menu {
     switchPlanes(){
         this.userPlaneIndex = (this.userPlaneIndex + 1) % this.userPlanes.length;
         let planeName = this.userPlanes[this.userPlaneIndex];
-        return images[planeName];
+        return IMAGES[planeName];
     }
 
     /*
@@ -140,7 +163,7 @@ class MissionStartMenu extends Menu {
         Method Return: void
     */
     goToGame(){
-        menuManager.switchTo("game");
+        MENU_MANAGER.switchTo("game");
     }
 
     /*
@@ -150,7 +173,7 @@ class MissionStartMenu extends Menu {
         Method Return: void
     */
     goToMainMenu(){
-        menuManager.switchTo("main");
+        MENU_MANAGER.switchTo("main");
     }
 
     /*
@@ -162,15 +185,15 @@ class MissionStartMenu extends Menu {
     */
     cycleAxisDifficulty(){
         let currentIndex = 0;
-        for (let key of Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])){
+        for (let key of Object.keys(PROGRAM_DATA["ai"]["fighter_plane"]["bias_ranges"])){
             if (key == this.axisDifficulty){
                 break;
             }
             currentIndex++;   
         }
-        let maxIndex = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"]).length;
+        let maxIndex = Object.keys(PROGRAM_DATA["ai"]["fighter_plane"]["bias_ranges"]).length;
         currentIndex = (currentIndex + 1) % maxIndex;
-        this.axisDifficulty = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])[currentIndex];
+        this.axisDifficulty = Object.keys(PROGRAM_DATA["ai"]["fighter_plane"]["bias_ranges"])[currentIndex];
     }
 
     /*
@@ -182,15 +205,15 @@ class MissionStartMenu extends Menu {
     */
     cycleAllyDifficulty(){
         let currentIndex = 0;
-        for (let key of Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])){
+        for (let key of Object.keys(PROGRAM_DATA["ai"]["fighter_plane"]["bias_ranges"])){
             if (key == this.allyDifficulty){
                 break;
             }
             currentIndex++;   
         }
-        let maxIndex = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"]).length;
+        let maxIndex = Object.keys(PROGRAM_DATA["ai"]["fighter_plane"]["bias_ranges"]).length;
         currentIndex = (currentIndex + 1) % maxIndex;
-        this.allyDifficulty = Object.keys(FILE_DATA["ai"]["fighter_plane"]["bias_ranges"])[currentIndex];
+        this.allyDifficulty = Object.keys(PROGRAM_DATA["ai"]["fighter_plane"]["bias_ranges"])[currentIndex];
     }
 
     /*

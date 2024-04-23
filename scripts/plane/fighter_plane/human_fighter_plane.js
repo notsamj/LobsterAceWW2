@@ -1,3 +1,12 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    TickLock = require("../../general/tick_lock.js");
+    FighterPlane = require("./fighter_plane.js");
+    PlaneRadar = require("../../radar/plane_radar.js");
+    CooldownLock = require("../../general/cooldown_lock.js");
+    copyObject = helperFunctions.copyObject;
+}
 /*
     Class Name: HumanFighterPlane
     Description: A fighter plane operated by a human
@@ -8,20 +17,109 @@ class HumanFighterPlane extends FighterPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             angle:
                 The starting angle of the fighter plane (integer)
             facingRight:
                 The starting orientation of the fighter plane (boolean)
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, angle=0, facingRight=true){
-        super(planeClass, scene, angle, facingRight);
+    constructor(planeClass, game, autonomous=true){
+        super(planeClass, game, autonomous);
         this.lrLock = new Lock();
-        this.radarLock = new TickLock(1000 / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.radar = new PlaneRadar(this);
+    }
+
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a JSON representation of the human fighter plane
+        Method Return: JSON Object
+    */
+    toJSON(){
+        let rep = {};
+        rep["decisions"] = this.decisions;
+        rep["locks"] = {
+            "shoot_lock": this.shootLock.getTicksLeft()
+        } 
+        rep["basic"] = {
+            "id": this.id,
+            "x": this.x,
+            "y": this.y,
+            "human": this.isHuman(),
+            "plane_class": this.planeClass,
+            "facing_right": this.facingRight,
+            "angle": this.angle,
+            "throttle": this.throttle,
+            "speed": this.speed,
+            "health": this.health,
+            "starting_health": this.startingHealth,
+            "dead": this.isDead(),
+        }
+        return rep;
+    }
+
+    /*
+        Method Name: loadMovementIfNew
+        Method Parameters:
+            rep:
+                A json representation of the plane
+            rollForwardAmount:
+                The number of ticks behind that this information is
+        Method Description: Loads the movement information about the plane if the source has a newer set of values
+        Method Return: void
+    */
+    loadMovementIfNew(rep, rollForwardAmount=0){
+        if (this.isAutonomous()){ return; }
+        super.loadMovementIfNew(rep, rollForwardAmount);
+    }
+
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of a plane
+        Method Description: Sets attributes of a plane from a JSON representation
+        Method Return: void
+    */
+    initFromJSON(rep){
+        this.id = rep["basic"]["id"];
+        this.health = rep["basic"]["health"];
+        this.dead = rep["basic"]["dead"];
+        this.shootLock.setTicksLeft(rep["locks"]["shoot_lock"]);
+        this.x = rep["basic"]["x"];
+        this.y = rep["basic"]["y"];
+        this.facingRight = rep["basic"]["facing_right"];
+        this.angle = rep["basic"]["angle"];
+        this.throttle = rep["basic"]["throttle"];
+        this.speed = rep["basic"]["speed"];
+        this.health = rep["basic"]["health"];
+        this.startingHealth = rep["basic"]["starting_health"];
+        this.decisions = rep["decisions"];
+    }
+
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a human fighter plane
+            game:
+                A game object
+            autonomous:
+                Whether or not the new plane can make its own decisions (Boolean)
+        Method Description: Creates a new Human Fighter Plane
+        Method Return: HumanFighterPlane
+    */
+    static fromJSON(rep, game, autonomous){
+        let planeClass = rep["basic"]["plane_class"];
+        let hFP = new HumanFighterPlane(planeClass, game, autonomous);
+        hFP.initFromJSON(rep);
+        return hFP;
     }
 
     /*
@@ -32,19 +130,6 @@ class HumanFighterPlane extends FighterPlane {
     */
     isHuman(){
         return true;
-    }
-    
-    /*
-        Method Name: die
-        Method Parameters: None
-        Method Description: Kill off a plane and replace it with a spectator plane
-        Method Return: void
-    */
-    die(){
-        super.die();
-        let cam = new SpectatorCamera(this.scene, this.x, this.y);
-        this.scene.addEntity(cam);
-        this.scene.setFocusedEntity(cam);
     }
 
     /*
@@ -59,20 +144,37 @@ class HumanFighterPlane extends FighterPlane {
 
     /*
         Method Name: tick
-        Method Parameters:
-            timeDiffMS:
-                The time between ticks
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
-        this.radarLock.tick();
+    tick(){
+        // Only need radar if autonomous
+        if (this.isAutonomous()){ this.radarLock.tick(); this.updateRadar(); }
+        super.tick();
+    }
+
+    /*
+        Method Name: makeDecisions
+        Method Parameters: None
+        Method Description: Makes decisions for the plane for the next tick
+        Method Return: void
+    */
+    makeDecisions(){
+        // Sometimes the human will be controlled by the external input so don't make decisions
+        if (!this.isAutonomous()){
+            return;
+        }
+        let startingDecisions = copyObject(this.decisions);
+        this.resetDecisions();
         this.checkMoveLeftRight();
         this.checkUpDown();
         this.checkShoot();
         this.checkThrottle();
-        this.updateRadar();
-        super.tick(timeDiffMS);
+        // Check if decisions have been modified
+        if (FighterPlane.areMovementDecisionsChanged(startingDecisions, this.decisions)){
+            this.decisions["last_movement_mod_tick"] = this.getCurrentTicks();
+        }
     }
 
     /*
@@ -103,8 +205,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkMoveLeftRight(){
-        let aKey = keyIsDown(65);
-        let dKey = keyIsDown(68);
+        let aKey = USER_INPUT_MANAGER.isActivated("plane_turn_left");
+        let dKey = USER_INPUT_MANAGER.isActivated("plane_turn_right");
         let numKeysDown = 0;
         numKeysDown += aKey ? 1 : 0;
         numKeysDown += dKey ? 1 : 0;
@@ -121,9 +223,9 @@ class HumanFighterPlane extends FighterPlane {
         if (!this.lrLock.isReady()){ return; }
         this.lrLock.lock();
         if (aKey){
-            this.face(false);
+            this.decisions["face"] = -1;
         }else if (dKey){
-            this.face(true);
+            this.decisions["face"] = 1;
         }
     }
 
@@ -134,11 +236,12 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkUpDown(){
-        let wKey = keyIsDown(87);
-        let sKey = keyIsDown(83);
+        let angleChangeMS = (1000 / (PROGRAM_DATA["settings"]["tick_rate"] * PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"]));
+        let wKeyCount = USER_INPUT_MANAGER.getTickedAggregator("w").getPressTime() / angleChangeMS;
+        let sKeyCount = USER_INPUT_MANAGER.getTickedAggregator("s").getPressTime() / angleChangeMS;
         let numKeysDown = 0;
-        numKeysDown += wKey ? 1 : 0;
-        numKeysDown += sKey ? 1 : 0;
+        numKeysDown += wKeyCount > 0 ? 1 : 0;
+        numKeysDown += sKeyCount > 0 ? 1 : 0;
 
         // Only ready to switch direction again once you've stopped holding for at least 1 cd
         if (numKeysDown === 0){
@@ -146,10 +249,10 @@ class HumanFighterPlane extends FighterPlane {
         }else if (numKeysDown > 1){ // Can't which while holding > 1 key
             return;
         }
-        if (wKey){
-            this.adjustAngle(-1);
-        }else if (sKey){
-            this.adjustAngle(1);
+        if (wKeyCount > 0){
+            this.decisions["angle"] = -1 * toRadians(Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"], wKeyCount));
+        }else if (sKeyCount > 0){
+            this.decisions["angle"] = toRadians(Math.min(PROGRAM_DATA["controls"]["max_angle_change_per_tick_fighter_plane"]), sKeyCount);
         }
     }
 
@@ -160,8 +263,8 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkThrottle(){
-        let rKey = keyIsDown(82);
-        let fKey = keyIsDown(70);
+        let rKey = USER_INPUT_MANAGER.isActivated("plane_throttle_up");
+        let fKey = USER_INPUT_MANAGER.isActivated("plane_throttle_down");
         let numKeysDown = 0;
         numKeysDown += rKey ? 1 : 0;
         numKeysDown += fKey ? 1 : 0;
@@ -173,9 +276,9 @@ class HumanFighterPlane extends FighterPlane {
             return;
         }
         if (rKey){
-            this.adjustThrottle(1);
+            this.decisions["throttle"] = 1;
         }else if (fKey){
-            this.adjustThrottle(-1);
+            this.decisions["throttle"] = -1;
         }
     }
 
@@ -186,11 +289,14 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     checkShoot(){
-        let spaceKey = keyIsDown(32);
-        if (!this.shootLock.isReady() || !spaceKey){
+        let spaceKey = USER_INPUT_MANAGER.isActivated("fighter_plane_shooting");
+        if (!spaceKey){
             return;
         }
-        this.shootLock.lock();
-        this.shoot();
+        this.decisions["shoot"] = true;
     }
+}
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = HumanFighterPlane;
 }

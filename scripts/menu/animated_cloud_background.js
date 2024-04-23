@@ -11,11 +11,12 @@ class AnimatedCloudBackground extends Component {
     */
     constructor(){
         super();
-        this.lX = 0;
-        this.bY = 0;
-        this.xVelocity = randomFloatBetween(0, FILE_DATA["constants"]["max_cloud_animation_speed_x"]);
+        this.lX = randomFloatBetween(100000,200000);
+        this.bY = randomFloatBetween(100000,200000);
+        this.xVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_x"]);
         this.xVelocity *= (randomFloatBetween(0,1)==0) ? -1 : 1;
-        this.yVelocity = randomFloatBetween(0, FILE_DATA["constants"]["max_cloud_animation_speed_y"]);
+        this.yVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_y"]);
+        this.scene = new PlaneGameScene(null, true);
     }
 
     /*
@@ -46,7 +47,7 @@ class AnimatedCloudBackground extends Component {
     */
     display(){
         if (!this.enabled){ return; }
-        CLOUD_MANAGER.display(this.lX, this.bY);
+        this.scene.getSkyManager().display(this.lX, this.bY);
         this.lX += this.xVelocity;
         this.bY += this.yVelocity;
     }

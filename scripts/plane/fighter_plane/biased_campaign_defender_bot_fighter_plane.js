@@ -1,3 +1,9 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../../data/data_json.js");
+    BiasedBotFighterPlane = require("./biased_bot_fighter_plane.js");
+}
+
 /*
     Class Name: BiasedCampaignDefenderBotFighterPlane
     Description: A fighter plane that is tasked with attacking a bomber plane and its protectors
@@ -8,19 +14,34 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters:
             planeClass:
                 A string representing the type of plane
-            scene:
-                A Scene object related to the fighter plane
+            game:
+                A game object related to the fighter plane
             biases:
                 An object containing keys and bias values
-            angle:
-                The starting angle of the fighter plane (integer)
-            facingRight:
-                The starting orientation of the fighter plane (boolean)
+            autonomous:
+                Whether or not the plane may control itself
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(planeClass, scene, biases, angle=0, facingRight=true){
-        super(planeClass, scene, biases, angle, facingRight);
+    constructor(planeClass, game, biases, autonomous=true){
+        super(planeClass, game, biases, autonomous);
+    }
+
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            rep:
+                A json representation of a biased bot fighter plane
+            game:
+                A Scene object
+        Method Description: Creates a new Fighter Plane
+        Method Return: BiasedCampaignDefenderBotFighterPlane
+    */
+    static fromJSON(rep, game){
+        let planeClass = rep["basic"]["plane_class"];
+        let fp = new BiasedCampaignDefenderBotFighterPlane(planeClass, game, rep["biases"], false); // In all circumstances when loading a bot from a JSON it will not be autonomous
+        fp.initFromJSON(rep)
+        return fp;
     }
 
     /*
@@ -31,7 +52,7 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
     */
     updateEnemy(){
         // If we have an enemy already and its close then don't update
-        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= (FILE_DATA["constants"]["ENEMY_DISREGARD_DISTANCE_TIME_CONSTANT"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
+        if (this.currentEnemy != null && this.currentEnemy.isAlive() && this.distance(this.currentEnemy) <= (PROGRAM_DATA["settings"]["enemy_disregard_distance_time_constant"] + this.biases["enemy_disregard_distance_time_constant"]) * this.speed){
             return;
         }
         let enemies = this.getEnemyList();
@@ -59,15 +80,19 @@ class BiasedCampaignDefenderBotFighterPlane extends BiasedBotFighterPlane {
         Method Parameters: 
             planeClass:
                 A string representing the type of the plane
-            scene:
-                A scene objet related to the plane
+            game:
+                A game objet related to the plane
             difficulty:
                 The current difficulty setting
         Method Description: Return a new biased campaign defender plane
         Method Return: BiasedCampaignDefenderBotFighterPlane
     */
-    static createBiasedPlane(planeClass, scene, difficulty){
+    static createBiasedPlane(planeClass, game, difficulty){
         let biases = BiasedBotFighterPlane.createBiases(difficulty);
-        return new BiasedCampaignDefenderBotFighterPlane(planeClass, scene, biases);
+        return new BiasedCampaignDefenderBotFighterPlane(planeClass, game, biases);
     }
+}
+// If using Node JS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = BiasedCampaignDefenderBotFighterPlane;
 }

@@ -57,18 +57,17 @@ class Menu {
     */
     static makeRectangleWithText(textStr, colour, textColour, x, y, width, height){
         let screenX = x;
-        let screenY = menuManager.changeToScreenY(y);
+        let screenY = MENU_MANAGER.changeToScreenY(y);
 
         // Make the rectangle
-        rectMode(CORNER);
-        fill(colour);
-        rect(screenX, screenY, width, height);
+        let rectColour = Colour.fromCode(colour);
+        strokeRectangle(rectColour, screenX, screenY, width, height);
 
         // Make the text
-        Menu.makeText(textStr, textColour, x, y, width, height, CENTER, CENTER);
+        Menu.makeText(textStr, textColour, x+width/2, y-height/2, width, height, "center", "middle");
     }
 
-        /*
+    /*
         Method Name: determineMaxTextSizeByWidth
         Method Parameters:
         textLines:
@@ -80,13 +79,13 @@ class Menu {
     */
     static determineMaxTextSizeByWidth(textLines, boxWidth){
         let currentTextSize = 10; // Using as a standard
-        textSize(currentTextSize)
+        updateFontSize(currentTextSize);
         let longestLine = textLines[0];
-        let longestLineWidth = textWidth(longestLine);
+        let longestLineWidth = measureTextWidth(longestLine);
         
         // Find the longest line
         for (let i = 0; i < textLines.length; i++){
-            let currentLineWidth = textWidth(textLines[i])
+            let currentLineWidth = measureTextWidth(textLines[i]);
             if (currentLineWidth > longestLineWidth){
                 longestLine = textLines[i];
                 longestLineWidth = currentLineWidth;
@@ -94,8 +93,8 @@ class Menu {
         }
 
         // Loop until the text is too big
-        while (textWidth(longestLine) + FILE_DATA["constants"]["TEXT_BOX_PADDING_PERCENT"] * boxWidth < boxWidth){
-            textSize(++currentTextSize);
+        while (measureTextWidth(longestLine) + PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxWidth < boxWidth){
+            updateFontSize(++currentTextSize);
         }
         return currentTextSize - 1; // -1 because we've established that this is 1 size too big for the width
     }
@@ -119,20 +118,17 @@ class Menu {
         Method Description: Create text box filled with text
         Method Return: void
     */
-    static makeText(textStr, textColour, x, y, boxWidth, boxHeight, alignLR=LEFT, alignTB=TOP){
+    static makeText(textStr, textColour, x, y, boxWidth, boxHeight, alignLR="left", alignTB="top"){
+        if (textStr == ""){ return; }
         let splitByLine = textStr.split("\n");
         let numLines = splitByLine.length;
         let screenX = x;
-        let screenY = menuManager.changeToScreenY(y);
+        let screenY = MENU_MANAGER.changeToScreenY(y);
         let maxTextSizeW = Menu.determineMaxTextSizeByWidth(splitByLine, boxWidth);
-        let maxTextSizeH = Math.floor((boxHeight - FILE_DATA["constants"]["TEXT_BOX_PADDING_PERCENT"] * boxHeight) / numLines);
+        let maxTextSizeH = Math.floor((boxHeight - PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxHeight) / numLines);
         let calculatedTextSize = Math.min(maxTextSizeW, maxTextSizeH);
         calculatedTextSize = Math.max(calculatedTextSize, 1);
-        textSize(calculatedTextSize);
-        textFont("Arial")
-        fill(textColour);
-        textAlign(alignLR, alignTB);
-        text(textStr, screenX, screenY, boxWidth, boxHeight);
+        makeText(textStr, screenX, screenY, boxWidth, boxHeight, textColour, calculatedTextSize, alignLR, alignTB);
     }
 
     /*
@@ -143,6 +139,7 @@ class Menu {
     */
     display(){
         for (let component of this.components){
+            if (!component.isDisplayEnabled()){ continue; }
             component.display();
         }
     }
@@ -161,10 +158,20 @@ class Menu {
     click(x, y){
         for (let i = this.components.length - 1; i >= 0; i--){
             let component = this.components[i];
-            if (component.covers(x, y)){
+            if (component.covers(x, y) && !component.isDisabled()){
                 component.clicked(this);
                 break;
             }
         }
+    }
+
+    /*
+        Method Name: addComponent
+        Method Parameters: None
+        Method Description: Adds a component to the menu
+        Method Return: void
+    */
+    addComponent(component){
+        this.components.push(component);
     }
 }

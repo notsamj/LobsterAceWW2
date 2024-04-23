@@ -1,6 +1,6 @@
 .ipynb_checkpoints
 ./images/me_309_old
-server
+server/old
 server/node_modules
 Python
 ./scripts/server_connection.js
@@ -17,3 +17,4 @@ sounds/not-active/*
 backups/*
 test_difficulties.html
 test_random.html
+data/user_data_mac.js

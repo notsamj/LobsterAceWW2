@@ -124,9 +124,9 @@ class StaticImage extends Component {
         Method Return: void
     */
     display(){
-        if (!this.enabled){ return; }
-        let screenY = menuManager.changeToScreenY(this.getY());
-        drawingContext.drawImage(this.getImage(), this.getX(), screenY);
+        if (!this.isDisplayEnabled()){ return; }
+        let screenY = MENU_MANAGER.changeToScreenY(this.getY());
+        displayImage(this.getImage(), this.getX(), screenY);
     }
 
     /*

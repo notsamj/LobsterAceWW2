@@ -1,1 +1,1 @@
-FILE_DATA["constants"]["MULTIPLAYER_DISABLED"] = true;
+PROGRAM_DATA["settings"]["multiplayer_disabled"] = true;

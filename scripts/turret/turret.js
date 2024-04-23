@@ -1,3 +1,7 @@
+// When this is opened in NodeJS, import the required files
+if (typeof window === "undefined"){
+    PROGRAM_DATA = require("../../data/data_json.js");
+}
 /*
     Class Name: Turret
     Description: Abstract class representing a Turret
@@ -12,36 +16,111 @@ class Turret {
             y:
                 The y location of the turret
             fov1:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within
+                An angle (radians) representing an edge of an angle which the turret can shoot within
             fov2:
-                An angle (degrees) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
+                An angle (radians) representing an edge of an angle which the turret can shoot within (second edge in a clockwise direction)
             rateOfFire:
                 The number of milliseconds between shots that the turret can take
-            scene:
-                A Scene object related to the fighter plane
+            gamemode:
+                A gamemode object related to the turret
+            bulletHeatCapacity:
+                The heat capacity of the turret
+            coolingTimeMS:
+                The time in miliseconds for the turret to fully cool down
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, fov1, fov2, rateOfFire, scene){
+    constructor(x, y, fov1, fov2, rateOfFire, gamemode, bulletHeatCapacity, coolingTimeMS){
         this.x = x;
         this.y = y;
-        this.shootCD = new TickLock(rateOfFire * FILE_DATA["constants"]["BULLET_REDUCTION_COEFFICIENT"] / FILE_DATA["constants"]["MS_BETWEEN_TICKS"]);
+        this.shootCD = new TickLock(rateOfFire * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.turretHeatManager = new GunHeatManager(bulletHeatCapacity, coolingTimeMS);
         this.fov1 = fov1;
         this.fov2 = fov2;
-        this.scene = scene;
+        this.gamemode = gamemode;
         this.model = "turret";
+        this.startingAngle = (fov1 + fov2)/2;
+        this.angle = this.startingAngle;
+        this.decisions = {
+            "shooting": false, // true -> shooting, false -> not shooting
+            "angle": this.startingAngle // angle in radians [0,2*PI)
+        }
     }
 
     /*
-        Method Name: tick
+        Method Name: getShootingAngle
+        Method Parameters: None
+        Method Description: Provides the current shooting angle
+        Method Return: Float
+    */
+
+    getShootingAngle(){
+        return this.angle;
+    }
+
+    /*
+        Method Name: loadImportantData
         Method Parameters:
-            timeDiffMS:
-                The time between ticks
+            rep:
+                A json representation of the turret
+        Method Description: Loads information from the json representation
+        Method Return: void
+    */
+    loadImportantData(rep){
+        this.shootCD.setTicksLeft(rep["shoot_cd"]);
+    }
+
+    /*
+        Method Name: loadDecisions
+        Method Parameters:
+            rep:
+                A json representation of the turret
+        Method Description: Loads decisions from the json representation
+        Method Return: void
+    */
+    loadDecisions(rep){
+        this.decisions = rep["decisions"];
+    }
+
+    /*
+        Method Name: initFromJSON
+        Method Parameters:
+            rep:
+                A json representation of the turret
+        Method Description: Loads information from the json representation on first creation
+        Method Return: void
+    */
+    initFromJSON(rep){
+        this.loadImportantData(rep);
+        this.loadDecisions(rep);
+    }
+
+
+    /*
+        Method Name: tick
+        Method Parameters: None
         Method Description: Conduct decisions to do each tick
         Method Return: void
     */
-    tick(timeDiffMS){
+    tick(){
         this.shootCD.tick();
+        this.executeDecisions();
+        this.makeDecisions();
+    }
+
+    // Abstract
+    makeDecisions(){}
+    executeDecisions(){}
+
+    /*
+        Method Name: resetDecisions
+        Method Parameters: None
+        Method Description: Clear decisions so new decisions reflect current priorities
+        Method Return: void
+    */
+    resetDecisions(){
+        this.decisions["shooting"] = false;
+        this.decisions["angle"] = this.getShootingAngle(); // Don't move
     }
 
     /*
@@ -105,21 +184,6 @@ class Turret {
     }
 
     /*
-        Method Name: shoot
-        Method Parameters: None
-        Method Description: Shoots the turret, if it is ready and the angle is in an allowed range.
-        Method Return: void
-    */
-    shoot(){
-        if (!this.readyToShoot()){ return; }
-        let shootingAngle = this.getShootingAngle();
-        if (!angleBetweenCWDEG(shootingAngle, this.getFov1(), this.getFov2())){ return; }
-        this.shootCD.lock();
-        SOUND_MANAGER.play("shoot", this.getX(), this.getY());
-        this.scene.addBullet(new Bullet(this.getX(), this.getY(), this.scene, this.getXVelocity(), this.getYVelocity(), this.getShootingAngle(), this.getID(), this.model));
-    }
-
-    /*
         Method Name: readyToShoot
         Method Parameters: None
         Method Description: Determines if the turret is ready to shoot
@@ -129,7 +193,10 @@ class Turret {
         return this.shootCD.isReady();
     }
 
-    // Abstract
-    getShootingAngle(){}
     getID(){}
+}
+
+// If using NodeJS -> Export the class
+if (typeof window === "undefined"){
+    module.exports = Turret;
 }

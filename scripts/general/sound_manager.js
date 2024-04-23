@@ -1,3 +1,9 @@
+// If using NodeJS -> Do required imports
+if (typeof window === "undefined"){
+    helperFunctions = require("../general/helper_functions.js");
+    getLocalStorage = helperFunctions.getLocalStorage;
+    setLocalStorage = helperFunctions.setLocalStorage;
+}
 /*
     Class Name: SoundManager
     Description: A class for managing the playing of sounds.
@@ -23,8 +29,8 @@ class SoundManager {
         Method Return: void
     */
     loadSounds(){
-        for (let soundName of FILE_DATA["sound_data"]["sounds"]){
-            this.sounds.push(new Sound(soundName, this.mainVolume));
+        for (let soundData of PROGRAM_DATA["sound_data"]["sounds"]){
+            this.sounds.push(new Sound(soundData["name"], soundData["type"], this.mainVolume));
         }
     }
 
@@ -87,16 +93,41 @@ class SoundManager {
                 Bottom y game coordinate of the screen
             tY:
                 Top y game coordinate of the screen
-        Method Description: Plays all the sounds within a specified game coordinate area
+        Method Description: Plays all the sounds within a specified game coordinate area. It first prepares to pause all sounds then determines which need not be paused and then pauses all that are not needed to be playing.
         Method Return: void
     */
     playAll(lX, rX, bY, tY){
-        this.pauseAll();
+        this.prepareToPauseAll();
         // Play all sounds that take place on the screen
         while (this.soundQueue.getLength() > 0){
             let soundRequest = this.soundQueue.get(0);
             soundRequest.tryToPlay(lX, rX, bY, tY);
             this.soundQueue.pop(0);
+        }
+        this.pauseAllIfPrepared();
+    }
+
+    /*
+        Method Name: prepareToPauseAll
+        Method Parameters: None
+        Method Description: Prepares to pause all active sounds
+        Method Return: void
+    */
+    prepareToPauseAll(){
+        for (let sound of this.sounds){
+            sound.prepareToPause();
+        }
+    }
+
+    /*
+        Method Name: pauseAllIfPrepared
+        Method Parameters: None
+        Method Description: Pauses all active sounds that are prepared
+        Method Return: void
+    */
+    pauseAllIfPrepared(){
+        for (let sound of this.sounds){
+            sound.pauseIfPrepared();
         }
     }
 
@@ -152,6 +183,44 @@ class SoundManager {
         let sound = this.findSound(soundName);
         return sound.getVolume();
     }
+
+    /*
+        Method Name: getSoundRequestList
+        Method Parameters: None
+        Method Description: Creates a list of JSON representations of sound requests
+        Method Return: List of JSON Objects
+    */
+    getSoundRequestList(){
+        let soundRequestList = [];
+        for (let [soundRequest, sRI] of this.soundQueue){
+            soundRequestList.push(soundRequest.toJSON());
+        }
+        return soundRequestList;
+    }
+
+    /*
+        Method Name: clearRequests
+        Method Parameters: None
+        Method Description: Removes all queued sound requests
+        Method Return: void
+    */
+    clearRequests(){
+        this.soundQueue.clear();
+    }
+
+    /*
+        Method Name: fromSoundRequestList
+        Method Parameters:
+            soundRequestList:
+                A list of JSON representions of sound requests
+        Method Description: Creates many sound requests from a list of JSON representations
+        Method Return: void
+    */
+    fromSoundRequestList(soundRequestList){
+        for (let requestObject of soundRequestList){
+            this.soundQueue.push(SoundRequest.fromJSON(this, requestObject));
+        }
+    }
 }
 
 /*
@@ -161,7 +230,13 @@ class SoundManager {
 class SoundRequest {
      /*
         Method Name: constructor
-        Method Parameters: None
+        Method Parameters:
+            sound:
+                A sound object
+            x:
+                The x location where the sound is played
+            y:
+                The y location where the sound is played
         Method Description: Constructor
         Method Return: Constructor
     */
@@ -190,6 +265,30 @@ class SoundRequest {
             this.sound.play();
         }
     }
+
+    /*
+        Method Name: toJSON
+        Method Parameters: None
+        Method Description: Creates a json representation of a sound request
+        Method Return: JSON Object
+    */
+    toJSON(){
+        return {"x": this.x, "y": this.y, "sound": this.sound.getName()}
+    }
+
+    /*
+        Method Name: fromJSON
+        Method Parameters:
+            soundManager:
+                A SoundManager instance
+            jsonObject:
+                A JSON representation of a sound request
+        Method Description: Creates a JSON representation 
+        Method Return: SoundRequest
+    */
+    static fromJSON(soundManager, jsonObject){
+        return new SoundRequest(soundManager.findSound(jsonObject["sound"]), jsonObject["x"], jsonObject["y"]);
+    }
 }
 
 /*
@@ -202,16 +301,23 @@ class Sound {
         Method Parameters: 
             soundName:
                 The name of the sound
+            soundType:
+                A string specifying if the sound is ongoing or discrete
             mainVolume:
                 The main volume of program
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(soundName, mainVolume){
+    constructor(soundName, soundType, mainVolume){
         this.name = soundName;
-        this.audio = new Audio(FILE_DATA["sound_data"]["url"] + "/" + this.name + FILE_DATA["sound_data"]["file_type"]);
+        this.ongoing = soundType == "ongoing";
+        this.lastPlayed = 0;
+        // Audio will be {} if opened in NodeJS
+        this.audio = (typeof window != "undefined") ? new Audio(PROGRAM_DATA["sound_data"]["url"] + "/" + this.name + PROGRAM_DATA["sound_data"]["file_type"]) : {};
+        this.running = false;
         this.volume = getLocalStorage(soundName, 0);
         this.adjustByMainVolume(mainVolume);
+        this.preparedToPause = true;
     }
 
     /*
@@ -231,7 +337,12 @@ class Sound {
         Method Return: void
     */
     play(){
+        // Already playing....
+        this.lastPlayed = Date.now();
+        this.preparedToPause = false;
+        if (this.isRunning() || this.volume == 0){ return; }
         this.audio.play();
+        this.running = true;
     }
 
     /*
@@ -241,7 +352,7 @@ class Sound {
         Method Return: Boolean, true -> is running, false -> is not running
     */
     isRunning(){
-        return this.audio.currentTime < this.audio.duration && this.audio.currentTime > 0;
+        return this.audio.currentTime < this.audio.duration && this.running;
     }
 
     /*
@@ -251,7 +362,10 @@ class Sound {
         Method Return: void
     */
     pause(){
+        // Ongoing sounds can be paused but not discrete sounds
+        if (!this.ongoing){ return; }
         if (this.isRunning()){
+            this.running = false;
             this.audio.pause();
         }
     }
@@ -292,4 +406,38 @@ class Sound {
     getVolume(){
         return this.volume;
     }
+
+    /*
+        Method Name: prepareToPause
+        Method Parameters: None
+        Method Description: Prepares the sound to pause unless otherwise told not to pause. This is so that continous sounds can be played without pause but stopped when they are no longer needed.
+        Method Return: void
+    */
+    prepareToPause(){
+        if (!this.ongoing){ return; }
+        // Check if its been 1s since last played then ready to dismiss
+        if (Date.now() < this.lastPlayed + 100){ // Just using 100ms as the standard TODO: Save this in a data file
+            return;
+        }
+        this.preparedToPause = true;
+    }
+
+    /*
+        Method Name: pauseIfPrepared
+        Method Parameters: None
+        Method Description: Pauses a sound if it is not needed at the moment
+        Method Return: void
+    */
+    pauseIfPrepared(){
+        if (!this.ongoing){ return; }
+        // Pause if prepared to
+        if (this.preparedToPause){
+            this.pause();
+        }
+    }
+}
+
+// If using NodeJS then export the lock class
+if (typeof window === "undefined"){
+    module.exports = SoundManager;
 }

@@ -35,6 +35,34 @@ class NotSamArrayList {
     }
 
     /*
+        Method Name: countCondition
+        Method Parameters:
+            conditionFunction:
+                A function taking one parameter and returning true or flase
+        Method Description: Counts the number of elements satisfying a condition
+        Method Return: Integer
+    */
+    countCondition(conditionFunction){
+        let count = 0;
+        for (let i = 0; i < this.length; i++){
+            if (conditionFunction(this.array[i])){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /*
+        Method Name: clear
+        Method Parameters: None
+        Method Description: Effectively clear the array of elements (not in terms of actual storage use)
+        Method Return: void
+    */
+    clear(){
+        this.length = 0;
+    }
+
+    /*
         Method Name: convert_from_array
         Method Parameters:
             array:
@@ -99,6 +127,18 @@ class NotSamArrayList {
         Method Return: void
     */
     append(value){
+        this.add(value);
+    }
+
+    /*
+        Method Name: push
+        Method Parameters:
+            value:
+                Value to add
+        Method Description: Add a value to the end of the array list
+        Method Return: void
+    */
+    push(value){
         this.add(value);
     }
 

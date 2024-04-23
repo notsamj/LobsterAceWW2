@@ -11,6 +11,63 @@ class UserInputManager {
     */
     constructor(){
         this.handlerNodes = [];
+        this.tickedAggregators = [];
+    }
+
+    /*
+        Method Name: registerTickedAggregator
+            alias:
+                Name of the ticked aggregator
+            onEventName:
+                Name of the event that enables the ticked aggregator
+            onEventChecker:
+                Function that checks if the event attributes match what is needed to enable the ticked aggregator
+            offEventName:
+                Name of the event that disables the ticked aggregator
+            offEventChecker:
+                Function that checks if the event attributes match what is needed to disable the ticked aggregator
+        Method Parameters: None
+        Method Description: Registers a new ticked aggregator
+        Method Return: void
+    */
+    registerTickedAggregator(alias, onEventName, onEventChecker, offEventName, offEventChecker){
+        let tickedAggregator = new TickedAggregator(alias);
+        document.addEventListener(onEventName, (event) => {
+            if (onEventChecker(event)){
+                tickedAggregator.enableTicks();
+            }
+        });
+        document.addEventListener(offEventName, (event) => {
+            if (offEventChecker(event)){
+                tickedAggregator.disableTicks();
+            }
+        });
+        this.tickedAggregators.push(tickedAggregator);
+    }
+
+    /*
+        Method Name: getTickedAggregator
+        Method Parameters:
+            alias:
+                The name of the ticked aggregator
+        Method Description: Finds a ticked aggregator if it exists, otherwise returns null
+        Method Return: TickedAggregator
+    */
+    getTickedAggregator(alias){
+        for (let tickedAggregator of this.tickedAggregators){
+            if (tickedAggregator.getAlias() == alias){ return tickedAggregator; }
+        }
+        return null;
+    }
+
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Ticks all ticked aggegators
+        Method Return: void
+    */
+    tick(){
+        for (let tickedAggregator of this.tickedAggregators){ tickedAggregator.tick(); }
     }
 
     /*
@@ -70,7 +127,7 @@ class UserInputManager {
     }
     
     /*
-        Method Name: has
+        Method Name: isActivated
         Method Parameters:
             alias:
                 The name of the listener
@@ -79,6 +136,113 @@ class UserInputManager {
     */
     isActivated(alias){
         return this.has(alias) ? this.get(alias).isActivated() : false;
+    }
+}
+
+/*
+    Class Name: TickedAggregator
+    Description: A class that can used to measure how long an event is active, measured in ticks or miliseconds
+*/
+class TickedAggregator {
+    /*
+        Method Name: constructor
+        Method Parameters: None
+        Method Description: Constructor
+        Method Return: Constructor
+    */
+    constructor(alias){
+        this.alias = alias;
+        this.ticksEnabled = false;
+        this.ticks = 0;
+        this.lastPressTime = null;
+    }
+
+    /*
+        Method Name: disableTicks
+        Method Parameters: None
+        Method Description: Disables ticks from occuring
+        Method Return: void
+    */
+    disableTicks(){
+        this.ticksEnabled = false;
+    }
+
+    /*
+        Method Name: enableTicks
+        Method Parameters: None
+        Method Description: Enables ticks to occur
+        Method Return: void
+    */
+    enableTicks(){
+        if (this.ticksEnabled){ return; }
+        this.ticksEnabled = true;
+        this.lastPressTime = Date.now();
+    }
+
+    /*
+        Method Name: isTicking
+        Method Parameters: None
+        Method Description: Checks if ticks are currently enabled
+        Method Return: Boolean
+    */
+    isTicking(){
+        return this.ticksEnabled;
+    }
+
+    /*
+        Method Name: tick
+        Method Parameters: None
+        Method Description: Increases the number of ticks by 1
+        Method Return: void
+    */
+    tick(){
+        if (!this.isTicking()){ return; }
+        this.ticks++;
+    }
+
+    /*
+        Method Name: getTicks
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: integer
+    */
+    getTicks(){
+        return this.ticks;
+    }
+
+    /*
+        Method Name: clear
+        Method Parameters: None
+        Method Description: Resets the number of ticks and returns the count
+        Method Return: integer
+    */
+    clear(){
+        let ticks = this.getTicks();
+        this.ticks = 0;
+        return ticks;
+    }
+
+    /*
+        Method Name: getPressTime
+        Method Parameters: None
+        Method Description: Provides information as to how long the ticked aggregator has been ticking in miliseconds
+        Method Return: integer
+    */
+    getPressTime(){
+        if (this.isTicking()){
+            return Date.now() - this.lastPressTime;
+        }
+        return 0;
+    }
+
+    /*
+        Method Name: getAlias
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: String
+    */
+    getAlias(){
+        return this.alias;
     }
 }
 

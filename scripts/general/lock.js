@@ -1,6 +1,6 @@
 // If using NodeJS then do imports
 if (typeof window === "undefined"){
-    NotSamLinkedList = require("../scripts/notsam_linked_list");
+    NotSamLinkedList = require("./notsam_linked_list.js");
 }
 
 /*
@@ -42,6 +42,46 @@ class Lock {
     }
 
     /*
+        Method Name: notLocked
+        Method Parameters: None
+        Method Description: Determines if the lock is currently locked
+        Method Return: Boolean, true if unlocked, false if locked
+    */
+    notLocked(){
+        return this.isReady();
+    }
+
+    /*
+        Method Name: isLocked
+        Method Parameters: None
+        Method Description: Determines if the lock is currently locked
+        Method Return: Boolean, true if locked, false if unlocked
+    */
+    isLocked(){
+        return !this.isReady();
+    }
+
+    /*
+        Method Name: isOpen
+        Method Parameters: None
+        Method Description: Determines if the lock is currently locked
+        Method Return: Boolean, true if unlocked, false if locked
+    */
+    isOpen(){
+        return this.isReady();
+    }
+
+    /*
+        Method Name: isUnlocked
+        Method Parameters: None
+        Method Description: Determines if the lock is currently locked
+        Method Return: Boolean, true if unlocked, false if locked
+    */
+    isUnlocked(){
+        return this.isReady();
+    }
+
+    /*
         Method Name: lock
         Method Parameters: None
         Method Description: Lock the lock
@@ -79,7 +119,12 @@ class Lock {
         Method Return: Promise
     */
     awaitUnlock(relock=false){
-        if (this.ready){ return; }
+        if (this.ready){
+            if (relock){
+                this.lock();
+            }
+            return;
+        }
         let instance = this;
         return new Promise((resolve, reject) => {
             instance.promiseUnlock.append({"resolve": resolve, "relock": relock});

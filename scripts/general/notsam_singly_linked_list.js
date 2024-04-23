@@ -7,7 +7,7 @@
     It has been reappropriated for this program in 2023 and keeps the 'NotSam' to differentiate it 
     from a non-custom ArrayList.
 */
-class NotSamSinglyLinkedList{
+class NotSamSinglyLinkedList {
         /*
         Method Name: constructor
         Method Parameters:
@@ -338,7 +338,7 @@ class NotSamSinglyLinkedList{
     Class Name: SLLNode
     Description: A singly linked node.
 */
-class SLLNode{
+class SLLNode {
     constructor(value){
         this.value = value;
         this.next = null;

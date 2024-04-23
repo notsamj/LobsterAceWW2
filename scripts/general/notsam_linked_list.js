@@ -5,7 +5,7 @@
     Copy of NotSamSinglyLinkedList but made doubly.
     Also I haven't made a doubly linked list in many many years so this may have many errors because I haven't tested it :)
 */
-class NotSamLinkedList{
+class NotSamLinkedList {
         /*
         Method Name: constructor
         Method Parameters:
@@ -20,6 +20,27 @@ class NotSamLinkedList{
         if (array != null){
             this.convertFromArray(array);
         }
+    }
+
+    /*
+        Method Name: countCondition
+        Method Parameters:
+            conditionFunction:
+                A function taking one parameter and returning true or flase
+        Method Description: Counts the number of elements satisfying a condition
+        Method Return: Integer
+    */
+    countCondition(conditionFunction){
+        let count = 0;
+        let current = this.head;
+        while (current != null){
+            // If value matches condition then add to count
+            if (conditionFunction(current.value)){
+                count++;
+            }
+            current = current.next;
+        }
+        return count;
     }
 
     /*
@@ -77,14 +98,16 @@ class NotSamLinkedList{
      *   Method Return: None
      */
     insert(value, index=this.getSize()){
-        if (index > this.getSize() || index < 0){
-            console.log(`Invalid insertion index! (${index})`);
+        // Note: Inefficient
+        let size = this.getSize();
+        if (index > size || index < 0){
+            console.error(`Invalid insertion index! (${index})`);
             return; 
         }
         let newNode = new DLLNode(null, value);
 
         // If empty list
-        if (this.getSize() == 0){
+        if (size == 0){
             this.head = newNode;
             this.end = newNode;
             return;
@@ -103,7 +126,8 @@ class NotSamLinkedList{
             i++;
         }
         // This is only the case when at the end of the list
-        if (index == this.getSize()){
+        if (index == size){
+            this.end = newNode;
             previous.next = newNode;
             newNode.next = null;
             newNode.previous = previous;
@@ -128,6 +152,17 @@ class NotSamLinkedList{
      *   Method Return: None
      */
     push(element){ this.append(element); }
+
+    /*
+     *   Method Name: add
+     *   Method Parameters:
+     *   Double value:
+     *      Value to add to the list
+     *   Method Description:
+     *   This method inserts a value into the end of the list.
+     *   Method Return: None
+     */
+    add(element){ this.append(element); }
     
     /*
      *   Method Name: getSize
@@ -167,7 +202,7 @@ class NotSamLinkedList{
      */
     print(){
         if (this.getSize() == 0){
-            console.log("List Empty --> cannot print!!");
+            console.error("List Empty --> cannot print!!");
             return;
         }
 
@@ -175,7 +210,7 @@ class NotSamLinkedList{
         let i = 0;
         // Loop through the list and print each value
         while (current != null){
-            console.log(`${i}: ${current.value}:`);
+            console.error(`${i}: ${current.value}:`);
             i++;
             current = current.next;
         }
@@ -207,7 +242,7 @@ class NotSamLinkedList{
     getNode(index){
         // If the index is out of bounds
         if (this.getSize() < index + 1 || index < 0){
-            console.log(`Issue @ Index: ${index} (List Size: ${this.getSize()})`);
+            console.error(`Issue @ Index: ${index} (List Size: ${this.getSize()})`);
             return;
         }
 
@@ -265,7 +300,8 @@ class NotSamLinkedList{
         Method Return: void
     */
     remove(index){
-        if (!((index >= 0 && index < this.getSize()))){
+        let size = this.getSize();
+        if (!((index >= 0 && index < size))){
             return;
         }
 
@@ -275,6 +311,11 @@ class NotSamLinkedList{
                 this.head.previous = null;
             } 
             return;
+        }else if (index == size){
+            this.end = this.end.previous;
+            if (this.end != null){
+                this.end.next = null;
+            }
         }
         let node = this.getNode(index);
         let previous = node.previous; // MUST NOT BE NULL OR ERROR
@@ -307,7 +348,7 @@ class NotSamLinkedList{
         Method Return: boolean, true -> empty, false -> not empty
     */
     isEmpty(){
-        return this.getSize() == 0;
+        return this.head == null;
     }
 
     /*
@@ -364,13 +405,19 @@ class NotSamLinkedList{
     deleteWithCondition(conditionFunction){
         if (this.isEmpty()){ return; }
         let current = this.getLastNode();
-        while (current.previous != null){
+        while (current != null){
             // If value matches condition then remove it
             if (conditionFunction(current.value)){
                 if (current.next != null){
                     current.next.previous = current.previous;
+                }else{ // Else this is the end
+                    this.end = current.previous;
                 }
-                current.previous.next = current.next;
+                if (current.previous != null){
+                    current.previous.next = current.next;
+                }else{ // Else this is the head
+                    this.head = current.next;
+                }
             }
             // Move to next
             current = current.previous;
@@ -382,7 +429,7 @@ class NotSamLinkedList{
     Class Name: DLLNode
     Description: A doubly linked node.
 */
-class DLLNode{
+class DLLNode {
     constructor(previous, value){
         this.value = value;
         this.previous = previous;
