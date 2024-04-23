@@ -306,13 +306,13 @@ const PROGRAM_DATA = {
     "ai": {
         "threshold_3_distance": 600,
         "threshold_2_distance": 1200,
+        "update_enemy_cooldown": 1000,
         "fighter_plane": {
             "evasive_ticks_cd": 40,
             "max_enemy_distance_campaign": 5000,
             "max_x_distance_from_bomber_cruising_campaign": 2000,
             "max_y_distance_from_bomber_cruising_campaign": 500,
             "bomber_cruise_speed_following_offset": 1,
-            "update_enemy_cooldown": 1000,
             "max_ticks_on_course": 1200,
             "tick_cd": 100,
             "bias_ranges": {
@@ -325,6 +325,7 @@ const PROGRAM_DATA = {
 
         "bomber_plane": {
             "bomb_falling_distance_allowance_multiplier": 1.05,
+            "update_friendly_center": 2000,
             "bias_ranges": {
                 "easy":{"friendly_center_x_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":3500,"lower_bound":2625},"lower_range":{"upper_bound":-2625,"lower_bound":-3500}},"shooting_angle_offset":{"upper_range":{"upper_bound":10,"lower_bound":7.5},"lower_range":{"upper_bound":-7.5,"lower_bound":-10}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.5,"lower_bound":1.125},"lower_range":{"upper_bound":1.5,"lower_bound":1.125}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-18.75,"lower_bound":-25}},"max_speed":{"upper_range":{"upper_bound":25,"lower_bound":18.75},"lower_range":{"upper_bound":-75,"lower_bound":-100}},"health":{"upper_range":{"upper_bound":50,"lower_bound":37.5},"lower_range":{"upper_bound":-52.5,"lower_bound":-70}},"max_turret_angle_change_per_tick":{"upper_range":{"upper_bound":2.99,"lower_bound":2.51},"lower_range":{"upper_bound":2.99,"lower_bound":2.51}}},
                 "medium":{"friendly_center_x_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":2625,"lower_bound":1750},"lower_range":{"upper_bound":-1750,"lower_bound":-2625}},"shooting_angle_offset":{"upper_range":{"upper_bound":7.5,"lower_bound":5},"lower_range":{"upper_bound":-5,"lower_bound":-7.5}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.125,"lower_bound":0.9},"lower_range":{"upper_bound":1.125,"lower_bound":0.9}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-12.5,"lower_bound":-18.75}},"max_speed":{"upper_range":{"upper_bound":18.75,"lower_bound":12.5},"lower_range":{"upper_bound":-50,"lower_bound":-75}},"health":{"upper_range":{"upper_bound":37.5,"lower_bound":25},"lower_range":{"upper_bound":-35,"lower_bound":-52.5}},"max_turret_angle_change_per_tick":{"upper_range":{"upper_bound":16,"lower_bound":10},"lower_range":{"upper_bound":16,"lower_bound":10}}},

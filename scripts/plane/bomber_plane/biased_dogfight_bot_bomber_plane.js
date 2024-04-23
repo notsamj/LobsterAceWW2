@@ -36,7 +36,9 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     constructor(planeClass, gamemode, biases, autonomous=true){
         super(planeClass, gamemode, biases, autonomous);
         this.currentEnemy = null;
-        this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.friendlyCenter = {"empty": true};
+        this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.updateFriendlyCenterLock = new TickLock(PROGRAM_DATA["ai"]["bomber_plane"]["update_friendly_center"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.enemyList = [];
     }
 
@@ -146,6 +148,7 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
     */
     tick(){
         this.updateEnemyLock.tick();
+        this.updateFriendlyCenterLock.tick();
         // Tick the locks on the guns
         for (let gun of this.guns){
             gun.tick();
@@ -165,30 +168,40 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         // If not allowed to make decisions -> not make any
         this.resetDecisions();
         if (!this.isAutonomous()){ return; }
-        let centerOfFriendyMass = this.findFriendlyCenter();
-        // If there are friendlies then the top priority is to be near them
-        if (!centerOfFriendyMass["empty"]){
-            let distance = this.distanceToPoint(centerOfFriendyMass["centerX"], centerOfFriendyMass["centerY"]);
-            // If we are far from friendlies then move to their center
-            if (distance > PROGRAM_DATA["settings"]["bomber_distance_from_friendlies_dogfight"]){
-                let angleRAD = displacementToRadians(centerOfFriendyMass["centerX"] - this.x, centerOfFriendyMass["centerY"] - this.y);
-                this.turnInDirection(angleRAD);
-            }
-            return;
-        }
-        // Otherwise we are just looking for enemies
+        // Always look for enemies for the turret or for else
         if (this.updateEnemyLock.isReady()){
             this.updateEnemyLock.lock();
             // Check if the selected enemy should be changed
             this.updateEnemy();
         }
-        // If there is an enemy then act accordingly
-        if (this.hasCurrentEnemy()){
-            let enemy = this.currentEnemy;
-            this.handleEnemy(enemy);
-        }else{ // No enemy -> make sure not to crash into the ground
-            if (this.closeToGround() && angleBetweenCCWRAD(this.getNoseAngle(), toRadians(180.01), toRadians(359.99))){
-                this.turnInDirection(toRadians(90));
+
+        // Find new friendly cetner
+        if (this.updateFriendlyCenterLock.isReady()){
+            this.updateFriendlyCenterLock.lock();
+            this.findFriendlyCenter();
+        }
+        let centerOfFriendyMass = this.friendlyCenter;
+        let decidedOnMovement = false;
+        // If there are friendlies then the top priority is to be near them
+        if (!centerOfFriendyMass["empty"]){
+            let distance = this.distanceToPoint(centerOfFriendyMass["center_x"], centerOfFriendyMass["center_y"]);
+            // If we are far from friendlies then move to their center
+            if (distance > PROGRAM_DATA["settings"]["bomber_distance_from_friendlies_dogfight"]){
+                let angleRAD = displacementToRadians(centerOfFriendyMass["center_x"] - this.x, centerOfFriendyMass["center_y"] - this.y);
+                this.turnInDirection(angleRAD);
+                decidedOnMovement = true;
+            }
+        }
+        // If movement hasn't been decided on already then maybe move based on enemies
+        if (!decidedOnMovement){
+            // If there is an enemy then act accordingly
+            if (this.hasCurrentEnemy()){
+                let enemy = this.currentEnemy;
+                this.handleEnemy(enemy);
+            }else{ // No enemy -> make sure not to crash into the ground
+                if (this.closeToGround() && angleBetweenCCWRAD(this.getNoseAngle(), toRadians(180.01), toRadians(359.99))){
+                    this.turnInDirection(toRadians(90));
+                }
             }
         }
 
@@ -283,18 +296,22 @@ class BiasedDogfightBotBomberPlane extends BiasedBotBomberPlane {
         let totalY = 0;
         let friendlies = this.getFriendlyList();
         if (friendlies.length == 0){
-            return {"empty": true};
+            this.friendlyCenter = {"empty": true};
+            return;
         }
         let fC = 0;
         // Loop through all friendlies and determine the center of them
         for (let friendly of friendlies){
-            if (friendly instanceof BomberPlane){ continue; } // bomber's don't count so we don't end up in a loop
+            if (friendly instanceof BomberPlane){ continue; } // bomber's don't count so we don't end up them all going to eachother
             totalX += friendly.getX();
             totalY += friendly.getY();
             fC++;
         }
-        if (fC == 0){ return {"empty": true}; }
-        return {"empty": false, "centerX": totalX/fC + this.biases["friendly_center_x_offset"], "centerY": totalY/fC + this.biases["friendly_center_y_offset"]};
+        if (fC == 0){ 
+            this.friendlyCenter = {"empty": true};
+            return;
+        }
+        this.friendlyCenter = {"empty": false, "center_x": totalX/fC + this.biases["friendly_center_x_offset"], "center_y": totalY/fC + this.biases["friendly_center_y_offset"]};
     }
 
     /*

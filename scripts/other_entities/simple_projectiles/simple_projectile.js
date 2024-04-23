@@ -107,10 +107,6 @@ class SimpleProjectile extends Entity {
         Method Return: Number
     */
     getY(){
-        // Handle asking for old information that doesn't exist
-        if (tick < this.spawnedTick){
-            return this.startY;
-        }
         return this.getYAtTick(this.gamemode.getNumTicks());
     }
 
@@ -123,6 +119,10 @@ class SimpleProjectile extends Entity {
         Method Return: Number
     */
     getYAtTick(tick){
+        // Handle asking for old information that doesn't exist
+        if (tick < this.spawnedTick){
+            return this.startY;
+        }
         let seconds = ((tick - this.spawnedTick) / (1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]));
         return this.startY + this.yVI * seconds - 0.5 * PROGRAM_DATA["constants"]["gravity"] * Math.pow(seconds, 2);
     }

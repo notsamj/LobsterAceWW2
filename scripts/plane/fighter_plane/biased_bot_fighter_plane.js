@@ -44,7 +44,7 @@ class BiasedBotFighterPlane extends FighterPlane {
         this.ticksOnAttack = 0;
         this.tickCD = 0;
         this.biases = biases;
-        this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["fighter_plane"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.updateEnemyLock = new TickLock(PROGRAM_DATA["ai"]["update_enemy_cooldown"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.throttle = Math.floor(this.throttle + this.biases["throttle"]); // Throttle must be an integer
         this.maxSpeed += this.biases["max_speed"];
         this.health += this.biases["health"];

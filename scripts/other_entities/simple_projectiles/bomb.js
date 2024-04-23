@@ -51,7 +51,7 @@ class Bomb extends SimpleProjectile {
         Method Return: void
     */
     tick(){
-        //  gamemodes on a local browser do no control these features of the bomb
+        // gamemodes on a local browser do no control these features of the bomb
         if (!this.gamemode.runsLocally()){ return; }
         // If below ground then die
         if (this.isBelowGround()){
@@ -69,7 +69,7 @@ class Bomb extends SimpleProjectile {
     explode(){
         // Loop through and damage all nearby buildings
         for (let [building, bI] of this.gamemode.getTeamCombatManager().getBuildings()){
-            if (building.isDead()) { return; }
+            if (building.isDead()) { continue; }
             if (building.distance(this) < PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]){
                 building.damage(this.getDamage());
             }
@@ -113,6 +113,10 @@ class Bomb extends SimpleProjectile {
         Method Return: boolean, true if the bomb is below ground, false otherwise
     */
     isBelowGround(){
+        let me = this;
+        if (Math.abs(this.getY() - this.getInterpolatedY()) > 1000 && this.getInterpolatedY() != 0){
+            debugger;
+        }
         let belowGround = this.getY() < 0;
         return belowGround;
     }

@@ -314,7 +314,7 @@ class Explosion extends TemporaryVisualEffect {
         if (timePassedMS < this.buildingLifeSpan){
             let buildingYLeft = (1 - timePassedMS / this.buildingLifeSpan) * this.buildingYSize;
             let topY = buildingYLeft;
-            noStrokeRectangle(this.buildingColour, this.buildingX, topY, this.buildingXSize, buildingYLeft);
+            strokeRectangle(this.buildingColour, this.buildingX, topY, this.buildingXSize, buildingYLeft);
         }
     }
 }

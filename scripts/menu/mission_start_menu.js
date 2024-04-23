@@ -116,7 +116,6 @@ class MissionStartMenu extends Menu {
     createJSONRep(){
         let jsonRep = {};
         jsonRep["users"] = [];
-        // If not a freecam, then add to users list
         let userEntityType = this.userPlanes[this.userPlaneIndex];
         // If not a freecam, then add to users list
         if (userEntityType != "freecam"){
