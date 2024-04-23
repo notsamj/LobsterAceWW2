@@ -1,3 +1,6 @@
+## Play the game
+https://notsamj.github.io/WW2PlaneGame/
+
 ## (Outdated) Demo
 [https://youtu.be/RkUOuSav_qA](https://www.youtube.com/watch?v=RkUOuSav_qA)
 
