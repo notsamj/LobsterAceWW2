@@ -8,10 +8,14 @@ class SpectatorRadar extends Radar {
         Method Parameters:
             spectatorCamera:
                 The spectator camera entity
+            tickLockLength:
+                The number of ticks between radar updates
+            enabled:
+                Whether or not the radar is enabled
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(spectatorCamera){
+    constructor(spectatorCamera, tickLockLength, enabled=true){
         super(spectatorCamera);
     }
 

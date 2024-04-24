@@ -26,8 +26,7 @@ class SpectatorCamera extends Entity {
         this.yVelocity = 0;
         this.xLock = new TickLock(0);
         this.yLock = new TickLock(0);
-        this.radar = new SpectatorRadar(this);
-        this.radarLock = new TickLock(250 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.radar = new SpectatorRadar(this, 250 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.switchTeamLock = new Lock();
     }
 
@@ -361,18 +360,6 @@ class SpectatorCamera extends Entity {
     }
 
     /*
-        Method Name: updateRadar
-        Method Parameters: None
-        Method Description: Updates the radar if ready to update
-        Method Return: void
-    */
-    updateRadar(){
-        if (!this.radarLock.isReady()){ return; }
-        this.radarLock.lock();
-        this.radar.update();
-    }
-
-    /*
         Method Name: getInterpolatedX
         Method Parameters: None
         Method Description: Getter
@@ -431,8 +418,7 @@ class SpectatorCamera extends Entity {
         this.xLock.tick();
         this.yLock.tick();
         this.leftRightLock.tick();
-        this.radarLock.tick();
-        this.updateRadar();
+        this.radar.tick();
         this.checkFollowToggle();
         if (this.isFollowing()){
             this.checkSwitchTeams();

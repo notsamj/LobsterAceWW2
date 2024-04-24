@@ -63,6 +63,12 @@ USER_INPUT_MANAGER.register("spectator_spectate_up", "keyup", (event) => { retur
 USER_INPUT_MANAGER.register("spectator_spectate_down", "keydown", (event) => { return event.keyCode == 40; }, true);
 USER_INPUT_MANAGER.register("spectator_spectate_down", "keyup", (event) => { return event.keyCode == 40; }, false);
 
+USER_INPUT_MANAGER.register("spectator_spectate_down", "keydown", (event) => { return event.keyCode == 40; }, true);
+USER_INPUT_MANAGER.register("spectator_spectate_down", "keyup", (event) => { return event.keyCode == 40; }, false);
+
+USER_INPUT_MANAGER.register("radar_zoom_scroll", "keydown", (event) => { return event.keyCode == 79; }, true);
+USER_INPUT_MANAGER.register("radar_zoom_scroll", "keyup", (event) => { return event.keyCode == 79; }, false);
+
 USER_INPUT_MANAGER.registerTickedAggregator("w", "keydown", (event) => { return event.keyCode == 87; }, "keyup", (event) => { return event.keyCode == 87; });
 USER_INPUT_MANAGER.registerTickedAggregator("s", "keydown", (event) => { return event.keyCode == 83; }, "keyup", (event) => { return event.keyCode == 83; });
 

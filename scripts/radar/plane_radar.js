@@ -15,11 +15,15 @@ class PlaneRadar extends Radar {
         Method Parameters:
             plane:
                 The plane to whom the radar belongs
+            tickLockLength:
+                The number of ticks between radar updates
+            enabled:
+                Whether or not the radar is enabled
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(plane){
-        super(plane);
+    constructor(plane, tickLockLength, enabled=true){
+        super(plane, tickLockLength, enabled);
         this.plane = plane;
     }
     

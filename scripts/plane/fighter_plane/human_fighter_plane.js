@@ -31,8 +31,7 @@ class HumanFighterPlane extends FighterPlane {
     constructor(planeClass, game, autonomous=true){
         super(planeClass, game, autonomous);
         this.lrLock = new Lock();
-        this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.radar = new PlaneRadar(this);
+        this.radar = new PlaneRadar(this, 1000 / PROGRAM_DATA["settings"]["ms_between_ticks"], autonomous);
     }
 
     /*
@@ -150,7 +149,7 @@ class HumanFighterPlane extends FighterPlane {
     */
     tick(){
         // Only need radar if autonomous
-        if (this.isAutonomous()){ this.radarLock.tick(); this.updateRadar(); }
+        this.radar.tick();
         super.tick();
     }
 
@@ -184,19 +183,6 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     hasRadar(){ return true; }
-
-    /*
-        Method Name: updateRadar
-        Method Parameters: None
-        Method Description: Update the radar with new information
-        Method Return: void
-    */
-    updateRadar(){
-        if (this.radarLock.isReady()){
-            this.radar.update();
-            this.radarLock.lock();
-        }
-    }
 
     /*
         Method Name: checkMoveLeftRight

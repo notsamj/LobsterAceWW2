@@ -346,7 +346,7 @@ const PROGRAM_DATA = {
         "blip_size": 5,
         "border_width": 2,
         "distance_multiplier_a": 250,
-        "base_distance": 1.3,
+        "b": [1.3,1.35,1.4,1.15,1.2,1.25],
         "fighter_weight": 1,
         "bomber_weight": 4,
         "building_weight": 10,
@@ -354,7 +354,11 @@ const PROGRAM_DATA = {
         "friendly_fighter_colour": "#32c70c",
         "enemy_bomber_colour": "#a6140a",
         "enemy_fighter_colour": "#db655c",
-        "building_colour": "#919191"
+        "building_colour": "#919191",
+        "text_colour": "#ff6700",
+        "text_size": 18,
+        "text_box_height": 20,
+        "text_box_width": 120
     },
 
     "background": {
