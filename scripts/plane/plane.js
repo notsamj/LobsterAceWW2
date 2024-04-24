@@ -872,10 +872,12 @@ class Plane extends Entity {
                 The y location of the gun
             angleRAD:
                 The orientation of the gun
+            fauxBullet:
+                A false bullet provided optionally
         Method Description: Shots the gun at a target in the direction its facing. The shot moves with infinite speed.
         Method Return: void
     */
-    instantShot(gunX, gunY, angleRAD){
+    instantShot(gunX, gunY, angleRAD, fauxBullet=null){
         // Determine if the plane is facing -x or +x (not proper if plane is perpenticular to the x axis)
         let xDir = (angleBetweenCCWRAD(angleRAD, toRadians(91), toRadians(269))) ? -1 : 1;
         if (isClose(angleRAD, toRadians(90), 0.01) || isClose(angleRAD, toRadians(270), 0.01)){
@@ -945,7 +947,9 @@ class Plane extends Entity {
         // If we failed to find a plane getting shot then return
         if (bestPlane == null){ return; }
         // Hit the plane
-        let fauxBullet = new Bullet(null, null, this.gamemode, null, null, null, this.getID(), this.planeClass);
+        if (fauxBullet == null){
+            fauxBullet = new Bullet(null, null, this.gamemode, null, null, null, this.getID(), this.planeClass, PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bullet_damage"]);
+        }
         bestPlane.damage(fauxBullet.getDamage());
         if (bestPlane.isDead()){
             // Make a fake bullet just because that's how the handlekill function works

@@ -27,15 +27,18 @@ class Bullet extends SimpleProjectile {
                 The id of the plane that shot the bullet
             shooterClass:
                 The type of plane that shot the bullet
+            bulletDamage:
+                The damage of the bullet
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(x, y, gamemode, xVelocity, yVelocity, angleRAD, shooterID, shooterClass){
+    constructor(x, y, gamemode, xVelocity, yVelocity, angleRAD, shooterID, shooterClass, bulletDamage){
         super(x, y, gamemode, xVelocity, yVelocity, gamemode.getNumTicks(), PROGRAM_DATA["bullet_data"]["radius"]);
         this.yVI += Math.sin(angleRAD) * PROGRAM_DATA["bullet_data"]["speed"];
         this.xVelocity += Math.cos(angleRAD) * PROGRAM_DATA["bullet_data"]["speed"];
         this.shooterClass = shooterClass;
         this.shooterID = shooterID;
+        this.damage = bulletDamage;
     }
 
     /*
@@ -45,7 +48,7 @@ class Bullet extends SimpleProjectile {
         Method Return: Number
     */
     getDamage(){
-        return PROGRAM_DATA["plane_data"][this.shooterClass]["bullet_damage"];
+        return this.damage;
     }
 
     /*
