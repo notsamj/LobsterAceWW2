@@ -4,6 +4,23 @@ if (typeof window === "undefined"){
 }
 
 /*
+    Method Name: getIndexOfElementInList
+    Method Parameters:
+        list:
+            A list of values
+        value:
+            A value to find in the list
+    Method Description: Finds the index of a value in a list
+    Method Return: Integer
+*/
+function getIndexOfElementInList(list, value){
+    for (let i = 0; i < list.length; i++){
+        if (list[i] == value){ return i; }
+    }
+    return -1;
+}
+
+/*
     Method Name: modifyDataJSONValue
     Method Parameters:
         path:

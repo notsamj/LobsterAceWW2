@@ -24,8 +24,8 @@ const GAMEMODE_MANAGER = new GamemodeManager();
 const LOCAL_EVENT_HANDLER = new NSEventHandler();
 
 // Register inputs
-USER_INPUT_MANAGER.register("quantity_slider_grab", "mousedown", (event) => { return true; });
-USER_INPUT_MANAGER.register("quantity_slider_grab", "mouseup", (event) => { return true; }, false);
+USER_INPUT_MANAGER.register("option_slider_grab", "mousedown", (event) => { return true; });
+USER_INPUT_MANAGER.register("option_slider_grab", "mouseup", (event) => { return true; }, false);
 
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);

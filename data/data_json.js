@@ -401,7 +401,8 @@ const PROGRAM_DATA = {
         "max_cloud_animation_speed_x": 0.5,
         "max_tick_deficit": 100,
         "expected_plane_size": 64,
-        "health_effect_on_throttle": 0.35
+        "health_effect_on_throttle": 0.35,
+        "game_zoom": 1
     },
     "constants": {
         "gravity": 9.81
@@ -444,6 +445,12 @@ const PROGRAM_DATA = {
             "min_value": 40,
             "max_value": 250,
             "uses_float": false
+        },
+        {
+            "name": "game_zoom",
+            "path": ["settings", "game_zoom"],
+            "type": "selection_slider",
+            "options": [0.125, 0.25, 0.5, 1, 2]
         }
     ],
 
@@ -1478,8 +1485,9 @@ const PROGRAM_DATA = {
     },
 
     "menu": {
-        "quantity_slider": {
-            "slider_width_px": 20
+        "option_slider": {
+            "slider_width_px": 20,
+            "x_size": 300
         }
     },
 

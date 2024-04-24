@@ -73,7 +73,9 @@ class ExtraSettingsMenu extends Menu {
         if (settingType == "on_off"){
             this.createOnOffButton(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
         }else if (settingType == "quantity_slider"){
-            this.createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
+            this.createQuantitySlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
+        }else if (settingType == "selection_slider"){
+            this.createSelectionSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize);
         }
     }
 
@@ -111,7 +113,7 @@ class ExtraSettingsMenu extends Menu {
     }
 
     /*
-        Method Name: createSlider
+        Method Name: createQuantitySlider
         Method Parameters:
             setting:
                 A JSON object with information about a setting
@@ -124,8 +126,7 @@ class ExtraSettingsMenu extends Menu {
         Method Description: Creates a quantity slider user interface component
         Method Return: void
     */
-    createSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
-        let quantitySlideXSize = 300;
+    createQuantitySlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
         let settingName = setting["name"];
         let settingPath = setting["path"];
         let storedValue = getLocalStorage(settingName, null);
@@ -142,8 +143,44 @@ class ExtraSettingsMenu extends Menu {
             modifyDataJSONValue(settingPath, newValue);
             setLocalStorage(settingName, newValue);
         }
-        let quantitySlider = new QuantitySlider(settingModifierButtonX, settingModifierButtonY, quantitySlideXSize, settingModifierButtonSize, getValueFunction, setValueFunction, setting["min_value"], setting["max_value"], setting["uses_float"], undefined, "#108700");
+        let quantitySlider = new QuantitySlider(settingModifierButtonX, settingModifierButtonY, PROGRAM_DATA["menu"]["option_slider"]["x_size"], settingModifierButtonSize, getValueFunction, setValueFunction, setting["min_value"], setting["max_value"], setting["uses_float"], undefined, "#108700");
         this.components.push(quantitySlider);
+    }
+
+    /*
+        Method Name: createSelectionSlider
+        Method Parameters:
+            setting:
+                A JSON object with information about a setting
+            settingModifierButtonX:
+                The x coordinate of the setting modifier button
+            settingModifierButtonY:
+                The y coordinate of the setting modifier button
+            settingModifierButtonSize:
+                The size of the setting modifier button
+        Method Description: Creates a selection slider user interface component
+        Method Return: void
+    */
+    createSelectionSlider(setting, settingModifierButtonX, settingModifierButtonY, settingModifierButtonSize){
+        let settingName = setting["name"];
+        let settingPath = setting["path"];
+        let storedValue = getLocalStorage(settingName, null);
+        if (storedValue != null){
+            // Note: For now assuming float because I'm just using this for zoom (float)
+            storedValue = parseFloat(storedValue);
+            modifyDataJSONValue(settingPath, storedValue);
+        }
+        let getValueFunction = () => {
+            return accessDataJSONValue(settingPath);
+        }
+
+        let setValueFunction = (newValue) => {
+            LOCAL_EVENT_HANDLER.emit({"name": settingName, "new_value": newValue});
+            modifyDataJSONValue(settingPath, newValue);
+            setLocalStorage(settingName, newValue);
+        }
+        let selectionSlider = new SelectionSlider(settingModifierButtonX, settingModifierButtonY, PROGRAM_DATA["menu"]["option_slider"]["x_size"], settingModifierButtonSize, getValueFunction, setValueFunction, setting["options"], undefined, "#108700");
+        this.components.push(selectionSlider);
     }
 
     /*
