@@ -206,6 +206,16 @@ class Plane extends Entity {
     }
 
     /*
+        Method Name: getStartingThrottle
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Integer
+    */
+    getStartingThrottle(){
+        return this.startingThrottle;
+    }
+
+    /*
         Method Name: setStartingHealth
         Method Parameters:
             startingHealth:

@@ -320,7 +320,7 @@ class Mission extends Gamemode {
             let facingRight = side == "attackers" ? true : false;
             plane.setAngle(0);
             plane.setAlive(true); // This is good for setting up previously dead planes
-            // plane.increaseModCount(); // This is good so that clients will take the new position immediately
+            plane.setThrottle(plane.getStartingThrottle());
             plane.setFacingRight(facingRight);
             plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
             plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
