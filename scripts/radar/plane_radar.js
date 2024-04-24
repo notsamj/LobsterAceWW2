@@ -34,10 +34,7 @@ class PlaneRadar extends Radar {
         Method Return: void
     */
     update(){
-        // If using NodeJS do not waste time with this code
-        if (!this.plane.isAutonomous()){ return; }
-        
-        this.radarData = this.resetRadar();
+        this.resetRadar();
         // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
         for (let plane of this.plane.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){

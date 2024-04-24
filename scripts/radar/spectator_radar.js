@@ -16,7 +16,7 @@ class SpectatorRadar extends Radar {
         Method Return: Constructor
     */
     constructor(spectatorCamera, tickLockLength, enabled=true){
-        super(spectatorCamera);
+        super(spectatorCamera, tickLockLength, enabled);
     }
 
     /*
@@ -26,7 +26,7 @@ class SpectatorRadar extends Radar {
         Method Return: void
     */
     update(){
-        this.radarData = this.resetRadar();
+        this.resetRadar();
         for (let plane of this.entity.getGamemode().getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane){
                 this.placeOnRadar(plane.getX(), plane.getY(), PROGRAM_DATA["team_to_colour"]["fighter_plane"][planeModelToAlliance(plane.getPlaneClass())], this.fighterWeight);

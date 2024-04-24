@@ -30,7 +30,7 @@ class Radar {
         this.bIndex = 0;
         this.b = PROGRAM_DATA["radar"]["b"][this.bIndex];
         this.borderWidth = PROGRAM_DATA["radar"]["border_width"];
-        this.radarData = this.resetRadar();
+        this.radarData = new NotSamLinkedList();
         
         this.fighterWeight = PROGRAM_DATA["radar"]["fighter_weight"];
         this.bomberWeight = PROGRAM_DATA["radar"]["bomber_weight"];
@@ -70,7 +70,7 @@ class Radar {
     /*
         Method Name: drawBlip
         Method Parameters:
-            blipData:
+            bestBlipObject:
                 Data about a blip, JSON Object
             screenX:
                 x location to draw the blip
@@ -79,13 +79,7 @@ class Radar {
         Method Description: Draw a blip on the screen
         Method Return: void
     */
-    drawBlip(blipData, screenX, screenY){
-        let bestBlipObject = null;
-        for (let blipObject of blipData){
-            if (bestBlipObject == null || bestBlipObject["weight"] < blipObject["weight"]){
-                bestBlipObject = blipObject;
-            }
-        }
+    drawBlip(bestBlipObject, screenX, screenY){
         let blipColour = Colour.fromCode(bestBlipObject["colour"]);
         strokeRectangle(blipColour, screenX, screenY, this.blipSize, this.blipSize);
     }
@@ -100,11 +94,15 @@ class Radar {
         let screenX = this.getScreenX();
         let screenY = this.getScreenY();
         displayImage(this.radarOutline, screenX, screenY);
-        for (let x = 0; x < this.size; x++){
-            for (let y = 0; y < this.size; y++){
-                if (this.radarData[x][y].length == 0){ continue; }
-                this.drawBlip(this.radarData[x][y], screenX + this.borderWidth + this.blipSize * x, screenY + this.borderWidth + this.blipSize * y);
+        for (let [positionObject, pI] of this.radarData){
+            let bestCompetitor = positionObject["competitors"][0]; // Always at least 1
+            for (let i = 1; i < positionObject["competitors"].length; i++){
+                if (positionObject["competitors"][i]["weight"] > bestCompetitor["weight"]){
+                    bestCompetitor = positionObject["competitors"][i];
+                }
             }
+            // Best competitor colour has been found (most weight)
+            this.drawBlip(bestCompetitor, screenX + this.borderWidth + this.blipSize * positionObject["x_i"], screenY + this.borderWidth + this.blipSize * positionObject["y_i"]);
         }
         let range = this.distanceMultiplierA * Math.pow(this.b, (this.size-1)/2);
         let infoString = `Range: ${Math.floor(range)}, a: ${this.distanceMultiplierA}, b:${this.b}`;
@@ -118,15 +116,7 @@ class Radar {
         Method Return: void
     */
     resetRadar(){
-        let array2D = [];
-        for (let i = 0; i < this.size; i++){
-            let newRow = [];
-            for (let j = 0; j < this.size; j++){
-                newRow.push([]);
-            }
-            array2D.push(newRow);
-        }
-        return array2D;
+        this.radarData.clear();
     }
 
     /*
@@ -191,18 +181,29 @@ class Radar {
         let xI = x - 1;
         let yI = y - 1;
 
-        // Check position for this colour already
-        let alreadyPresent = false;
-        for (let blipObject of this.radarData[xI][yI]){
-            if (blipObject["colour"] == colour){
-                blipObject["weight"] += weight;
-                alreadyPresent = true;
+        let positionFound = false;
+        // Check if position data exists at xI, yI
+        for (let [positionObject, pI] of this.radarData){
+            if (positionObject["x_i"] == xI && positionObject["y_i"] == yI){
+                positionFound = true;
+                let competitorFound = false;
+                for (let competitor of positionObject["competitors"]){
+                    if (competitor["colour"] == colour){
+                        competitorFound = true;
+                        competitor["weight"] += weight;
+                        break;
+                    }
+                }
+                // If we haven't found our colour in this spot then add it
+                if (!competitorFound){
+                    positionObject["competitors"].push({"colour": colour, "weight": weight});
+                }
                 break;
             }
         }
-        // If not present already, add
-        if (!alreadyPresent){
-            this.radarData[xI][yI].push({"colour": colour, "weight": weight});
+        // If not position present already, add
+        if (!positionFound){
+            this.radarData.push({"x_i": xI, "y_i": yI, "competitors": [{"colour": colour, "weight": weight}]});
         }
     }
 
