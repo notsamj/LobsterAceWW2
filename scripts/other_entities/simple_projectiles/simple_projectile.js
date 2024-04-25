@@ -264,15 +264,35 @@ class SimpleProjectile extends Entity {
     */
     display(lX, bY, displayTime){
         if (this.isDead()){ return; }
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
+
+        // Calculate interpolated coordinates
         this.calculateInterpolatedCoordinates(displayTime);
+        
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
+
         // Determine the location it will be displayed at
-        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
-        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);
-        displayImage(this.getImage(), displayX, displayY); 
+        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth()*gameZoom, lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight()*gameZoom, bY);
+        let translateX = displayX + this.getWidth() / 2 * gameZoom;
+        let translateY = displayY + this.getHeight() / 2 * gameZoom;
+
+        // Prepare the display
+        translate(translateX, translateY);
+
+        // Game zoom
+        scale(gameZoom, gameZoom);
+
+        // Display Projectile
+        displayImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2);
+
+        // Undo game zoom
+        scale(1/gameZoom, 1/gameZoom);
+        
+        // Reset the translation
+        translate(-1 * translateX, -1 * translateY);
     }
 
     /*

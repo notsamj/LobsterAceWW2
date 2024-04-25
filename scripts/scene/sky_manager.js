@@ -143,28 +143,17 @@ class SkyManager {
         Method Return: void
     */
     displayClouds(lX, bY){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
-        let leftQuadrantX = Math.floor(lX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
-        let rightQuadrantX = Math.floor(rX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
-        let bottomQuadrantY = Math.floor(bY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
-        let topQuadrantY = Math.floor(tY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
+        let leftClusterX = Math.floor(lX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
+        let rightClusterX = Math.floor(rX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
+        let bottomClusterY = Math.floor(bY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
+        let topClusterY = Math.floor(tY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
 
-        // Display bottom left quadrant
-        this.getCloudCluster(leftQuadrantX, bottomQuadrantY).display(lX, bY);
-        // If both the left and right quadrant are visible
-        if (leftQuadrantX != rightQuadrantX){
-            // Display bottom right quadrant
-            this.getCloudCluster(rightQuadrantX, bottomQuadrantY).display(lX, bY);
-        }
-
-        // If both the top and bottom quadrant are visible
-        if (bottomQuadrantY != topQuadrantY){
-            this.getCloudCluster(leftQuadrantX, topQuadrantY).display(lX, bY);
-             // If both the left and right quadrant are visible
-            if (leftQuadrantX != rightQuadrantX){
-                // Display bottom right quadrant
-                this.getCloudCluster(rightQuadrantX, topQuadrantY).display(lX, bY);
+        // Loop though all clusters and display
+        for (let clusterX = leftClusterX; clusterX <= rightClusterX; clusterX++){
+            for (let clusterY = bottomClusterY; clusterY <= topClusterY; clusterY++){
+                this.getCloudCluster(clusterX, clusterY).display(lX, bY);
             }
         }
         // Save space by deleting far away cloud clusters
@@ -209,8 +198,8 @@ class SkyManager {
         Method Return: void
     */
     deleteFarClusters(lX, bY){
-        let cX = lX + 0.5 * getScreenWidth();
-        let cY = bY + 0.5 * getScreenHeight();
+        let cX = lX + 0.5 * getZoomedScreenWidth();
+        let cY = bY + 0.5 * getZoomedScreenHeight();
         for (let i = this.cloudClusters.getLength() - 1; i >= 0; i--){
             let cluster = this.cloudClusters.get(i);
             let distance = Math.sqrt(Math.pow(cluster.getQuadrantX() * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"] - cX, 2) + Math.pow(cluster.getQuadrantY() * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"] - cY, 2));
@@ -347,10 +336,8 @@ class Cloud {
             let screenY = this.scene.getDisplayY(circleObject["y"], 0, bY, false);
             let cloudColour = Colour.fromCode(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_colour"]);
             cloudColour.setAlpha(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_opacity"]/100);
-            
             // Display the circle
-
-            noStrokeCircle(cloudColour, screenX, screenY, circleObject["radius"]*2);
+            noStrokeCircle(cloudColour, screenX, screenY, circleObject["radius"]*2*gameZoom);
         }
     }
 

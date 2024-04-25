@@ -3,6 +3,7 @@ const PROGRAM_DATA = {
         "max_angle_change_per_tick_fighter_plane": 3.75,
         "max_angle_change_per_tick_bomber_plane": 1.25,
         "spectator_cam_speed": 1000,
+        "approximate_zoom_peek_time_ms": 150
     },
     "plane_data": {
         "spitfire": {
@@ -236,8 +237,8 @@ const PROGRAM_DATA = {
             "bomb_damage": 1,
             "guns": [
                 { // Top gun front
-                    "x_offset": 216-128,
-                    "y_offset": 128-115,
+                    "x_offset": 205-128,
+                    "y_offset": 128-116,
                     "fov_1": 70,
                     "fov_2": 10,
                     "bullet_heat_capacity": 48,
@@ -246,8 +247,8 @@ const PROGRAM_DATA = {
                     "bullet_damage": 2
                 },
                 { // Top gun front facing back
-                    "x_offset": 149-128,
-                    "y_offset": 128-93,
+                    "x_offset": 179-128,
+                    "y_offset": 128-115,
                     "fov_1": 170,
                     "fov_2": 70,
                     "bullet_heat_capacity": 48,
@@ -256,8 +257,8 @@ const PROGRAM_DATA = {
                     "bullet_damage": 2
                 },
                 { // Bottom gun front
-                    "x_offset": 27-128,
-                    "y_offset": 128-89,
+                    "x_offset": 230-128,
+                    "y_offset": 128-140,
                     "fov_1": 350,
                     "fov_2": 300,
                     "bullet_heat_capacity": 16,
@@ -405,7 +406,7 @@ const PROGRAM_DATA = {
         "game_zoom": 1
     },
     "constants": {
-        "gravity": 9.81
+        "gravity": 9.81*9 // About 9 pixels = 1 meter
     },
 
     "extra_settings": [
@@ -1454,13 +1455,13 @@ const PROGRAM_DATA = {
         "moon_phase": 5, // Allowed range [0, 7]
         "current_hour": 12,
         "cloud_generation": {
-            "min_height": 600,
+            "min_height": 1000,
             "cloud_opacity": 80,
             "cloud_colour": "#e8ecff",
-            "cloud_cluster_width": 3840,
-            "cloud_cluster_height": 2160,
-            "min_radius": 30,
-            "max_radius": 80,
+            "cloud_cluster_width": 3840*4,
+            "cloud_cluster_height": 2160*4,
+            "min_radius": 30*4,
+            "max_radius": 80*4,
             "min_circles_per_cloud": 3,
             "max_circles_per_cloud": 7,
             "min_clouds_per_cluster": 40,

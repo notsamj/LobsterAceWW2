@@ -401,8 +401,8 @@ class SpectatorCamera extends Entity {
             this.interpolatedX = this.followingEntity.getInterpolatedX();
             this.interpolatedY = this.followingEntity.getInterpolatedY();
         }else{
-            this.interpolatedX = this.x + this.xVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
-            this.interpolatedY = this.y + this.yVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
+            this.interpolatedX = this.x + this.xVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000 * 1 / gameZoom;
+            this.interpolatedY = this.y + this.yVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000 * 1 / gameZoom;
         }
         this.lastInterpolatedFrame = currentFrameIndex;
     }
@@ -428,8 +428,8 @@ class SpectatorCamera extends Entity {
             return;
         }
         // else
-        this.x += this.xVelocity / PROGRAM_DATA["settings"]["tick_rate"];
-        this.y += this.yVelocity / PROGRAM_DATA["settings"]["tick_rate"];
+        this.x += this.xVelocity / PROGRAM_DATA["settings"]["tick_rate"] * 1 / gameZoom;
+        this.y += this.yVelocity / PROGRAM_DATA["settings"]["tick_rate"] * 1 / gameZoom;
         this.checkMoveX();
         this.checkMoveY();
     }

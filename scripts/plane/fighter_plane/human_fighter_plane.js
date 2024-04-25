@@ -35,6 +35,19 @@ class HumanFighterPlane extends FighterPlane {
     }
 
     /*
+        Method Name: setAutonomous
+        Method Parameters:
+            value:
+                Boolean, whether or not plane is autonomous
+        Method Description: Setter
+        Method Return: void
+    */
+    setAutonomous(value){
+        super.setAutonomous(value);
+        this.radar.setEnabled(value);
+    }
+
+    /*
         Method Name: toJSON
         Method Parameters: None
         Method Description: Creates a JSON representation of the human fighter plane

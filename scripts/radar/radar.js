@@ -47,6 +47,19 @@ class Radar {
         this.radarZoomChangeLock = new Lock();
     }
 
+
+    /*
+        Method Name: setEnabled
+        Method Parameters:
+            enabled:
+                A boolean, whether or not the radar is enabled
+        Method Description: Setter
+        Method Return: void
+    */
+    setEnabled(enabled){
+        this.enabled = enabled;
+    }
+
     /*
         Method Name: getScreenX
         Method Parameters: None

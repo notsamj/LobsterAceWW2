@@ -73,7 +73,7 @@ class MissionStartMenu extends Menu {
 
         let userPlaneX = () => { return 350; };
         let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        this.userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
+        this.userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY, 128, 128);
         let userPlaneImage = this.userPlane;
         this.userPlane.setOnClick(() => {
             userPlaneImage.setImage(this.switchPlanes()); 

@@ -111,7 +111,7 @@ class PlaneGameScene {
         Method Name: getDisplayX
         Method Parameters:
             centerX:
-                The x coordinate at the center of the screen
+                The x coordinate of the center of the entity
             width:
                 The width of the entity
             lX:
@@ -122,11 +122,11 @@ class PlaneGameScene {
         Method Return: int
     */
     getDisplayX(centerX, width, lX, round=false){
-        // Change coordinate system
-        let displayX = this.changeToScreenX(centerX);
-
         // Find relative to bottom left corner
-        displayX = displayX - lX;
+        let displayX = (centerX - lX) * gameZoom;
+
+        // Change coordinate system
+        displayX = this.changeToScreenX(displayX);
 
         // Find top left corner
         displayX = displayX - width / 2;
@@ -142,7 +142,7 @@ class PlaneGameScene {
         Method Name: getDisplayY
         Method Parameters:
             centerY:
-                The y coordinate at the center of the screen
+                The y coordinate of the center of the entity
             height:
                 The height of the entity
             bY:
@@ -153,11 +153,11 @@ class PlaneGameScene {
         Method Return: int
     */
     getDisplayY(centerY, height, bY, round=false){
-        // Change coordinate system
-        let displayY = this.changeToScreenY(centerY);
-
         // Find relative to bottom left corner
-        displayY = displayY + bY;
+        let displayY = (centerY - bY) * gameZoom;
+
+        // Change coordinate system
+        displayY = this.changeToScreenY(displayY);
 
         // Find top left corner
         displayY = displayY - height / 2;
@@ -191,7 +191,6 @@ class PlaneGameScene {
         }
         if (foundIndex == -1){
             console.error("Failed to find entity that should be deleted:", entityID);
-            debugger;
             return; 
         }
         this.entities.remove(foundIndex);
@@ -230,7 +229,7 @@ class PlaneGameScene {
         Method Return: float
     */
     changeToScreenY(y){
-        return this.getHeight() - y;
+        return getScreenHeight() - y;
     }
 
     /*
@@ -262,7 +261,7 @@ class PlaneGameScene {
         Method Return: Integer
     */
     getWidth(){
-        return getScreenWidth();
+        return getZoomedScreenWidth();
     }
 
     /*
@@ -272,7 +271,7 @@ class PlaneGameScene {
         Method Return: Integer
     */
     getHeight(){
-        return getScreenHeight();
+        return getZoomedScreenHeight();
     }
 
     getSoundManager(){
@@ -535,6 +534,7 @@ class PlaneGameScene {
             HEADS_UP_DISPLAY.updateElement("Throttle", throttle.toFixed(1));
             HEADS_UP_DISPLAY.updateElement("Health", health.toFixed(1));
             HEADS_UP_DISPLAY.updateElement("FPS", fps);
+            HEADS_UP_DISPLAY.updateElement("Game Zoom", gameZoom.toString() + "x");
             HEADS_UP_DISPLAY.updateElement("ID", entityID);
         }
         HEADS_UP_DISPLAY.updateElement("Entities", numberOfEntities);
@@ -581,7 +581,7 @@ class PlaneGameScene {
 
             // Display ground images
             for (let y = bottomDisplayGroundY; y <= 0; y += groundImageHeight){
-                for (let x = bottomDisplayGroundX; x < this.getWidth() + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
+                for (let x = bottomDisplayGroundX; x < getScreenWidth() + bottomDisplayGroundX + groundImageWidth; x += groundImageWidth){
                     let displayX = x-lXP;
                     displayImage(groundImage, displayX, this.getDisplayY(0, 0, bYP));
                 }
@@ -605,7 +605,6 @@ class PlaneGameScene {
         // Set up position of the displayed frame of the word based on the focused entity 
         if (this.hasEntityFocused()){
             focusedEntity = this.getFocusedEntity();
-            //debugger
             // TODO: Switch to display x for all entities
             focusedEntity.calculateInterpolatedCoordinates(displayTime);
             lX = focusedEntity.getInterpolatedX() - (this.getWidth()) / 2;
@@ -613,7 +612,7 @@ class PlaneGameScene {
         }
 
         // Play all sounds that are queued for this frame
-        this.getSoundManager().playAll(lX, lX + getScreenWidth(), bY, bY + getScreenHeight());
+        this.getSoundManager().playAll(lX, lX + getZoomedScreenWidth()-1, bY, bY + getZoomedScreenHeight()-1);
 
         // Display the background
         this.displayBackground(lX, bY);

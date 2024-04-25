@@ -346,3 +346,27 @@ function makeText(textStr, screenX, screenY, boxWidth, boxHeight, textColour, te
 function displayImage(image, x, y){
     drawingContext.drawImage(image, x, y);
 }
+
+/*
+    Method Name: getZoomedScreenWidth
+    Method Parameters: None
+    Method Description: Gets the screen width modified by the zoom setting
+    Method Return: Integer
+*/
+function getZoomedScreenWidth(){
+    return Math.ceil(getScreenWidth() / gameZoom);
+}
+
+/*
+    Method Name: getZoomedScreenHeight
+    Method Parameters: None
+    Method Description: Gets the screen height modified by the zoom setting
+    Method Return: Integer
+*/
+function getZoomedScreenHeight(){
+    return Math.ceil(getScreenHeight() / gameZoom);
+}
+
+// Global variables
+var drawingContext = null;
+var gameZoom = 1;

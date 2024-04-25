@@ -223,8 +223,8 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     display(lX, bY, displayTime){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
 
         this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
@@ -259,8 +259,14 @@ class FighterPlane extends Plane {
                 scale(-1, 1);
             }
 
+            // Game scale
+            scale(gameZoom, gameZoom);
+
             // Display flash
             displayImage(image, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+
+            // Undo game zoom scale
+            scale(1/gameZoom, 1/gameZoom);
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){

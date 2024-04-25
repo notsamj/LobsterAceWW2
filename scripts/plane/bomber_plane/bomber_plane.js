@@ -131,8 +131,8 @@ class BomberPlane extends Plane {
         Method Return: void
     */
     display(lX, bY, displayTime){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
 
         this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
@@ -167,6 +167,9 @@ class BomberPlane extends Plane {
                 scale(-1, 1);
             }
 
+            // Game zoom
+            scale(gameZoom, gameZoom);
+
             // Display flash
             displayImage(flashImage, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
 
@@ -174,6 +177,9 @@ class BomberPlane extends Plane {
             if (!this.isFacingRight()){
                 scale(-1, 1);
             }
+
+            // Undo game zoom
+            scale(1/gameZoom, 1/gameZoom);
             
             // Reset the rotation and translation
             rotate(interpolatedAngle);

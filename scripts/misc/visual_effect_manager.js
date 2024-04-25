@@ -38,8 +38,8 @@ class VisualEffectManager {
         Method Return: void
     */
     display(scene, lX, bY){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
         
         // Delete all expired effects
         this.visualEffects.deleteWithCondition((visualEffect) => { return visualEffect.isExpired(); });
@@ -306,15 +306,8 @@ class Explosion extends TemporaryVisualEffect {
             // Sometimes circles with opacity <= 0 will be found these should be ignored
             if (opacity > 0){
                 colour.setAlpha(opacity);
-                noStrokeCircle(colour, screenX, screenY, diameter);
+                noStrokeCircle(colour, screenX, screenY, diameter*gameZoom);
             }
-        }
-
-        // Display Falling Building if still around
-        if (timePassedMS < this.buildingLifeSpan){
-            let buildingYLeft = (1 - timePassedMS / this.buildingLifeSpan) * this.buildingYSize;
-            let topY = buildingYLeft;
-            strokeRectangle(this.buildingColour, this.buildingX, topY, this.buildingXSize, buildingYLeft);
         }
     }
 }
@@ -446,7 +439,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
             // Sometimes circles with opacity <= 0 will be found these should be ignored
             if (opacity > 0){
                 colour.setAlpha(opacity);
-                noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]);
+                noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]*gameZoom);
             }
         }
 
@@ -456,7 +449,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
             let topY = buildingYLeft;
             let screenX = scene.getDisplayX(this.buildingX, 0, lX, false);
             let screenY = scene.getDisplayY(topY, 0, bY, false);
-            noStrokeRectangle(this.buildingColour, screenX, screenY, this.buildingXSize, buildingYLeft);
+            noStrokeRectangle(this.buildingColour, screenX, screenY, this.buildingXSize * gameZoom, buildingYLeft*gameZoom);
         }
     }
 
@@ -546,7 +539,7 @@ class PlaneSmoke extends TemporaryVisualEffect {
             colour.setAlpha(opacity);
             let screenX = scene.getDisplayX(circleJSON["x"], 0, lX, false);
             let screenY = scene.getDisplayY(circleJSON["y"], 0, bY, false);
-            noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]);
+            noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]*gameZoom);
         }
     }
 }

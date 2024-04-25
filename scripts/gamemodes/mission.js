@@ -349,7 +349,7 @@ class Mission extends Gamemode {
         // Add users
         for (let user of userList){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
-            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, 0, true, false) : new HumanBomberPlane(userEntityModel, this, 0, true, false);
+            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, false) : new HumanBomberPlane(userEntityModel, this, 0, false);
             userPlane.setID(user["id"]);
             planes.push(userPlane);
             this.teamCombatManager.addPlane(userPlane);
