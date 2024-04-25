@@ -368,6 +368,7 @@ const PROGRAM_DATA = {
         }
     },
     "settings": {
+        "plane_image_size_constant": 2, // This is because I use 256 size images for fighter planes and scale down by 2 on 1x zoom also bomber
         "shoot_distance_constant": 5,
         "close_to_ground_constant": 3,
         "close_constant": 3,

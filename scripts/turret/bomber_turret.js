@@ -290,13 +290,21 @@ class BomberTurret extends Turret {
         if (currentShootingAngle == newShootingAngle){ return; }
         let diffCW = calculateAngleDiffCWRAD(currentShootingAngle, newShootingAngle); 
         let diffCCW = calculateAngleDiffCCWRAD(currentShootingAngle, newShootingAngle);
-        let rotateCW = (diffCW < diffCCW && this.isFacingRight()) || (diffCW > diffCCW && !this.isFacingRight())
-        //console.log("currently: %d\nnew: %d\ndiffCW: %d\ndiffCCW: %d\nrotateCW:", toDegrees(currentShootingAngle), toDegrees(newShootingAngle), toDegrees(diffCW), toDegrees(diffCCW), rotateCW)
+        let rotateCW = diffCW < diffCCW;
+        //console.log("currently: %d\nnew: %d\ndiffCW: %d\ndiffCCW: %d\nnewAngle if rotatecw: %d\nnewAngle if rotateccw: %d\nrotateCW:", toDegrees(currentShootingAngle), toDegrees(newShootingAngle), toDegrees(diffCW), toDegrees(diffCCW), toDegrees(rotateCWRAD(this.angle, diffCW)), toDegrees(rotateCCWRAD(this.angle, diffCCW)), rotateCW);
         // Rotate based on determination
         if (rotateCW){
-            this.angle = rotateCWRAD(this.angle, diffCW);
+            if (this.isFacingRight()){
+                this.angle = rotateCWRAD(this.angle, diffCW);
+            }else{
+                this.angle = rotateCCWRAD(this.angle, diffCW);
+            }
         }else{
-            this.angle = rotateCCWRAD(this.angle, diffCCW);
+            if (this.isFacingRight()){
+                this.angle = rotateCCWRAD(this.angle, diffCCW);
+            }else{
+                this.angle = rotateCWRAD(this.angle, diffCCW);
+            }
         }
     }
 

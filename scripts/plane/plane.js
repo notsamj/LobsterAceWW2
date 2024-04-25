@@ -532,7 +532,7 @@ class Plane extends Entity {
         Method Return: int
     */
     getWidth(){
-        return this.getCurrentImage().width;
+        return this.getCurrentImage().width / PROGRAM_DATA["settings"]["plane_image_size_constant"];
     }
 
     /*
@@ -542,7 +542,7 @@ class Plane extends Entity {
         Method Return: int
     */
     getHeight(){
-        return this.getCurrentImage().height;
+        return this.getCurrentImage().height / PROGRAM_DATA["settings"]["plane_image_size_constant"];
     }
 
     /*
@@ -828,6 +828,7 @@ class Plane extends Entity {
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
+        let planeConstant = PROGRAM_DATA["settings"]["plane_image_size_constant"];
         // Determine the location it will be displayed at
         let displayX = this.gamemode.getScene().getDisplayX(this.interpolatedX, this.getWidth()*gameZoom, lX);
         let displayY = this.gamemode.getScene().getDisplayY(this.interpolatedY, this.getHeight()*gameZoom, bY);
@@ -851,13 +852,12 @@ class Plane extends Entity {
             scale(-1, 1);
         }
 
-        let planeConstant = 2; // This is just going to be here because dependent on what image sizes I use I don't really think its needed in the data_JSON
 
         // Game zoom
         scale(gameZoom * 1 / planeConstant, gameZoom * 1 / planeConstant);
 
         // Display plane
-        displayImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
+        displayImage(this.getImage(), 0 - this.getWidth() / 2 * planeConstant, 0 - this.getHeight() / 2 * planeConstant); 
 
         // Undo game zoom
 

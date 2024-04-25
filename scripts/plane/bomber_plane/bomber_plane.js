@@ -135,6 +135,11 @@ class BomberPlane extends Plane {
         let tY = bY + getZoomedScreenHeight() - 1;
 
         this.calculateInterpolatedCoordinates(displayTime);
+        let temp = this.touchesRegion(lX, rX, bY, tY);
+        console.log("On screen?", temp)
+        if (!temp){
+            debugger;
+        }
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 

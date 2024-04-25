@@ -92,9 +92,17 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         let rotateCW = (diffCW < diffCCW && this.isFacingRight()) || (diffCW > diffCCW && !this.isFacingRight())
         // Rotate based on determination
         if (rotateCW){
-            this.angle = rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW));
+            if (this.isFacingRight()){
+                this.angle = rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW));
+            }else{
+                this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW));
+            }
         }else{
-            this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
+            if (this.isFacingRight()){
+                this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
+            }else{
+                this.angle = rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
+            }
         }
         //console.log("I want to aim at: %d\nI am now aiming at: %d\nI will now aim at: %d", toDegrees(newShootingAngle), toDegrees(currentShootingAngle), toDegrees(this.getShootingAngle()));
     }
