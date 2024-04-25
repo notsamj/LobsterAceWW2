@@ -275,8 +275,8 @@ class CloudCluster {
         let numClouds = random.getIntInRangeInclusive(minClouds, maxClouds);
         // Create as many clouds as chosen
         for (let i = 0; i < numClouds; i++){
-            let newCloudX = random.getIntInRangeExclusive(leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2, leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"] - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2);
-            let newCloudY = random.getIntInRangeExclusive(bottomY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2, bottomY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"] - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2);
+            let newCloudX = random.getIntInRangeExclusive(leftX, leftX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
+            let newCloudY = random.getIntInRangeExclusive(bottomY, bottomY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
             // Skip clouds under min height
             if (newCloudY < PROGRAM_DATA["sky_generation"]["cloud_generation"]["min_height"]){ continue; }
             this.clouds.push(Cloud.create(newCloudX, newCloudY, random, scene))
