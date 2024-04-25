@@ -332,7 +332,7 @@ class SpectatorCamera extends Entity {
         this.xLock.lock();
 
         // Else 1 key down and ready to move
-        this.xVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"];
+        this.xVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"] * getScreenWidth() / PROGRAM_DATA["settings"]["expected_canvas_width"] / gameZoom;
         this.xVelocity *= leftKey ? -1 : 1;
     }
 
@@ -355,7 +355,7 @@ class SpectatorCamera extends Entity {
         this.yLock.lock();
 
         // Else 1 key down and ready to move
-        this.yVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"];
+        this.yVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"] * getScreenHeight() / PROGRAM_DATA["settings"]["expected_canvas_height"] / gameZoom;
         this.yVelocity *= downKey ? -1 : 1; 
     }
 
@@ -401,8 +401,8 @@ class SpectatorCamera extends Entity {
             this.interpolatedX = this.followingEntity.getInterpolatedX();
             this.interpolatedY = this.followingEntity.getInterpolatedY();
         }else{
-            this.interpolatedX = this.x + this.xVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000 * 1 / gameZoom;
-            this.interpolatedY = this.y + this.yVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000 * 1 / gameZoom;
+            this.interpolatedX = this.x + this.xVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
+            this.interpolatedY = this.y + this.yVelocity * (currentTime - GAMEMODE_MANAGER.getActiveGamemode().getLastTickTime()) / 1000;
         }
         this.lastInterpolatedFrame = currentFrameIndex;
     }
@@ -428,8 +428,8 @@ class SpectatorCamera extends Entity {
             return;
         }
         // else
-        this.x += this.xVelocity / PROGRAM_DATA["settings"]["tick_rate"] * 1 / gameZoom;
-        this.y += this.yVelocity / PROGRAM_DATA["settings"]["tick_rate"] * 1 / gameZoom;
+        this.x += this.xVelocity / PROGRAM_DATA["settings"]["tick_rate"];
+        this.y += this.yVelocity / PROGRAM_DATA["settings"]["tick_rate"];
         this.checkMoveX();
         this.checkMoveY();
     }
