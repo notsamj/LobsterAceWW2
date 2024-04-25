@@ -49,6 +49,34 @@ class HumanBomberTurret extends BomberTurret {
         this.resetDecisions();
         this.checkShoot();
     }
+
+    /*
+        Method Name: getX
+        Method Parameters: None
+        Method Description: Calculates the location of the turret on the x axis. Takes into account the angle of the attached plane and its offset.
+        Method Return: float
+    */
+    getTurretScreenX(){
+        let planeAngleRAD = this.plane.getNoseAngle();
+        if (!this.isFacingRight()){
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
+        }
+        return Math.cos(planeAngleRAD) * this.getXOffset() * gameZoom - Math.sin(planeAngleRAD) * this.getYOffset() * gameZoom + getScreenWidth() / 2;
+    }
+
+    /*
+        Method Name: getX
+        Method Parameters: None
+        Method Description: Calculates the location of the turret on the x axis. Takes into account the angle of the attached plane and its offset.
+        Method Return: float
+    */
+    getTurretScreenY(){
+        let planeAngleRAD = this.plane.getNoseAngle();
+        if (!this.isFacingRight()){
+            planeAngleRAD = fixRadians(planeAngleRAD - toRadians(180))
+        }
+        return Math.sin(planeAngleRAD) * this.getXOffset() * gameZoom + Math.cos(planeAngleRAD) * this.getYOffset() * gameZoom + getScreenHeight() / 2;
+    }
     
     /*
         Method Name: getMouseAngle
@@ -57,11 +85,11 @@ class HumanBomberTurret extends BomberTurret {
         Method Return: int
     */
     getMouseAngle(){
-        let x = mouseX - getScreenWidth() / 2;
-        let y = this.getGamemode().getScene().changeFromScreenY(mouseY) - getScreenHeight() / 2;
-        let x0 = 0;
-        let y0 = 0;
-        return displacementToRadians(x - x0, y - y0);
+        let mouseScreenX = mouseX;
+        let mouseScreenY = this.getGamemode().getScene().changeFromScreenY(mouseY);
+        let turretScreenX = this.getTurretScreenX();
+        let turretScreenY = this.getTurretScreenY();
+        return displacementToRadians(mouseScreenX - turretScreenX, mouseScreenY - turretScreenY);
     }
 
     /*

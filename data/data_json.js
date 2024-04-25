@@ -239,8 +239,8 @@ const PROGRAM_DATA = {
                 { // Top gun front
                     "x_offset": 205-128,
                     "y_offset": 128-116,
-                    "fov_1": 70,
-                    "fov_2": 10,
+                    "fov_1": 70, // 70
+                    "fov_2": 10, // 10
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
@@ -249,8 +249,8 @@ const PROGRAM_DATA = {
                 { // Top gun front facing back
                     "x_offset": 179-128,
                     "y_offset": 128-115,
-                    "fov_1": 170,
-                    "fov_2": 70,
+                    "fov_1": 170, // 170
+                    "fov_2": 100, // 100
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
@@ -259,8 +259,8 @@ const PROGRAM_DATA = {
                 { // Bottom gun front
                     "x_offset": 230-128,
                     "y_offset": 128-140,
-                    "fov_1": 350,
-                    "fov_2": 300,
+                    "fov_1": 350, // 350
+                    "fov_2": 290, // 290
                     "bullet_heat_capacity": 16,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 300,
@@ -288,8 +288,8 @@ const PROGRAM_DATA = {
                 { // Top gun back
                     "x_offset": 91-128,
                     "y_offset": 128-41,
-                    "fov_1": 70,
-                    "fov_2": 10,
+                    "fov_1": 170,
+                    "fov_2": 20,
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
@@ -298,8 +298,8 @@ const PROGRAM_DATA = {
                 { // Front bottom
                     "x_offset": 240-128,
                     "y_offset": 128-106,
-                    "fov_1": 170,
-                    "fov_2": 70,
+                    "fov_1": 355,
+                    "fov_2": 280,
                     "bullet_heat_capacity": 16,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 300,
@@ -308,8 +308,8 @@ const PROGRAM_DATA = {
                 { // Back bottom
                     "x_offset": 83-128,
                     "y_offset": 128-103,
-                    "fov_1": 350,
-                    "fov_2": 300,
+                    "fov_1": 260,
+                    "fov_2": 170,
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
@@ -347,7 +347,7 @@ const PROGRAM_DATA = {
         "blip_size": 5,
         "border_width": 2,
         "distance_multiplier_a": 250,
-        "b": [1.3,1.35,1.4,1.15,1.2,1.25],
+        "b": [1.15,1.2,1.25, 1.3,1.35,1.4],
         "fighter_weight": 1,
         "bomber_weight": 4,
         "building_weight": 10,
@@ -437,15 +437,15 @@ const PROGRAM_DATA = {
             "path": ["sky_generation", "cloud_generation", "min_clouds_per_cluster"],
             "type": "quantity_slider",
             "min_value": 0,
-            "max_value": 40,
+            "max_value": 80,
             "uses_float": false
         },
         {
             "name": "max_clouds_per_cluster",
             "path": ["sky_generation", "cloud_generation", "max_clouds_per_cluster"],
             "type": "quantity_slider",
-            "min_value": 40,
-            "max_value": 250,
+            "min_value": 80,
+            "max_value": 200,
             "uses_float": false
         },
         {
@@ -1465,8 +1465,8 @@ const PROGRAM_DATA = {
             "max_radius": 80*4,
             "min_circles_per_cloud": 3,
             "max_circles_per_cloud": 7,
-            "min_clouds_per_cluster": 40,
-            "max_clouds_per_cluster": 70,
+            "min_clouds_per_cluster": 80,
+            "max_clouds_per_cluster": 100,
         }
     },
 

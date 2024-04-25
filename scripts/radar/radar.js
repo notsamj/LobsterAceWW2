@@ -269,8 +269,14 @@ class Radar {
         Method Return: void
     */
     checkForSizeChange(){
-        // If not pressing key ignore
-        if (!USER_INPUT_MANAGER.isActivated("radar_zoom_scroll")){
+        let zoomIn = USER_INPUT_MANAGER.isActivated("radar_zoom_in");
+        let zoomOut = USER_INPUT_MANAGER.isActivated("radar_zoom_out");
+        let keysDown = 0;
+        keysDown += zoomIn ? 1 : 0;
+        keysDown += zoomOut ? 1 : 0;
+
+        // If not pressing 1 key reset
+        if (keysDown != 1){
             // Unlock the change lock
             if (this.radarZoomChangeLock.isLocked()){
                 this.radarZoomChangeLock.unlock();
@@ -282,7 +288,11 @@ class Radar {
         // if the lock is still locked ignore
         if (this.radarZoomChangeLock.isLocked()){ return; }
         this.radarZoomChangeLock.lock();
-        this.bIndex = (this.bIndex + 1) % PROGRAM_DATA["radar"]["b"].length;
+        if (zoomIn){
+            this.bIndex = Math.max(this.bIndex - 1, 0);
+        }else if (zoomOut){
+            this.bIndex = Math.min(this.bIndex + 1, PROGRAM_DATA["radar"]["b"].length - 1);
+        }
         this.b = PROGRAM_DATA["radar"]["b"][this.bIndex];
     }
 

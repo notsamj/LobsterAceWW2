@@ -91,7 +91,6 @@ class BotBomberTurret extends BomberTurret {
             hasDecidedToFireShot = this.isEnemyClose(distanceToEnemy);
             if (hasDecidedToFireShot){ break; }
         }
-
         // If the decision has been made to shoot then record it
         if (hasDecidedToFireShot){
             // Check gun heat

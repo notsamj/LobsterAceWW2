@@ -67,8 +67,11 @@ USER_INPUT_MANAGER.register("spectator_spectate_down", "keyup", (event) => { ret
 USER_INPUT_MANAGER.register("spectator_spectate_down", "keydown", (event) => { return event.keyCode == 40; }, true);
 USER_INPUT_MANAGER.register("spectator_spectate_down", "keyup", (event) => { return event.keyCode == 40; }, false);
 
-USER_INPUT_MANAGER.register("radar_zoom_scroll", "keydown", (event) => { return event.keyCode == 79; }, true);
-USER_INPUT_MANAGER.register("radar_zoom_scroll", "keyup", (event) => { return event.keyCode == 79; }, false);
+USER_INPUT_MANAGER.register("radar_zoom_in", "keydown", (event) => { return event.keyCode == 61; }, true);
+USER_INPUT_MANAGER.register("radar_zoom_in", "keyup", (event) => { return event.keyCode == 61; }, false);
+
+USER_INPUT_MANAGER.register("radar_zoom_out", "keydown", (event) => { return event.keyCode == 173; }, true);
+USER_INPUT_MANAGER.register("radar_zoom_out", "keyup", (event) => { return event.keyCode == 173; }, false);
 
 USER_INPUT_MANAGER.register("1/8zoomhold", "keydown", (event) => { return event.keyCode == 49; }, true);
 USER_INPUT_MANAGER.register("1/8zoomhold", "keyup", (event) => { return event.keyCode == 49; }, false);
