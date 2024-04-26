@@ -93,7 +93,12 @@ class Bomb extends SimpleProjectile {
             "x": this.getX(),
             "y": this.getY()
         });
+        //console.log("Died @", this.getX()) // TODO: Remove
         super.die();
+        // TODO: Remove
+        if (!this.isDead()){
+            console.log("Brokenenenenenene")
+        }
     }
 
     /*

@@ -85,7 +85,7 @@ class Mission extends Gamemode {
         this.refreshLastTickTime();
         this.attackerSpawnLock.tick();
         this.defenderSpawnLock.tick();
-        await this.teamCombatManager.tick();
+        this.teamCombatManager.tick();
         this.checkSpawn();
         this.checkForEnd();
         this.numTicks++;
@@ -310,14 +310,14 @@ class Mission extends Gamemode {
     
     setupPlanes(planes){
         // Planes need to be placed at this point
-        for (let entity of planes){
+        for (let plane of planes){
             // If not a plane, but a specator camera then spawn in between spawns
-            let plane = entity;
             let alliance = planeModelToAlliance(plane.getModel());
             let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
             let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
             let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
             let facingRight = side == "attackers" ? true : false;
+            plane.setThrottle(plane.getStartingThrottle());
             plane.setAngle(0);
             plane.setAlive(true); // This is good for setting up previously dead planes
             // plane.increaseModCount(); // This is good so that clients will take the new position immediately
@@ -325,10 +325,14 @@ class Mission extends Gamemode {
             plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
             plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
             plane.setHealth(plane.getStartingHealth());
+            plane.setSpeed(plane.getMaxSpeed());
             // Give bomber extra hp
             if (plane instanceof BomberPlane){
                 plane.setStartingHealth(plane.getHealth() * this.missionObject[this.getAttackerDifficulty()]["bomber_hp_multiplier"]);
                 plane.setHealth(plane.getStartingHealth());
+            }else{ // Fighter
+                plane.getGunHeatManager().reset();
+                plane.getShootLock().setTicksLeft(0);
             }
         }
     }

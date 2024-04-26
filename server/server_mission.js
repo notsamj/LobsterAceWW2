@@ -1,8 +1,5 @@
-const SoundManager = require("../scripts/general/sound_manager.js");
 const TickScheduler = require("../scripts/misc/tick_scheduler.js");
 const Lock = require("../scripts/general/lock.js");
-const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
-const helperFunctions = require("../scripts/general/helper_functions.js");
 const Mission = require("../scripts/gamemodes/mission.js");
 const PROGRAM_DATA = require("../data/data_json.js");
 const AsyncUpdateManager = require("../scripts/general/async_update_manager.js");
@@ -66,16 +63,6 @@ class ServerMisson extends Mission {
     }
 
     /*
-        Method Name: isRunning
-        Method Parameters: None
-        Method Description: Determines if the game is running
-        Method Return: Boolean, true -> running, false -> not running
-    */
-    isRunning(){
-        return this.running && !this.isGameOver();
-    }
-
-    /*
         Method Name: end
         Method Parameters: None
         Method Description: Ends a game
@@ -101,7 +88,7 @@ class ServerMisson extends Mission {
         this.attackerSpawnLock.tick();
 
         // Tick the scene
-        await this.teamCombatManager.tick();
+        this.teamCombatManager.tick();
         this.checkForEnd();
         this.checkSpawn();
         this.numTicks++;
@@ -120,16 +107,6 @@ class ServerMisson extends Mission {
     */
     getLastState(){
         return this.lastState;
-    }
-
-    /*
-        Method Name: isGameOver
-        Method Parameters: None
-        Method Description: Checks if the game is over
-        Method Return: boolean, true -> the game is over, false -> the game is not over
-    */
-    isGameOver(){
-        return this.gameOver;
     }
 
     /*

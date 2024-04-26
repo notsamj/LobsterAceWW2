@@ -26,7 +26,7 @@ class HumanBomberPlane extends BomberPlane {
     constructor(planeClass, gamemode, autonomous=true){
         super(planeClass, gamemode, autonomous);
         this.lrLock = new Lock();
-        this.radar = new PlaneRadar(this, 1000 / PROGRAM_DATA["settings"]["ms_between_ticks"], autonomous);
+        this.radar = new BomberPlaneRadar(this, 1000 / PROGRAM_DATA["settings"]["ms_between_ticks"], autonomous);
         this.bombLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.generateGuns();
     }

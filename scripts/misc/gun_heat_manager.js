@@ -24,6 +24,19 @@ class GunHeatManager {
     }
 
     /*
+        Method Name: reset
+        Method Parameters: None
+        Method Description: Resets the gunheat manager
+        Method Return: void
+    */
+    reset(){
+        this.activelyShooting = false;
+        this.emergencyCooling = false;
+        this.heat = 0;
+        this.coolingDelayTicks = 0;
+    }
+
+    /*
         Method Name: getThreshold
         Method Parameters: None
         Method Description: Determines which threshold is met by the current heat
@@ -185,4 +198,8 @@ class GunHeatManager {
         // Display Heat
         noStrokeRectangle(heatBarColour, heatBarBorderThickness, screenHeight - heatBarHeight - heatBarBorderThickness - (heatBarHeight+heatBarBorderThickness*2-1) * offset, heatBarWidth*interpolatedHeatPercentage, heatBarHeight);
     }
+}
+// If using NodeJS then export
+if (typeof window === "undefined"){
+    module.exports = GunHeatManager;
 }

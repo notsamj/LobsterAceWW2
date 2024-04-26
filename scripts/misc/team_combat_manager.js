@@ -232,6 +232,7 @@ class TeamCombatManager {
     */
     addBomb(bomb){
         let bombArray = this.bombs;
+        // Replace a dead bomb
         for (let [exisitingBomb, index] of bombArray){
             if (exisitingBomb.isDead()){
                 bomb.setID("b" + "_" + index);
@@ -287,22 +288,21 @@ class TeamCombatManager {
         Method Description: Makes things happen within a tick
         Method Return: void
     */
-    async tick(){
+    tick(){
         for (let team of this.teams){
-            
             for (let [plane, pIndex] of this.planes[team]){
                 if (plane.isDead()){ continue; }
-                await plane.tick();
+                plane.tick();
             }
 
             for (let [bullet, bIndex] of this.bullets[team]){
                 if (bullet.isDead()){ continue; }
-                await bullet.tick();
+                bullet.tick();
             }
         }
         for (let [bomb, bombIndex] of this.bombs){
             if (bomb.isDead()){ continue; }
-            await bomb.tick();
+            bomb.tick();
         }
         this.checkCollisions();
     }

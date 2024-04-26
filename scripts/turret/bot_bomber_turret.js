@@ -2,6 +2,7 @@
 if (typeof window === "undefined"){
     BomberTurret = require("./bomber_turret.js");
     helperFunctions = require("../general/helper_functions.js");
+    angleBetweenCWRAD = helperFunctions.angleBetweenCWRAD;
     displacementToDegrees = helperFunctions.displacementToDegrees;
 }
 /*

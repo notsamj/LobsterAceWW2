@@ -1018,11 +1018,13 @@ if (typeof window === "undefined"){
         copyArray,
         getImage,
         toFixedRadians,
-        calculatedAngleDiffRAD,
+        calculateAngleDiffRAD,
         rotateCWRAD,
         rotateCCWRAD,
         angleBetweenCWRAD,
         angleBetweenCCWRAD,
-        calculateAngleDiffCCWRAD
+        calculateAngleDiffCCWRAD,
+        calculateAngleDiffCWRAD,
+        isClose
     }
 }

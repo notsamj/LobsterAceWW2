@@ -35,12 +35,14 @@ class Radar {
         this.fighterWeight = PROGRAM_DATA["radar"]["fighter_weight"];
         this.bomberWeight = PROGRAM_DATA["radar"]["bomber_weight"];
         this.buildingWeight = PROGRAM_DATA["radar"]["building_weight"];
+        this.bombHitLocationWeight = PROGRAM_DATA["radar"]["bomb_hit_location_weight"];
 
         this.friendlyFighterColour = PROGRAM_DATA["radar"]["friendly_fighter_colour"];
         this.enemyFighterColour = PROGRAM_DATA["radar"]["enemy_fighter_colour"];
         this.friendlyBomberColour = PROGRAM_DATA["radar"]["friendly_bomber_colour"];
         this.enemyBomberColour = PROGRAM_DATA["radar"]["enemy_bomber_colour"];
         this.buildingColour = PROGRAM_DATA["radar"]["building_colour"];
+        this.bombHitLocationColour = PROGRAM_DATA["radar"]["bomb_hit_location_colour"];
 
         this.enabled = enabled;
         this.tickLock = new TickLock(tickLockLength);

@@ -65,6 +65,8 @@ class VisualEffectManager {
         Method Return: void
     */
     addPlaneSmoke(id, smokeStage, planeClass, sizeMultiplier, x, y, planeAngleRAD, planeFacingRight){
+        // TODO: Come up with something better for this
+        if (typeof window === "undefined"){ return; }
         // Create lock if doesn't exist
         if (!objectHasKey(this.planeSmokeLocks, id)){
             this.planeSmokeLocks[id] = new CooldownLock(PROGRAM_DATA["plane_smoke"]["plane_smoke_interval_ms"]);
@@ -97,6 +99,8 @@ class VisualEffectManager {
         Method Return: void
     */
     addBuildingCollapse(buildingX, buildingXSize, buildingYSize){
+        // TODO: Come up with something better for this
+        if (typeof window === "undefined"){ return; }
         this.visualEffects.push(new BuildingCollapse(buildingX, buildingXSize, buildingYSize));
     }
 
@@ -115,6 +119,8 @@ class VisualEffectManager {
         Note: 64 for fighter, 128 for bomber, 8 for bomb?
     */
     addExplosion(size, x, y){
+        // TODO: Come up with something better for this
+        if (typeof window === "undefined"){ return; }
         this.visualEffects.push(new Explosion(size, x, y));
     }
 }
@@ -449,7 +455,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
             let topY = buildingYLeft;
             let screenX = scene.getDisplayX(this.buildingX, 0, lX, false);
             let screenY = scene.getDisplayY(topY, 0, bY, false);
-            noStrokeRectangle(this.buildingColour, screenX, screenY, this.buildingXSize * gameZoom, buildingYLeft*gameZoom);
+            strokeRectangle(this.buildingColour, screenX, screenY, this.buildingXSize * gameZoom, buildingYLeft*gameZoom);
         }
     }
 
@@ -542,4 +548,8 @@ class PlaneSmoke extends TemporaryVisualEffect {
             noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]*gameZoom);
         }
     }
+}
+// If using NodeJS then export
+if (typeof window === "undefined"){
+    module.exports = VisualEffectManager;
 }

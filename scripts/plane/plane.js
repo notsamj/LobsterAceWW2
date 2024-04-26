@@ -11,6 +11,7 @@ if (typeof window === "undefined"){
     angleBetweenCCWRAD = helperFunctions.angleBetweenCCWRAD;
     safeDivide = helperFunctions.safeDivide;
     calculateAngleDiffRAD = helperFunctions.calculateAngleDiffRAD;
+    isClose = helperFunctions.isClose;
 }
 /*
     Class Name: Plane
@@ -54,6 +55,16 @@ class Plane extends Entity {
             "shoot": false, // true -> shoot, false -> don't shoot
             "last_movement_mod_tick": -1, // Used to determine if its worth updating the planes position when provided with a JSON representation 
         }
+    }
+
+    /*
+        Method Name: getStartingThrottle
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
+    getStartingThrottle(){
+        return this.startingThrottle;
     }
 
     /*
@@ -532,6 +543,8 @@ class Plane extends Entity {
         Method Return: int
     */
     getWidth(){
+        // If using NodeJS -> Just use 2x hitbox radius
+        if (typeof window === "undefined"){ return this.hitBox.getRadius()*2; }
         return this.getCurrentImage().width / PROGRAM_DATA["settings"]["plane_image_size_constant"];
     }
 
@@ -542,6 +555,8 @@ class Plane extends Entity {
         Method Return: int
     */
     getHeight(){
+        // If using NodeJS -> Just use 2x hitbox radius
+        if (typeof window === "undefined"){ return this.hitBox.getRadius()*2; }
         return this.getCurrentImage().height / PROGRAM_DATA["settings"]["plane_image_size_constant"];
     }
 

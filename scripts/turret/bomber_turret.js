@@ -108,7 +108,7 @@ class BomberTurret extends Turret {
         let shootingAngleRAD = this.getShootingAngle();
         // If not within the area then don't shoot
         if (!angleBetweenCWRAD(shootingAngleRAD, this.getFov1(), this.getFov2())){
-            console.log("bad", toDegrees(shootingAngleRAD), toDegrees(this.getFov1()), toDegrees(this.getFov2()))
+            // console.log("bad", toDegrees(shootingAngleRAD), toDegrees(this.getFov1()), toDegrees(this.getFov2()))
             return;
         }
         this.shootCD.lock();

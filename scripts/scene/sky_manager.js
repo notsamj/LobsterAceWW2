@@ -145,10 +145,17 @@ class SkyManager {
     displayClouds(lX, bY){
         let rX = lX + getZoomedScreenWidth() - 1;
         let tY = bY + getZoomedScreenHeight() - 1;
-        let leftClusterX = Math.floor(lX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
-        let rightClusterX = Math.floor(rX / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
-        let bottomClusterY = Math.floor(bY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
-        let topClusterY = Math.floor(tY / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
+
+        // Adjusted because of clouds sticking outside their zones
+        let lXAdjusted = lX - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
+        let rXAdjusted = rX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
+        let bYAdjusted = bY - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
+        let tYAdjusted = tY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
+
+        let leftClusterX = Math.floor(lXAdjusted / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
+        let rightClusterX = Math.floor(rXAdjusted / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
+        let bottomClusterY = Math.floor(bYAdjusted / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
+        let topClusterY = Math.floor(tYAdjusted / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"]);
 
         // Loop though all clusters and display
         for (let clusterX = leftClusterX; clusterX <= rightClusterX; clusterX++){
@@ -204,7 +211,7 @@ class SkyManager {
             let cluster = this.cloudClusters.get(i);
             let distance = Math.sqrt(Math.pow(cluster.getQuadrantX() * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"] - cX, 2) + Math.pow(cluster.getQuadrantY() * PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"] - cY, 2));
             // Delete clusters more than 2 times max(width, height) away from the center of the screen
-            if (distance > 2 * Math.max(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"])){
+            if (distance > PROGRAM_DATA["sky_generation"]["far_away_multiplier"] * Math.max(PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"], PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_height"])){
                 this.cloudClusters.remove(i);
             }
         }
