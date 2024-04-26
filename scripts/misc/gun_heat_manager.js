@@ -105,10 +105,10 @@ class GunHeatManager {
     }
 
     /*
-        Method Name: TODO
+        Method Name: isCooling
         Method Parameters: None
-        Method Description: TODO
-        Method Return: TODO
+        Method Description: Checks if the gun heat manager is performing emergency cooling
+        Method Return: Boolean
     */
     isCooling(){
         return this.emergencyCooling;

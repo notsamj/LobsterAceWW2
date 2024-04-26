@@ -365,19 +365,7 @@ class HostMenu extends Menu {
         this.components.push(this.axisPlus5Button);
 
         // Bot Details Section
-        let botHeaderX = (innerWidth) => { return 1200; }
-        let botHeaderY = (innerHeight) => { return innerHeight-27; }
-        let botHeaderXSize = 700;
-        let botHeaderYSize = 150;
-        this.botHeader = new TextComponent("Bot Details", "#000000", botHeaderX, axisHeaderY, botHeaderXSize, botHeaderYSize);
-        this.components.push(this.botHeader);
-
-        let botBodyX = (innerWidth) => { return botHeaderX(innerWidth); }
-        let botBodyY = (innerHeight) => { return botHeaderY(innerHeight) - botHeaderYSize; }
-        let botBodyXSize = botHeaderXSize;
-        let botBodyYSize = PROGRAM_DATA["settings"]["expected_canvas_height"] - botHeaderYSize - startButtonYSize;
-        this.botDetailsComponent = new TextComponent("", "#000000", botBodyX, botBodyY, botBodyXSize, botBodyYSize); 
-        this.components.push(this.botDetailsComponent);
+        this.botDetailsComponent = new BotDetails(this, axisHeaderY);
             
         // Switch Buttons
         let switchButtonX = 150;
@@ -609,36 +597,7 @@ class HostMenu extends Menu {
         Method Return: void
     */
     updateBotDetails(){
-        let botDetailsText = "";
-        let alliedDetails = [];
-        let axisDetails = [];
-        let alliedCount = 0;
-        let axisCount = 0;
-
-        // Loop through all plane counts and determine total count per alliance
-        for (let [planeName, planeCount] of Object.entries(this.planeCounts)){
-            let alliance = planeModelToAlliance(planeName);
-            if (alliance == "Allies"){
-                alliedDetails.push([planeName, planeCount]);
-                alliedCount += planeCount;
-            }else{
-                axisDetails.push([planeName, planeCount]);
-                axisCount += planeCount;
-            }
-        }
-
-        // Add ally details
-        botDetailsText += "Allies" + ": " + alliedCount.toString() + "\n";
-        for (let [planeName, planeCount] of alliedDetails){
-            botDetailsText += planeName + ": " + planeCount.toString() + "\n";
-        }
-
-        // Add axis details
-        botDetailsText += "Axis" + ": " + axisCount.toString() + "\n";
-        for (let [planeName, planeCount] of axisDetails){
-            botDetailsText += planeName + ": " + planeCount.toString() + "\n";
-        }
-        this.botDetailsComponent.setText(botDetailsText);
+        this.botDetailsComponent.update(this.planeCounts);
     }
 
     /*
