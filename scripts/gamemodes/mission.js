@@ -36,7 +36,7 @@ class Mission extends Gamemode {
         this.allyDifficulty = missionSetupJSON["ally_difficulty"];
         this.axisDifficulty = missionSetupJSON["axis_difficulty"];
 		this.buildings = this.createBuildings();
-		this.planes = this.createPlanes(missionSetupJSON["users"]);
+		this.planes = this.createPlanes(missionSetupJSON);
         this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
         this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
 		this.teamCombatManager.setEntities(appendLists(this.planes, this.buildings));
@@ -340,12 +340,13 @@ class Mission extends Gamemode {
     /*
         Method Name: createPlanes
         Method Parameters:
-            userList:
-                List of users and their planes
+            missionSetupJSON:
+                Information about this specific instance of the mission
         Method Description: Creates all the planes at the start of the game
         Method Return: List of planes
     */
-    createPlanes(userList){
+    createPlanes(missionSetupJSON){
+        let userList = missionSetupJSON["users"];
     	let planes = [];
         // Save plane counts
     	this.planeCounts = mergeCopyObjects(this.missionObject[this.getAttackerDifficulty()]["attacker_plane_counts"], this.missionObject[this.getDefenderDifficulty()]["defender_plane_counts"]);
@@ -354,6 +355,15 @@ class Mission extends Gamemode {
         for (let user of userList){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
             let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, false) : new HumanBomberPlane(userEntityModel, this, 0, false);
+            
+            // Apply Human Buffs
+            
+            // Health
+            userPlane.applyHealthMultiplier(missionSetupJSON["human_health_multiplier"]);
+            // Damage
+            userPlane.applyDamageMultiplier(missionSetupJSON["human_damage_multiplier"])
+
+            
             userPlane.setID(user["id"]);
             planes.push(userPlane);
             this.teamCombatManager.addPlane(userPlane);

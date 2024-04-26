@@ -31,6 +31,16 @@ class FighterPlane extends Plane {
     }
 
     /*
+        Method Name: getDamage
+        Method Parameters: None
+        Method Description: Determines how much damage a bullet from this plane causes
+        Method Return: Number
+    */
+    getDamage(){
+        return PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bullet_damage"];
+    }
+
+    /*
         Method Name: getShootLock
         Method Parameters: None
         Method Description: Getter
@@ -171,7 +181,7 @@ class FighterPlane extends Plane {
         this.gamemode.getSoundManager().play("shoot", this.getX(), this.getY());
         // If using physical bullets then do it this way
         if (this.gamemode.areBulletPhysicsEnabled()){
-            this.gamemode.getTeamCombatManager().addBullet(new Bullet(this.getGunX(), this.getGunY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass(), PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bullet_damage"]));
+            this.gamemode.getTeamCombatManager().addBullet(new Bullet(this.getGunX(), this.getGunY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass(), this.getDamage()));
         }else{ // Fake bullets
             this.instantShot(this.getGunX(), this.getGunY(), this.getNoseAngle());
         }

@@ -132,6 +132,13 @@ class LocalDogfight extends Dogfight {
         if (userIsAPlane){
             let userEntityModel = dogfightJSON["users"][0]["model"]; // Note: Expected NOT freecam
             let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, true) : new HumanBomberPlane(userEntityModel, this, true);
+            // Apply Human Buffs
+            
+            // Health
+            userPlane.applyHealthMultiplier(dogfightJSON["human_health_multiplier"]);
+            // Damage
+            userPlane.applyDamageMultiplier(dogfightJSON["human_damage_multiplier"])
+            
             userPlane.setCenterX(planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
             userPlane.setCenterY(planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY);
             userPlane.setFacingRight((planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);

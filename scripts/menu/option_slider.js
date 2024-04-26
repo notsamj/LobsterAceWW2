@@ -92,7 +92,13 @@ class OptionSlider extends Component {
         noStrokeRectangle(this.sliderColour, this.sliderX, screenYForRects, this.sliderWidth, this.height);
 
         // Text
-        Menu.makeText(this.accessValue().toString(), this.textColour, this.getX(), this.getY(), this.width, this.height);
+        let value = this.accessValue();
+        let valueString = this.accessValue().toString();
+        // Float
+        if (Math.floor(value) != value){
+            valueString = value.toFixed(2);
+        }
+        Menu.makeText(valueString, this.textColour, this.getX(), this.getY(), this.width, this.height);
     }
 
     /*

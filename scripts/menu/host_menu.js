@@ -686,6 +686,8 @@ class HostMenu extends Menu {
             "axis_difficulty": this.axisDifficulty,
             "ally_difficulty": this.allyDifficulty,
             "bullet_physics_enabled": PROGRAM_DATA["settings"]["use_physics_bullets"],
+            "human_health_multiplier": PROGRAM_DATA["settings"]["human_health_multiplier"],
+            "human_damage_multiplier": PROGRAM_DATA["settings"]["human_damage_multiplier"],
             "mission_id": this.mission["id"]
         }
         SERVER_CONNECTION.hostUpdateSettings(settings);

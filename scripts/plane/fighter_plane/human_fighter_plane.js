@@ -32,6 +32,42 @@ class HumanFighterPlane extends FighterPlane {
         super(planeClass, game, autonomous);
         this.lrLock = new Lock();
         this.radar = new PlaneRadar(this, 1000 / PROGRAM_DATA["settings"]["ms_between_ticks"], autonomous);
+        this.damageMultiplier = 1;
+    }
+
+    /*
+        Method Name: getDamage
+        Method Parameters: None
+        Method Description: Determines how much damage a bullet from this plane causes
+        Method Return: Number
+    */
+    getDamage(){
+        return super.getDamage() * this.damageMultiplier;
+    }
+
+    /*
+        Method Name: applyHealthMultiplier
+        Method Parameters:
+            multiplier:
+                A multiplier value
+        Method Description: Modifies the health of the human plane
+        Method Return: void
+    */
+    applyHealthMultiplier(multiplier){
+        this.setStartingHealth(this.getStartingHealth() * multiplier);
+        this.setHealth(this.getStartingHealth());
+    }
+
+    /*
+        Method Name: applyDamageMultiplier
+        Method Parameters:
+            multiplier:
+                A multiplier value
+        Method Description: Modifies the damage done by bullets of the human plane
+        Method Return: void
+    */
+    applyDamageMultiplier(multiplier){
+        this.damageMultiplier = multiplier;
     }
 
     /*

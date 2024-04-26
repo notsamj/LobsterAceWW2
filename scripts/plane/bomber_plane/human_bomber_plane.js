@@ -32,6 +32,33 @@ class HumanBomberPlane extends BomberPlane {
     }
 
     /*
+        Method Name: applyDamageMultiplier
+        Method Parameters:
+            multiplier:
+                A multiplier value
+        Method Description: Modifies the damage of the bullets of the human bomber plane
+        Method Return: void
+    */
+    applyDamageMultiplier(multiplier){
+        for (let gun of this.guns){
+            gun.applyDamageMultiplier(multiplier);
+        }
+    }
+
+    /*
+        Method Name: applyHealthMultiplier
+        Method Parameters:
+            multiplier:
+                A multiplier value
+        Method Description: Modifies the health of the human plane
+        Method Return: void
+    */
+    applyHealthMultiplier(multiplier){
+        this.setStartingHealth(this.getStartingHealth() * multiplier);
+        this.setHealth(this.getStartingHealth());
+    }
+
+    /*
         Method Name: setAutonomous
         Method Parameters:
             value:

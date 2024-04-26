@@ -203,6 +203,8 @@ class DogfightMenu extends Menu {
         jsonRep["plane_counts"] = this.planeCounts;
         jsonRep["ally_difficulty"] = this.allyDifficulty;
         jsonRep["axis_difficulty"] = this.axisDifficulty;
+        jsonRep["human_health_multiplier"] = PROGRAM_DATA["settings"]["human_health_multiplier"];
+        jsonRep["human_damage_multiplier"] = PROGRAM_DATA["settings"]["human_damage_multiplier"];
         return jsonRep;
     }
 

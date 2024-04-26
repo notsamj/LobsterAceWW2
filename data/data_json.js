@@ -398,6 +398,8 @@ const PROGRAM_DATA = {
         "focused_count_distance_equivalent": 1500,
         "text_box_padding_percent": 0.1,
         "use_physics_bullets": true,
+        "human_health_multiplier": 1,
+        "human_damage_multiplier": 1,
         "instant_shot_max_distance": 1200,
         "max_expected_screen_width": 3840,
         "max_expected_screen_height": 2160,
@@ -408,6 +410,7 @@ const PROGRAM_DATA = {
         "health_effect_on_throttle": 0.35,
         "game_zoom": 1
     },
+
     "constants": {
         "gravity": 9.81*9 // About 9 pixels = 1 meter
     },
@@ -455,6 +458,22 @@ const PROGRAM_DATA = {
             "path": ["settings", "game_zoom"],
             "type": "selection_slider",
             "options": [0.125, 0.25, 0.5, 1, 2]
+        },
+        {
+            "name": "human_damage_multiplier",
+            "path": ["settings", "human_damage_multiplier"],
+            "type": "quantity_slider",
+            "min_value": 0.5,
+            "max_value": 5,
+            "uses_float": true
+        },
+        {
+            "name": "human_health_multiplier",
+            "path": ["settings", "human_health_multiplier"],
+            "type": "quantity_slider",
+            "min_value": 0.5,
+            "max_value": 10,
+            "uses_float": true
         }
     ],
 

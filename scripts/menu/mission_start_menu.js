@@ -127,6 +127,8 @@ class MissionStartMenu extends Menu {
         jsonRep["ally_difficulty"] = this.allyDifficulty;
         jsonRep["axis_difficulty"] = this.axisDifficulty;
         jsonRep["use_physics_bullets"] = PROGRAM_DATA["settings"]["use_physics_bullets"];
+        jsonRep["human_health_multiplier"] = PROGRAM_DATA["settings"]["human_health_multiplier"];
+        jsonRep["human_damage_multiplier"] = PROGRAM_DATA["settings"]["human_damage_multiplier"];
         return jsonRep;
     }
 

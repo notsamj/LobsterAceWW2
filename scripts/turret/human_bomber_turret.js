@@ -39,6 +39,18 @@ class HumanBomberTurret extends BomberTurret {
     }
 
     /*
+        Method Name: applyDamageMultiplier
+        Method Parameters:
+            multiplier:
+                A multiplier value
+        Method Description: Modifies the damage dealt by the human bomber turret
+        Method Return: void
+    */
+    applyDamageMultiplier(multiplier){
+        this.damage *= multiplier;
+    }
+
+    /*
         Method Name: makeDecisions
         Method Parameters: None
         Method Description: Makes decisions for what to do in the next tick
