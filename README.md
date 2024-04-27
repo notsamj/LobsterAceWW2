@@ -4,7 +4,7 @@ https://notsamj.github.io/WW2PlaneGame/
 ## (Outdated) Demo
 [https://youtu.be/RkUOuSav_qA](https://www.youtube.com/watch?v=RkUOuSav_qA)
 
-## Photo Guides
+## Picture Guides
 At bottom of README \
 [Go to Photo Guides](#photo-guides)
 
@@ -123,7 +123,7 @@ Space (Hold): Shoot
 Space (Hold): Drop bombs \
 Left click (Hold): Shoot
 
-#photo-guides
+# Photo Guides
 
 ## Main Menu (downloaded version [ww2planegame.html])
 ![Main Menu](./user_guide/main_menu.png)
@@ -182,7 +182,7 @@ Test mode means that the game will not be ended by planes dying
 1x zoom
 ![1x zoom](./user_guide/1x_zoom.png)
 2x zoom \
-The images used in this game have been scaled down from the originals, they are scale down to the size that \
+The images used in this game have been scaled down from the originals, they are scaled down to the size that \
 they appear in 2x zoom. This means rather than seeing a scaled up version of a lower quality image in 2x you \
 are seeing a higher quality image than in 1x
 ![2x zoom](./user_guide/2x_zoom.png)
