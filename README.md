@@ -74,7 +74,7 @@ This bar represents the heat of the gun, it goes up as you shoot. \
 When it becomes full, your gun gets a cooldown before it may shoot again. \
 If you are using a Bomber you may see multiple of these, as the bomber has multiple guns.
 ## Multiplayer
-Current a work in progress. Not available for testing in the online version, may be used by downloading from Github once it is finished.
+Currently a work in progress. Not available for testing in the online version, may be used by downloading from Github once it is finished.
 ## Sound
 Sound sliders for the various sounds in the game
 ## Settings
