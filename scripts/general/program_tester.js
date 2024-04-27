@@ -1,3 +1,7 @@
+if (typeof window === "undefined"){
+    helperFunctions = require("./helper_functions.js");
+    copyArray = helperFunctions.copyArray;
+}
 /*
     Class Name: ProgramTester
     Description: A class for testing various parts of the program
@@ -337,4 +341,8 @@ class OutputEnabler {
     enable(){
         this.outputLock.unlock();
     }
+}
+// If using NodeJS -> Export
+if (typeof window === "undefined"){
+    module.exports=ProgramTester;
 }

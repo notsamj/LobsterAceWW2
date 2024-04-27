@@ -29,6 +29,51 @@ class BomberPlane extends Plane {
     }
 
     /*
+        Method Name: getBombHitX
+        Method Parameters: None
+        Method Description: Calculate how far the bomb will travel (in x) while falling
+        Method Return: float
+    */
+    getBombHitX(){
+        return this.x + this.getBombXAirTravel() * (this.isFacingRight() ? 1 : -1);
+    }
+
+    /*
+        Method Name: getBombXAirTravel
+        Method Parameters: None
+        Method Description: Calculate how far the bomb will travel (in x) while falling
+        Method Return: float
+    */
+    getBombXAirTravel(){
+        // If the plane is at/below ground don't bother with computation
+        if (this.y <= 0){ return 0; }
+        // Calculate time to hit ground
+        /*
+            d = vI * t + 1/2 * g * t^2
+            d = 0.5g * t^2 + vI * t + 0
+            0 = 0.5g * t^2 + vI * t - d
+            t = [-1 * vI + sqrt(vI + 2 * g * d)] / g
+        */
+        let vI = this.bombInitialYVelocity();
+        let g = PROGRAM_DATA["constants"]["gravity"];
+        let d = this.y;
+        // Note: There may be some error here because I wasn't thinking too clearly when I was setting up the equation and considering the direction of the initial velocity
+        let time = (vI + Math.sqrt(Math.pow(vI, 2) + 2 * d * g)) / g;
+        // Calculate x distance covered in that time
+        return Math.abs(this.getXVelocity() * time);
+    }
+
+    /*
+        Method Name: bombInitialYVelocity
+        Method Parameters: None
+        Method Description: Calculate the the initial y velocity of the bomb
+        Method Return: float
+    */
+    bombInitialYVelocity(){
+        return this.getYVelocity() + PROGRAM_DATA["bomb_data"]["initial_y_velocity"]; 
+    }
+
+    /*
         Method Name: loadImportantData
         Method Parameters:
             rep:
@@ -131,10 +176,12 @@ class BomberPlane extends Plane {
         Method Return: void
     */
     display(lX, bY, displayTime){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
 
+        // Calculate the interpolated coordinates
         this.calculateInterpolatedCoordinates(displayTime);
+
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
@@ -167,6 +214,9 @@ class BomberPlane extends Plane {
                 scale(-1, 1);
             }
 
+            // Game zoom
+            scale(gameZoom, gameZoom);
+
             // Display flash
             displayImage(flashImage, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
 
@@ -174,6 +224,9 @@ class BomberPlane extends Plane {
             if (!this.isFacingRight()){
                 scale(-1, 1);
             }
+
+            // Undo game zoom
+            scale(1/gameZoom, 1/gameZoom);
             
             // Reset the rotation and translation
             rotate(interpolatedAngle);

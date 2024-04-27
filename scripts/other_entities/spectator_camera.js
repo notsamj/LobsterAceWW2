@@ -26,8 +26,7 @@ class SpectatorCamera extends Entity {
         this.yVelocity = 0;
         this.xLock = new TickLock(0);
         this.yLock = new TickLock(0);
-        this.radar = new SpectatorRadar(this);
-        this.radarLock = new TickLock(250 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.radar = new SpectatorRadar(this, 250 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
         this.switchTeamLock = new Lock();
     }
 
@@ -333,7 +332,7 @@ class SpectatorCamera extends Entity {
         this.xLock.lock();
 
         // Else 1 key down and ready to move
-        this.xVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"];
+        this.xVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"] * getScreenWidth() / PROGRAM_DATA["settings"]["expected_canvas_width"] / gameZoom;
         this.xVelocity *= leftKey ? -1 : 1;
     }
 
@@ -356,20 +355,8 @@ class SpectatorCamera extends Entity {
         this.yLock.lock();
 
         // Else 1 key down and ready to move
-        this.yVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"];
+        this.yVelocity = PROGRAM_DATA["controls"]["spectator_cam_speed"] * getScreenHeight() / PROGRAM_DATA["settings"]["expected_canvas_height"] / gameZoom;
         this.yVelocity *= downKey ? -1 : 1; 
-    }
-
-    /*
-        Method Name: updateRadar
-        Method Parameters: None
-        Method Description: Updates the radar if ready to update
-        Method Return: void
-    */
-    updateRadar(){
-        if (!this.radarLock.isReady()){ return; }
-        this.radarLock.lock();
-        this.radar.update();
     }
 
     /*
@@ -431,8 +418,7 @@ class SpectatorCamera extends Entity {
         this.xLock.tick();
         this.yLock.tick();
         this.leftRightLock.tick();
-        this.radarLock.tick();
-        this.updateRadar();
+        this.radar.tick();
         this.checkFollowToggle();
         if (this.isFollowing()){
             this.checkSwitchTeams();

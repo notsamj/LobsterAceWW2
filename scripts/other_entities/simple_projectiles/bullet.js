@@ -248,21 +248,30 @@ class Bullet extends SimpleProjectile {
     */
     display(lX, bY, displayTime){
         if (this.isDead()){ return; }
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
         this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
         // Determine the location it will be displayed at
-        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth(), lX);
-        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight(), bY);
-        let rotateX = displayX + this.getWidth() / 2;
-        let rotateY = displayY + this.getHeight() / 2;
+        let displayX = this.gamemode.getScene().getDisplayX(this.getInterpolatedX(), this.getWidth()*gameZoom, lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.getInterpolatedY(), this.getHeight()*gameZoom, bY);
+        let rotateX = displayX + this.getWidth() / 2 * gameZoom;
+        let rotateY = displayY + this.getHeight() / 2 * gameZoom;
         let angleRAD = displacementToRadians(this.getXVelocity(), this.getYVelocity());
         // Prepare the display
         translate(rotateX, rotateY);
         rotate(-1 * angleRAD);
+
+        // Game zoom
+        scale(gameZoom, gameZoom);
+
+        // Display Bullet Image
         displayImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2);
+
+        // Undo game zoom
+        scale(1/gameZoom, 1/gameZoom);
+        
         // Reset the rotation and translation
         rotate(angleRAD);
         translate(-1 * rotateX, -1 * rotateY);

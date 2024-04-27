@@ -73,7 +73,7 @@ class MissionStartMenu extends Menu {
 
         let userPlaneX = () => { return 350; };
         let userPlaneScreenY = (innerHeight) => { return innerHeight - 127; }
-        this.userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY);
+        this.userPlane = new StaticImage(IMAGES[this.userPlanes[0]], userPlaneX, userPlaneScreenY, 128, 128);
         let userPlaneImage = this.userPlane;
         this.userPlane.setOnClick(() => {
             userPlaneImage.setImage(this.switchPlanes()); 
@@ -127,6 +127,8 @@ class MissionStartMenu extends Menu {
         jsonRep["ally_difficulty"] = this.allyDifficulty;
         jsonRep["axis_difficulty"] = this.axisDifficulty;
         jsonRep["use_physics_bullets"] = PROGRAM_DATA["settings"]["use_physics_bullets"];
+        jsonRep["human_health_multiplier"] = PROGRAM_DATA["settings"]["human_health_multiplier"];
+        jsonRep["human_damage_multiplier"] = PROGRAM_DATA["settings"]["human_damage_multiplier"];
         return jsonRep;
     }
 

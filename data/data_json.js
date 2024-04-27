@@ -3,6 +3,7 @@ const PROGRAM_DATA = {
         "max_angle_change_per_tick_fighter_plane": 3.75,
         "max_angle_change_per_tick_bomber_plane": 1.25,
         "spectator_cam_speed": 1000,
+        "approximate_zoom_peek_time_ms": 150
     },
     "plane_data": {
         "spitfire": {
@@ -45,9 +46,9 @@ const PROGRAM_DATA = {
             "gun_offset_y": 64-75,
             "tail_offset_x": 13-64,
             "tail_offset_y": 64-23,
-            "bullet_damage": 1.15,
-            "bullet_heat_capacity": 30,
-            "cooling_time_ms": 8750,
+            "bullet_damage": 1.225,
+            "bullet_heat_capacity": 35,
+            "cooling_time_ms": 7500,
             "rate_of_fire": 75
         },
         "me_bf_109": {
@@ -60,8 +61,8 @@ const PROGRAM_DATA = {
             "gun_offset_y": 64-86,
             "tail_offset_x": 14-64,
             "tail_offset_y": 64-1,
-            "bullet_damage": 1.2,
-            "bullet_heat_capacity": 20,
+            "bullet_damage": 1.5,
+            "bullet_heat_capacity": 40,
             "cooling_time_ms": 10000,
             "rate_of_fire": 50
         },
@@ -75,9 +76,9 @@ const PROGRAM_DATA = {
             "gun_offset_y": 64-78,
             "tail_offset_x": 6-64,
             "tail_offset_y": 64-26,
-            "bullet_damage": 1.5,
+            "bullet_damage": 1.075,
             "bullet_heat_capacity": 40,
-            "cooling_time_ms": 7500,
+            "cooling_time_ms": 10000,
             "rate_of_fire": 100
         },
         "p51_mustang": {
@@ -90,9 +91,9 @@ const PROGRAM_DATA = {
             "gun_offset_y": 64-74,
             "tail_offset_x": 10-64,
             "tail_offset_y": 64-30,
-            "bullet_damage": 1.1,
-            "bullet_heat_capacity": 30,
-            "cooling_time_ms": 8750,
+            "bullet_damage": 3.0,
+            "bullet_heat_capacity": 20,
+            "cooling_time_ms": 12000,
             "rate_of_fire": 100
         },
         "hawker_sea_fury": {
@@ -105,9 +106,9 @@ const PROGRAM_DATA = {
             "gun_offset_y": 64-85,
             "tail_offset_x": 6-64,
             "tail_offset_y": 64-46,
-            "bullet_damage": 1,
-            "bullet_heat_capacity": 20,
-            "cooling_time_ms": 10000,
+            "bullet_damage": 1.6,
+            "bullet_heat_capacity": 26,
+            "cooling_time_ms": 4450,
             "rate_of_fire": 50
         },
         "me_309": {
@@ -120,9 +121,9 @@ const PROGRAM_DATA = {
             "gun_offset_y": 64-65,
             "tail_offset_x": 6-64,
             "tail_offset_y": 64-37,
-            "bullet_damage": 1,
+            "bullet_damage": 1.5,
             "bullet_heat_capacity": 30,
-            "cooling_time_ms": 7500,
+            "cooling_time_ms": 5000,
             "rate_of_fire": 75
         },
         "b24": {
@@ -236,30 +237,30 @@ const PROGRAM_DATA = {
             "bomb_damage": 1,
             "guns": [
                 { // Top gun front
-                    "x_offset": 216-128,
-                    "y_offset": 128-115,
-                    "fov_1": 70,
-                    "fov_2": 10,
+                    "x_offset": 205-128,
+                    "y_offset": 128-116,
+                    "fov_1": 70, // 70
+                    "fov_2": 10, // 10
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
                     "bullet_damage": 2
                 },
                 { // Top gun front facing back
-                    "x_offset": 149-128,
-                    "y_offset": 128-93,
-                    "fov_1": 170,
-                    "fov_2": 70,
+                    "x_offset": 179-128,
+                    "y_offset": 128-115,
+                    "fov_1": 170, // 170
+                    "fov_2": 100, // 100
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
                     "bullet_damage": 2
                 },
                 { // Bottom gun front
-                    "x_offset": 27-128,
-                    "y_offset": 128-89,
-                    "fov_1": 350,
-                    "fov_2": 300,
+                    "x_offset": 230-128,
+                    "y_offset": 128-140,
+                    "fov_1": 350, // 350
+                    "fov_2": 290, // 290
                     "bullet_heat_capacity": 16,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 300,
@@ -287,8 +288,8 @@ const PROGRAM_DATA = {
                 { // Top gun back
                     "x_offset": 91-128,
                     "y_offset": 128-41,
-                    "fov_1": 70,
-                    "fov_2": 10,
+                    "fov_1": 170,
+                    "fov_2": 20,
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
@@ -297,8 +298,8 @@ const PROGRAM_DATA = {
                 { // Front bottom
                     "x_offset": 240-128,
                     "y_offset": 128-106,
-                    "fov_1": 170,
-                    "fov_2": 70,
+                    "fov_1": 355,
+                    "fov_2": 280,
                     "bullet_heat_capacity": 16,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 300,
@@ -307,8 +308,8 @@ const PROGRAM_DATA = {
                 { // Back bottom
                     "x_offset": 83-128,
                     "y_offset": 128-103,
-                    "fov_1": 350,
-                    "fov_2": 300,
+                    "fov_1": 260,
+                    "fov_2": 170,
                     "bullet_heat_capacity": 48,
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
@@ -330,7 +331,7 @@ const PROGRAM_DATA = {
         "radius": 8,
         "explosion_visual_size": 24,
         "initial_y_velocity": -300,
-        "bomb_explosion_radius": 200
+        "bomb_explosion_radius": 1000
     },
 
     "ui": {
@@ -346,15 +347,25 @@ const PROGRAM_DATA = {
         "blip_size": 5,
         "border_width": 2,
         "distance_multiplier_a": 250,
-        "base_distance": 1.3,
+        "b": [1.15,1.2,1.25, 1.3,1.35,1.4],
         "fighter_weight": 1,
-        "bomber_weight": 4,
+        "bomber_weight": 1,
+        "friendly_fighter_weight": 1,
+        "enemy_fighter_weight": 2,
+        "friendly_bomber_weight": 4,
+        "enemy_bomber_weight": 8,
         "building_weight": 10,
+        "bomb_hit_location_weight": Number.MAX_SAFE_INTEGER,
         "friendly_bomber_colour": "#26940a",
         "friendly_fighter_colour": "#32c70c",
         "enemy_bomber_colour": "#a6140a",
         "enemy_fighter_colour": "#db655c",
-        "building_colour": "#919191"
+        "building_colour": "#919191",
+        "bomb_hit_location_colour": "#0011fc",
+        "text_colour": "#ff6700",
+        "text_size": 18,
+        "text_box_height": 20,
+        "text_box_width": 120
     },
 
     "background": {
@@ -363,6 +374,7 @@ const PROGRAM_DATA = {
         }
     },
     "settings": {
+        "plane_image_size_constant": 2, // This is because I use 256 size images for fighter planes and scale down by 2 on 1x zoom also bomber
         "shoot_distance_constant": 5,
         "close_to_ground_constant": 3,
         "close_constant": 3,
@@ -390,6 +402,8 @@ const PROGRAM_DATA = {
         "focused_count_distance_equivalent": 1500,
         "text_box_padding_percent": 0.1,
         "use_physics_bullets": true,
+        "human_health_multiplier": 1,
+        "human_damage_multiplier": 1,
         "instant_shot_max_distance": 1200,
         "max_expected_screen_width": 3840,
         "max_expected_screen_height": 2160,
@@ -397,10 +411,12 @@ const PROGRAM_DATA = {
         "max_cloud_animation_speed_x": 0.5,
         "max_tick_deficit": 100,
         "expected_plane_size": 64,
-        "health_effect_on_throttle": 0.35
+        "health_effect_on_throttle": 0.35,
+        "game_zoom": 1
     },
+
     "constants": {
-        "gravity": 9.81
+        "gravity": 9.81*9 // About 9 pixels = 1 meter
     },
 
     "extra_settings": [
@@ -430,16 +446,38 @@ const PROGRAM_DATA = {
             "path": ["sky_generation", "cloud_generation", "min_clouds_per_cluster"],
             "type": "quantity_slider",
             "min_value": 0,
-            "max_value": 40,
+            "max_value": 80,
             "uses_float": false
         },
         {
             "name": "max_clouds_per_cluster",
             "path": ["sky_generation", "cloud_generation", "max_clouds_per_cluster"],
             "type": "quantity_slider",
-            "min_value": 40,
-            "max_value": 250,
+            "min_value": 80,
+            "max_value": 200,
             "uses_float": false
+        },
+        {
+            "name": "game_zoom",
+            "path": ["settings", "game_zoom"],
+            "type": "selection_slider",
+            "options": [0.125, 0.25, 0.5, 1, 2]
+        },
+        {
+            "name": "human_damage_multiplier",
+            "path": ["settings", "human_damage_multiplier"],
+            "type": "quantity_slider",
+            "min_value": 0.5,
+            "max_value": 5,
+            "uses_float": true
+        },
+        {
+            "name": "human_health_multiplier",
+            "path": ["settings", "human_health_multiplier"],
+            "type": "quantity_slider",
+            "min_value": 0.5,
+            "max_value": 10,
+            "uses_float": true
         }
     ],
 
@@ -466,6 +504,7 @@ const PROGRAM_DATA = {
         "bomber_plane": {
             "bomb_falling_distance_allowance_multiplier": 1.05,
             "update_friendly_center": 2000,
+            "extra_bomb_distance": 250,
             "bias_ranges": {
                 "easy":{"friendly_center_x_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":4000,"lower_bound":3000},"lower_range":{"upper_bound":-3000,"lower_bound":-4000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":3500,"lower_bound":2625},"lower_range":{"upper_bound":-2625,"lower_bound":-3500}},"shooting_angle_offset":{"upper_range":{"upper_bound":10,"lower_bound":7.5},"lower_range":{"upper_bound":-7.5,"lower_bound":-10}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.5,"lower_bound":1.125},"lower_range":{"upper_bound":1.5,"lower_bound":1.125}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-18.75,"lower_bound":-25}},"max_speed":{"upper_range":{"upper_bound":25,"lower_bound":18.75},"lower_range":{"upper_bound":-75,"lower_bound":-100}},"health":{"upper_range":{"upper_bound":50,"lower_bound":37.5},"lower_range":{"upper_bound":-52.5,"lower_bound":-70}},"max_turret_angle_change_per_tick":{"upper_range":{"upper_bound":2.99,"lower_bound":2.51},"lower_range":{"upper_bound":2.99,"lower_bound":2.51}}},
                 "medium":{"friendly_center_x_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"friendly_center_y_offset":{"upper_range":{"upper_bound":3000,"lower_bound":2000},"lower_range":{"upper_bound":-2000,"lower_bound":-3000}},"max_shooting_distance_offset":{"upper_range":{"upper_bound":2625,"lower_bound":1750},"lower_range":{"upper_bound":-1750,"lower_bound":-2625}},"shooting_angle_offset":{"upper_range":{"upper_bound":7.5,"lower_bound":5},"lower_range":{"upper_bound":-5,"lower_bound":-7.5}},"rate_of_fire_multiplier":{"upper_range":{"upper_bound":1.125,"lower_bound":0.9},"lower_range":{"upper_bound":1.125,"lower_bound":0.9}},"throttle":{"upper_range":{"upper_bound":0,"lower_bound":0},"lower_range":{"upper_bound":-12.5,"lower_bound":-18.75}},"max_speed":{"upper_range":{"upper_bound":18.75,"lower_bound":12.5},"lower_range":{"upper_bound":-50,"lower_bound":-75}},"health":{"upper_range":{"upper_bound":37.5,"lower_bound":25},"lower_range":{"upper_bound":-35,"lower_bound":-52.5}},"max_turret_angle_change_per_tick":{"upper_range":{"upper_bound":16,"lower_bound":10},"lower_range":{"upper_bound":16,"lower_bound":10}}},
@@ -661,14 +700,14 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 27e3 // 30e3?
                 },
-                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 7 // Based on attacker difficulty
             },
             "medium": {
                 "max_planes": 50,
@@ -683,12 +722,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
@@ -705,34 +744,34 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 30, // 20?
-                    "min_health": 2,
-                    "max_health": 4 // 5? 10?
+                    "min_health": 12,
+                    "max_health": 15 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "attackers": 45e3, // 70e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "max_planes": 70,
                 "attacker_plane_counts": {
-                    "republic_p_47": 8,
-                    "p51_mustang": 8,
+                    "republic_p_47": 9,
+                    "p51_mustang": 9,
                     "b24": 4
                 },
                 "defender_plane_counts": {
-                    "me_309": 12,
-                    "me_bf_109": 12
+                    "me_309": 10,
+                    "me_bf_109": 10
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
-                    "min_health": 3,
-                    "max_health": 6 // 5? 10?
+                    "min_health": 22,
+                    "max_health": 26 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 30e3 // 30e3?
+                    "attackers": 66e3, // 70e3?
+                    "defenders": 33e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
@@ -746,18 +785,18 @@ const PROGRAM_DATA = {
                     "y": 200
                 },
                 "offsets": {
-                    "x": 2500,
+                    "x": 5500,
                     "y": 9000
                 }
             },
             "buildings": {
                 "start_x": 50e3, // 70e3
-                "min_gap": 50,
-                "max_gap": 200,
+                "min_gap": 150,
+                "max_gap": 500,
                 "min_height": 60,
-                "max_height": 300,
-                "min_width": 50,
-                "max_width": 150,
+                "max_height": 500,
+                "min_width": 25,
+                "max_width": 250,
             }
         },
         {
@@ -794,14 +833,14 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 27e3 // 30e3?
                 },
-                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 7 // Based on attacker difficulty
             },
             "medium": {
                 "max_planes": 50,
@@ -816,12 +855,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
@@ -838,20 +877,20 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 30, // 20?
-                    "min_health": 2,
-                    "max_health": 4 // 5? 10?
+                    "min_health": 12,
+                    "max_health": 15 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "attackers": 45e3, // 70e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "max_planes": 70,
                 "attacker_plane_counts": {
-                    "republic_p_47": 8,
-                    "p51_mustang": 8,
+                    "republic_p_47": 9,
+                    "p51_mustang": 9,
                     "b24": 4
                 },
                 "defender_plane_counts": {
@@ -860,12 +899,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
-                    "min_health": 3,
-                    "max_health": 6 // 5? 10?
+                    "min_health": 22,
+                    "max_health": 26 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 50e3, // 70e3?
-                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                    "attackers": 66e3, // 70e3?
+                    "defenders": 33e3 // was working at 30e3 but now changing to 45 because op
                 },
                 "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
@@ -879,7 +918,7 @@ const PROGRAM_DATA = {
                     "y": 200
                 },
                 "offsets": {
-                    "x": 2500,
+                    "x": 5500,
                     "y": 9000
                 }
             },
@@ -927,12 +966,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 27e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
@@ -949,12 +988,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
@@ -971,20 +1010,20 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 30, // 20?
-                    "min_health": 2,
-                    "max_health": 4 // 5? 10?
+                    "min_health": 12,
+                    "max_health": 15 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "attackers": 45e3, // 70e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "max_planes": 70,
                 "attacker_plane_counts": {
-                    "hawker_sea_fury": 8,
-                    "spitfire": 8,
+                    "hawker_sea_fury": 9,
+                    "spitfire": 9,
                     "short_stirling": 4
                 },
                 "defender_plane_counts": {
@@ -993,12 +1032,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
-                    "min_health": 3,
-                    "max_health": 6 // 5? 10?
+                    "min_health": 22,
+                    "max_health": 26 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 50e3, // 70e3?
-                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                    "attackers": 66e3, // 70e3?
+                    "defenders": 33e3 // was working at 30e3 but now changing to 45 because op
                 },
                 "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
@@ -1012,7 +1051,7 @@ const PROGRAM_DATA = {
                     "y": 200
                 },
                 "offsets": {
-                    "x": 2500,
+                    "x": 5500,
                     "y": 9000
                 }
             },
@@ -1060,14 +1099,14 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 27e3 // 30e3?
                 },
-                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 7 // Based on attacker difficulty
             },
             "medium": {
                 "max_planes": 50,
@@ -1082,12 +1121,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
@@ -1104,20 +1143,20 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 30, // 20?
-                    "min_health": 2,
-                    "max_health": 4 // 5? 10?
+                    "min_health": 12,
+                    "max_health": 15 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "attackers": 45e3, // 70e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "max_planes": 70,
                 "attacker_plane_counts": {
-                    "me_309": 8,
-                    "me_bf_109": 8,
+                    "me_309": 9,
+                    "me_bf_109": 9,
                     "junkers_ju_88": 4
                 },
                 "defender_plane_counts": {
@@ -1126,12 +1165,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
-                    "min_health": 3,
-                    "max_health": 6 // 5? 10?
+                    "min_health": 22,
+                    "max_health": 26 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 50e3, // 70e3?
-                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                    "attackers": 66e3, // 70e3?
+                    "defenders": 33e3 // was working at 30e3 but now changing to 45 because op
                 },
                 "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
@@ -1145,7 +1184,7 @@ const PROGRAM_DATA = {
                     "y": 200
                 },
                 "offsets": {
-                    "x": 2500,
+                    "x": 5500,
                     "y": 9000
                 }
             },
@@ -1193,14 +1232,14 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 27e3 // 30e3?
                 },
-                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 7 // Based on attacker difficulty
             },
             "medium": {
                 "max_planes": 50,
@@ -1215,12 +1254,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 27e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
@@ -1237,20 +1276,20 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 30, // 20?
-                    "min_health": 2,
-                    "max_health": 4 // 5? 10?
+                    "min_health": 12,
+                    "max_health": 15 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "attackers": 45e3, // 70e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "max_planes": 70,
                 "attacker_plane_counts": {
-                    "a6m_zero": 8,
-                    "kawasaki_ki_45": 8,
+                    "a6m_zero": 9,
+                    "kawasaki_ki_45": 9,
                     "me_264": 4
                 },
                 "defender_plane_counts": {
@@ -1259,12 +1298,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
-                    "min_health": 3,
-                    "max_health": 6 // 5? 10?
+                    "min_health": 22,
+                    "max_health": 26 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 50e3, // 70e3?
-                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                    "attackers": 66e3, // 70e3?
+                    "defenders": 33e3 // was working at 30e3 but now changing to 45 because op
                 },
                 "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
@@ -1278,7 +1317,7 @@ const PROGRAM_DATA = {
                     "y": 200
                 },
                 "offsets": {
-                    "x": 2500,
+                    "x": 5500,
                     "y": 9000
                 }
             },
@@ -1326,14 +1365,14 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 27e3 // 30e3?
                 },
-                "bomber_hp_multiplier": 5 // Based on attacker difficulty
+                "bomber_hp_multiplier": 7 // Based on attacker difficulty
             },
             "medium": {
                 "max_planes": 50,
@@ -1348,12 +1387,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 20, // 20?
-                    "min_health": 1,
-                    "max_health": 2 // 5? 10?f
+                    "min_health": 6,
+                    "max_health": 8 // 5? 10?f
                 },
                 "respawn_times": {
                     "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
@@ -1370,20 +1409,20 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 30, // 20?
-                    "min_health": 2,
-                    "max_health": 4 // 5? 10?
+                    "min_health": 12,
+                    "max_health": 15 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 70e3, // 70e3?
-                    "defenders": 25e3 // 30e3?
+                    "attackers": 45e3, // 70e3?
+                    "defenders": 35e3 // 30e3?
                 },
                 "bomber_hp_multiplier": 5 // Based on attacker difficulty
             },
             "hardest": {
                 "max_planes": 70,
                 "attacker_plane_counts": {
-                    "me_309": 8,
-                    "me_bf_109": 8,
+                    "me_309": 9,
+                    "me_bf_109": 9,
                     "junkers_ju_88": 4
                 },
                 "defender_plane_counts": {
@@ -1392,12 +1431,12 @@ const PROGRAM_DATA = {
                 },
                 "buildings": { // Specifically for attacker difficulty, defender difficulty not used to determine building health
                     "count": 40, // 20?
-                    "min_health": 3,
-                    "max_health": 6 // 5? 10?
+                    "min_health": 22,
+                    "max_health": 26 // 5? 10?
                 },
                 "respawn_times": {
-                    "attackers": 50e3, // 70e3?
-                    "defenders": 40e3 // was working at 30e3 but now changing to 45 because op
+                    "attackers": 66e3, // 70e3?
+                    "defenders": 33e3 // was working at 30e3 but now changing to 45 because op
                 },
                 "bomber_hp_multiplier": 4 // Based on attacker difficulty
             },
@@ -1411,7 +1450,7 @@ const PROGRAM_DATA = {
                     "y": 200
                 },
                 "offsets": {
-                    "x": 2500,
+                    "x": 5500,
                     "y": 9000
                 }
             },
@@ -1427,6 +1466,7 @@ const PROGRAM_DATA = {
         }
     ],
     "sky_generation": {
+        "far_away_multiplier": 2,
         "sky_colour": "#5bb8ff",
         "sun_colour": "#fdb813",
         "sunrise_start": 6,
@@ -1443,17 +1483,17 @@ const PROGRAM_DATA = {
         "moon_phase": 5, // Allowed range [0, 7]
         "current_hour": 12,
         "cloud_generation": {
-            "min_height": 600,
+            "min_height": 1000,
             "cloud_opacity": 80,
             "cloud_colour": "#e8ecff",
-            "cloud_cluster_width": 3840,
-            "cloud_cluster_height": 2160,
-            "min_radius": 30,
-            "max_radius": 80,
+            "cloud_cluster_width": 3840*4,
+            "cloud_cluster_height": 2160*4,
+            "min_radius": 30*4,
+            "max_radius": 80*4,
             "min_circles_per_cloud": 3,
             "max_circles_per_cloud": 7,
-            "min_clouds_per_cluster": 40,
-            "max_clouds_per_cluster": 70,
+            "min_clouds_per_cluster": 80,
+            "max_clouds_per_cluster": 100,
         }
     },
 
@@ -1474,8 +1514,9 @@ const PROGRAM_DATA = {
     },
 
     "menu": {
-        "quantity_slider": {
-            "slider_width_px": 20
+        "option_slider": {
+            "slider_width_px": 20,
+            "x_size": 300
         }
     },
 

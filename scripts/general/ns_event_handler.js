@@ -206,3 +206,7 @@ class NSEvent {
         }
     }
 }
+// If using NodeJS then export
+if (typeof window === "undefined"){
+    module.exports = NSEventHandler;
+}

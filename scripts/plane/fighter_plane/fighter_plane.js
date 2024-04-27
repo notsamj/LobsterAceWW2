@@ -5,6 +5,7 @@ if (typeof window === "undefined"){
     Plane = require("../plane.js");
     helperFunctions = require("../../general/helper_functions.js");
     toRadians = helperFunctions.toRadians;
+    GunHeatManager = require("../../misc/gun_heat_manager.js");
 }
 /*
     Class Name: FighterPlane
@@ -27,6 +28,36 @@ class FighterPlane extends Plane {
         super(planeClass, gamemode, autonomous);
         this.gunHeatManager = new GunHeatManager(PROGRAM_DATA["plane_data"][planeClass]["bullet_heat_capacity"], PROGRAM_DATA["plane_data"][planeClass]["cooling_time_ms"])
         this.shootLock = new TickLock(PROGRAM_DATA["plane_data"][planeClass]["rate_of_fire"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+    }
+
+    /*
+        Method Name: getDamage
+        Method Parameters: None
+        Method Description: Determines how much damage a bullet from this plane causes
+        Method Return: Number
+    */
+    getDamage(){
+        return PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bullet_damage"];
+    }
+
+    /*
+        Method Name: getShootLock
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: TickLock
+    */
+    getShootLock(){
+        return this.shootLock;
+    }
+
+    /*
+        Method Name: getGunHeatManager
+        Method Parameters: None
+        Method Description: Getter
+        Method Return: GunHeatManager
+    */
+    getGunHeatManager(){
+        return this.gunHeatManager;
     }
 
     /*
@@ -150,7 +181,7 @@ class FighterPlane extends Plane {
         this.gamemode.getSoundManager().play("shoot", this.getX(), this.getY());
         // If using physical bullets then do it this way
         if (this.gamemode.areBulletPhysicsEnabled()){
-            this.gamemode.getTeamCombatManager().addBullet(new Bullet(this.getGunX(), this.getGunY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass(), PROGRAM_DATA["plane_data"][this.getPlaneClass()]["bullet_damage"]));
+            this.gamemode.getTeamCombatManager().addBullet(new Bullet(this.getGunX(), this.getGunY(), this.gamemode, this.getXVelocity(), this.getYVelocity(), this.getNoseAngle(), this.getID(), this.getPlaneClass(), this.getDamage()));
         }else{ // Fake bullets
             this.instantShot(this.getGunX(), this.getGunY(), this.getNoseAngle());
         }
@@ -223,8 +254,8 @@ class FighterPlane extends Plane {
         Method Return: void
     */
     display(lX, bY, displayTime){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
 
         this.calculateInterpolatedCoordinates(displayTime);
         // If not on screen then return
@@ -259,8 +290,14 @@ class FighterPlane extends Plane {
                 scale(-1, 1);
             }
 
+            // Game scale
+            scale(gameZoom, gameZoom);
+
             // Display flash
             displayImage(image, 0 - flashImageWidth / 2,  0 - flashImageHeight / 2);
+
+            // Undo game zoom scale
+            scale(1/gameZoom, 1/gameZoom);
 
             // If facing left then turn around the display (reset)
             if (!this.isFacingRight()){

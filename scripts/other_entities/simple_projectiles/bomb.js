@@ -71,7 +71,7 @@ class Bomb extends SimpleProjectile {
         for (let [building, bI] of this.gamemode.getTeamCombatManager().getBuildings()){
             if (building.isDead()) { continue; }
             if (building.distance(this) < PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]){
-                building.damage(this.getDamage());
+                building.damage(this.getDamage() * (PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"] - building.distance(this)) / PROGRAM_DATA["bomb_data"]["bomb_explosion_radius"]);
             }
         }
         this.die();
@@ -93,7 +93,12 @@ class Bomb extends SimpleProjectile {
             "x": this.getX(),
             "y": this.getY()
         });
+        //console.log("Died @", this.getX()) // TODO: Remove
         super.die();
+        // TODO: Remove
+        if (!this.isDead()){
+            console.log("Brokenenenenenene")
+        }
     }
 
     /*

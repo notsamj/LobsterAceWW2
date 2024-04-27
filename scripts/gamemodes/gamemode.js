@@ -3,6 +3,8 @@ if (typeof window === "undefined"){
     SoundManager = require("../general/sound_manager.js");
     AfterMatchStats = require("../misc/after_match_stats.js");
     TeamCombatManager = require("../misc/team_combat_manager.js");
+    NSEventHandler = require("../general/ns_event_handler.js");
+    VisualEffectManager = require("../misc/visual_effect_manager.js");
 }
 /*
     Class Name: Gamemode

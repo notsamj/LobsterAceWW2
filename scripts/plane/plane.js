@@ -11,6 +11,7 @@ if (typeof window === "undefined"){
     angleBetweenCCWRAD = helperFunctions.angleBetweenCCWRAD;
     safeDivide = helperFunctions.safeDivide;
     calculateAngleDiffRAD = helperFunctions.calculateAngleDiffRAD;
+    isClose = helperFunctions.isClose;
 }
 /*
     Class Name: Plane
@@ -57,8 +58,20 @@ class Plane extends Entity {
     }
 
     /*
-        Method Name: setAutonomous
+        Method Name: getStartingThrottle
         Method Parameters: None
+        Method Description: Getter
+        Method Return: Number
+    */
+    getStartingThrottle(){
+        return this.startingThrottle;
+    }
+
+    /*
+        Method Name: setAutonomous
+        Method Parameters:
+            value:
+                Boolean, whether or not plane is autonomous
         Method Description: Setter
         Method Return: void
     */
@@ -540,7 +553,9 @@ class Plane extends Entity {
         Method Return: int
     */
     getWidth(){
-        return this.getCurrentImage().width;
+        // If using NodeJS -> Just use 2x hitbox radius
+        if (typeof window === "undefined"){ return this.hitBox.getRadius()*2; }
+        return this.getCurrentImage().width / PROGRAM_DATA["settings"]["plane_image_size_constant"];
     }
 
     /*
@@ -550,7 +565,9 @@ class Plane extends Entity {
         Method Return: int
     */
     getHeight(){
-        return this.getCurrentImage().height;
+        // If using NodeJS -> Just use 2x hitbox radius
+        if (typeof window === "undefined"){ return this.hitBox.getRadius()*2; }
+        return this.getCurrentImage().height / PROGRAM_DATA["settings"]["plane_image_size_constant"];
     }
 
     /*
@@ -827,16 +844,19 @@ class Plane extends Entity {
         Method Return: void
     */
     display(lX, bY, displayTime){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
 
+        // Set the interpolated coordinates
         this.calculateInterpolatedCoordinates(displayTime);
+
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
 
+        let planeConstant = PROGRAM_DATA["settings"]["plane_image_size_constant"];
         // Determine the location it will be displayed at
-        let displayX = this.gamemode.getScene().getDisplayX(this.interpolatedX, this.getWidth(), lX);
-        let displayY = this.gamemode.getScene().getDisplayY(this.interpolatedY, this.getHeight(), bY);
+        let displayX = this.gamemode.getScene().getDisplayX(this.interpolatedX, this.getWidth()*gameZoom, lX);
+        let displayY = this.gamemode.getScene().getDisplayY(this.interpolatedY, this.getHeight()*gameZoom, bY);
 
         // If dead then draw the explosion instead
         if (this.isDead()){
@@ -844,8 +864,8 @@ class Plane extends Entity {
         }
 
         // Find x and y of image given its rotation
-        let rotateX = displayX + this.getWidth() / 2;
-        let rotateY = displayY + this.getHeight() / 2;
+        let rotateX = displayX + this.getWidth() / 2 * gameZoom;
+        let rotateY = displayY + this.getHeight() / 2 * gameZoom;
         let interpolatedAngle = this.getInterpolatedAngle();
         
         // Prepare the display
@@ -857,8 +877,16 @@ class Plane extends Entity {
             scale(-1, 1);
         }
 
+
+        // Game zoom
+        scale(gameZoom * 1 / planeConstant, gameZoom * 1 / planeConstant);
+
         // Display plane
-        displayImage(this.getImage(), 0 - this.getWidth() / 2, 0 - this.getHeight() / 2); 
+        displayImage(this.getImage(), 0 - this.getWidth() / 2 * planeConstant, 0 - this.getHeight() / 2 * planeConstant); 
+
+        // Undo game zoom
+
+        scale(1/gameZoom * planeConstant, 1/gameZoom * planeConstant);
 
         // If facing left then turn around the display (reset)
         if (!this.isFacingRight()){

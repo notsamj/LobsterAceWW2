@@ -155,7 +155,9 @@ class MultiplayerMenu extends Menu {
 class JoinWindow {
     /*
         Method Name: constructor
-        Method Parameters: None
+        Method Parameters:
+            menuInstance:
+                The menu that the join window is part of
         Method Description: Constructor
         Method Return: Constructor
     */

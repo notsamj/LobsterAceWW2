@@ -277,13 +277,15 @@ class Entity {
         let width = this.getWidth();
         let lowerX = x - width / 2;
         let higherX = x + width / 2;
-        let withinX = (lowerX >= lX && lowerX <= rX) || (higherX >= lX && higherX <= rX);
+        let middleX = x;
+        let withinX = (lowerX >= lX && lowerX <= rX) || (higherX >= lX && higherX <= rX) || (middleX >= lX && middleX <= rX);
         
         let y = this.getInterpolatedY();
         let height = this.getHeight();
         let lowerY = y - height / 2;
         let higherY = y + height / 2;
-        let withinY = (lowerY >= bY && lowerY <= tY) || (higherY >= bY && higherY <= tY);
+        let middleY = y;
+        let withinY = (lowerY >= bY && lowerY <= tY) || (higherY >= bY && higherY <= tY) || (middleY >= bY && middleY <= tY);
         return withinX && withinY;
     }
 

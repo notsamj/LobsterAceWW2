@@ -15,6 +15,7 @@ if (typeof window === "undefined"){
     toRadians = helperFunctions.toRadians;
     fixRadians = helperFunctions.fixRadians;
     copyObject = helperFunctions.copyObject;
+    toFixedRadians = helperFunctions.toFixedRadians;
 }
 /*
     Class Name: BiasedBotFighterPlane

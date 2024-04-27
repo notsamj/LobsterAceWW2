@@ -72,7 +72,14 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         let angleNow = this.decisions["angle"];
         // Ignore if angle doesn't change the bias only affects changes
         if (angleBefore == angleNow){ return; }
-        this.decisions["angle"] = fixRadians(this.decisions["angle"] + toRadians(this.biases["shooting_angle_offset"]));
+        let adjustedAngle = fixRadians(this.decisions["angle"] + toRadians(this.biases["shooting_angle_offset"]));
+        let shootingAngleOffset = this.biases["shooting_angle_offset"];
+        // If adjusted angle is outside acceptable bounds then put it at the limit of the bounds
+        if (!angleBetweenCWRAD(adjustedAngle, this.getFov1(), this.getFov2())){
+            adjustedAngle = calculateAngleDiffRAD(angleNow, this.getFov1()) < calculateAngleDiffRAD(angleNow, this.getFov2()) ? this.getFov1() : this.getFov2();
+        }
+        // console.log(toDegrees(adjustedAngle), toDegrees(angleNow), toDegrees(this.getFov1()), toDegrees(this.getFov2()), angleBetweenCWRAD(adjustedAngle, this.getFov1(), this.getFov2()));
+        this.decisions["angle"] = adjustedAngle;
     }
 
     /*
@@ -89,12 +96,20 @@ class BiasedBotBomberTurret extends BotBomberTurret {
         if (currentShootingAngle == newShootingAngle){ return; }
         let diffCW = calculateAngleDiffCWRAD(currentShootingAngle, newShootingAngle); 
         let diffCCW = calculateAngleDiffCCWRAD(currentShootingAngle, newShootingAngle);
-        let rotateCW = (diffCW < diffCCW && this.isFacingRight()) || (diffCW > diffCCW && !this.isFacingRight())
+        let rotateCW = diffCW < diffCCW;
         // Rotate based on determination
         if (rotateCW){
-            this.angle = rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW));
+            if (this.isFacingRight()){
+                this.angle = rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW));
+            }else{
+                this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCW));
+            }
         }else{
-            this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
+            if (this.isFacingRight()){
+                this.angle = rotateCCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
+            }else{
+                this.angle = rotateCWRAD(this.angle, Math.min(toRadians(this.biases["max_turret_angle_change_per_tick"]), diffCCW));
+            }
         }
         //console.log("I want to aim at: %d\nI am now aiming at: %d\nI will now aim at: %d", toDegrees(newShootingAngle), toDegrees(currentShootingAngle), toDegrees(this.getShootingAngle()));
     }

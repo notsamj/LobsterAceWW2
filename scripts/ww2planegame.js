@@ -2,9 +2,10 @@
 var programOver = false;
 var debug = false;
 var runningTicksBehind = 0;
-var drawingContext = null;
 var mouseX = 0;
 var mouseY = 0;
+
+const ZOOM_MONITOR = {"button": null, "start_time_ms": null};
 
 const IMAGES = {};
 
@@ -24,8 +25,8 @@ const GAMEMODE_MANAGER = new GamemodeManager();
 const LOCAL_EVENT_HANDLER = new NSEventHandler();
 
 // Register inputs
-USER_INPUT_MANAGER.register("quantity_slider_grab", "mousedown", (event) => { return true; });
-USER_INPUT_MANAGER.register("quantity_slider_grab", "mouseup", (event) => { return true; }, false);
+USER_INPUT_MANAGER.register("option_slider_grab", "mousedown", (event) => { return true; });
+USER_INPUT_MANAGER.register("option_slider_grab", "mouseup", (event) => { return true; }, false);
 
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mousedown", (event) => { return true; });
 USER_INPUT_MANAGER.register("bomber_shoot_input", "mouseup", (event) => { return true; }, false);
@@ -63,6 +64,30 @@ USER_INPUT_MANAGER.register("spectator_spectate_up", "keyup", (event) => { retur
 USER_INPUT_MANAGER.register("spectator_spectate_down", "keydown", (event) => { return event.keyCode == 40; }, true);
 USER_INPUT_MANAGER.register("spectator_spectate_down", "keyup", (event) => { return event.keyCode == 40; }, false);
 
+USER_INPUT_MANAGER.register("spectator_spectate_down", "keydown", (event) => { return event.keyCode == 40; }, true);
+USER_INPUT_MANAGER.register("spectator_spectate_down", "keyup", (event) => { return event.keyCode == 40; }, false);
+
+USER_INPUT_MANAGER.register("radar_zoom_in", "keydown", (event) => { return event.keyCode == 61; }, true);
+USER_INPUT_MANAGER.register("radar_zoom_in", "keyup", (event) => { return event.keyCode == 61; }, false);
+
+USER_INPUT_MANAGER.register("radar_zoom_out", "keydown", (event) => { return event.keyCode == 173; }, true);
+USER_INPUT_MANAGER.register("radar_zoom_out", "keyup", (event) => { return event.keyCode == 173; }, false);
+
+USER_INPUT_MANAGER.register("1/8zoomhold", "keydown", (event) => { return event.keyCode == 49; }, true);
+USER_INPUT_MANAGER.register("1/8zoomhold", "keyup", (event) => { return event.keyCode == 49; }, false);
+
+USER_INPUT_MANAGER.register("1/4zoomhold", "keydown", (event) => { return event.keyCode == 50; }, true);
+USER_INPUT_MANAGER.register("1/4zoomhold", "keyup", (event) => { return event.keyCode == 50; }, false);
+
+USER_INPUT_MANAGER.register("1/2zoomhold", "keydown", (event) => { return event.keyCode == 51; }, true);;
+USER_INPUT_MANAGER.register("1/2zoomhold", "keyup", (event) => { return event.keyCode == 51; }, false);
+
+USER_INPUT_MANAGER.register("1zoomhold", "keydown", (event) => { return event.keyCode == 52; }, true);
+USER_INPUT_MANAGER.register("1zoomhold", "keyup", (event) => { return event.keyCode == 52; }, false);
+
+USER_INPUT_MANAGER.register("2zoomhold", "keydown", (event) => { return event.keyCode == 53; }, true);
+USER_INPUT_MANAGER.register("2zoomhold", "keyup", (event) => { return event.keyCode == 53; }, false);
+
 USER_INPUT_MANAGER.registerTickedAggregator("w", "keydown", (event) => { return event.keyCode == 87; }, "keyup", (event) => { return event.keyCode == 87; });
 USER_INPUT_MANAGER.registerTickedAggregator("s", "keydown", (event) => { return event.keyCode == 83; }, "keyup", (event) => { return event.keyCode == 83; });
 
@@ -91,6 +116,10 @@ async function tick(){
         }
     }
     MAIN_TICK_LOCK.lock();
+
+    // Once within main tick lock, set zoom
+    setGameZoom();
+
     if (document.hidden){
         MENU_MANAGER.lostFocus();
     }
@@ -123,6 +152,60 @@ async function loadExtraImages(){
     // Load generic extra images
     for (let imageName of PROGRAM_DATA["extra_images_to_load"]){
         await loadToImages(imageName);
+    }
+}
+
+/*
+    Method Name: setGameZoom
+    Method Parameters: None
+    Method Description: Changes the game zoom
+    Method Return: void
+*/
+function setGameZoom(){
+    let buttonCount = 0;
+    let eighth = USER_INPUT_MANAGER.isActivated("1/8zoomhold");
+    let quarter = USER_INPUT_MANAGER.isActivated("1/4zoomhold");
+    let half = USER_INPUT_MANAGER.isActivated("1/2zoomhold");
+    let whole = USER_INPUT_MANAGER.isActivated("1zoomhold");
+    let two = USER_INPUT_MANAGER.isActivated("2zoomhold");
+    buttonCount += eighth ? 1 : 0;
+    buttonCount += quarter ? 1 : 0;
+    buttonCount += half ? 1 : 0;
+    buttonCount += whole ? 1 : 0;
+    buttonCount += two ? 1 : 0;
+    // Anything other than 1 is treated the same
+    if (buttonCount != 1){
+        // Ignore if button is null
+        if (ZOOM_MONITOR["button"] == null){ return; }
+        let timePassed = Date.now() - ZOOM_MONITOR["start_time_ms"];
+        // If the button was pressed for a short amount of time then switch gamezoom to recorded
+        if (timePassed < PROGRAM_DATA["controls"]["approximate_zoom_peek_time_ms"]){
+            PROGRAM_DATA["settings"]["game_zoom"] = gameZoom;
+        }else{ // If not taking the button then reset zoom
+            gameZoom = PROGRAM_DATA["settings"]["game_zoom"];
+        }
+        // Reset zoom monitor
+        ZOOM_MONITOR["button"] = null;
+    }else{ // 1 button pressed
+        let pressedButton;
+        // Determine which button
+        if (eighth){
+            pressedButton = 1/8;
+        }else if (quarter){
+            pressedButton = 1/4;
+        }else if (half){
+            pressedButton = 1/2;
+        }else if (whole){
+            pressedButton = 1;
+        }else{ // two
+            pressedButton = 2;
+        }
+        // If changed which 1 button is pressed
+        if (ZOOM_MONITOR["button"] != pressedButton){
+            ZOOM_MONITOR["button"] = pressedButton;
+            ZOOM_MONITOR["start_time_ms"] = Date.now();
+            gameZoom = pressedButton;
+        }
     }
 }
 
@@ -161,6 +244,7 @@ async function setup() {
 
     // Prepare the hud elements that I want
     HEADS_UP_DISPLAY.updateElement("FPS", 0);
+    HEADS_UP_DISPLAY.updateElement("Game Zoom", "1x");
     HEADS_UP_DISPLAY.updateElement("Entities", 0);
     HEADS_UP_DISPLAY.updateElement("ID", null);
     HEADS_UP_DISPLAY.updateElement("Health", 0);
@@ -170,6 +254,7 @@ async function setup() {
     HEADS_UP_DISPLAY.updateElement("y", 0);
     HEADS_UP_DISPLAY.updateElement("Allied Planes", 0);
     HEADS_UP_DISPLAY.updateElement("Axis Planes", 0);
+
 
     // Set up menu manager
     MENU_MANAGER.setup();
@@ -189,6 +274,7 @@ function draw() {
     if (GAMEMODE_MANAGER.hasActiveGamemode()){
         GAMEMODE_MANAGER.getActiveGamemode().display();
     }
+    // Display Menu
     MENU_MANAGER.display();
 }
 

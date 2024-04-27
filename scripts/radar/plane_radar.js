@@ -15,11 +15,15 @@ class PlaneRadar extends Radar {
         Method Parameters:
             plane:
                 The plane to whom the radar belongs
+            tickLockLength:
+                The number of ticks between radar updates
+            enabled:
+                Whether or not the radar is enabled
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(plane){
-        super(plane);
+    constructor(plane, tickLockLength, enabled=true){
+        super(plane, tickLockLength, enabled);
         this.plane = plane;
     }
     
@@ -30,20 +34,17 @@ class PlaneRadar extends Radar {
         Method Return: void
     */
     update(){
-        // If using NodeJS do not waste time with this code
-        if (!this.plane.isAutonomous()){ return; }
-        
-        this.radarData = this.resetRadar();
+        this.resetRadar();
         // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
         for (let plane of this.plane.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyFighterColour, this.fighterWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyFighterColour, this.enemyFighterWeight);
             }else if (plane instanceof FighterPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyFighterColour, this.fighterWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyFighterColour, this.friendlyFighterWeight);
             }else if (plane instanceof BomberPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyBomberColour, this.bomberWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyBomberColour, this.enemyBomberWeight);
             }else if (plane instanceof BomberPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyBomberColour, this.bomberWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyBomberColour, this.enemyBomberWeight);
             }
         }
 

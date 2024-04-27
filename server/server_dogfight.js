@@ -1,7 +1,6 @@
 const Dogfight = require("../scripts/gamemodes/dogfight.js");
 const TickScheduler = require("../scripts/misc/tick_scheduler.js");
 const Lock = require("../scripts/general/lock.js");
-const NotSamLinkedList = require("../scripts/general/notsam_linked_list.js");
 const helperFunctions = require("../scripts/general/helper_functions.js");
 
 const HumanFighterPlane = require("../scripts/plane/fighter_plane/human_fighter_plane.js");
@@ -49,7 +48,7 @@ class ServerDogfight extends Dogfight {
     /*
         Method Name: runsLocally
         Method Parameters: None
-        Method Description: Determines if the Mission runs locally
+        Method Description: Determines if the Dogfihgt runs locally
         Method Return: Boolean
     */
     runsLocally(){
@@ -96,7 +95,7 @@ class ServerDogfight extends Dogfight {
         await this.tickInProgressLock.awaitUnlock(true);
 
         // Tick the scene
-        await this.teamCombatManager.tick();
+        this.teamCombatManager.tick();
         this.checkForEnd();
         this.numTicks++;
 
@@ -168,6 +167,14 @@ class ServerDogfight extends Dogfight {
         for (let user of dogfightJSON["users"]){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
             let userPlane = helperFunctions.planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, false) : new HumanBomberPlane(userEntityModel, this, false);
+            
+            // Human Buffs
+
+            // Health
+            userPlane.applyHealthMultiplier(dogfightJSON["human_health_multiplier"]);
+            // Damage
+            userPlane.applyDamageMultiplier(dogfightJSON["human_damage_multiplier"]);
+
             userPlane.setCenterX(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyX : axisX);
             userPlane.setCenterY(helperFunctions.planeModelToAlliance(userEntityModel) == "Allies" ? allyY : axisY);
             userPlane.setFacingRight((helperFunctions.planeModelToAlliance(userEntityModel) == "Allies") ? allyFacingRight : !allyFacingRight);

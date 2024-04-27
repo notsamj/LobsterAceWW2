@@ -206,13 +206,16 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     */
     decideOnDirection(){
         let buildingInfo = this.getBuildingInfo();
+        let bombXAirTravel = this.getBombXAirTravel();
         // If far past the last building then turn around
-        if (this.x > buildingInfo["last_building"] + this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && this.isFacingRight()){
+        if (this.x > buildingInfo["last_building"] + bombXAirTravel * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && this.isFacingRight()){
             this.decisions["face"] = -1;
+            //console.log("turn left", this.x, this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"], buildingInfo); // TODO: Remove
         }
         // If far ahead of the first building and facing the wrong way then turn around
-        else if (this.x < buildingInfo["first_building"] - this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && !this.isFacingRight()){
+        else if (this.x < buildingInfo["first_building"] - bombXAirTravel * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && !this.isFacingRight()){
             this.decisions["face"] = 1;
+            //console.log("turn right", this.x, this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"], buildingInfo); // TODO: Remove
         }
     }
 
@@ -257,49 +260,16 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
         let backEnd = null;
         for (let [building, bI] of this.gamemode.getTeamCombatManager().getBuildings()){
             if (building.isDead()){ continue; }
-            if (frontEnd == null || building.getX() < frontEnd){
-                frontEnd = building.getX();
+            let buildingFrontX = building.getCenterX() - building.getWidth()/2;
+            let buildingBackX = building.getCenterX() + building.getWidth()/2;
+            if (frontEnd == null || buildingFrontX < frontEnd){
+                frontEnd = buildingFrontX;
             }
-            if (backEnd == null || building.getX() + building.getWidth() > backEnd){
-                backEnd = building.getX() + building.getWidth();
+            if (backEnd == null || buildingBackX > backEnd){
+                backEnd = buildingBackX;
             }
         }
         return {"first_building": frontEnd, "last_building": backEnd};
-    }
-
-    /*
-        Method Name: bombXAirTravel
-        Method Parameters: None
-        Method Description: Calculate how far the bomb will travel (in x) while falling
-        Method Return: float
-    */
-    bombXAirTravel(){
-        // If the plane is at/below ground don't bother with computation
-        if (this.y <= 0){ return 0; }
-        // Calculate time to hit ground
-        /*
-            d = vI * t + 1/2 * g * t^2
-            d = 0.5g * t^2 + vI * t + 0
-            0 = 0.5g * t^2 + vI * t - d
-            t = [-1 * vI + sqrt(vI + 2 * g * d)] / g
-        */
-        let vI = this.bombInitialYVelocity();
-        let g = PROGRAM_DATA["constants"]["gravity"];
-        let d = this.y;
-        // Note: There may be some error here because I wasn't thinking too clearly when I was setting up the equation and considering the direction of the initial velocity
-        let time = (vI + Math.sqrt(Math.pow(vI, 2) + 2 * d * g)) / g;
-        // Calculate x distance covered in that time
-        return Math.abs(this.getXVelocity() * time);
-    }
-
-    /*
-        Method Name: bombInitialYVelocity
-        Method Parameters: None
-        Method Description: Calculate the the initial y velocity of the bomb
-        Method Return: float
-    */
-    bombInitialYVelocity(){
-        return this.getYVelocity() + PROGRAM_DATA["bomb_data"]["initial_y_velocity"]; 
     }
 
     /*
@@ -310,11 +280,12 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     */
     checkIfBombing(){
         if (this.bombLock.notReady()){ return; }
-        let distanceTravelledByBomb = this.bombXAirTravel();
-        let bombHitX = this.x + distanceTravelledByBomb * (this.isFacingRight() ? 1 : -1);
+        let bombHitX = this.getBombHitX();
         let buildingInfo = this.getBuildingInfo();
         // If the bomb hit location isn't near the buildings then don't drop a bomb
-        if (!(bombHitX >= buildingInfo["first_building"] && bombHitX <= buildingInfo["last_building"])){ return; }
+        //console.log(bombHitX, buildingInfo["last_building"] + PROGRAM_DATA["ai"]["bomber_plane"]["extra_bomb_distance"], buildingInfo["first_building"] - PROGRAM_DATA["ai"]["bomber_plane"]["extra_bomb_distance"])
+        if (bombHitX > buildingInfo["last_building"] + PROGRAM_DATA["ai"]["bomber_plane"]["extra_bomb_distance"]){ return; }
+        if (bombHitX < buildingInfo["first_building"] - PROGRAM_DATA["ai"]["bomber_plane"]["extra_bomb_distance"]){ return; }
         this.decisions["bombing"] = true;
     }
 }

@@ -11,8 +11,8 @@ class AnimatedCloudBackground extends Component {
     */
     constructor(){
         super();
-        this.lX = randomFloatBetween(100000,200000);
-        this.bY = randomFloatBetween(100000,200000);
+        this.centerX = randomFloatBetween(100000,200000);
+        this.centerY = randomFloatBetween(100000,200000);
         this.xVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_x"]);
         this.xVelocity *= (randomFloatBetween(0,1)==0) ? -1 : 1;
         this.yVelocity = randomFloatBetween(0, PROGRAM_DATA["settings"]["max_cloud_animation_speed_y"]);
@@ -26,7 +26,7 @@ class AnimatedCloudBackground extends Component {
         Method Return: int
     */
     getWidth(){
-        return getScreenWidth();
+        return getZoomedScreenWidth();
     }
 
     /*
@@ -36,7 +36,7 @@ class AnimatedCloudBackground extends Component {
         Method Return: int
     */
     getHeight(){
-        return getScreenHeight();
+        return getZoomedScreenHeight();
     }
 
     /*
@@ -47,9 +47,11 @@ class AnimatedCloudBackground extends Component {
     */
     display(){
         if (!this.enabled){ return; }
-        this.scene.getSkyManager().display(this.lX, this.bY);
-        this.lX += this.xVelocity;
-        this.bY += this.yVelocity;
+        let lX = this.centerX - getZoomedScreenWidth() / 2;
+        let bY = this.centerY - getZoomedScreenHeight() / 2;
+        this.scene.getSkyManager().display(lX, bY);
+        this.centerX += this.xVelocity;
+        this.centerY += this.yVelocity;
     }
 
     /*

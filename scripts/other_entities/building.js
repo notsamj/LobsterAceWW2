@@ -167,8 +167,8 @@ class Building extends Entity {
     display(lX, bY){
         // Do not display if dead
         if (this.isDead()){ return; }
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
 
         // If not on screen then return
         if (!this.touchesRegion(lX, rX, bY, tY)){ return; }
@@ -176,8 +176,10 @@ class Building extends Entity {
         // Determine the location it will be displayed at
         let displayX = this.gamemode.getScene().getDisplayX(this.x, 0, lX);
         let displayY = this.gamemode.getScene().getDisplayY(this.height, 0, bY);
+        
         // The display the building
-        strokeRectangle(Colour.fromCode(PROGRAM_DATA["building_data"]["building_colour"]), displayX, displayY, this.width, this.height)
+        strokeRectangle(Colour.fromCode(PROGRAM_DATA["building_data"]["building_colour"]), displayX, displayY, this.width * gameZoom, this.height * gameZoom)
+
     }
 
     /*

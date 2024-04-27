@@ -36,7 +36,7 @@ class Mission extends Gamemode {
         this.allyDifficulty = missionSetupJSON["ally_difficulty"];
         this.axisDifficulty = missionSetupJSON["axis_difficulty"];
 		this.buildings = this.createBuildings();
-		this.planes = this.createPlanes(missionSetupJSON["users"]);
+		this.planes = this.createPlanes(missionSetupJSON);
         this.attackerSpawnLock = new TickLock(this.missionObject[this.getAttackerDifficulty()]["respawn_times"]["attackers"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
         this.defenderSpawnLock = new TickLock(this.missionObject[this.getDefenderDifficulty()]["respawn_times"]["defenders"] / PROGRAM_DATA["settings"]["ms_between_ticks"], false);
 		this.teamCombatManager.setEntities(appendLists(this.planes, this.buildings));
@@ -85,7 +85,7 @@ class Mission extends Gamemode {
         this.refreshLastTickTime();
         this.attackerSpawnLock.tick();
         this.defenderSpawnLock.tick();
-        await this.teamCombatManager.tick();
+        this.teamCombatManager.tick();
         this.checkSpawn();
         this.checkForEnd();
         this.numTicks++;
@@ -310,14 +310,14 @@ class Mission extends Gamemode {
     
     setupPlanes(planes){
         // Planes need to be placed at this point
-        for (let entity of planes){
+        for (let plane of planes){
             // If not a plane, but a specator camera then spawn in between spawns
-            let plane = entity;
             let alliance = planeModelToAlliance(plane.getModel());
             let side = (this.missionObject["attackers"] == alliance) ? "attackers" : "defenders";
             let xOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["x"]);
             let yOffset = randomNumberInclusive(0, this.missionObject["start_zone"]["offsets"]["y"]);
             let facingRight = side == "attackers" ? true : false;
+            plane.setThrottle(plane.getStartingThrottle());
             plane.setAngle(0);
             plane.setAlive(true); // This is good for setting up previously dead planes
             plane.setThrottle(plane.getStartingThrottle());
@@ -325,10 +325,14 @@ class Mission extends Gamemode {
             plane.setX(this.missionObject["start_zone"][side]["x"] + xOffset);
             plane.setY(this.missionObject["start_zone"][side]["y"] + yOffset);
             plane.setHealth(plane.getStartingHealth());
+            plane.setSpeed(plane.getMaxSpeed());
             // Give bomber extra hp
             if (plane instanceof BomberPlane){
                 plane.setStartingHealth(plane.getHealth() * this.missionObject[this.getAttackerDifficulty()]["bomber_hp_multiplier"]);
                 plane.setHealth(plane.getStartingHealth());
+            }else{ // Fighter
+                plane.getGunHeatManager().reset();
+                plane.getShootLock().setTicksLeft(0);
             }
         }
     }
@@ -336,12 +340,13 @@ class Mission extends Gamemode {
     /*
         Method Name: createPlanes
         Method Parameters:
-            userList:
-                List of users and their planes
+            missionSetupJSON:
+                Information about this specific instance of the mission
         Method Description: Creates all the planes at the start of the game
         Method Return: List of planes
     */
-    createPlanes(userList){
+    createPlanes(missionSetupJSON){
+        let userList = missionSetupJSON["users"];
     	let planes = [];
         // Save plane counts
     	this.planeCounts = mergeCopyObjects(this.missionObject[this.getAttackerDifficulty()]["attacker_plane_counts"], this.missionObject[this.getDefenderDifficulty()]["defender_plane_counts"]);
@@ -349,7 +354,16 @@ class Mission extends Gamemode {
         // Add users
         for (let user of userList){
             let userEntityModel = user["model"]; // Note: Expected NOT freecam
-            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, 0, true, false) : new HumanBomberPlane(userEntityModel, this, 0, true, false);
+            let userPlane = planeModelToType(userEntityModel) == "Fighter" ? new HumanFighterPlane(userEntityModel, this, false) : new HumanBomberPlane(userEntityModel, this, 0, false);
+            
+            // Apply Human Buffs
+            
+            // Health
+            userPlane.applyHealthMultiplier(missionSetupJSON["human_health_multiplier"]);
+            // Damage
+            userPlane.applyDamageMultiplier(missionSetupJSON["human_damage_multiplier"])
+
+            
             userPlane.setID(user["id"]);
             planes.push(userPlane);
             this.teamCombatManager.addPlane(userPlane);

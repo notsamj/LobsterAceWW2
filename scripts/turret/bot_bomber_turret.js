@@ -2,6 +2,7 @@
 if (typeof window === "undefined"){
     BomberTurret = require("./bomber_turret.js");
     helperFunctions = require("../general/helper_functions.js");
+    angleBetweenCWRAD = helperFunctions.angleBetweenCWRAD;
     displacementToDegrees = helperFunctions.displacementToDegrees;
 }
 /*
@@ -91,7 +92,6 @@ class BotBomberTurret extends BomberTurret {
             hasDecidedToFireShot = this.isEnemyClose(distanceToEnemy);
             if (hasDecidedToFireShot){ break; }
         }
-
         // If the decision has been made to shoot then record it
         if (hasDecidedToFireShot){
             // Check gun heat

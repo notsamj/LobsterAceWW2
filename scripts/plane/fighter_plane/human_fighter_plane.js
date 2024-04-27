@@ -31,8 +31,56 @@ class HumanFighterPlane extends FighterPlane {
     constructor(planeClass, game, autonomous=true){
         super(planeClass, game, autonomous);
         this.lrLock = new Lock();
-        this.radarLock = new TickLock(1000 / PROGRAM_DATA["settings"]["ms_between_ticks"]);
-        this.radar = new PlaneRadar(this);
+        this.radar = new PlaneRadar(this, 1000 / PROGRAM_DATA["settings"]["ms_between_ticks"], autonomous);
+        this.damageMultiplier = 1;
+    }
+
+    /*
+        Method Name: getDamage
+        Method Parameters: None
+        Method Description: Determines how much damage a bullet from this plane causes
+        Method Return: Number
+    */
+    getDamage(){
+        return super.getDamage() * this.damageMultiplier;
+    }
+
+    /*
+        Method Name: applyHealthMultiplier
+        Method Parameters:
+            multiplier:
+                A multiplier value
+        Method Description: Modifies the health of the human plane
+        Method Return: void
+    */
+    applyHealthMultiplier(multiplier){
+        this.setStartingHealth(this.getStartingHealth() * multiplier);
+        this.setHealth(this.getStartingHealth());
+    }
+
+    /*
+        Method Name: applyDamageMultiplier
+        Method Parameters:
+            multiplier:
+                A multiplier value
+        Method Description: Modifies the damage done by bullets of the human plane
+        Method Return: void
+    */
+    applyDamageMultiplier(multiplier){
+        this.damageMultiplier = multiplier;
+    }
+
+    /*
+        Method Name: setAutonomous
+        Method Parameters:
+            value:
+                Boolean, whether or not plane is autonomous
+        Method Description: Setter
+        Method Return: void
+    */
+    setAutonomous(value){
+        super.setAutonomous(value);
+        this.radar.setEnabled(value);
     }
 
     /*
@@ -150,7 +198,7 @@ class HumanFighterPlane extends FighterPlane {
     */
     tick(){
         // Only need radar if autonomous
-        if (this.isAutonomous()){ this.radarLock.tick(); this.updateRadar(); }
+        this.radar.tick();
         super.tick();
     }
 
@@ -184,19 +232,6 @@ class HumanFighterPlane extends FighterPlane {
         Method Return: void
     */
     hasRadar(){ return true; }
-
-    /*
-        Method Name: updateRadar
-        Method Parameters: None
-        Method Description: Update the radar with new information
-        Method Return: void
-    */
-    updateRadar(){
-        if (this.radarLock.isReady()){
-            this.radar.update();
-            this.radarLock.lock();
-        }
-    }
 
     /*
         Method Name: checkMoveLeftRight

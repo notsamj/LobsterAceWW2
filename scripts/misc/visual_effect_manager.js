@@ -38,8 +38,8 @@ class VisualEffectManager {
         Method Return: void
     */
     display(scene, lX, bY){
-        let rX = lX + getScreenWidth() - 1;
-        let tY = bY + getScreenHeight() - 1;
+        let rX = lX + getZoomedScreenWidth() - 1;
+        let tY = bY + getZoomedScreenHeight() - 1;
         
         // Delete all expired effects
         this.visualEffects.deleteWithCondition((visualEffect) => { return visualEffect.isExpired(); });
@@ -65,6 +65,8 @@ class VisualEffectManager {
         Method Return: void
     */
     addPlaneSmoke(id, smokeStage, planeClass, sizeMultiplier, x, y, planeAngleRAD, planeFacingRight){
+        // TODO: Come up with something better for this
+        if (typeof window === "undefined"){ return; }
         // Create lock if doesn't exist
         if (!objectHasKey(this.planeSmokeLocks, id)){
             this.planeSmokeLocks[id] = new CooldownLock(PROGRAM_DATA["plane_smoke"]["plane_smoke_interval_ms"]);
@@ -97,6 +99,8 @@ class VisualEffectManager {
         Method Return: void
     */
     addBuildingCollapse(buildingX, buildingXSize, buildingYSize){
+        // TODO: Come up with something better for this
+        if (typeof window === "undefined"){ return; }
         this.visualEffects.push(new BuildingCollapse(buildingX, buildingXSize, buildingYSize));
     }
 
@@ -115,6 +119,8 @@ class VisualEffectManager {
         Note: 64 for fighter, 128 for bomber, 8 for bomb?
     */
     addExplosion(size, x, y){
+        // TODO: Come up with something better for this
+        if (typeof window === "undefined"){ return; }
         this.visualEffects.push(new Explosion(size, x, y));
     }
 }
@@ -306,15 +312,8 @@ class Explosion extends TemporaryVisualEffect {
             // Sometimes circles with opacity <= 0 will be found these should be ignored
             if (opacity > 0){
                 colour.setAlpha(opacity);
-                noStrokeCircle(colour, screenX, screenY, diameter);
+                noStrokeCircle(colour, screenX, screenY, diameter*gameZoom);
             }
-        }
-
-        // Display Falling Building if still around
-        if (timePassedMS < this.buildingLifeSpan){
-            let buildingYLeft = (1 - timePassedMS / this.buildingLifeSpan) * this.buildingYSize;
-            let topY = buildingYLeft;
-            strokeRectangle(this.buildingColour, this.buildingX, topY, this.buildingXSize, buildingYLeft);
         }
     }
 }
@@ -446,7 +445,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
             // Sometimes circles with opacity <= 0 will be found these should be ignored
             if (opacity > 0){
                 colour.setAlpha(opacity);
-                noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]);
+                noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]*gameZoom);
             }
         }
 
@@ -456,7 +455,7 @@ class BuildingCollapse extends TemporaryVisualEffect {
             let topY = buildingYLeft;
             let screenX = scene.getDisplayX(this.buildingX, 0, lX, false);
             let screenY = scene.getDisplayY(topY, 0, bY, false);
-            noStrokeRectangle(this.buildingColour, screenX, screenY, this.buildingXSize, buildingYLeft);
+            strokeRectangle(this.buildingColour, screenX, screenY, this.buildingXSize * gameZoom, buildingYLeft*gameZoom);
         }
     }
 
@@ -546,7 +545,11 @@ class PlaneSmoke extends TemporaryVisualEffect {
             colour.setAlpha(opacity);
             let screenX = scene.getDisplayX(circleJSON["x"], 0, lX, false);
             let screenY = scene.getDisplayY(circleJSON["y"], 0, bY, false);
-            noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]);
+            noStrokeCircle(colour, screenX, screenY, circleJSON["diameter"]*gameZoom);
         }
     }
+}
+// If using NodeJS then export
+if (typeof window === "undefined"){
+    module.exports = VisualEffectManager;
 }

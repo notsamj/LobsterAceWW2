@@ -108,12 +108,14 @@ class BomberTurret extends Turret {
         let shootingAngleRAD = this.getShootingAngle();
         // If not within the area then don't shoot
         if (!angleBetweenCWRAD(shootingAngleRAD, this.getFov1(), this.getFov2())){
+            // console.log("bad", toDegrees(shootingAngleRAD), toDegrees(this.getFov1()), toDegrees(this.getFov2()))
             return;
         }
         this.shootCD.lock();
         this.turretHeatManager.shoot();
         this.getGamemode().getSoundManager().play("shoot", this.getX(), this.getY());
         if (this.getGamemode().areBulletPhysicsEnabled()){
+            //console.log("bullet", this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), shootingAngleRAD, this.getID(), this.model, this.damage)
             this.getGamemode().getTeamCombatManager().addBullet(new Bullet(this.getX(), this.getY(), this.getGamemode(), this.getXVelocity(), this.getYVelocity(), shootingAngleRAD, this.getID(), this.model, this.damage));
         }else{ // Fake bullets
             this.plane.instantShot(this.getX(), this.getY(), shootingAngleRAD, new Bullet(null, null, this.plane.getGamemode(), null, null, null, this.plane.getID(), this.plane.getPlaneClass(), this.damage));
@@ -290,13 +292,21 @@ class BomberTurret extends Turret {
         if (currentShootingAngle == newShootingAngle){ return; }
         let diffCW = calculateAngleDiffCWRAD(currentShootingAngle, newShootingAngle); 
         let diffCCW = calculateAngleDiffCCWRAD(currentShootingAngle, newShootingAngle);
-        let rotateCW = (diffCW < diffCCW && this.isFacingRight()) || (diffCW > diffCCW && !this.isFacingRight())
-        //console.log("currently: %d\nnew: %d\ndiffCW: %d\ndiffCCW: %d\nrotateCW:", toDegrees(currentShootingAngle), toDegrees(newShootingAngle), toDegrees(diffCW), toDegrees(diffCCW), rotateCW)
+        let rotateCW = diffCW < diffCCW;
+        //console.log("currently: %d\nnew: %d\ndiffCW: %d\ndiffCCW: %d\nnewAngle if rotatecw: %d\nnewAngle if rotateccw: %d\nrotateCW:", toDegrees(currentShootingAngle), toDegrees(newShootingAngle), toDegrees(diffCW), toDegrees(diffCCW), toDegrees(rotateCWRAD(this.angle, diffCW)), toDegrees(rotateCCWRAD(this.angle, diffCCW)), rotateCW);
         // Rotate based on determination
         if (rotateCW){
-            this.angle = rotateCWRAD(this.angle, diffCW);
+            if (this.isFacingRight()){
+                this.angle = rotateCWRAD(this.angle, diffCW);
+            }else{
+                this.angle = rotateCCWRAD(this.angle, diffCW);
+            }
         }else{
-            this.angle = rotateCCWRAD(this.angle, diffCCW);
+            if (this.isFacingRight()){
+                this.angle = rotateCCWRAD(this.angle, diffCCW);
+            }else{
+                this.angle = rotateCWRAD(this.angle, diffCCW);
+            }
         }
     }
 

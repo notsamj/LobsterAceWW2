@@ -12,15 +12,47 @@ class StaticImage extends Component {
                 The x location of the top left corner
             y:
                 The y location of the top left corner
+            maxWidth:
+                The maximum width of the image
+            maxHeight:
+                The maximum height of the image
         Method Description: Constructor
         Method Return: Constructor
     */
-    constructor(image, x, y){
+    constructor(image, x, y, maxWidth=null, maxHeight=null){
         super();
         this.image = image;
         this.x = x;
         this.y = y;
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
         this.onClick = null;
+    }
+
+    /*
+        Method Name: getMaxWidth
+        Method Parameters: None
+        Method Description: Gets the max width if it exists, otherwise gets current width
+        Method Return: int
+    */
+    getMaxWidth(){
+        if (this.maxWidth == null){
+            return this.getWidth();
+        }
+        return this.maxWidth;
+    }
+
+    /*
+        Method Name: getMaxHeight
+        Method Parameters: None
+        Method Description: Gets the max height if it exists, otherwise gets current height
+        Method Return: int
+    */
+    getMaxHeight(){
+        if (this.maxWidth == null){
+            return this.getHeight();
+        }
+        return this.maxHeight;
     }
 
     /*
@@ -126,7 +158,24 @@ class StaticImage extends Component {
     display(){
         if (!this.isDisplayEnabled()){ return; }
         let screenY = MENU_MANAGER.changeToScreenY(this.getY());
-        displayImage(this.getImage(), this.getX(), screenY);
+        let image = this.getImage();
+        let translateX = this.getX() + this.getMaxWidth()/2;
+        let translateY = screenY + this.getMaxHeight()/2;
+        
+        // Translate
+        translate(translateX, translateY);
+
+        // Scale
+        scale(this.getMaxWidth() / this.getWidth(), this.getMaxHeight() / this.getHeight());
+
+        // Display image
+        displayImage(image, 0 - image.width/2, 0 - image.height/2);
+
+        // Undo Scale
+        scale(this.getWidth() / this.getMaxWidth(), this.getHeight() / this.getMaxHeight());
+
+        // Undo translate
+        translate(-1 * translateX, -1 * translateY);
     }
 
     /*
@@ -140,7 +189,7 @@ class StaticImage extends Component {
         Method Return: boolean, true -> covers, false -> does not cover
     */
     covers(x, y){
-        return x >= this.getX() && x <= this.getX() + this.image.width && y <= this.getY() && y >= this.getY() - this.image.height;
+        return x >= this.getX() && x <= this.getX() + this.getMaxWidth() && y <= this.getY() && y >= this.getY() - this.getMaxHeight();
     }
 
     /*
