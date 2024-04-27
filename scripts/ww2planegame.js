@@ -176,7 +176,10 @@ function setGameZoom(){
     // Anything other than 1 is treated the same
     if (buttonCount != 1){
         // Ignore if button is null
-        if (ZOOM_MONITOR["button"] == null){ return; }
+        if (ZOOM_MONITOR["button"] == null){
+            gameZoom = PROGRAM_DATA["settings"]["game_zoom"];
+            return;
+        }
         let timePassed = Date.now() - ZOOM_MONITOR["start_time_ms"];
         // If the button was pressed for a short amount of time then switch gamezoom to recorded
         if (timePassed < PROGRAM_DATA["controls"]["approximate_zoom_peek_time_ms"]){

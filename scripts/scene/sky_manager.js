@@ -147,10 +147,11 @@ class SkyManager {
         let tY = bY + getZoomedScreenHeight() - 1;
 
         // Adjusted because of clouds sticking outside their zones
-        let lXAdjusted = lX - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
-        let rXAdjusted = rX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
-        let bYAdjusted = bY - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
-        let tYAdjusted = tY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"];
+        // Note: The * 2 used to just as safeguard because sometimes floats are iffy I don't want clouds popping away
+        let lXAdjusted = lX - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2;
+        let rXAdjusted = rX + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2;
+        let bYAdjusted = bY - PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2;
+        let tYAdjusted = tY + PROGRAM_DATA["sky_generation"]["cloud_generation"]["max_radius"] * 2;
 
         let leftClusterX = Math.floor(lXAdjusted / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
         let rightClusterX = Math.floor(rXAdjusted / PROGRAM_DATA["sky_generation"]["cloud_generation"]["cloud_cluster_width"]);
