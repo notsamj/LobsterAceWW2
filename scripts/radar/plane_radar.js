@@ -38,13 +38,13 @@ class PlaneRadar extends Radar {
         // All planes to radar. Enemy fighters, enemy bombers, friendly bombers. Ignore friendly fighters.
         for (let plane of this.plane.getTeamCombatManager().getLivingPlanes()){
             if (plane instanceof FighterPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyFighterColour, this.fighterWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyFighterColour, this.enemyFighterWeight);
             }else if (plane instanceof FighterPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyFighterColour, this.fighterWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyFighterColour, this.friendlyFighterWeight);
             }else if (plane instanceof BomberPlane && !onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyBomberColour, this.bomberWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.enemyBomberColour, this.enemyBomberWeight);
             }else if (plane instanceof BomberPlane && onSameTeam(this.plane.getPlaneClass(), plane.getPlaneClass())){
-                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyBomberColour, this.bomberWeight);
+                this.placeOnRadar(plane.getX(), plane.getY(), this.friendlyBomberColour, this.enemyBomberWeight);
             }
         }
 

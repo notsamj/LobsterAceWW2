@@ -34,6 +34,10 @@ class Radar {
         
         this.fighterWeight = PROGRAM_DATA["radar"]["fighter_weight"];
         this.bomberWeight = PROGRAM_DATA["radar"]["bomber_weight"];
+        this.friendlyFighterWeight = PROGRAM_DATA["radar"]["fighter_weight"];
+        this.friendlyBomberWeight = PROGRAM_DATA["radar"]["bomber_weight"];
+        this.enemyFighterWeight = PROGRAM_DATA["radar"]["fighter_weight"];
+        this.enemyBomberWeight = PROGRAM_DATA["radar"]["bomber_weight"];
         this.buildingWeight = PROGRAM_DATA["radar"]["building_weight"];
         this.bombHitLocationWeight = PROGRAM_DATA["radar"]["bomb_hit_location_weight"];
 
