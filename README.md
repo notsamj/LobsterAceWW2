@@ -123,7 +123,7 @@ Space (Hold): Shoot
 Space (Hold): Drop bombs \
 Left click (Hold): Shoot
 
-#photo-guides
+# Photo Guides
 
 ## Main Menu (downloaded version [ww2planegame.html])
 ![Main Menu](./user_guide/main_menu.png)
