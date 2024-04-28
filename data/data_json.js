@@ -259,7 +259,7 @@ const PROGRAM_DATA = {
                 { // Bottom gun front
                     "x_offset": 230-128,
                     "y_offset": 128-140,
-                    "fov_1": 350, // 350
+                    "fov_1": 70, // 350
                     "fov_2": 290, // 290
                     "bullet_heat_capacity": 16,
                     "cooling_time_ms": 10000,

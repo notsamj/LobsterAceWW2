@@ -488,10 +488,10 @@ class Plane extends Entity {
             return;
         }
         if (this.hasNoControl()){ return; }
-        let newAngle = fixRadians(toRadians(360) - this.angle);
+        let newAngle = fixRadians(this.angle + toRadians(180));
         this.angle = newAngle;
         this.facingRight = facingRight;
-        this.speed *= (1 - PROGRAM_DATA["settings"]["slow_down_amount"]);
+        // this.speed *= (1 - PROGRAM_DATA["settings"]["slow_down_amount"]); // TODO: Remove slow down amount?
     }
 
     /*
