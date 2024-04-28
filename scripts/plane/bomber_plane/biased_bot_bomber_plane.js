@@ -84,6 +84,61 @@ class BiasedBotBomberPlane extends BomberPlane {
             }
         });
     }
+
+    /*
+        Method Name: turnInDirection
+        Method Parameters:
+            angleRAD:
+                The angle to turn to (angle)
+        Method Description: Turn the plane in a given direction
+        Method Return: void
+    */
+    turnInDirection(angleRAD){
+        let noseAngle = this.getNoseAngle()
+        let dCWRAD = calculateAngleDiffCWRAD(noseAngle, angleRAD);
+        let dCCWRAD = calculateAngleDiffCCWRAD(noseAngle, angleRAD);
+        let angleDiffRAD = calculateAngleDiffRAD(angleRAD, noseAngle);
+
+        // The clockwise distance is less than the counter clockwise difference and facing right then turn clockwise 
+        if (dCWRAD < dCCWRAD && this.facingRight){
+            this.decisions["angle"] = -1 * Math.min(toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"]), angleDiffRAD);
+        }
+        // The clockwise distance is less than the counter clockwise difference and facing left then turn counter clockwise 
+        else if (dCWRAD < dCCWRAD && !this.facingRight){
+            this.decisions["angle"] = 1 * Math.min(toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"]), angleDiffRAD);
+        }
+        // The counter clockwise distance is less than the clockwise difference and facing right then turn counter clockwise 
+        else if (dCCWRAD < dCWRAD && this.facingRight){
+            this.decisions["angle"] = 1 * Math.min(toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"]), angleDiffRAD);
+        }
+        // The counter clockwise distance is less than the clockwise difference and facing left then turn clockwise 
+        else if (dCCWRAD < dCWRAD && !this.facingRight){
+            this.decisions["angle"] = -1 * Math.min(toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"]), angleDiffRAD);
+        }
+        // Otherwise just turn clockwise (Shouldn't actually be possible?)
+        else{
+            this.decisions["angle"] = 1 * Math.min(toRadians(PROGRAM_DATA["controls"]["max_angle_change_per_tick_bomber_plane"]), angleDiffRAD);
+        }
+        //console.log("Angle to enemy: %d\nAngle rn: %d\nAngle Diff CW: %d\nAngle Diff CCW:%d\nAngle Diff: %d\nAngle change: %d", toDegrees(angleRAD), toDegrees(myAngle), toDegrees(dCWRAD), toDegrees(dCCWRAD), toDegrees(angleDiffRAD), toDegrees(this.decisions["angle"]));
+    }
+
+    /*
+        Method Name: executeMainDecisions
+        Method Parameters: None
+        Method Description: Take actions based on saved decisions
+        Method Return: void
+    */
+    executeMainDecisions(){
+        // Change facing direction
+        if (this.decisions["face"] != 0){
+            this.face(this.decisions["face"] == 1 ? true : false);
+        }
+
+        // Adjust angle
+        if (this.decisions["angle"] != 0){
+            this.adjustAngle(this.decisions["angle"]);
+        }
+    }
 }
 
 // If using Node JS Export the class

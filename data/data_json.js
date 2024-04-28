@@ -386,7 +386,6 @@ const PROGRAM_DATA = {
         "min_velocity_assumption": 0.01,
         "max_throttle": 100,
         "fall_speed": 1200,
-        "slow_down_amount": 0.05, // used 0.1 for a while
         "expected_canvas_width": 1920,
         "expected_canvas_height": 927,
         "frame_rate": 100, // 60
