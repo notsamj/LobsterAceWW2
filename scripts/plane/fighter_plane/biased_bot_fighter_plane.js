@@ -285,12 +285,16 @@ class BiasedBotFighterPlane extends FighterPlane {
         if (this.closeToGround() && angleBetweenCCWRAD(this.getNoseAngle(), toRadians(180.01), toRadians(359.99))){
             // Bias
             this.turnInDirection(fixRadians(90 + toRadians(this.biases["angle_from_ground"])));
+            // If not fighting an enemy then roll over the plane if needed
+            this.correctFacingDirection();
             return;
         }
         // Point to enemy when very far away
         if (distance > this.speed * PROGRAM_DATA["settings"]["enemy_disregard_distance_time_constant"] * PROGRAM_DATA["settings"]["turn_to_enemy_constant"] + this.biases["enemy_far_away_distance"]){
             this.turnInDirection(angleRAD);
             this.turningDirection = null; // Evasive maneuevers cut off if far away
+            // If not fighting an enemy then roll over the plane if needed
+            this.correctFacingDirection();
             return;
         }
         // Else at a medium distance to enemy
@@ -387,17 +391,6 @@ class BiasedBotFighterPlane extends FighterPlane {
     turnInDirection(angleRAD){
         // Determine if we need to switch from left to right
         let myAngle = this.getNoseAngle();
-        // If facing right and the angle to turn to is very far but close if the plane turned left
-        if (this.facingRight && angleBetweenCCWRAD(angleRAD, toFixedRadians(135 + this.biases["flip_direction_lb"]), toFixedRadians(225 + this.biases["flip_direction_ub"])) && angleBetweenCCWRAD(myAngle, toFixedRadians(315 + this.biases["flip_direction_lb"]), toFixedRadians(45 + this.biases["flip_direction_ub"]))){
-            this.decisions["face"] = -1;
-            return;
-        }
-        // If facing left and the angle to turn to is very far but close if the plane turned right
-        else if (!this.facingRight && angleBetweenCCWRAD(angleRAD, toFixedRadians(295 + this.biases["flip_direction_lb"]), toFixedRadians(45 + this.biases["flip_direction_ub"])) && angleBetweenCCWRAD(angleRAD, toFixedRadians(135 + this.biases["flip_direction_lb"]), toFixedRadians(225 + this.biases["flip_direction_ub"]))){
-            this.decisions["throttle"] = 1;
-            return;
-        }
-        
         let dCW = calculateAngleDiffCWRAD(myAngle, angleRAD);
         let dCCW = calculateAngleDiffCCWRAD(myAngle, angleRAD);
         let angleDifferenceRAD = calculateAngleDiffRAD(myAngle, angleRAD);

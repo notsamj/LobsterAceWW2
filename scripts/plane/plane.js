@@ -58,6 +58,24 @@ class Plane extends Entity {
     }
 
     /*
+        Method Name: correctFacingDirection
+        Method Parameters: None
+        Method Description: This function chooses to change the facing direction of the plane based on its angle
+        Method Return: void
+    */
+    correctFacingDirection(){
+        // If not fighting an enemy then roll over the plane if needed
+        let noseAngle = this.getNoseAngle();
+        let facingRight = this.isFacingRight();
+        // If facing right and plane is rolled over then switch to right
+        if (facingRight && angleBetweenCWRAD(noseAngle, toRadians(250), toRadians(110))){
+            this.decisions["face"] = -1;
+        }else if (!facingRight && angleBetweenCWRAD(noseAngle, toRadians(70), toRadians(290))){
+            this.decisions["face"] = 1;
+        }
+    }
+
+    /*
         Method Name: getStartingThrottle
         Method Parameters: None
         Method Description: Getter
@@ -498,10 +516,9 @@ class Plane extends Entity {
             return;
         }
         if (this.hasNoControl()){ return; }
-        let newAngle = fixRadians(toRadians(360) - this.angle);
+        let newAngle = fixRadians(this.angle + toRadians(180));
         this.angle = newAngle;
         this.facingRight = facingRight;
-        this.speed *= (1 - PROGRAM_DATA["settings"]["slow_down_amount"]);
     }
 
     /*

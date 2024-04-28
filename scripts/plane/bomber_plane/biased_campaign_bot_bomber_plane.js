@@ -25,6 +25,7 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     */
     constructor(planeClass, gamemode, biases, autonomous=true){
         super(planeClass, gamemode, biases, autonomous);
+        this.flightAngle = 0;
     }
 
     /*
@@ -165,19 +166,6 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
     }
 
     /*
-        Method Name: executeMainDecisions
-        Method Parameters: None
-        Method Description: Take actions based on saved decisions
-        Method Return: void
-    */
-    executeMainDecisions(){
-        // Change facing direction
-        if (this.decisions["face"] != 0){
-            this.face(this.decisions["face"] == 1 ? true : false);
-        }
-    }
-
-    /*
         Method Name: executeAttackingDecisions
         Method Parameters: None
         Method Description: Decide whether or not to shoot
@@ -209,14 +197,17 @@ class BiasedCampaignBotBomberPlane extends BiasedBotBomberPlane {
         let bombXAirTravel = this.getBombXAirTravel();
         // If far past the last building then turn around
         if (this.x > buildingInfo["last_building"] + bombXAirTravel * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && this.isFacingRight()){
-            this.decisions["face"] = -1;
+            this.flightAngle = toRadians(180) + toRadians(1); // I want them flying downwards
             //console.log("turn left", this.x, this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"], buildingInfo); // TODO: Remove
         }
         // If far ahead of the first building and facing the wrong way then turn around
         else if (this.x < buildingInfo["first_building"] - bombXAirTravel * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"] && !this.isFacingRight()){
-            this.decisions["face"] = 1;
+            this.flightAngle = fixRadians(0 - toRadians(1)); // I want them flying downwards
             //console.log("turn right", this.x, this.bombXAirTravel() * PROGRAM_DATA["ai"]["bomber_plane"]["bomb_falling_distance_allowance_multiplier"], buildingInfo); // TODO: Remove
         }
+        this.turnInDirection(this.flightAngle);
+        // If not fighting an enemy then roll over the plane if needed
+        this.correctFacingDirection();
     }
 
     /*
