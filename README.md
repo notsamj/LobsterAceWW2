@@ -83,16 +83,16 @@ A few extra settings
 Escape (Press): Open pause menu \
 -: Zoom out the radar \
 =: Zoom in the radar \
-1 (Hold [over 150ms]): Switch to 1/8x game zoom temporarily \
-1 (Press [under 150ms]): Switch to 1/8x game zoom \
-2 (Hold [over 150ms]): Switch to 1/4x game zoom temporarily \
-2 (Press [under 150ms]): Switch to 1/4x game zoom \
-3 (Hold [over 150ms]): Switch to 1/2x game zoom temporarily \
-3 (Press [under 150ms]): Switch to 1/2x game zoom \
-4 (Hold [over 150ms]): Switch to 1x game zoom temporarily \
-4 (Press [under 150ms]): Switch to 1x game zoom \
-5 (Hold [over 150ms]): Switch to 2x game zoom temporarily \
-5 (Press [under 150ms]): Switch to 2x game zoom
+1 (Hold [over 500ms]): Switch to 1/8x game zoom temporarily \
+1 (Press [under 500ms]): Switch to 1/8x game zoom \
+2 (Hold [over 500ms]): Switch to 1/4x game zoom temporarily \
+2 (Press [under 500ms]): Switch to 1/4x game zoom \
+3 (Hold [over 500ms]): Switch to 1/2x game zoom temporarily \
+3 (Press [under 500ms]): Switch to 1/2x game zoom \
+4 (Hold [over 500ms]): Switch to 1x game zoom temporarily \
+4 (Press [under 500ms]): Switch to 1x game zoom \
+5 (Hold [over 500ms]): Switch to 2x game zoom temporarily \
+5 (Press [under 500ms]): Switch to 2x game zoom
 
 ### Spectator Camera (General)
 f (Press): Toggle between freely moving and focusing on a plane

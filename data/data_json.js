@@ -3,7 +3,7 @@ const PROGRAM_DATA = {
         "max_angle_change_per_tick_fighter_plane": 3.75,
         "max_angle_change_per_tick_bomber_plane": 1.25,
         "spectator_cam_speed": 1000,
-        "approximate_zoom_peek_time_ms": 150
+        "approximate_zoom_peek_time_ms": 500
     },
     "plane_data": {
         "spitfire": {
@@ -320,7 +320,7 @@ const PROGRAM_DATA = {
     },
     "teams": ["Allies", "Axis"],
     "bullet_data": {
-        "speed": 900, // was using 1600 for a long time
+        "speed": 1200, // 7000 I think would be close to a real number I used 800/1600/900 most recently
         "picture": "bullet",
         "radius": 3
     },
@@ -375,7 +375,7 @@ const PROGRAM_DATA = {
     },
     "settings": {
         "plane_image_size_constant": 2, // This is because I use 256 size images for fighter planes and scale down by 2 on 1x zoom also bomber
-        "shoot_distance_constant": 5,
+        "shoot_distance_constant": 5 * 800 / 1200,
         "close_to_ground_constant": 3,
         "close_constant": 3,
         "enemy_disregard_distance_time_constant": 20,
