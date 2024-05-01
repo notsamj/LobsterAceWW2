@@ -16,6 +16,7 @@ class LocalMission extends Mission {
     constructor(missionObject, missionSetupJSON){
         super(missionObject, missionSetupJSON);
         this.missionSetupJSON = missionSetupJSON;
+        this.soundManager = SOUND_MANAGER;
     }
 
     /*

@@ -22,6 +22,7 @@ class RemoteDogfight extends Gamemode {
 
         this.userEntity = null;
         this.teamCombatManager.disableCollisions();
+        this.soundManager = SOUND_MANAGER;
     }
 
     /*

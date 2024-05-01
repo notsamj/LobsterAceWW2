@@ -95,11 +95,13 @@ USER_INPUT_MANAGER.registerTickedAggregator("s", "keydown", (event) => { return 
 
 /*
     Method Name: tick
-    Method Parameters: None
+    Method Parameters:
+        timeSinceLastTickMS:
+            The time since the last animation frame
     Method Description: Makes things happen within a tick
     Method Return: void
 */
-async function tick(){
+async function tick(timeSinceLastTickMS){
     // Safety incase an error occurs stop running
     if (programOver){ return; }
 

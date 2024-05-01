@@ -299,18 +299,6 @@ class PlaneGameScene {
     }
 
     /*
-        Method Name: setSoundManager
-        Method Parameters:
-            soundManage:
-                A sound manager instance
-        Method Description: Sets the sound manager for the scene
-        Method Return: void
-    */
-    setSoundManager(soundManager){
-        this.soundManager = soundManager;
-    }
-
-    /*
         Method Name: areBulletPhysicsEnabled
         Method Parameters: None
         Method Description: Checks if bullet physics are enabled
