@@ -19,6 +19,7 @@ class LocalDogfight extends Dogfight {
         this.dogfightJSON = dogfightJSON;
         this.isATestSession = false;
         this.client = null; // Placeholder
+        this.soundManager = SOUND_MANAGER;
     }
 
     /*
