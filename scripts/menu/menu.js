@@ -93,7 +93,7 @@ class Menu {
         }
 
         // Loop until the text is too big
-        while (measureTextWidth(longestLine) + PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxWidth < boxWidth){
+        while (measureTextWidth(longestLine) + PROGRAM_DATA["settings"]["text_box_padding_proportion"] * boxWidth < boxWidth){
             updateFontSize(++currentTextSize);
         }
         return currentTextSize - 1; // -1 because we've established that this is 1 size too big for the width
@@ -125,7 +125,7 @@ class Menu {
         let screenX = x;
         let screenY = MENU_MANAGER.changeToScreenY(y);
         let maxTextSizeW = Menu.determineMaxTextSizeByWidth(splitByLine, boxWidth);
-        let maxTextSizeH = Math.floor((boxHeight - PROGRAM_DATA["settings"]["text_box_padding_percent"] * boxHeight) / numLines);
+        let maxTextSizeH = Math.floor((boxHeight - PROGRAM_DATA["settings"]["text_box_padding_proportion"] * boxHeight) / numLines);
         let calculatedTextSize = Math.min(maxTextSizeW, maxTextSizeH);
         calculatedTextSize = Math.max(calculatedTextSize, 1);
         makeText(textStr, screenX, screenY, boxWidth, boxHeight, textColour, calculatedTextSize, alignLR, alignTB);

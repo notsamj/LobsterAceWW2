@@ -399,7 +399,7 @@ const PROGRAM_DATA = {
         "bomber_distance_from_friendlies_dogfight": 2000,
         "bullet_reduction_coefficient": 1,
         "focused_count_distance_equivalent": 1500,
-        "text_box_padding_percent": 0.1,
+        "text_box_padding_proportion": 0.1,
         "use_physics_bullets": true,
         "human_health_multiplier": 1,
         "human_damage_multiplier": 1,
