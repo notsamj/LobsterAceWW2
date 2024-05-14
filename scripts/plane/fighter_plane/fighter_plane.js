@@ -28,6 +28,7 @@ class FighterPlane extends Plane {
         super(planeClass, gamemode, autonomous);
         this.gunHeatManager = new GunHeatManager(PROGRAM_DATA["plane_data"][planeClass]["bullet_heat_capacity"], PROGRAM_DATA["plane_data"][planeClass]["cooling_time_ms"])
         this.shootLock = new TickLock(PROGRAM_DATA["plane_data"][planeClass]["rate_of_fire"] * PROGRAM_DATA["settings"]["bullet_reduction_coefficient"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.prop = new Propeller(this, PROGRAM_DATA["plane_data"][planeClass]["propeller"]);
     }
 
     /*
@@ -268,6 +269,9 @@ class FighterPlane extends Plane {
         if (this.isDead()){
             return;
         }
+
+        // Display Prop
+        this.prop.display(lX, bY, displayTime);
 
         // If you've previously shot then display a flash to indicate
         if (this.shootLock.notReady()){

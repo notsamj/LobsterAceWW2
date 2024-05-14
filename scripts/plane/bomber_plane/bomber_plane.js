@@ -26,6 +26,10 @@ class BomberPlane extends Plane {
         super(planeClass, gamemode, autonomous);
         this.decisions["bombing"] = false;
         this.bombLock = new TickLock(PROGRAM_DATA["bomb_data"]["bomb_gap_ms"] / PROGRAM_DATA["settings"]["ms_between_ticks"]);
+        this.props = [];
+        for (let propObject of PROGRAM_DATA["plane_data"][planeClass]["propellers"]){
+            this.props.push(new Propeller(this, propObject));
+        }
     }
 
     /*
@@ -192,6 +196,11 @@ class BomberPlane extends Plane {
         if (this.isDead()){
             return;
         }
+        // Display Props
+        for (let prop of this.props){
+            prop.display(lX, bY, displayTime);
+        }
+        
         // For each gun, if on shooting cooldown then show the flash image
         for (let gun of this.guns){
             // Don't display if ready to shoot

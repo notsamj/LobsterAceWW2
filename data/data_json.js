@@ -19,7 +19,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 1.35,
             "bullet_heat_capacity": 40,
             "cooling_time_ms": 7500,
-            "rate_of_fire": 100
+            "rate_of_fire": 100, 
+            "propeller": {
+                "num_blades": 3,
+                "radius": 9,
+                "rpm": 6000,
+                "x_offset": 255/2 - 64,
+                "y_offset": 64 - 121/2,
+            }
         },
         "a6m_zero": {
             "radius": 64,
@@ -34,7 +41,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 1.2,
             "bullet_heat_capacity": 40,
             "cooling_time_ms": 7500,
-            "rate_of_fire": 100
+            "rate_of_fire": 100, 
+            "propeller": {
+                "num_blades": 3,
+                "radius": 9,
+                "rpm": 6000, // guess actually I'm just guessing from now on might use real # blades idk
+                "x_offset": 255/2 - 64,
+                "y_offset": 64 - 117/2,
+            }
         },
         "republic_p_47": {
             "radius": 64,
@@ -49,7 +63,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 1.225,
             "bullet_heat_capacity": 35,
             "cooling_time_ms": 7500,
-            "rate_of_fire": 75
+            "rate_of_fire": 75, 
+            "propeller": {
+                "num_blades": 3,
+                "radius": 9,
+                "rpm": 5600,
+                "x_offset": 252/2 - 64,
+                "y_offset": 64 - 107/2,
+            }
         },
         "me_bf_109": {
             "radius": 64,
@@ -64,7 +85,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 1.5,
             "bullet_heat_capacity": 40,
             "cooling_time_ms": 10000,
-            "rate_of_fire": 50
+            "rate_of_fire": 50, 
+            "propeller": {
+                "num_blades": 3,
+                "radius": 7,
+                "rpm": 9000,
+                "x_offset": 237/2 - 64,
+                "y_offset": 64 - 125/2,
+            }
         },
         "kawasaki_ki_45": {
             "radius": 64,
@@ -79,7 +107,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 1.075,
             "bullet_heat_capacity": 40,
             "cooling_time_ms": 10000,
-            "rate_of_fire": 100
+            "rate_of_fire": 100, 
+            "propeller": {
+                "num_blades": 3,
+                "radius": 12,
+                "rpm": 5400,
+                "x_offset": 245/2 - 64,
+                "y_offset": 64 - 109/2,
+            }
         },
         "p51_mustang": {
             "radius": 64,
@@ -94,7 +129,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 3.0,
             "bullet_heat_capacity": 20,
             "cooling_time_ms": 12000,
-            "rate_of_fire": 100
+            "rate_of_fire": 100, 
+            "propeller": {
+                "num_blades": 4,
+                "radius": 8,
+                "rpm": 7000,
+                "x_offset": 249/2 - 64,
+                "y_offset": 64 - 115.5/2,
+            }
         },
         "hawker_sea_fury": {
             "radius": 64,
@@ -109,7 +151,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 1.6,
             "bullet_heat_capacity": 26,
             "cooling_time_ms": 4450,
-            "rate_of_fire": 50
+            "rate_of_fire": 50, 
+            "propeller": {
+                "num_blades": 5,
+                "radius": 6,
+                "rpm": 8000,
+                "x_offset": 253/2 - 64,
+                "y_offset": 64 - 131/2,
+            }
         },
         "me_309": {
             "radius": 64,
@@ -124,7 +173,14 @@ const PROGRAM_DATA = {
             "bullet_damage": 1.5,
             "bullet_heat_capacity": 30,
             "cooling_time_ms": 5000,
-            "rate_of_fire": 75
+            "rate_of_fire": 75, 
+            "propeller": {
+                "num_blades": 3,
+                "radius": 8,
+                "rpm": 6500,
+                "x_offset": 254/2 - 64,
+                "y_offset": 64 - 122.5/2,
+            }
         },
         "b24": {
             "radius": 128,
@@ -178,6 +234,22 @@ const PROGRAM_DATA = {
                     "rate_of_fire": 100,
                     "bullet_damage": 2
                 }
+            ],
+            "propellers": [
+                {
+                    "num_blades": 3,
+                    "radius": 18,
+                    "rpm": 5400,
+                    "x_offset": 396/2 - 128,
+                    "y_offset": 128 - 330/2,
+                },
+                {
+                    "num_blades": 3,
+                    "radius": 18,
+                    "rpm": 5400,
+                    "x_offset": 378/2 - 128,
+                    "y_offset": 128 - 260/2,
+                }
             ]
         },
         "short_stirling": {
@@ -222,6 +294,22 @@ const PROGRAM_DATA = {
                     "rate_of_fire": 100,
                     "bullet_damage": 2
                 }
+            ],
+            "propellers": [
+                {
+                    "num_blades": 3,
+                    "radius": 16,
+                    "rpm": 5800,
+                    "x_offset": 337/2 - 128,
+                    "y_offset": 128 - 346/2,
+                },
+                {
+                    "num_blades": 3,
+                    "radius": 16,
+                    "rpm": 5800,
+                    "x_offset": 308/2 - 128,
+                    "y_offset": 128 - 413/2,
+                }
             ]
         },
         "junkers_ju_88": {
@@ -265,6 +353,15 @@ const PROGRAM_DATA = {
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 300,
                     "bullet_damage": 8
+                }
+            ],
+            "propellers": [
+                {
+                "num_blades": 3,
+                "radius": 17,
+                "rpm": 7000,
+                "x_offset": 386/2 - 128,
+                "y_offset": 128 - 357/2,
                 }
             ]
         },
@@ -314,6 +411,22 @@ const PROGRAM_DATA = {
                     "cooling_time_ms": 10000,
                     "rate_of_fire": 100,
                     "bullet_damage": 2
+                }
+            ],
+            "propellers": [
+                {
+                "num_blades": 3,
+                "radius": 20,
+                "rpm": 4000,
+                "x_offset": 365/2 - 128,
+                "y_offset": 128 - 296/2,
+                },
+                {
+                "num_blades": 3,
+                "radius": 20,
+                "rpm": 4000,
+                "x_offset": 337/2 - 128,
+                "y_offset": 128 - 408/2,
                 }
             ]
         }
