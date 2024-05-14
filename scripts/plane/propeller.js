@@ -1,4 +1,7 @@
-// TODO: Comments
+/*
+    Class Name: Propeller
+    Description: Represents a plane propeller
+*/
 class Propeller {
     constructor(plane, propellerData){
         this.plane = plane;
@@ -92,7 +95,6 @@ class Propeller {
 
         // Display prop
         noStrokeRectangle(Colour.fromCode("#000000"), 0, -1 * topPixels, 1, topPixels + 1 + bottomPixels);
-        console.log(topPixels, bottomPixels)
 
         // Undo game zoom scale
         scale(1/gameZoom, 1/gameZoom);
