@@ -411,8 +411,8 @@ function circleWithRectangle(circleHitbox, rectangleHitbox){
     if (withinX && withinY){ return true; }
 
     // Subtract circle middle from rectangle verticies to calculate around the origin
-    let x1 = rectangleHitbox.getX1() - circleCenterY;
-    let x2 = rectangleHitbox.getX2() - circleCenterY;
+    let x1 = rectangleHitbox.getX1() - circleCenterX;
+    let x2 = rectangleHitbox.getX2() - circleCenterX;
     let y1 = rectangleHitbox.getY1() - circleCenterY;
     let y2 = rectangleHitbox.getY2() - circleCenterY;
 
