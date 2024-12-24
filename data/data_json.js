@@ -646,7 +646,8 @@ const PROGRAM_DATA = {
         "dirt",
         "above_ground",
         "freecam",
-        "flash"
+        "flash",
+        "logo"
     ],
 
     "other_effects": {
