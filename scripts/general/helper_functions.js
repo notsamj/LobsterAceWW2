@@ -464,7 +464,7 @@ function fixRadians(angle){
 }
 
 /*
-    Method Name: fixRadians
+    Method Name: toFixedRadians
     Method Parameters:
         angle:
             An angle to "fix"

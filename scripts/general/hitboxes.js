@@ -411,16 +411,16 @@ function circleWithRectangle(circleHitbox, rectangleHitbox){
     if (withinX && withinY){ return true; }
 
     // Subtract circle middle from rectangle verticies to calculate around the origin
-    let x1 = rectangleHitbox.getX1() - circleCenterY;
-    let x2 = rectangleHitbox.getX2() - circleCenterY;
+    let x1 = rectangleHitbox.getX1() - circleCenterX;
+    let x2 = rectangleHitbox.getX2() - circleCenterX;
     let y1 = rectangleHitbox.getY1() - circleCenterY;
     let y2 = rectangleHitbox.getY2() - circleCenterY;
 
     // Check all corners, if any within radius then the rectangle is within touching the circle
-    if (Math.pow(x1, 2) + Math.pow(y1, 2) < Math.pow(circleRadius, 2)){ return true; }
-    if (Math.pow(x1, 2) + Math.pow(y2, 2) < Math.pow(circleRadius, 2)){ return true; }
-    if (Math.pow(x2, 2) + Math.pow(y1, 2) < Math.pow(circleRadius, 2)){ return true; }
-    if (Math.pow(x2, 2) + Math.pow(y2, 2) < Math.pow(circleRadius, 2)){ return true; }
+    if (Math.pow(x1, 2) + Math.pow(y1, 2) <= Math.pow(circleRadius, 2)){ return true; }
+    if (Math.pow(x1, 2) + Math.pow(y2, 2) <= Math.pow(circleRadius, 2)){ return true; }
+    if (Math.pow(x2, 2) + Math.pow(y1, 2) <= Math.pow(circleRadius, 2)){ return true; }
+    if (Math.pow(x2, 2) + Math.pow(y2, 2) <= Math.pow(circleRadius, 2)){ return true; }
 
     // If the circle right is in the rectangle
     let circleRightX = circleHitbox.getX() + circleHitbox.getRadius();
@@ -430,7 +430,7 @@ function circleWithRectangle(circleHitbox, rectangleHitbox){
     }
 
     // If the circle left is in the rectangle
-    let circleLeftX = circleHitbox.getX() + circleHitbox.getRadius();
+    let circleLeftX = circleHitbox.getX() - circleHitbox.getRadius();
     let leftWithinX = circleLeftX >= rectangleHitbox.getX1() && circleLeftX <= rectangleHitbox.getX2();
     if (leftWithinX && withinY){
         return true;
@@ -438,14 +438,14 @@ function circleWithRectangle(circleHitbox, rectangleHitbox){
 
     // If the circle top is in the rectangle
     let circleTopY = circleHitbox.getY() + circleHitbox.getRadius();
-    let topWithinY = circleTopY >= rectangleHitbox.getY1() && circleTopY <= rectangleHitbox.getY2();
+    let topWithinY = circleTopY <= rectangleHitbox.getY1() && circleTopY >= rectangleHitbox.getY2();
     if (topWithinY && withinX){
         return true;
     }
 
     // If the circle bottom is in the rectangle
-    let circleBottomY = circleHitbox.getY() + circleHitbox.getRadius();
-    let bottomWithinY = circleBottomY >= rectangleHitbox.getY1() && circleBottomY <= rectangleHitbox.getY2();
+    let circleBottomY = circleHitbox.getY() - circleHitbox.getRadius();
+    let bottomWithinY = circleBottomY <= rectangleHitbox.getY1() && circleBottomY >= rectangleHitbox.getY2();
     if (bottomWithinY && withinX){
         return true;
     }

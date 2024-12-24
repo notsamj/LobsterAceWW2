@@ -35,7 +35,7 @@ class SeededRandomizer {
     getBigNumber(){
         // Go to the next number
         this.lastNumber = (this.lastNumber * SeededRandomizer.SPICE_1 + SeededRandomizer.SPICE_2) % SeededRandomizer.SPICE_3;
-        return Math.floor(this.lastNumber / SeededRandomizer.SPICE_3 * SeededRandomizer.MAXIMUM_FOR_A_BIG_NUMBER);
+        return Math.abs(Math.floor(this.lastNumber / SeededRandomizer.SPICE_3 * SeededRandomizer.MAXIMUM_FOR_A_BIG_NUMBER));
     }
 
     /*

@@ -29,6 +29,13 @@ class MainMenu extends Menu {
         // Background
         this.components.push(new AnimatedCloudBackground())
 
+        // Logo
+        let logoSizeX = 512;
+        let logoSizeY = 512;
+        let logoX = (innerWidth) => { return 0; }
+        let logoY = (innerHeight) => { return innerHeight; }
+        this.components.push(new StaticImage(IMAGES["logo"], logoX, logoY, logoSizeX, logoSizeY));
+
         // Dog Fight
         let dogFightButtonY = (innerHeight) => { return innerHeight - gapSize; };
         this.components.push(new RectangleButton("Dogfight", "#3bc44b", "#e6f5f4", buttonX, dogFightButtonY, buttonSizeX, buttonSizeY, (menuInstance) => {

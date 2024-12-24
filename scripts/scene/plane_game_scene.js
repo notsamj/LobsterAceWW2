@@ -64,7 +64,7 @@ async function loadPlanes(){
 }
 /*
     Class Name: PlaneGameScene
-    Description: A scene to be used specifically for the WW2 Plane Game.
+    Description: A scene to be used specifically for the Lobster Ace WW2.
 */
 class PlaneGameScene {
     /*
